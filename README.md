@@ -3,10 +3,10 @@
 An educational, source-grounded US ETF portfolio decision-support project built with
 LangGraph. The project is designed as a sequence of small, testable vertical slices.
 
-The implemented slices validate an investor profile with human review, health-check and
-ingest attributable ETF snapshots, join Chroma-ranked documents to source-linked Neo4j
-context, and compare the semantic-only and graph-enriched paths on a deterministic offline
-evaluation set.
+The implemented slices validate an investor profile with human review, calculate an
+illustrative policy split, health-check and ingest attributable ETF snapshots, join
+Chroma-ranked documents to source-linked Neo4j context, and compare the semantic-only and
+graph-enriched paths on a deterministic offline evaluation set.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -24,7 +24,13 @@ uv run etf-advisor demo
 ```
 
 The demo pauses at a LangGraph human-review interrupt and then resumes with an automatic
-approval so the complete lifecycle is visible from the terminal.
+approval so the complete lifecycle and the review-ready policy calculation are visible from
+the terminal.
+
+The policy draft selects a target percentage inside the configured risk band according to
+the stated objective and shows cent-rounded arithmetic splits for the initial and recurring
+USD amounts. It remains an illustrative policy calculation: it does not select ETFs,
+forecast returns or drawdowns, execute trades, or guarantee results.
 
 Install the Iteration 001 data and retrieval integrations:
 
@@ -95,7 +101,7 @@ licensing decision.
 - `tests/`: executable behavior and safety checks.
 
 The current delivery contract is in
-`docs/iterations/005-market-data-quality-guardrails.md`.
+`docs/iterations/006-deterministic-policy-calculation.md`.
 
 ## License
 

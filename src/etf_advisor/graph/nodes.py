@@ -1,27 +1,11 @@
 """Pure and interrupting nodes used by the first advisory graph."""
 
-from typing import Any
-
 from langgraph.types import interrupt
 from pydantic import ValidationError
 
-from etf_advisor.domain.profile import InvestorProfile, RiskTolerance
+from etf_advisor.domain.policy import calculate_policy
+from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.graph.state import AdvisorState
-
-POLICY_BANDS: dict[RiskTolerance, dict[str, list[int]]] = {
-    RiskTolerance.CONSERVATIVE: {
-        "growth_assets_pct": [20, 45],
-        "defensive_assets_pct": [55, 80],
-    },
-    RiskTolerance.MODERATE: {
-        "growth_assets_pct": [45, 70],
-        "defensive_assets_pct": [30, 55],
-    },
-    RiskTolerance.AGGRESSIVE: {
-        "growth_assets_pct": [70, 95],
-        "defensive_assets_pct": [5, 30],
-    },
-}
 
 
 def validate_profile(state: AdvisorState) -> AdvisorState:
@@ -47,20 +31,11 @@ def draft_policy(state: AdvisorState) -> AdvisorState:
     """Create a deterministic policy draft before any ETF-level recommendation."""
 
     profile = InvestorProfile.model_validate(state["profile"])
-    bands = POLICY_BANDS[profile.risk_tolerance]
-
-    draft: dict[str, Any] = {
-        "objective": profile.objective.value,
-        "horizon_years": profile.horizon_years,
-        "risk_tolerance": profile.risk_tolerance.value,
-        "allocation_bands": bands,
-        "excluded_sectors": profile.excluded_sectors,
-        "notes": [
-            "These are policy ranges, not ETF recommendations.",
-            "Live data, source retrieval, fees, liquidity, and tax context are not yet applied.",
-        ],
+    calculation = calculate_policy(profile)
+    return {
+        "draft_policy": calculation.model_dump(mode="json"),
+        "status": "awaiting_human_review",
     }
-    return {"draft_policy": draft, "status": "awaiting_human_review"}
 
 
 def request_human_review(state: AdvisorState) -> AdvisorState:

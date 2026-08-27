@@ -1,3 +1,5 @@
+import json
+
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
@@ -36,6 +38,12 @@ def test_valid_profile_pauses_and_resumes_after_approval() -> None:
 
     assert paused["status"] == "awaiting_human_review"
     assert paused["__interrupt__"]
+    assert paused["draft_policy"]["target_allocation"] == {
+        "growth_assets_pct": 70.0,
+        "defensive_assets_pct": 30.0,
+    }
+    assert paused["draft_policy"]["initial_investment_usd"]["growth_assets_usd"] == 35_000.0
+    json.dumps(paused["draft_policy"])
 
     completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
 
