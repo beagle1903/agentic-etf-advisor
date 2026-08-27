@@ -59,13 +59,20 @@ repeatable while leaving live-store and LangSmith-backed evaluation behind repla
 adapters. Because the current hybrid retriever preserves Chroma order, context-quality
 improvements are not ranking lift and do not yet justify expanding the graph schema.
 
+The policy draft now calls a pure deterministic calculation boundary. It selects an
+illustrative target inside the existing risk-tolerance band based on the stated objective,
+then splits initial and recurring USD amounts to cents while preserving each total. The
+result is converted with `model_dump(mode="json")` before entering graph state, so this
+calculation does not add a top-level state field or introduce a clock, network, database,
+provider, forecast, or trade side effect.
+
 ## Workflow stages
 
 1. Validate the investor profile.
 2. Clarify missing or contradictory constraints.
 3. Fetch and validate timestamped market/reference data.
 4. Retrieve unstructured and graph context.
-5. Calculate deterministic portfolio constraints and candidate ranges.
+5. Calculate deterministic portfolio constraints and illustrative candidate ranges.
 6. Draft a source-grounded explanation.
 7. Run rule-based and evaluation guardrails.
 8. Pause for human review.
@@ -77,6 +84,14 @@ Graph state must remain JSON-serializable. Network calls, clock reads, model cal
 database writes are wrapped as explicit tasks or adapters so replay after an interrupt is
 predictable. Development tests use an in-memory checkpointer; multi-user environments use
 PostgreSQL-backed checkpoints.
+
+The current policy calculation is pure and runs before the review interrupt. It is an
+arithmetic policy illustration rather than ETF selection or a prediction; source-grounded
+ETF candidates remain a separate future stage.
+
+Investor-profile validation accepts only finite initial and recurring cash amounts from
+zero through one trillion USD. Unsupported values therefore fail before decimal cent
+quantization or the human-review interrupt.
 
 ## Data-source boundary
 

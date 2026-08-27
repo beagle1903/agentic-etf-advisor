@@ -1,3 +1,5 @@
+import json
+
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
@@ -28,6 +30,21 @@ def test_invalid_profile_stops_before_review() -> None:
     assert "__interrupt__" not in result
 
 
+def test_non_quantizable_cash_amount_stops_before_policy_calculation() -> None:
+    graph = build_graph(checkpointer=InMemorySaver())
+    profile = valid_profile()
+    profile["initial_investment_usd"] = 1e26
+
+    result = graph.invoke(
+        {"profile": profile},
+        config={"configurable": {"thread_id": "invalid-cash-amount"}},
+    )
+
+    assert result["status"] == "invalid_profile"
+    assert result["validation_errors"][0]["loc"] == ("initial_investment_usd",)
+    assert "__interrupt__" not in result
+
+
 def test_valid_profile_pauses_and_resumes_after_approval() -> None:
     graph = build_graph(checkpointer=InMemorySaver())
     config = {"configurable": {"thread_id": "approval-flow"}}
@@ -36,6 +53,12 @@ def test_valid_profile_pauses_and_resumes_after_approval() -> None:
 
     assert paused["status"] == "awaiting_human_review"
     assert paused["__interrupt__"]
+    assert paused["draft_policy"]["target_allocation"] == {
+        "growth_assets_pct": 70.0,
+        "defensive_assets_pct": 30.0,
+    }
+    assert paused["draft_policy"]["initial_investment_usd"]["growth_assets_usd"] == 35_000.0
+    json.dumps(paused["draft_policy"])
 
     completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
 
