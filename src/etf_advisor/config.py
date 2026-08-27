@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     chroma_host: str = "localhost"
     chroma_port: int = Field(default=8000, ge=1, le=65535)
+    chroma_collection: str = "etf_source_documents"
     neo4j_uri: str = "neo4j://localhost:17687"
 
 

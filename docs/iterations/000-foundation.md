@@ -27,15 +27,16 @@ input, pause for review, and resume safely without model or data-provider creden
 - `docker compose config` validates.
 - The Git repository uses `main` and contains no credentials.
 
-## Deferred to iteration 001
+## Deferred to later iterations
 
-- Curated ETF source ingestion.
-- Chroma retrieval with provenance.
 - Minimal Neo4j ETF schema and graph enrichment.
-- Provider adapters and embeddings.
+- Provider adapters and LLM-generated explanations.
 - LangSmith dataset and retrieval evaluation.
 - Dashboard rendering of the review interrupt.
 - Cursor hooks, added only after the repeated command and cross-platform behavior are clear.
+
+Iteration 001 owns the first two data/vector items; see
+`docs/iterations/001-data-and-vector-retrieval.md`.
 
 ## Verification evidence
 

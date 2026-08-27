@@ -25,6 +25,18 @@ uv run etf-advisor demo
 The demo pauses at a LangGraph human-review interrupt and then resumes with an automatic
 approval so the complete lifecycle is visible from the terminal.
 
+Install the Iteration 001 data and retrieval integrations:
+
+```powershell
+uv sync --extra rag
+uv run etf-advisor ingest --symbols SPY,QQQ,VTI,BND
+uv run etf-advisor search "broad US equity exposure"
+```
+
+The first Chroma ingestion may download its local default embedding model. The ingestion
+command prints source IDs, observation timestamps, and Yahoo Finance URLs so retrieved
+context remains attributable.
+
 Start the local data services:
 
 ```powershell
@@ -36,6 +48,10 @@ Chroma is available at `http://localhost:8000`, Neo4j Browser at
 `http://localhost:7474` (Bolt at `neo4j://localhost:17687`), and PostgreSQL at
 `localhost:5432`. Ports are bound to the local machine only. The Neo4j host port is
 remapped because this Windows machine reserves the standard `7687` port.
+
+`yfinance` is used only as a development/research adapter in this phase. Its documentation
+states that it is unofficial and intended for personal use, so it is not a production data
+licensing decision.
 
 ## Repository guide
 
