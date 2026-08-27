@@ -30,8 +30,8 @@ class SourceDocument(BaseModel):
     @field_validator("observed_at")
     @classmethod
     def normalize_timestamp(cls, value: datetime) -> datetime:
-        if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("Source document observation timestamps must be timezone-aware.")
         return value.astimezone(UTC)
 
     def chroma_metadata(self) -> dict[str, MetadataValue]:

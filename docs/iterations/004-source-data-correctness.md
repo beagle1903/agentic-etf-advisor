@@ -5,9 +5,10 @@
 
 ## Goal
 
-Correct three post-merge review findings before expanding the graph or relying on its
+Correct four post-merge review findings before expanding the graph or relying on its
 financial metadata: normalize Yahoo's fallback expense-ratio units, replace stale graph
-relationships on re-upsert, and stop presenting fund-family metadata as a legal issuer.
+relationships on re-upsert, stop presenting fund-family metadata as a legal issuer, and
+reject timezone-naive source observations.
 
 ## Deliverables
 
@@ -19,6 +20,7 @@ relationships on re-upsert, and stop presenting fund-family metadata as a legal 
 - A version-2 retrieval fixture and documentation aligned with the corrected graph contract.
 - Offline regression tests for fallback conversion, relationship removal, and ambiguous
   legacy context.
+- Source-document validation that rejects naive timestamps before UTC normalization.
 
 ## Acceptance criteria
 
@@ -29,6 +31,7 @@ relationships on re-upsert, and stop presenting fund-family metadata as a legal 
 - Hybrid retrieval exposes `fund_family`, never infers `issuer` from Yahoo `fundFamily`, and
   rejects duplicate legacy contexts rather than choosing one arbitrarily.
 - The packaged evaluation remains deterministic and scores fund-family/category accuracy.
+- A custom evaluation dataset with a timezone-naive observation timestamp fails validation.
 - `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy`, and
   `uv run pytest` pass without network access.
 - No credentials, private data, trade execution, or guaranteed-return language is added.
@@ -45,7 +48,7 @@ cleanup can remove those unused artifacts.
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes for 42 files.
 - `uv run mypy` passes for 21 source files.
-- `uv run pytest` passes (26 tests) without network access.
+- `uv run pytest` passes (27 tests) without network access.
 - `uv run etf-advisor evaluate-retrieval` reports dataset version 2 with unchanged MRR of
   `0.875`, graph-context recall of `1.0`, and fund-family/category field accuracy of `1.0`.
 - `docker compose config --quiet` passes and the local Chroma, Neo4j, and PostgreSQL services

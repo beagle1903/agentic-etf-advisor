@@ -52,11 +52,12 @@ hit rate, recall at K, mean reciprocal rank, source-attribution rate, graph-cont
 and exact fund-family/category field accuracy.
 
 The packaged baseline contains only source-attributable documents with UTC observation
-timestamps. It does not call Chroma, Neo4j, an embedding model, a provider, the network, or
-the wall clock. This makes metric changes reviewable and repeatable while leaving live-store
-and LangSmith-backed evaluation behind replaceable adapters. Because the current hybrid
-retriever preserves Chroma order, context-quality improvements are not ranking lift and do
-not yet justify expanding the graph schema.
+timestamps. Source documents reject timezone-naive observations rather than silently
+assigning UTC to an unknown wall time. The baseline does not call Chroma, Neo4j, an embedding
+model, a provider, the network, or the wall clock. This makes metric changes reviewable and
+repeatable while leaving live-store and LangSmith-backed evaluation behind replaceable
+adapters. Because the current hybrid retriever preserves Chroma order, context-quality
+improvements are not ranking lift and do not yet justify expanding the graph schema.
 
 ## Workflow stages
 
