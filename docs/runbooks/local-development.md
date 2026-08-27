@@ -42,6 +42,23 @@ Both writes are idempotent because they use the same stable source document IDs.
 local service fails during ingestion, restore it and rerun the same command; the command
 verifies that every requested ID exists in both stores before reporting success.
 
+## Run the offline retrieval baseline
+
+The packaged curated dataset needs no services, credentials, model downloads, or network:
+
+```powershell
+uv run etf-advisor evaluate-retrieval
+```
+
+To score a reviewed replacement dataset with the same schema:
+
+```powershell
+uv run etf-advisor evaluate-retrieval --dataset .\path\to\retrieval-evaluation.json
+```
+
+The report is deterministic for a given dataset version and limit. Treat zero ranking delta
+as zero measured ranking lift even when graph-context metrics improve.
+
 ## Start infrastructure
 
 ```powershell

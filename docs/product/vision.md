@@ -39,4 +39,6 @@ risk controls, and explicit human review.
 - Stale or missing market data is visible and blocks unsupported conclusions.
 - The graph can pause and resume reliably at review boundaries.
 - Retrieval and recommendation quality are covered by a small curated evaluation set.
+- Retrieval evaluation reports semantic ranking quality and graph-context contribution
+  separately, so graph expansion requires measured value rather than architectural intent.
 - Every iteration produces a runnable artifact and automated tests.

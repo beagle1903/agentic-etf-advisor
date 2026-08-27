@@ -3,9 +3,9 @@
 An educational, source-grounded US ETF portfolio decision-support project built with
 LangGraph. The project is designed as a sequence of small, testable vertical slices.
 
-The first slice validates an investor profile, drafts a deterministic policy range,
-pauses for human review, and only then finalizes the result. Live ETF retrieval, model
-providers, GraphRAG, and the dashboard are intentionally introduced in later slices.
+The implemented slices validate an investor profile with human review, ingest attributable
+ETF snapshots, join Chroma-ranked documents to source-linked Neo4j context, and compare the
+semantic-only and graph-enriched paths on a deterministic offline evaluation set.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -49,6 +49,16 @@ The graph stores ETF, issuer, category, and source-document nodes. Stable source
 IDs form the join boundary, and a missing graph record is returned as `graph_context: null`
 instead of silently fabricating context.
 
+Run the retrieval baseline without credentials, databases, or network access:
+
+```powershell
+uv run etf-advisor evaluate-retrieval
+```
+
+The JSON report separates ranking metrics from issuer/category context metrics. The initial
+dataset demonstrates context lift but no ranking lift because graph enrichment intentionally
+preserves semantic ordering; it is not evidence to expand the graph schema yet.
+
 Start the local data services:
 
 ```powershell
@@ -76,7 +86,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/002-neo4j-graph-retrieval.md`.
+The current delivery contract is in `docs/iterations/003-retrieval-evaluation-baseline.md`.
 
 ## License
 

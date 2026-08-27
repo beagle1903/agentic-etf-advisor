@@ -41,6 +41,21 @@ therefore joins on the stable source document ID and cannot silently apply a rel
 observed by a different snapshot. Chroma distance remains the ordering signal until a later
 evaluation demonstrates useful graph-aware reranking.
 
+## Retrieval evaluation
+
+The first offline baseline replays one versioned, curated candidate set through two explicit
+interfaces: semantic retrieval alone and the existing source-linked graph enrichment path.
+Both variants receive the same candidates in the same order. Deterministic metrics report
+hit rate, recall at K, mean reciprocal rank, source-attribution rate, graph-context recall,
+and exact issuer/category field accuracy.
+
+The packaged baseline contains only source-attributable documents with UTC observation
+timestamps. It does not call Chroma, Neo4j, an embedding model, a provider, the network, or
+the wall clock. This makes metric changes reviewable and repeatable while leaving live-store
+and LangSmith-backed evaluation behind replaceable adapters. Because the current hybrid
+retriever preserves Chroma order, context-quality improvements are not ranking lift and do
+not yet justify expanding the graph schema.
+
 ## Workflow stages
 
 1. Validate the investor profile.

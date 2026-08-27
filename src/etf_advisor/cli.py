@@ -1,7 +1,8 @@
 """Small command-line entry points for testable local development."""
 
 import json
-from typing import Any
+from pathlib import Path
+from typing import Annotated, Any
 from uuid import uuid4
 
 import typer
@@ -10,6 +11,7 @@ from langgraph.types import Command
 
 from etf_advisor.config import settings
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
+from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore, ChromaUnavailable
 from etf_advisor.rag.hybrid import HybridRetriever
@@ -163,6 +165,31 @@ def hybrid_search(
             graph_store.close()
 
     typer.echo(json.dumps([result.model_dump(mode="json") for result in results], indent=2))
+
+
+@app.command("evaluate-retrieval")
+def evaluate_retrieval(
+    dataset_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--dataset",
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            help="Optional evaluation JSON; defaults to the packaged offline baseline.",
+        ),
+    ] = None,
+    limit: int = typer.Option(3, min=1, max=50, help="Maximum candidates scored per case."),
+) -> None:
+    """Compare semantic-only and graph-enriched retrieval on curated offline cases."""
+
+    try:
+        dataset = load_evaluation_dataset(dataset_path)
+        report = run_offline_evaluation(dataset, limit=limit)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        typer.echo(f"Retrieval evaluation failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(report.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":
