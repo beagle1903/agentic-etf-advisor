@@ -1,0 +1,12 @@
+---
+description: Core architecture, safety, and quality rules for the ETF advisor
+globs:
+alwaysApply: true
+---
+
+- Read `AGENTS.md` and the active iteration before making changes.
+- Keep LangGraph state JSON-serializable and side effects behind explicit interfaces.
+- Add tests for behavior changes and run the smallest relevant test set.
+- Preserve source and observation timestamps for all market data.
+- Never add trade execution without an explicit, resumable human approval boundary.
+- Never commit credentials or `.env` files.

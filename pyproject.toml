@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-etf-advisor"
+version = "0.1.0"
+description = "A human-reviewed, source-grounded US ETF portfolio decision-support system"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+  "langgraph>=1.1",
+  "pydantic>=2.11",
+  "pydantic-settings>=2.10",
+  "typer>=0.16",
+]
+
+[project.optional-dependencies]
+checkpoint = [
+  "langgraph-checkpoint-postgres",
+  "psycopg[binary,pool]",
+]
+dashboard = [
+  "streamlit",
+]
+observability = [
+  "langsmith",
+]
+providers = [
+  "langchain-ollama",
+  "langchain-openrouter",
+]
+rag = [
+  "chromadb",
+  "langchain-chroma",
+  "neo4j",
+  "neo4j-graphrag",
+  "yfinance",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.17",
+  "pytest>=8.4",
+  "pytest-cov>=6.2",
+  "ruff>=0.12",
+]
+
+[project.scripts]
+etf-advisor = "etf_advisor.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/etf_advisor"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "RUF", "SIM", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["etf_advisor"]
