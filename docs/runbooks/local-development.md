@@ -28,6 +28,20 @@ uv run pytest
 uv run etf-advisor demo
 ```
 
+## Exercise hybrid retrieval
+
+With Chroma and Neo4j healthy, index one shared source bundle and query it:
+
+```powershell
+uv sync --extra rag
+uv run etf-advisor ingest --symbols SPY,QQQ --with-graph
+uv run etf-advisor hybrid-search "broad US equity exposure"
+```
+
+Both writes are idempotent because they use the same stable source document IDs. If one
+local service fails during ingestion, restore it and rerun the same command; the command
+verifies that every requested ID exists in both stores before reporting success.
+
 ## Start infrastructure
 
 ```powershell

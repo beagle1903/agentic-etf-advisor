@@ -55,3 +55,19 @@ class RetrievedSource(BaseModel):
     content: str
     metadata: dict[str, MetadataValue]
     distance: float | None = None
+
+
+class GraphContext(BaseModel):
+    """Normalized Neo4j neighborhood linked to one retrieved source document."""
+
+    source_document_id: str
+    symbol: str
+    etf_name: str
+    issuer: str | None = None
+    category: str | None = None
+
+
+class GraphEnrichedSource(RetrievedSource):
+    """Semantic result with optional relationship context from Neo4j."""
+
+    graph_context: GraphContext | None = None

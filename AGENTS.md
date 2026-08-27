@@ -16,6 +16,8 @@ Before changing the project, read these files in order:
 - Keep graph state JSON-serializable so checkpointing and resume remain reliable.
 - Put nondeterministic calls and side effects behind explicit interfaces.
 - Add or update tests with every behavior change.
+- After a phase is complete and verified, commit it, push its branch, and create a pull
+  request without waiting for separate approval.
 - Keep provider, database, and market-data integrations replaceable.
 - Never commit credentials, tokens, downloaded private data, or `.env` files.
 - Do not execute trades or imply guaranteed returns.
