@@ -69,6 +69,7 @@ class YahooFinanceAdapter:
 
         metadata: dict[str, str | int | float | bool] = {
             "symbol": observation.symbol,
+            "name": observation.name,
             "source": observation.source,
             "source_url": observation.source_url,
             "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
@@ -78,6 +79,10 @@ class YahooFinanceAdapter:
             metadata["currency"] = observation.currency
         if observation.category:
             metadata["category"] = observation.category
+        if observation.fund_family:
+            metadata["fund_family"] = observation.fund_family
+        if observation.quote_type:
+            metadata["quote_type"] = observation.quote_type
         if observation.expense_ratio_pct is not None:
             metadata["expense_ratio_pct"] = observation.expense_ratio_pct
 

@@ -37,6 +37,18 @@ The first Chroma ingestion may download its local default embedding model. The i
 command prints source IDs, observation timestamps, and Yahoo Finance URLs so retrieved
 context remains attributable.
 
+Index the same source documents into the minimal Neo4j relationship graph and join graph
+context back to Chroma-ranked results:
+
+```powershell
+uv run etf-advisor ingest --symbols SPY,QQQ,VTI,BND --with-graph
+uv run etf-advisor hybrid-search "broad US equity exposure"
+```
+
+The graph stores ETF, issuer, category, and source-document nodes. Stable source document
+IDs form the join boundary, and a missing graph record is returned as `graph_context: null`
+instead of silently fabricating context.
+
 Start the local data services:
 
 ```powershell
@@ -64,7 +76,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/000-foundation.md`.
+The current delivery contract is in `docs/iterations/002-neo4j-graph-retrieval.md`.
 
 ## License
 

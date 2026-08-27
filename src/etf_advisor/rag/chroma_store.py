@@ -76,6 +76,15 @@ class ChromaDocumentStore:
             )
         return retrieved
 
+    def missing_document_ids(self, document_ids: list[str]) -> list[str]:
+        """Return requested IDs that are absent from the Chroma collection."""
+
+        if not document_ids:
+            return []
+        result = self._collection.get(ids=document_ids, include=[])
+        existing = {str(document_id) for document_id in result.get("ids", [])}
+        return [document_id for document_id in document_ids if document_id not in existing]
+
 
 def _first_row(value: Any) -> list[Any]:
     if not value:

@@ -21,6 +21,10 @@ class FakeCollection:
             "distances": [[0.12]],
         }
 
+    def get(self, **kwargs: Any) -> dict[str, Any]:
+        assert kwargs["include"] == []
+        return {"ids": [document_id for document_id in kwargs["ids"] if document_id == "doc-1"]}
+
 
 class FakeClient:
     def __init__(self) -> None:
@@ -52,3 +56,4 @@ def test_chroma_store_upserts_and_returns_provenance() -> None:
     assert results[0].document_id == "doc-1"
     assert results[0].metadata["source"] == "yahoo_finance"
     assert results[0].distance == 0.12
+    assert store.missing_document_ids(["doc-1", "missing-doc"]) == ["missing-doc"]

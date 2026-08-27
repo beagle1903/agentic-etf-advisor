@@ -34,6 +34,13 @@ Human review interrupt -> final explanation
 - Hybrid retrieval merges semantic candidates with graph neighborhoods, then reranks and
   applies freshness and source-quality checks.
 
+The first implemented Neo4j projection uses `ETF`, `Issuer`, `Category`, and
+`SourceDocument` nodes. ETF relationships provide the reusable entity graph, while each
+source document also links directly to the issuer and category it reported. Hybrid search
+therefore joins on the stable source document ID and cannot silently apply a relationship
+observed by a different snapshot. Chroma distance remains the ordering signal until a later
+evaluation demonstrates useful graph-aware reranking.
+
 ## Workflow stages
 
 1. Validate the investor profile.
