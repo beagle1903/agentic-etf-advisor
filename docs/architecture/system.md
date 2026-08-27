@@ -89,6 +89,10 @@ The current policy calculation is pure and runs before the review interrupt. It 
 arithmetic policy illustration rather than ETF selection or a prediction; source-grounded
 ETF candidates remain a separate future stage.
 
+Investor-profile validation accepts only finite initial and recurring cash amounts from
+zero through one trillion USD. Unsupported values therefore fail before decimal cent
+quantization or the human-review interrupt.
+
 ## Data-source boundary
 
 `yfinance` is suitable for research and personal development, but it is unofficial and its

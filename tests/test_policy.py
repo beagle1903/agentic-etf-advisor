@@ -3,7 +3,7 @@ import json
 import pytest
 
 from etf_advisor.domain.policy import calculate_policy
-from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.profile import MAX_CASH_FLOW_USD, InvestorProfile
 
 
 def profile(
@@ -98,3 +98,17 @@ def test_profile_constraints_and_safety_notes_are_retained() -> None:
     assert calculation.excluded_sectors == ["tobacco"]
     assert any("does not forecast returns" in note for note in calculation.notes)
     assert any("no order" in note for note in calculation.notes)
+
+
+def test_maximum_accepted_cash_amount_is_cent_quantizable() -> None:
+    calculation = calculate_policy(
+        profile(
+            risk_tolerance="moderate",
+            objective="balanced",
+            initial=MAX_CASH_FLOW_USD,
+            recurring=MAX_CASH_FLOW_USD,
+        )
+    )
+
+    assert calculation.initial_investment_usd.total_usd == MAX_CASH_FLOW_USD
+    assert calculation.recurring_monthly_usd.total_usd == MAX_CASH_FLOW_USD

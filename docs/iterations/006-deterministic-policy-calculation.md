@@ -19,6 +19,8 @@ an unmeasured graph expansion. It keeps the existing human-review boundary in pl
 - Objective-sensitive target percentages selected inside the existing risk-tolerance bands.
 - Cent-rounded initial-investment and recurring-monthly splits whose components preserve
   their respective totals.
+- Profile validation that rejects non-finite or excessively large cash amounts before
+  decimal quantization.
 - The existing graph `draft_policy` node wired to the calculation without adding a new
   top-level state field.
 - Offline regression tests for all risk/objective combinations, cash-flow rounding, zero
@@ -31,6 +33,8 @@ an unmeasured graph expansion. It keeps the existing human-review boundary in pl
 - Growth and defensive targets total 100% and remain inside their configured bands.
 - Initial and recurring USD splits are rounded to cents and sum to the displayed total,
   including when an amount is zero.
+- Cash-flow inputs must be finite and no greater than one trillion USD; unsupported values
+  stop at profile validation instead of aborting the policy node.
 - The paused human-review state contains only JSON-serializable calculation values and
   still supports the existing approve/reject lifecycle.
 - The calculation has no network, database, model-provider, wall-clock, or external-write
@@ -48,12 +52,21 @@ an unmeasured graph expansion. It keeps the existing human-review boundary in pl
 - Graph-schema expansion, graph-aware reranking, and overlap calculations until evaluation
   demonstrates measured value.
 
+## Review correction
+
+PR review found that unbounded nonnegative floats allowed `1e26` and positive infinity to
+reach `Decimal.quantize()`, which raised `decimal.InvalidOperation` inside the policy node.
+Both cash-flow fields now require finite values from zero through one trillion USD. This cap
+keeps cent quantization inside the default decimal precision while leaving ample headroom
+for the educational workflow. Regression tests cover non-finite values, the reported large
+value, the maximum accepted boundary, and workflow fail-closed behavior.
+
 ## Verification
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
 - `uv run mypy` passes for 24 source files.
-- `uv run pytest` passes offline (51 tests).
+- `uv run pytest` passes offline (60 tests).
 - `uv run etf-advisor demo` shows the calculated target and cent-rounded cash-flow splits,
   pauses at human review, and resumes after approval.
 - `uv run etf-advisor evaluate-retrieval` remains deterministic with zero ranking delta and
