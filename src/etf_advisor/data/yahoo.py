@@ -133,7 +133,7 @@ class YahooFinanceAdapter:
 
         if ticker is None or close_price is None or observed_at is None:
             raise MarketDataError(f"Yahoo Finance returned no usable observation for {symbol}.")
-        info = _safe_info(ticker)
+        info = self._fetch_info(symbol, ticker)
         expense_ratio_pct = _expense_ratio_percentage(info)
         return ETFObservation(
             symbol=symbol,
@@ -149,6 +149,27 @@ class YahooFinanceAdapter:
             description=_optional_text(info.get("longBusinessSummary"), max_length=4000) or "",
         )
 
+    def _fetch_info(self, symbol: str, initial_ticker: Any) -> dict[str, Any]:
+        """Retry metadata request failures without treating absent fields as failures."""
+
+        for attempt in range(1, self._max_attempts + 1):
+            try:
+                ticker = initial_ticker if attempt == 1 else self._ticker_factory(symbol)
+                info = ticker.info
+                if not isinstance(info, dict):
+                    raise TypeError("metadata response is not an object")
+                return dict(info)
+            except Exception as exc:
+                if attempt == self._max_attempts:
+                    raise MarketDataError(
+                        f"Yahoo Finance metadata failed for {symbol} "
+                        f"after {attempt} attempt(s): {exc}"
+                    ) from exc
+                delay = self._retry_backoff_seconds * (2 ** (attempt - 1))
+                self._sleeper(delay)
+
+        raise MarketDataError(f"Yahoo Finance returned no usable metadata for {symbol}.")
+
 
 def _normalize_symbols(symbols: Sequence[str]) -> list[str]:
     result: list[str] = []
@@ -157,14 +178,6 @@ def _normalize_symbols(symbols: Sequence[str]) -> list[str]:
         if normalized and normalized not in result:
             result.append(normalized)
     return result
-
-
-def _safe_info(ticker: Any) -> dict[str, Any]:
-    try:
-        info = ticker.info
-    except Exception:
-        return {}
-    return dict(info) if isinstance(info, dict) else {}
 
 
 def _latest_close(history: Any, symbol: str) -> tuple[float, datetime]:

@@ -146,3 +146,68 @@ def test_yahoo_adapter_reports_exhausted_attempt_count() -> None:
     with pytest.raises(MarketDataError, match=r"after 2 attempt\(s\)"):
         adapter.fetch(["SPY"])
     assert delays == [0.25]
+
+
+def test_yahoo_adapter_retries_transient_metadata_failures() -> None:
+    metadata_attempts = 0
+    delays: list[float] = []
+
+    class FlakyMetadataTicker(FakeTicker):
+        @property
+        def info(self) -> dict[str, object]:
+            nonlocal metadata_attempts
+            metadata_attempts += 1
+            if metadata_attempts < 3:
+                raise OSError("temporary metadata failure")
+            return FakeTicker.info
+
+    adapter = YahooFinanceAdapter(
+        ticker_factory=lambda symbol: FlakyMetadataTicker(),
+        max_attempts=3,
+        retry_backoff_seconds=0.5,
+        sleeper=delays.append,
+    )
+
+    observation = adapter.fetch(["SPY"])[0]
+
+    assert observation.category == "Large Blend"
+    assert observation.fund_family == "Example Funds"
+    assert metadata_attempts == 3
+    assert delays == [0.5, 1.0]
+
+
+def test_yahoo_adapter_fails_closed_when_metadata_retries_are_exhausted() -> None:
+    delays: list[float] = []
+
+    class FailingMetadataTicker(FakeTicker):
+        @property
+        def info(self) -> dict[str, object]:
+            raise OSError("metadata unavailable")
+
+    adapter = YahooFinanceAdapter(
+        ticker_factory=lambda symbol: FailingMetadataTicker(),
+        max_attempts=2,
+        retry_backoff_seconds=0.25,
+        sleeper=delays.append,
+    )
+
+    with pytest.raises(MarketDataError, match=r"metadata failed.*after 2 attempt\(s\)"):
+        adapter.fetch(["SPY"])
+    assert delays == [0.25]
+
+
+def test_yahoo_adapter_accepts_successful_metadata_with_absent_fields() -> None:
+    class MissingMetadataTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {}
+
+    adapter = YahooFinanceAdapter(
+        ticker_factory=lambda symbol: MissingMetadataTicker(),
+        sleeper=lambda delay: None,
+    )
+
+    observation = adapter.fetch(["SPY"])[0]
+
+    assert observation.name == "SPY"
+    assert observation.category is None
+    assert observation.fund_family is None
+    assert observation.expense_ratio_pct is None
