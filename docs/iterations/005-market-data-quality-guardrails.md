@@ -23,7 +23,8 @@ Yahoo retries, deterministic freshness assessment, and a read-only health comman
   network or wall-clock dependency in the evaluator.
 - An unhealthy report exits nonzero and names every rejected symbol and reason.
 - `ingest` performs the health check before constructing either retrieval store.
-- Transient Yahoo failures retry up to the configured attempt limit; tests do not sleep.
+- Transient Yahoo price-history and metadata failures retry up to the configured attempt
+  limit; tests do not sleep.
 - The health JSON retains source and observation timestamp metadata for every result.
 - `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy`, and
   `uv run pytest` pass without network access.
@@ -36,12 +37,22 @@ do not automatically block a daily close. It is a configurable safety policy, no
 that the data is live. Future observations more than five minutes ahead of the check clock
 are rejected. Yahoo remains a development-only source.
 
+## Post-merge correction
+
+Review of the merged slice found that the CLI still read the wall clock directly and that
+metadata exceptions were converted to empty metadata outside the retry policy. The command
+boundary now injects a callable UTC clock and captures it once per health assessment.
+Metadata exceptions retry independently and fail closed after exhaustion, while a successful
+metadata object with absent fields remains valid. Regression tests cover an exact freshness
+boundary, a single clock read, transient metadata recovery, permanent metadata failure, and
+legitimately missing fields.
+
 ## Verification
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
-- `uv run mypy` passes for 22 source files.
-- `uv run pytest` passes offline (35 tests).
+- `uv run mypy` passes for 23 source files.
+- `uv run pytest` passes offline (39 tests).
 - `docker compose config --quiet` passes.
 - `uv build` produces the source distribution and wheel.
 - A read-only live `data-health --symbols SPY,QQQ` probe reported both Yahoo observations

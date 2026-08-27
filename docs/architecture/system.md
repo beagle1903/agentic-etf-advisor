@@ -84,10 +84,13 @@ PostgreSQL-backed checkpoints.
 own documentation says Yahoo data is intended for personal use. Before any public hosted
 product, replace or license the market-data source and review redistribution terms.
 
-Yahoo requests use bounded retries with configurable exponential backoff. After collection,
-a deterministic quality boundary compares each source timestamp with one injected UTC check
-time. Stale observations or timestamps too far in the future block ingestion before either
-retrieval store is opened. The health result retains the source name, URL, observation time,
-age, status, and reason so the same evidence can be rendered by later presentation layers.
-The default 120-hour window accommodates daily-close weekends and common market holidays; it
-does not label those snapshots as live data.
+Yahoo price-history and metadata requests use bounded retries with configurable exponential
+backoff. A metadata exception exhausts those retries and fails the symbol; a successful
+metadata object may still contain legitimately absent individual fields. After collection,
+a deterministic quality boundary compares each source timestamp with one UTC check time
+captured through an injected clock interface. Stale observations or timestamps too far in
+the future block ingestion before either retrieval store is opened. The health result
+retains the source name, URL, observation time, age, status, and reason so the same evidence
+can be rendered by later presentation layers. The default 120-hour window accommodates
+daily-close weekends and common market holidays; it does not label those snapshots as live
+data.

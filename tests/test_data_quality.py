@@ -86,6 +86,35 @@ def test_data_health_command_reports_without_persisting(monkeypatch: pytest.Monk
     assert payload["observations"][0]["source_url"].endswith("/SPY/")
 
 
+def test_data_health_command_uses_one_injected_clock_at_exact_boundary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    checked_at = datetime(2026, 8, 27, 12, tzinfo=UTC)
+    clock_calls = 0
+
+    class FakeAdapter:
+        def fetch(self, symbols: list[str]) -> list[ETFObservation]:
+            return [observation(checked_at - timedelta(hours=120))]
+
+    def fixed_clock() -> datetime:
+        nonlocal clock_calls
+        clock_calls += 1
+        return checked_at
+
+    monkeypatch.setattr(cli, "_yahoo_adapter", lambda: FakeAdapter())
+    monkeypatch.setattr(cli, "system_utc_now", fixed_clock)
+    monkeypatch.setattr(cli.settings, "market_data_max_age_hours", 120)
+
+    result = CliRunner().invoke(cli.app, ["data-health", "--symbols", "SPY"])
+
+    assert result.exit_code == 0
+    payload: dict[str, Any] = json.loads(result.stdout)
+    assert payload["checked_at"] == "2026-08-27T12:00:00Z"
+    assert payload["observations"][0]["age_hours"] == 120
+    assert payload["observations"][0]["status"] == "current"
+    assert clock_calls == 1
+
+
 def test_data_health_command_exits_nonzero_for_stale_data(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

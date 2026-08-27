@@ -1,7 +1,7 @@
 """Small command-line entry points for testable local development."""
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 from typing import Annotated, Any
 from uuid import uuid4
@@ -10,8 +10,14 @@ import typer
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
+from etf_advisor.clock import Clock, system_utc_now
 from etf_advisor.config import settings
-from etf_advisor.data.quality import MarketDataQualityError, assess_observations
+from etf_advisor.data.models import ETFObservation
+from etf_advisor.data.quality import (
+    MarketDataHealthReport,
+    MarketDataQualityError,
+    assess_observations,
+)
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
 from etf_advisor.graph.workflow import build_graph
@@ -37,6 +43,21 @@ def _yahoo_adapter() -> YahooFinanceAdapter:
     return YahooFinanceAdapter(
         max_attempts=settings.yahoo_max_attempts,
         retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
+    )
+
+
+def _assess_market_data(
+    observations: list[ETFObservation],
+    *,
+    clock: Clock,
+) -> MarketDataHealthReport:
+    """Capture one injected instant for all observations in a command."""
+
+    return assess_observations(
+        observations,
+        checked_at=clock(),
+        max_age=timedelta(hours=settings.market_data_max_age_hours),
+        future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
     )
 
 
@@ -82,12 +103,7 @@ def ingest(
     try:
         adapter = _yahoo_adapter()
         observations = adapter.fetch(requested_symbols)
-        health = assess_observations(
-            observations,
-            checked_at=datetime.now(UTC),
-            max_age=timedelta(hours=settings.market_data_max_age_hours),
-            future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
-        )
+        health = _assess_market_data(observations, clock=system_utc_now)
         health.require_healthy()
         documents = [adapter.to_source_document(observation) for observation in observations]
         store = ChromaDocumentStore(
@@ -148,12 +164,7 @@ def data_health(
     requested_symbols = [symbol.strip() for symbol in symbols.split(",")]
     try:
         observations = _yahoo_adapter().fetch(requested_symbols)
-        report = assess_observations(
-            observations,
-            checked_at=datetime.now(UTC),
-            max_age=timedelta(hours=settings.market_data_max_age_hours),
-            future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
-        )
+        report = _assess_market_data(observations, clock=system_utc_now)
     except (MarketDataError, OSError, RuntimeError, ValueError) as exc:
         typer.echo(f"Market-data health check failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc
