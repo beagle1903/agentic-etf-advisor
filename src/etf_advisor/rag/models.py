@@ -60,10 +60,12 @@ class RetrievedSource(BaseModel):
 class GraphContext(BaseModel):
     """Normalized Neo4j neighborhood linked to one retrieved source document."""
 
+    model_config = ConfigDict(extra="forbid")
+
     source_document_id: str
     symbol: str
     etf_name: str
-    issuer: str | None = None
+    fund_family: str | None = None
     category: str | None = None
 
 

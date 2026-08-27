@@ -1,5 +1,8 @@
 from typing import ClassVar
 
+import pytest
+from pydantic import ValidationError
+
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.models import GraphContext, RetrievedSource
 
@@ -34,7 +37,7 @@ class FakeRelationshipStore:
                 source_document_id="doc-spy",
                 symbol="SPY",
                 etf_name="SPDR S&P 500 ETF Trust",
-                issuer="State Street Global Advisors",
+                fund_family="State Street Global Advisors",
                 category="Large Blend",
             )
         }
@@ -47,5 +50,18 @@ def test_hybrid_search_preserves_ranking_and_exposes_missing_context() -> None:
 
     assert [result.document_id for result in results] == ["doc-spy", "doc-missing"]
     assert results[0].graph_context is not None
-    assert results[0].graph_context.issuer == "State Street Global Advisors"
+    assert results[0].graph_context.fund_family == "State Street Global Advisors"
     assert results[1].graph_context is None
+
+
+def test_graph_context_rejects_unsupported_issuer_claims() -> None:
+    with pytest.raises(ValidationError, match="issuer"):
+        GraphContext.model_validate(
+            {
+                "source_document_id": "doc-spy",
+                "symbol": "SPY",
+                "etf_name": "SPDR S&P 500 ETF Trust",
+                "issuer": "State Street Global Advisors",
+                "category": "Large Blend",
+            }
+        )

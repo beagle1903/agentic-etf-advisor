@@ -1,6 +1,6 @@
 {
   "dataset_id": "retrieval-baseline",
-  "version": 1,
+  "version": 2,
   "documents": [
     {
       "source_document": {
@@ -22,7 +22,7 @@
         "source_document_id": "yahoo-finance:SPY:2026-08-26",
         "symbol": "SPY",
         "etf_name": "SPDR S&P 500 ETF Trust",
-        "issuer": "State Street Global Advisors",
+        "fund_family": "State Street Global Advisors",
         "category": "Large Blend"
       }
     },
@@ -46,7 +46,7 @@
         "source_document_id": "yahoo-finance:VTI:2026-08-26",
         "symbol": "VTI",
         "etf_name": "Vanguard Total Stock Market ETF",
-        "issuer": "Vanguard",
+        "fund_family": "Vanguard",
         "category": "Large Blend"
       }
     },
@@ -70,7 +70,7 @@
         "source_document_id": "yahoo-finance:QQQ:2026-08-26",
         "symbol": "QQQ",
         "etf_name": "Invesco QQQ Trust",
-        "issuer": "Invesco",
+        "fund_family": "Invesco",
         "category": "Large Growth"
       }
     },
@@ -94,7 +94,7 @@
         "source_document_id": "yahoo-finance:BND:2026-08-26",
         "symbol": "BND",
         "etf_name": "Vanguard Total Bond Market ETF",
-        "issuer": "Vanguard",
+        "fund_family": "Vanguard",
         "category": "Intermediate Core Bond"
       }
     }
@@ -117,14 +117,14 @@
           "source_document_id": "yahoo-finance:SPY:2026-08-26",
           "symbol": "SPY",
           "etf_name": "SPDR S&P 500 ETF Trust",
-          "issuer": "State Street Global Advisors",
+          "fund_family": "State Street Global Advisors",
           "category": "Large Blend"
         },
         {
           "source_document_id": "yahoo-finance:VTI:2026-08-26",
           "symbol": "VTI",
           "etf_name": "Vanguard Total Stock Market ETF",
-          "issuer": "Vanguard",
+          "fund_family": "Vanguard",
           "category": "Large Blend"
         }
       ]
@@ -143,7 +143,7 @@
           "source_document_id": "yahoo-finance:VTI:2026-08-26",
           "symbol": "VTI",
           "etf_name": "Vanguard Total Stock Market ETF",
-          "issuer": "Vanguard",
+          "fund_family": "Vanguard",
           "category": "Large Blend"
         }
       ]
@@ -162,7 +162,7 @@
           "source_document_id": "yahoo-finance:QQQ:2026-08-26",
           "symbol": "QQQ",
           "etf_name": "Invesco QQQ Trust",
-          "issuer": "Invesco",
+          "fund_family": "Invesco",
           "category": "Large Growth"
         }
       ]
@@ -181,7 +181,7 @@
           "source_document_id": "yahoo-finance:BND:2026-08-26",
           "symbol": "BND",
           "etf_name": "Vanguard Total Bond Market ETF",
-          "issuer": "Vanguard",
+          "fund_family": "Vanguard",
           "category": "Intermediate Core Bond"
         }
       ]

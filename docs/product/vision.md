@@ -21,7 +21,8 @@ risk controls, and explicit human review.
 - A simple dashboard.
 - Read-only market and reference data.
 - Chroma for unstructured source chunks.
-- Neo4j for ETF, issuer, category, holding, sector, and exposure relationships.
+- Neo4j for ETF, fund-family/provider, category, holding, sector, and exposure
+  relationships. Legal issuer data requires a separately sourced issuer field.
 - Ollama Cloud or OpenRouter behind a provider interface.
 - LangSmith tracing and offline evaluations when credentials are available.
 

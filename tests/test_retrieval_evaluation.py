@@ -17,6 +17,7 @@ def test_offline_evaluation_compares_ranking_and_context_deterministically() -> 
 
     assert first == second
     assert first.dataset.dataset_id == "retrieval-baseline"
+    assert first.dataset.version == 2
     assert first.dataset.document_count == 4
     assert first.dataset.sources == ["Yahoo Finance"]
     assert first.dataset.observation_start.isoformat() == "2026-08-26T20:00:00+00:00"

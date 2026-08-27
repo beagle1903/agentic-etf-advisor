@@ -59,6 +59,37 @@ def test_yahoo_adapter_normalizes_and_preserves_provenance() -> None:
     assert "Expense ratio: 0.03%" in document.content
 
 
+def test_yahoo_adapter_converts_annual_report_expense_ratio_fraction() -> None:
+    class AnnualReportFallbackTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {
+            **FakeTicker.info,
+            "netExpenseRatio": None,
+            "annualReportExpenseRatio": 0.0003,
+        }
+
+    adapter = YahooFinanceAdapter(ticker_factory=lambda symbol: AnnualReportFallbackTicker())
+
+    observation = adapter.fetch(["SPY"])[0]
+    document = adapter.to_source_document(observation)
+
+    assert observation.expense_ratio_pct == pytest.approx(0.03)
+    assert document.chroma_metadata()["expense_ratio_pct"] == pytest.approx(0.03)
+    assert "Expense ratio: 0.03%" in document.content
+
+
+def test_yahoo_adapter_prefers_net_expense_ratio_percentage_points() -> None:
+    class BothExpenseRatiosTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {
+            **FakeTicker.info,
+            "netExpenseRatio": 0.03,
+            "annualReportExpenseRatio": 0.0004,
+        }
+
+    adapter = YahooFinanceAdapter(ticker_factory=lambda symbol: BothExpenseRatiosTicker())
+
+    assert adapter.fetch(["SPY"])[0].expense_ratio_pct == 0.03
+
+
 def test_yahoo_adapter_fails_closed_when_history_is_empty() -> None:
     class EmptyTicker(FakeTicker):
         class EmptyHistory:
