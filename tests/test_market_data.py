@@ -33,7 +33,7 @@ class FakeTicker:
         "quoteType": "ETF",
         "category": "Large Blend",
         "fundFamily": "Example Funds",
-        "netExpenseRatio": 0.0003,
+        "netExpenseRatio": 0.03,
         "longBusinessSummary": "A test-only source description.",
     }
 
@@ -51,9 +51,12 @@ def test_yahoo_adapter_normalizes_and_preserves_provenance() -> None:
     assert observation.symbol == "SPY"
     assert observation.close_price == 512.34
     assert observation.observed_at.tzinfo == UTC
+    assert observation.expense_ratio_pct == 0.03
     assert document.document_id.startswith("yahoo-finance:spy:")
     assert document.chroma_metadata()["source_url"] == "https://finance.yahoo.com/quote/SPY/"
+    assert document.chroma_metadata()["expense_ratio_pct"] == 0.03
     assert "Latest reported close: 512.34 USD" in document.content
+    assert "Expense ratio: 0.03%" in document.content
 
 
 def test_yahoo_adapter_fails_closed_when_history_is_empty() -> None:

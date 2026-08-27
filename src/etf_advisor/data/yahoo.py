@@ -59,8 +59,8 @@ class YahooFinanceAdapter:
             f"Quote type: {observation.quote_type or 'not reported'}",
             f"Category: {observation.category or 'not reported'}",
             f"Fund family: {observation.fund_family or 'not reported'}",
-            f"Expense ratio: {observation.expense_ratio:g}"
-            if observation.expense_ratio is not None
+            f"Expense ratio: {observation.expense_ratio_pct:g}%"
+            if observation.expense_ratio_pct is not None
             else "Expense ratio: not reported",
         ]
         if observation.description:
@@ -78,6 +78,8 @@ class YahooFinanceAdapter:
             metadata["currency"] = observation.currency
         if observation.category:
             metadata["category"] = observation.category
+        if observation.expense_ratio_pct is not None:
+            metadata["expense_ratio_pct"] = observation.expense_ratio_pct
 
         return SourceDocument(
             document_id=document_id,
@@ -100,7 +102,7 @@ class YahooFinanceAdapter:
 
         close_price, observed_at = _latest_close(history, symbol)
         info = _safe_info(ticker)
-        expense_ratio = _first_float(
+        expense_ratio_pct = _first_percentage(
             info.get("netExpenseRatio"),
             info.get("annualReportExpenseRatio"),
         )
@@ -114,7 +116,7 @@ class YahooFinanceAdapter:
             quote_type=_optional_text(info.get("quoteType")),
             category=_optional_text(info.get("category")),
             fund_family=_optional_text(info.get("fundFamily")),
-            expense_ratio=expense_ratio,
+            expense_ratio_pct=expense_ratio_pct,
             description=_optional_text(info.get("longBusinessSummary"), max_length=4000) or "",
         )
 
@@ -177,7 +179,7 @@ def _first_text(*values: Any, default: str) -> str:
     return default
 
 
-def _first_float(*values: Any) -> float | None:
+def _first_percentage(*values: Any) -> float | None:
     for value in values:
         if value is None or isinstance(value, bool):
             continue
@@ -185,6 +187,6 @@ def _first_float(*values: Any) -> float | None:
             parsed = float(value)
         except (TypeError, ValueError):
             continue
-        if math.isfinite(parsed) and 0 <= parsed <= 1:
+        if math.isfinite(parsed) and 0 <= parsed <= 100:
             return parsed
     return None

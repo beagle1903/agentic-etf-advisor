@@ -40,6 +40,17 @@ natural-language query.
 - Live `search "broad US equity exposure"` retrieved both documents with provenance metadata.
 - Docker Compose services Chroma, Neo4j, and Postgres report healthy.
 
+## Post-completion correction
+
+Yahoo Finance reports `netExpenseRatio` in percentage points. The ingestion contract now
+names this value `expense_ratio_pct`, renders an explicit `%` sign, and stores the same
+unit-bearing field name in Chroma metadata. Regression tests prevent future conversion or
+display ambiguity.
+
+The existing SPY and QQQ records were re-ingested under their stable document IDs. A live
+retrieval check confirmed `0.0945%` for SPY and `0.18%` for QQQ in both the rendered source
+content and `expense_ratio_pct` metadata.
+
 ## Data-quality boundary
 
 `yfinance` is an unofficial development adapter and is not a production market-data license.
