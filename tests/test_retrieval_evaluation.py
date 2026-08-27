@@ -17,6 +17,7 @@ def test_offline_evaluation_compares_ranking_and_context_deterministically() -> 
 
     assert first == second
     assert first.dataset.dataset_id == "retrieval-baseline"
+    assert first.dataset.version == 2
     assert first.dataset.document_count == 4
     assert first.dataset.sources == ["Yahoo Finance"]
     assert first.dataset.observation_start.isoformat() == "2026-08-26T20:00:00+00:00"
@@ -60,6 +61,14 @@ def test_incorrect_graph_context_lowers_field_accuracy() -> None:
 
     assert report.graph_enriched.graph_context_recall == 1.0
     assert report.graph_enriched.graph_context_field_accuracy == 0.8
+
+
+def test_dataset_validation_rejects_naive_observation_timestamp() -> None:
+    payload = load_evaluation_dataset().model_dump(mode="json")
+    payload["documents"][0]["source_document"]["observed_at"] = "2026-08-26T20:00:00"
+
+    with pytest.raises(ValidationError, match="timestamps must be timezone-aware"):
+        RetrievalEvaluationDataset.model_validate(payload)
 
 
 @pytest.mark.parametrize(

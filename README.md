@@ -45,9 +45,10 @@ uv run etf-advisor ingest --symbols SPY,QQQ,VTI,BND --with-graph
 uv run etf-advisor hybrid-search "broad US equity exposure"
 ```
 
-The graph stores ETF, issuer, category, and source-document nodes. Stable source document
-IDs form the join boundary, and a missing graph record is returned as `graph_context: null`
-instead of silently fabricating context.
+The graph stores ETF, fund-family/provider, category, and source-document nodes. Stable
+source document IDs form the join boundary, and a missing graph record is returned as
+`graph_context: null` instead of silently fabricating context. Yahoo fund-family metadata is
+not presented as a legal issuer.
 
 Run the retrieval baseline without credentials, databases, or network access:
 
@@ -55,9 +56,10 @@ Run the retrieval baseline without credentials, databases, or network access:
 uv run etf-advisor evaluate-retrieval
 ```
 
-The JSON report separates ranking metrics from issuer/category context metrics. The initial
-dataset demonstrates context lift but no ranking lift because graph enrichment intentionally
-preserves semantic ordering; it is not evidence to expand the graph schema yet.
+The JSON report separates ranking metrics from fund-family/category context metrics. The
+initial dataset demonstrates context lift but no ranking lift because graph enrichment
+intentionally preserves semantic ordering; it is not evidence to expand the graph schema
+yet.
 
 Start the local data services:
 

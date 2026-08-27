@@ -30,8 +30,8 @@ class SourceDocument(BaseModel):
     @field_validator("observed_at")
     @classmethod
     def normalize_timestamp(cls, value: datetime) -> datetime:
-        if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("Source document observation timestamps must be timezone-aware.")
         return value.astimezone(UTC)
 
     def chroma_metadata(self) -> dict[str, MetadataValue]:
@@ -60,10 +60,12 @@ class RetrievedSource(BaseModel):
 class GraphContext(BaseModel):
     """Normalized Neo4j neighborhood linked to one retrieved source document."""
 
+    model_config = ConfigDict(extra="forbid")
+
     source_document_id: str
     symbol: str
     etf_name: str
-    issuer: str | None = None
+    fund_family: str | None = None
     category: str | None = None
 
 

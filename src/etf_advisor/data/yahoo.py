@@ -107,10 +107,7 @@ class YahooFinanceAdapter:
 
         close_price, observed_at = _latest_close(history, symbol)
         info = _safe_info(ticker)
-        expense_ratio_pct = _first_percentage(
-            info.get("netExpenseRatio"),
-            info.get("annualReportExpenseRatio"),
-        )
+        expense_ratio_pct = _expense_ratio_percentage(info)
         return ETFObservation(
             symbol=symbol,
             name=_first_text(info.get("longName"), info.get("shortName"), default=symbol),
@@ -184,14 +181,24 @@ def _first_text(*values: Any, default: str) -> str:
     return default
 
 
-def _first_percentage(*values: Any) -> float | None:
-    for value in values:
-        if value is None or isinstance(value, bool):
-            continue
-        try:
-            parsed = float(value)
-        except (TypeError, ValueError):
-            continue
-        if math.isfinite(parsed) and 0 <= parsed <= 100:
-            return parsed
+def _expense_ratio_percentage(info: dict[str, Any]) -> float | None:
+    net_expense_ratio = _bounded_float(info.get("netExpenseRatio"), maximum=100)
+    if net_expense_ratio is not None:
+        return net_expense_ratio
+
+    annual_report_fraction = _bounded_float(info.get("annualReportExpenseRatio"), maximum=1)
+    if annual_report_fraction is None:
+        return None
+    return annual_report_fraction * 100
+
+
+def _bounded_float(value: Any, *, maximum: float) -> float | None:
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    if math.isfinite(parsed) and 0 <= parsed <= maximum:
+        return parsed
     return None

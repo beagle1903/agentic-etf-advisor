@@ -10,7 +10,8 @@ from etf_advisor.rag.models import GraphContext, SourceDocument
 
 _CONSTRAINTS = (
     "CREATE CONSTRAINT etf_symbol IF NOT EXISTS FOR (etf:ETF) REQUIRE etf.symbol IS UNIQUE",
-    "CREATE CONSTRAINT issuer_name IF NOT EXISTS FOR (issuer:Issuer) REQUIRE issuer.name IS UNIQUE",
+    "CREATE CONSTRAINT fund_family_name IF NOT EXISTS "
+    "FOR (fund_family:FundFamily) REQUIRE fund_family.name IS UNIQUE",
     "CREATE CONSTRAINT category_name IF NOT EXISTS "
     "FOR (category:Category) REQUIRE category.name IS UNIQUE",
     "CREATE CONSTRAINT source_document_id IF NOT EXISTS "
@@ -26,10 +27,19 @@ SET source.source = $source,
     source.observed_at = datetime($observed_at),
     source.document_type = $document_type
 MERGE (etf)-[:DESCRIBED_BY]->(source)
-FOREACH (_ IN CASE WHEN $issuer_name IS NULL THEN [] ELSE [1] END |
-    MERGE (issuer:Issuer {name: $issuer_name})
-    MERGE (etf)-[:ISSUED_BY]->(issuer)
-    MERGE (source)-[:REPORTS_ISSUER]->(issuer)
+WITH etf, source
+OPTIONAL MATCH (source)-[
+    stale_source_relationship:REPORTS_FUND_FAMILY|REPORTS_CATEGORY|REPORTS_ISSUER
+]->()
+DELETE stale_source_relationship
+WITH DISTINCT etf, source
+OPTIONAL MATCH (etf)-[stale_etf_relationship:IN_FUND_FAMILY|IN_CATEGORY|ISSUED_BY]->()
+DELETE stale_etf_relationship
+WITH DISTINCT etf, source
+FOREACH (_ IN CASE WHEN $fund_family_name IS NULL THEN [] ELSE [1] END |
+    MERGE (fund_family:FundFamily {name: $fund_family_name})
+    MERGE (etf)-[:IN_FUND_FAMILY]->(fund_family)
+    MERGE (source)-[:REPORTS_FUND_FAMILY]->(fund_family)
 )
 FOREACH (_ IN CASE WHEN $category_name IS NULL THEN [] ELSE [1] END |
     MERGE (category:Category {name: $category_name})
@@ -41,12 +51,12 @@ FOREACH (_ IN CASE WHEN $category_name IS NULL THEN [] ELSE [1] END |
 _FIND_CONTEXTS = """
 UNWIND $document_ids AS document_id
 MATCH (etf:ETF)-[:DESCRIBED_BY]->(source:SourceDocument {document_id: document_id})
-OPTIONAL MATCH (source)-[:REPORTS_ISSUER]->(issuer:Issuer)
+OPTIONAL MATCH (source)-[:REPORTS_FUND_FAMILY]->(fund_family:FundFamily)
 OPTIONAL MATCH (source)-[:REPORTS_CATEGORY]->(category:Category)
 RETURN document_id AS source_document_id,
        etf.symbol AS symbol,
        etf.name AS etf_name,
-       issuer.name AS issuer,
+       fund_family.name AS fund_family,
        category.name AS category
 ORDER BY source_document_id
 """
@@ -108,7 +118,7 @@ class Neo4jGraphStore:
                     "source_url": document.source_url,
                     "observed_at": document.observed_at.isoformat(),
                     "document_type": document.document_type,
-                    "issuer_name": _optional_string(metadata.get("fund_family")),
+                    "fund_family_name": _optional_string(metadata.get("fund_family")),
                     "category_name": _optional_string(metadata.get("category")),
                 },
             )
@@ -122,7 +132,12 @@ class Neo4jGraphStore:
         for record in records:
             data = _record_data(record)
             context = GraphContext.model_validate(data)
-            contexts.setdefault(context.source_document_id, context)
+            if context.source_document_id in contexts:
+                raise Neo4jUnavailable(
+                    "Neo4j returned multiple relationship contexts for source document "
+                    f"'{context.source_document_id}'. Re-ingest the affected snapshot."
+                )
+            contexts[context.source_document_id] = context
         return contexts
 
     def missing_document_ids(self, document_ids: list[str]) -> list[str]:

@@ -19,7 +19,7 @@ from etf_advisor.evaluation.models import (
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, RetrievedSource
 
-_CONTEXT_FIELDS = ("issuer", "category")
+_CONTEXT_FIELDS = ("fund_family", "category")
 
 
 class RetrievalStrategy(Protocol):
@@ -111,7 +111,7 @@ def run_offline_evaluation(
         abs(deltas.mean_reciprocal_rank),
     )
     conclusion = (
-        "Graph enrichment adds correctly linked issuer/category context but does not improve "
+        "Graph enrichment adds correctly linked fund-family/category context but does not improve "
         "semantic ranking in this baseline. Do not expand the graph schema on ranking-lift "
         "grounds yet."
         if ranking_lift == 0 and deltas.graph_context_field_accuracy > 0
