@@ -20,7 +20,12 @@ class ETFObservation(BaseModel):
     quote_type: str | None = Field(default=None, max_length=40)
     category: str | None = Field(default=None, max_length=120)
     fund_family: str | None = Field(default=None, max_length=160)
-    expense_ratio: float | None = Field(default=None, ge=0, le=1)
+    expense_ratio_pct: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Annual fund expenses expressed in percentage points, not a decimal fraction.",
+    )
     description: str = Field(default="", max_length=4000)
 
     @field_validator("symbol")
