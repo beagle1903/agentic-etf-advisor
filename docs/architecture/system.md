@@ -83,3 +83,11 @@ PostgreSQL-backed checkpoints.
 `yfinance` is suitable for research and personal development, but it is unofficial and its
 own documentation says Yahoo data is intended for personal use. Before any public hosted
 product, replace or license the market-data source and review redistribution terms.
+
+Yahoo requests use bounded retries with configurable exponential backoff. After collection,
+a deterministic quality boundary compares each source timestamp with one injected UTC check
+time. Stale observations or timestamps too far in the future block ingestion before either
+retrieval store is opened. The health result retains the source name, URL, observation time,
+age, status, and reason so the same evidence can be rendered by later presentation layers.
+The default 120-hour window accommodates daily-close weekends and common market holidays; it
+does not label those snapshots as live data.

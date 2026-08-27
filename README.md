@@ -3,9 +3,10 @@
 An educational, source-grounded US ETF portfolio decision-support project built with
 LangGraph. The project is designed as a sequence of small, testable vertical slices.
 
-The implemented slices validate an investor profile with human review, ingest attributable
-ETF snapshots, join Chroma-ranked documents to source-linked Neo4j context, and compare the
-semantic-only and graph-enriched paths on a deterministic offline evaluation set.
+The implemented slices validate an investor profile with human review, health-check and
+ingest attributable ETF snapshots, join Chroma-ranked documents to source-linked Neo4j
+context, and compare the semantic-only and graph-enriched paths on a deterministic offline
+evaluation set.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -29,9 +30,14 @@ Install the Iteration 001 data and retrieval integrations:
 
 ```powershell
 uv sync --extra rag
+uv run etf-advisor data-health --symbols SPY,QQQ,VTI,BND
 uv run etf-advisor ingest --symbols SPY,QQQ,VTI,BND
 uv run etf-advisor search "broad US equity exposure"
 ```
+
+The read-only health command reports source URLs, observation timestamps, ages, and
+freshness classifications. Ingestion rejects stale or future-dated observations before
+opening Chroma or Neo4j. Yahoo requests use configurable bounded retries.
 
 The first Chroma ingestion may download its local default embedding model. The ingestion
 command prints source IDs, observation timestamps, and Yahoo Finance URLs so retrieved
@@ -88,7 +94,8 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/003-retrieval-evaluation-baseline.md`.
+The current delivery contract is in
+`docs/iterations/005-market-data-quality-guardrails.md`.
 
 ## License
 
