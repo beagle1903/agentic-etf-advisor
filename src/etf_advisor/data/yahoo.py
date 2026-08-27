@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import math
+import time
 from collections.abc import Callable, Sequence
 from datetime import UTC, date, datetime
 from typing import Any, cast
@@ -19,8 +20,22 @@ class MarketDataError(RuntimeError):
 class YahooFinanceAdapter:
     """Fetch a small, timestamped snapshot for user-supplied symbols."""
 
-    def __init__(self, ticker_factory: Callable[[str], Any] | None = None) -> None:
+    def __init__(
+        self,
+        ticker_factory: Callable[[str], Any] | None = None,
+        *,
+        max_attempts: int = 3,
+        retry_backoff_seconds: float = 0.25,
+        sleeper: Callable[[float], None] = time.sleep,
+    ) -> None:
+        if max_attempts < 1:
+            raise ValueError("max_attempts must be at least 1.")
+        if retry_backoff_seconds < 0:
+            raise ValueError("retry_backoff_seconds cannot be negative.")
         self._ticker_factory = ticker_factory or self._load_ticker_factory()
+        self._max_attempts = max_attempts
+        self._retry_backoff_seconds = retry_backoff_seconds
+        self._sleeper = sleeper
 
     @staticmethod
     def _load_ticker_factory() -> Callable[[str], Any]:
@@ -99,13 +114,25 @@ class YahooFinanceAdapter:
         )
 
     def _fetch_one(self, symbol: str) -> ETFObservation:
-        try:
-            ticker = self._ticker_factory(symbol)
-            history = ticker.history(period="5d", interval="1d", auto_adjust=False)
-        except Exception as exc:
-            raise MarketDataError(f"Yahoo Finance request failed for {symbol}: {exc}") from exc
+        ticker: Any = None
+        close_price: float | None = None
+        observed_at: datetime | None = None
+        for attempt in range(1, self._max_attempts + 1):
+            try:
+                ticker = self._ticker_factory(symbol)
+                history = ticker.history(period="5d", interval="1d", auto_adjust=False)
+                close_price, observed_at = _latest_close(history, symbol)
+                break
+            except Exception as exc:
+                if attempt == self._max_attempts:
+                    raise MarketDataError(
+                        f"Yahoo Finance failed for {symbol} after {attempt} attempt(s): {exc}"
+                    ) from exc
+                delay = self._retry_backoff_seconds * (2 ** (attempt - 1))
+                self._sleeper(delay)
 
-        close_price, observed_at = _latest_close(history, symbol)
+        if ticker is None or close_price is None or observed_at is None:
+            raise MarketDataError(f"Yahoo Finance returned no usable observation for {symbol}.")
         info = _safe_info(ticker)
         expense_ratio_pct = _expense_ratio_percentage(info)
         return ETFObservation(

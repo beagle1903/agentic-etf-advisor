@@ -34,9 +34,15 @@ With Chroma and Neo4j healthy, index one shared source bundle and query it:
 
 ```powershell
 uv sync --extra rag
+uv run etf-advisor data-health --symbols SPY,QQQ
 uv run etf-advisor ingest --symbols SPY,QQQ --with-graph
 uv run etf-advisor hybrid-search "broad US equity exposure"
 ```
+
+`data-health` is read-only and prints each source URL, observation timestamp, age, and
+freshness classification. It exits nonzero when the source request fails or any observation
+falls outside `MARKET_DATA_MAX_AGE_HOURS`. Ingestion applies the same check before opening a
+retrieval store.
 
 Both writes are idempotent because they use the same stable source document IDs. If one
 local service fails during ingestion, restore it and rerun the same command; the command

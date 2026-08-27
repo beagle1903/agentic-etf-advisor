@@ -98,7 +98,51 @@ def test_yahoo_adapter_fails_closed_when_history_is_empty() -> None:
         def history(self, **kwargs: object) -> EmptyHistory:
             return self.EmptyHistory()
 
-    adapter = YahooFinanceAdapter(ticker_factory=lambda symbol: EmptyTicker())
+    adapter = YahooFinanceAdapter(
+        ticker_factory=lambda symbol: EmptyTicker(),
+        max_attempts=1,
+    )
 
     with pytest.raises(MarketDataError, match="no price history"):
         adapter.fetch(["SPY"])
+
+
+def test_yahoo_adapter_retries_transient_failures_with_injected_sleeper() -> None:
+    attempts = 0
+    delays: list[float] = []
+
+    def flaky_factory(symbol: str) -> FakeTicker:
+        nonlocal attempts
+        attempts += 1
+        if attempts < 3:
+            raise OSError("temporary upstream failure")
+        return FakeTicker()
+
+    adapter = YahooFinanceAdapter(
+        ticker_factory=flaky_factory,
+        max_attempts=3,
+        retry_backoff_seconds=0.5,
+        sleeper=delays.append,
+    )
+
+    assert adapter.fetch(["SPY"])[0].symbol == "SPY"
+    assert attempts == 3
+    assert delays == [0.5, 1.0]
+
+
+def test_yahoo_adapter_reports_exhausted_attempt_count() -> None:
+    delays: list[float] = []
+
+    def failing_factory(symbol: str) -> FakeTicker:
+        raise OSError("upstream unavailable")
+
+    adapter = YahooFinanceAdapter(
+        ticker_factory=failing_factory,
+        max_attempts=2,
+        retry_backoff_seconds=0.25,
+        sleeper=delays.append,
+    )
+
+    with pytest.raises(MarketDataError, match=r"after 2 attempt\(s\)"):
+        adapter.fetch(["SPY"])
+    assert delays == [0.25]

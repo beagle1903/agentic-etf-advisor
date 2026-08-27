@@ -1,6 +1,7 @@
 """Small command-line entry points for testable local development."""
 
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Annotated, Any
 from uuid import uuid4
@@ -10,6 +11,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
 from etf_advisor.config import settings
+from etf_advisor.data.quality import MarketDataQualityError, assess_observations
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
 from etf_advisor.graph.workflow import build_graph
@@ -29,6 +31,13 @@ def main() -> None:
 def _print_state(label: str, state: dict[str, Any]) -> None:
     typer.echo(label)
     typer.echo(json.dumps(state, indent=2, default=str))
+
+
+def _yahoo_adapter() -> YahooFinanceAdapter:
+    return YahooFinanceAdapter(
+        max_attempts=settings.yahoo_max_attempts,
+        retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
+    )
 
 
 @app.command()
@@ -71,7 +80,16 @@ def ingest(
     requested_symbols = [symbol.strip() for symbol in symbols.split(",")]
     graph_store: Neo4jGraphStore | None = None
     try:
-        documents = YahooFinanceAdapter().fetch_source_documents(requested_symbols)
+        adapter = _yahoo_adapter()
+        observations = adapter.fetch(requested_symbols)
+        health = assess_observations(
+            observations,
+            checked_at=datetime.now(UTC),
+            max_age=timedelta(hours=settings.market_data_max_age_hours),
+            future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+        )
+        health.require_healthy()
+        documents = [adapter.to_source_document(observation) for observation in observations]
         store = ChromaDocumentStore(
             host=settings.chroma_host,
             port=settings.chroma_port,
@@ -85,6 +103,7 @@ def ingest(
         report = index_documents(documents, store, graph_store)
     except (
         IndexConsistencyError,
+        MarketDataQualityError,
         MarketDataError,
         ChromaUnavailable,
         Neo4jUnavailable,
@@ -115,6 +134,33 @@ def ingest(
                 }
             )
         )
+
+
+@app.command("data-health")
+def data_health(
+    symbols: str = typer.Option(
+        "SPY,QQQ,VTI,BND",
+        help="Comma-separated Yahoo Finance symbols to inspect without persisting them.",
+    ),
+) -> None:
+    """Report source timestamps and freshness without writing to retrieval stores."""
+
+    requested_symbols = [symbol.strip() for symbol in symbols.split(",")]
+    try:
+        observations = _yahoo_adapter().fetch(requested_symbols)
+        report = assess_observations(
+            observations,
+            checked_at=datetime.now(UTC),
+            max_age=timedelta(hours=settings.market_data_max_age_hours),
+            future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+        )
+    except (MarketDataError, OSError, RuntimeError, ValueError) as exc:
+        typer.echo(f"Market-data health check failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo(report.model_dump_json(indent=2))
+    if not report.healthy:
+        raise typer.Exit(code=1)
 
 
 @app.command()

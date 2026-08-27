@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     chroma_collection: str = "etf_source_documents"
     neo4j_uri: str = "neo4j://localhost:17687"
     neo4j_auth: SecretStr = SecretStr("neo4j/local-dev-password")
+    market_data_max_age_hours: int = Field(default=120, ge=1, le=336)
+    market_data_future_tolerance_minutes: int = Field(default=5, ge=0, le=60)
+    yahoo_max_attempts: int = Field(default=3, ge=1, le=5)
+    yahoo_retry_backoff_seconds: float = Field(default=0.25, ge=0, le=10)
 
     def neo4j_credentials(self) -> tuple[str, str]:
         """Return Neo4j credentials without exposing them in logs or CLI output."""
