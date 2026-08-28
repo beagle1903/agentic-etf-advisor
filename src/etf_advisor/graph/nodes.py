@@ -7,6 +7,13 @@ from pydantic import ValidationError
 
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.explanation import (
+    ExplanationGenerationError,
+    ExplanationGenerator,
+    ExplanationResult,
+    build_explanation_request,
+    validate_and_bundle_explanation,
+)
 from etf_advisor.graph.state import AdvisorState
 from etf_advisor.rag.evidence import (
     CandidateEvidenceBundle,
@@ -28,6 +35,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
             "draft_policy": {},
             "candidate_evidence": {},
             "evidence_errors": [],
+            "draft_explanation": {},
+            "explanation_errors": [],
             "review_decision": {},
             "status": "invalid_profile",
             "final_message": "",
@@ -39,6 +48,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
         "draft_policy": {},
         "candidate_evidence": {},
         "evidence_errors": [],
+        "draft_explanation": {},
+        "explanation_errors": [],
         "review_decision": {},
         "status": "profile_validated",
         "final_message": "",
@@ -119,23 +130,71 @@ def retrieve_candidate_evidence(
     }
 
 
+def draft_explanation(
+    state: AdvisorState,
+    *,
+    generator: ExplanationGenerator,
+) -> AdvisorState:
+    """Generate and validate a grounded explanation before human review."""
+
+    try:
+        request = build_explanation_request(
+            profile=state["profile"],
+            draft_policy=state["draft_policy"],
+            candidate_evidence=state["candidate_evidence"],
+        )
+        generated_result = generator.generate(request)
+        result = ExplanationResult.model_validate(generated_result.model_dump(mode="python"))
+        bundle = validate_and_bundle_explanation(request, result)
+    except ExplanationGenerationError as exc:
+        return {
+            "draft_explanation": {},
+            "explanation_errors": [{"type": "generation_error", "message": str(exc)}],
+            "status": "explanation_blocked",
+        }
+    except (AttributeError, TypeError, ValueError, ValidationError):
+        return {
+            "draft_explanation": {},
+            "explanation_errors": [
+                {
+                    "type": "explanation_contract",
+                    "message": "Generated explanation failed safety or grounding validation.",
+                }
+            ],
+            "status": "explanation_blocked",
+        }
+    return {
+        "draft_explanation": bundle.model_dump(mode="json"),
+        "explanation_errors": [],
+        "status": "awaiting_human_review",
+    }
+
+
 def request_human_review(state: AdvisorState) -> AdvisorState:
     """Pause durably so a person can approve, edit, or reject the draft."""
 
     candidate_evidence = state.get("candidate_evidence", {})
     has_ready_evidence = candidate_evidence.get("status") == EvidenceStatus.READY
+    draft_explanation = state.get("draft_explanation", {})
+    has_ready_explanation = draft_explanation.get("status") == "ready"
     review_payload: dict[str, Any] = {
         "kind": "portfolio_policy_review",
         "question": (
-            "Approve this policy draft and its source evidence before finalization?"
-            if has_ready_evidence
-            else "Approve this policy draft before finalization?"
+            "Approve this grounded explanation, policy draft, and source evidence?"
+            if has_ready_explanation
+            else (
+                "Approve this policy draft and its source evidence before finalization?"
+                if has_ready_evidence
+                else "Approve this policy draft before finalization?"
+            )
         ),
         "allowed_actions": ["approve", "edit", "reject"],
         "draft_policy": state["draft_policy"],
     }
     if has_ready_evidence:
         review_payload["candidate_evidence"] = candidate_evidence
+    if has_ready_explanation:
+        review_payload["draft_explanation"] = draft_explanation
     decision = interrupt(review_payload)
     if not isinstance(decision, dict):
         decision = {"action": "reject", "feedback": "Review response must be an object."}
@@ -151,13 +210,18 @@ def finalize_review(state: AdvisorState) -> AdvisorState:
         has_ready_evidence = (
             state.get("candidate_evidence", {}).get("status") == EvidenceStatus.READY
         )
+        has_ready_explanation = state.get("draft_explanation", {}).get("status") == "ready"
         return {
             "status": "approved",
             "final_message": (
                 (
-                    "Policy draft and source evidence approved for the next research stage. "
-                    if has_ready_evidence
-                    else "Policy draft approved for the next research stage. "
+                    "Grounded explanation, policy draft, and source evidence approved. "
+                    if has_ready_explanation
+                    else (
+                        "Policy draft and source evidence approved for the next research stage. "
+                        if has_ready_evidence
+                        else "Policy draft approved for the next research stage. "
+                    )
                 )
                 + "No ETF recommendation or trade has been produced."
             ),

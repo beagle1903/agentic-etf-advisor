@@ -18,6 +18,11 @@ class Settings(BaseSettings):
 
     app_env: str = "development"
     llm_provider: LlmProvider = LlmProvider.OLLAMA
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_api_key: SecretStr = SecretStr("")
+    ollama_chat_model: str = ""
+    openrouter_api_key: SecretStr = SecretStr("")
+    openrouter_chat_model: str = ""
 
     chroma_host: str = "localhost"
     chroma_port: int = Field(default=8000, ge=1, le=65535)

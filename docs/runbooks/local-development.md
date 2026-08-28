@@ -56,6 +56,19 @@ future-dated, or unavailable evidence stops before review and exits nonzero. Rea
 require HTTP(S) attribution plus source-reported `quote_type=ETF` and `market=us_market`. The
 evidence is research context, not an ETF recommendation or trade instruction.
 
+To add an opt-in provider explanation, set either the Ollama or OpenRouter model credentials
+from `.env.example`, install the provider extra, and run:
+
+```powershell
+uv sync --extra rag --extra providers
+uv run etf-advisor demo --with-evidence --with-explanation --candidate-limit 5
+```
+
+`--with-explanation` requires `--with-evidence`. The workflow accepts only structured output
+whose policy keys, source document IDs, and ETF subjects match the exact provider input. A
+provider/schema/grounding failure or explicit prohibited financial claim stops before review
+and exits nonzero.
+
 ## Run the offline retrieval baseline
 
 The packaged curated dataset needs no services, credentials, model downloads, or network:

@@ -7,7 +7,8 @@ The implemented slices validate an investor profile with human review, calculate
 illustrative policy split, health-check and ingest attributable ETF snapshots, join
 Chroma-ranked documents to source-linked Neo4j context, compare the semantic-only and
 graph-enriched paths on a deterministic offline evaluation set, and optionally attach a
-freshness-checked source-evidence bundle to the review interrupt.
+freshness-checked source-evidence bundle and grounded provider explanation to the review
+interrupt.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -77,6 +78,20 @@ non-ETF, non-US, stale, or future-dated evidence stops the workflow before the i
 evidence bundle is research context only; it does not select ETFs, allocate money, or execute
 trades.
 
+Install the optional provider adapters and generate a structured explanation from the policy
+and ready evidence:
+
+```powershell
+uv sync --extra rag --extra providers
+uv run etf-advisor demo --with-evidence --with-explanation --candidate-limit 5
+```
+
+Set `LLM_PROVIDER` plus the matching model and credential variables in `.env`. Ollama and
+OpenRouter are imported only for this opt-in path. Each generated statement must cite an exact
+policy key or source document ID; unknown citations, mismatched ETF subjects, malformed output,
+explicit guarantees/recommendations/forecasts, and provider failures stop before review.
+Citation URLs and timestamps come from the validated evidence bundle, not from model output.
+
 Run the retrieval baseline without credentials, databases, or network access:
 
 ```powershell
@@ -115,7 +130,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/007-source-grounded-evidence.md`.
+The current delivery contract is in `docs/iterations/008-source-grounded-explanations.md`.
 
 ## License
 

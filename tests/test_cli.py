@@ -6,6 +6,13 @@ from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import EvidenceRetrievalError
 
 
+def test_explanation_demo_requires_evidence() -> None:
+    result = CliRunner().invoke(cli.app, ["demo", "--with-explanation"])
+
+    assert result.exit_code == 1
+    assert "--with-explanation requires --with-evidence" in result.output
+
+
 def test_evidence_demo_exits_nonzero_before_review_when_retrieval_fails(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
