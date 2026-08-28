@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Protocol
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
@@ -39,11 +40,18 @@ class SourceProvenance(BaseModel):
     source: str = Field(min_length=1, max_length=80)
     source_url: str = Field(min_length=1, max_length=1000)
     observed_at: datetime
+    quote_type: str = Field(min_length=1, max_length=40)
+    market: str = Field(min_length=1, max_length=80)
 
     @field_validator("symbol")
     @classmethod
     def normalize_symbol(cls, value: str) -> str:
         return value.strip().upper()
+
+    @field_validator("source_url")
+    @classmethod
+    def validate_source_url(cls, value: str) -> str:
+        return _validated_http_source_url(value)
 
     @field_validator("observed_at")
     @classmethod
@@ -51,6 +59,20 @@ class SourceProvenance(BaseModel):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("Source observation timestamps must be timezone-aware.")
         return value.astimezone(UTC)
+
+    @field_validator("quote_type")
+    @classmethod
+    def require_etf_quote_type(cls, value: str) -> str:
+        if value.strip().upper() != "ETF":
+            raise ValueError("Source metadata quote_type must identify an ETF.")
+        return "ETF"
+
+    @field_validator("market")
+    @classmethod
+    def require_us_market(cls, value: str) -> str:
+        if value.strip().lower() != "us_market":
+            raise ValueError("Source metadata market must identify a US listing.")
+        return "us_market"
 
 
 class CandidateEvidence(BaseModel):
@@ -65,6 +87,8 @@ class CandidateEvidence(BaseModel):
     source: str = Field(min_length=1, max_length=80)
     source_url: str = Field(min_length=1, max_length=1000)
     observed_at: datetime
+    quote_type: str = Field(min_length=1, max_length=40)
+    market: str = Field(min_length=1, max_length=80)
     distance: float | None = None
     metadata: dict[str, MetadataValue] = Field(default_factory=dict)
     fund_family: str | None = None
@@ -76,12 +100,31 @@ class CandidateEvidence(BaseModel):
     def normalize_symbol(cls, value: str) -> str:
         return value.strip().upper()
 
+    @field_validator("source_url")
+    @classmethod
+    def validate_source_url(cls, value: str) -> str:
+        return _validated_http_source_url(value)
+
     @field_validator("observed_at")
     @classmethod
     def normalize_timestamp(cls, value: datetime) -> datetime:
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("Candidate evidence timestamps must be timezone-aware.")
         return value.astimezone(UTC)
+
+    @field_validator("quote_type")
+    @classmethod
+    def require_etf_quote_type(cls, value: str) -> str:
+        if value.strip().upper() != "ETF":
+            raise ValueError("Candidate evidence quote_type must identify an ETF.")
+        return "ETF"
+
+    @field_validator("market")
+    @classmethod
+    def require_us_market(cls, value: str) -> str:
+        if value.strip().lower() != "us_market":
+            raise ValueError("Candidate evidence market must identify a US listing.")
+        return "us_market"
 
 
 class CandidateEvidenceBundle(BaseModel):
@@ -112,6 +155,23 @@ class CandidateEvidenceBundle(BaseModel):
     def validate_ready_bundle(self) -> CandidateEvidenceBundle:
         if self.checked_at != self.health.checked_at:
             raise ValueError("Evidence and health checks must use the same timestamp.")
+        if self.health.checked_at.tzinfo is None or self.health.checked_at.utcoffset() is None:
+            raise ValueError("Health-check timestamps must be timezone-aware.")
+        for observation in self.health.observations:
+            _validated_http_source_url(observation.source_url)
+            if (
+                observation.observed_at.tzinfo is None
+                or observation.observed_at.utcoffset() is None
+            ):
+                raise ValueError("Health observation timestamps must be timezone-aware.")
+        recomputed_health = assess_observations(
+            self.health.observations,
+            checked_at=self.health.checked_at,
+            max_age=timedelta(hours=self.health.max_age_hours),
+            future_tolerance=timedelta(minutes=self.health.future_tolerance_minutes),
+        )
+        if recomputed_health != self.health:
+            raise ValueError("Evidence health must match recomputed freshness classifications.")
         if self.status == EvidenceStatus.BLOCKED and not self.errors:
             raise ValueError("Blocked evidence must include at least one error.")
         if self.status == EvidenceStatus.READY:
@@ -302,6 +362,8 @@ def select_candidate_evidence(
                     source=provenance.source,
                     source_url=provenance.source_url,
                     observed_at=provenance.observed_at,
+                    quote_type=provenance.quote_type,
+                    market=provenance.market,
                     distance=result.distance,
                     metadata=dict(result.metadata),
                     fund_family=(
@@ -360,6 +422,8 @@ def _provenance_from_result(result: GraphEnrichedSource) -> SourceProvenance:
         source=_required_metadata_text(result, "source"),
         source_url=_required_metadata_text(result, "source_url"),
         observed_at=observed_at,
+        quote_type=_required_metadata_text(result, "quote_type"),
+        market=_required_metadata_text(result, "market"),
     )
 
 
@@ -387,6 +451,14 @@ def _validation_error_summary(error: ValidationError) -> str:
         location = ".".join(str(part) for part in item["loc"]) or "value"
         details.append(f"{location}: {item['msg']}")
     return "; ".join(details)
+
+
+def _validated_http_source_url(value: str) -> str:
+    normalized = value.strip()
+    parsed = urlsplit(normalized)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("Source URLs must use HTTP(S) and include a host.")
+    return normalized
 
 
 def _validate_limit(limit: int) -> None:

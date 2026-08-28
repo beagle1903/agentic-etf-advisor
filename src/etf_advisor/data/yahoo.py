@@ -72,6 +72,7 @@ class YahooFinanceAdapter:
             + (f" {observation.currency}" if observation.currency else ""),
             f"Observation timestamp (UTC): {observed_at.isoformat().replace('+00:00', 'Z')}",
             f"Quote type: {observation.quote_type or 'not reported'}",
+            f"Market: {observation.market or 'not reported'}",
             f"Category: {observation.category or 'not reported'}",
             f"Fund family: {observation.fund_family or 'not reported'}",
             f"Expense ratio: {observation.expense_ratio_pct:g}%"
@@ -98,6 +99,8 @@ class YahooFinanceAdapter:
             metadata["fund_family"] = observation.fund_family
         if observation.quote_type:
             metadata["quote_type"] = observation.quote_type
+        if observation.market:
+            metadata["market"] = observation.market
         if observation.expense_ratio_pct is not None:
             metadata["expense_ratio_pct"] = observation.expense_ratio_pct
 
@@ -143,6 +146,7 @@ class YahooFinanceAdapter:
             observed_at=observed_at,
             source_url=f"https://finance.yahoo.com/quote/{symbol}/",
             quote_type=_optional_text(info.get("quoteType")),
+            market=_optional_text(info.get("market")),
             category=_optional_text(info.get("category")),
             fund_family=_optional_text(info.get("fundFamily")),
             expense_ratio_pct=expense_ratio_pct,

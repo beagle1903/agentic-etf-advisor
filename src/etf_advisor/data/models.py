@@ -18,6 +18,7 @@ class ETFObservation(BaseModel):
     source: str = "yahoo_finance"
     source_url: str
     quote_type: str | None = Field(default=None, max_length=40)
+    market: str | None = Field(default=None, max_length=80)
     category: str | None = Field(default=None, max_length=120)
     fund_family: str | None = Field(default=None, max_length=160)
     expense_ratio_pct: float | None = Field(

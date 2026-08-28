@@ -103,6 +103,8 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
             "source": "yahoo_finance",
             "source_url": "https://finance.yahoo.com/quote/SPY/",
             "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
         },
     )
     retriever = HybridCandidateEvidenceRetriever(
@@ -148,6 +150,8 @@ def test_blocked_evidence_stops_before_human_review() -> None:
             "source": "yahoo_finance",
             "source_url": "https://finance.yahoo.com/quote/SPY/",
             "observed_at": "2026-08-26T00:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
         },
     )
     retriever = HybridCandidateEvidenceRetriever(
@@ -202,6 +206,8 @@ def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure()
             "source": "yahoo_finance",
             "source_url": "https://finance.yahoo.com/quote/SPY/",
             "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
         },
     )
     search = _SwitchableSearch([current])
@@ -241,6 +247,8 @@ def test_evidence_for_a_different_profile_is_blocked_before_review() -> None:
             "source": "yahoo_finance",
             "source_url": "https://finance.yahoo.com/quote/SPY/",
             "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
         },
     )
 
@@ -275,6 +283,56 @@ def test_evidence_for_a_different_profile_is_blocked_before_review() -> None:
         {
             "type": "evidence_contract",
             "message": "Evidence objective does not match the validated profile.",
+        }
+    ]
+    assert "__interrupt__" not in result
+
+
+def test_workflow_revalidates_freshness_from_replaceable_retrievers() -> None:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    current = GraphEnrichedSource(
+        document_id="doc-spy",
+        content="SPY source facts",
+        metadata={
+            "symbol": "SPY",
+            "source": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
+        },
+    )
+    ready = select_candidate_evidence(
+        InvestorProfile.model_validate(valid_profile()),
+        [current],
+        query="broad US exposure",
+        checked_at=checked_at,
+        max_age=timedelta(hours=24),
+    )
+    stale_time = checked_at - timedelta(hours=48)
+    forged_observation = ready.health.observations[0].model_copy(update={"observed_at": stale_time})
+    forged_health = ready.health.model_copy(update={"observations": [forged_observation]})
+    forged_candidate = ready.candidates[0].model_copy(update={"observed_at": stale_time})
+    forged_bundle = ready.model_copy(
+        update={"health": forged_health, "candidates": [forged_candidate]}
+    )
+
+    class ForgedRetriever:
+        def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+            return forged_bundle
+
+    graph = build_graph(checkpointer=InMemorySaver(), candidate_retriever=ForgedRetriever())
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "forged-freshness"}},
+    )
+
+    assert result["status"] == "evidence_blocked"
+    assert result["candidate_evidence"] == {}
+    assert result["evidence_errors"] == [
+        {
+            "type": "evidence_contract",
+            "message": "Source evidence bundle failed contract validation.",
         }
     ]
     assert "__interrupt__" not in result

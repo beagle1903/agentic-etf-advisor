@@ -71,10 +71,11 @@ uv run etf-advisor demo --with-evidence --candidate-limit 5
 ```
 
 The workflow builds a deterministic query from the profile, preserves Chroma's ranking,
-validates source URLs and UTC observation timestamps, and rechecks freshness before review.
-Missing, malformed, stale, or future-dated evidence stops the workflow before the interrupt.
-The evidence bundle is research context only; it does not select ETFs, allocate money, or
-execute trades.
+validates HTTP(S) source URLs and UTC observation timestamps, recomputes freshness, and
+requires source-reported ETF and US-market metadata before review. Missing, malformed,
+non-ETF, non-US, stale, or future-dated evidence stops the workflow before the interrupt. The
+evidence bundle is research context only; it does not select ETFs, allocate money, or execute
+trades.
 
 Run the retrieval baseline without credentials, databases, or network access:
 

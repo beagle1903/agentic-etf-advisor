@@ -59,12 +59,18 @@ The correction also makes ready-bundle health and profile/request consistency mo
 invariants, translates clock failures into blocked evidence, sanitizes validation errors, and
 keeps policy-only review text distinct from evidence-backed review text.
 
+A second automated review identified three additional trust-boundary gaps. Ready bundles now
+recompute freshness from their timestamped observations and are serialized and revalidated by
+the workflow, malformed non-HTTP(S) attribution URLs fail closed, and candidates require
+source-reported `quote_type=ETF` plus `market=us_market`. Yahoo ingestion now retains the market
+field needed by that review guardrail.
+
 ## Verification
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
 - `uv run mypy` passes.
-- `uv run pytest` passes offline (79 tests).
+- `uv run pytest` passes offline (84 tests).
 - The injected workflow reaches review with ready evidence and ends before review for stale
   or failed evidence.
 - JSON serialization of the evidence bundle succeeds without custom encoders.

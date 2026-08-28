@@ -51,9 +51,10 @@ verifies that every requested ID exists in both stores before reporting success.
 
 `demo --with-evidence` derives a deterministic query from its validated example profile,
 attaches ranked source evidence and optional graph context to the review interrupt, and
-rechecks freshness at retrieval time. Empty, malformed, stale, future-dated, or unavailable
-evidence stops before review and exits nonzero. The evidence is research context, not an ETF
-recommendation or trade instruction.
+recomputes freshness at retrieval time. Empty, malformed, non-ETF, non-US, stale,
+future-dated, or unavailable evidence stops before review and exits nonzero. Ready candidates
+require HTTP(S) attribution plus source-reported `quote_type=ETF` and `market=us_market`. The
+evidence is research context, not an ETF recommendation or trade instruction.
 
 ## Run the offline retrieval baseline
 

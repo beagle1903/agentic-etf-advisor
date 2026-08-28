@@ -41,3 +41,12 @@ evidence, review-decision, and final-message state. The post-retrieval router us
 node status rather than a retained evidence payload. A ready bundle must also have matching
 profile constraints, request limit, check timestamp, healthy observations, and a current
 health record for every candidate.
+
+## Subsequent review hardening
+
+Ready-bundle validation recomputes freshness from observation timestamps instead of trusting
+stored status, age, or health fields. The workflow serializes and revalidates every injected
+retriever result at its boundary, including instances created without normal model validation.
+Attributable evidence also requires an HTTP(S) source URL and source-reported Yahoo metadata
+identifying both an ETF (`quote_type=ETF`) and a US listing (`market=us_market`). Missing or
+conflicting instrument metadata blocks review.

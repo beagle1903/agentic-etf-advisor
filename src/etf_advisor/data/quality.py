@@ -30,7 +30,7 @@ class FreshnessStatus(StrEnum):
 class ObservationHealth(BaseModel):
     """Freshness result with the provenance needed to investigate it."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
     symbol: str
     source: str
@@ -44,7 +44,7 @@ class ObservationHealth(BaseModel):
 class MarketDataHealthReport(BaseModel):
     """A source-health snapshot produced before retrieval-store writes."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
     checked_at: datetime
     max_age_hours: float = Field(gt=0)

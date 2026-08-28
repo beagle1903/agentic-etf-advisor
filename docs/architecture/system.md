@@ -46,9 +46,11 @@ graph-aware reranking.
 The workflow can receive an injected `CandidateEvidenceRetriever` at its side-effect
 boundary. The live adapter wraps the existing hybrid retriever, converts ranked results into
 an evidence bundle, and rechecks source URL, observation timestamp, and freshness before the
-human-review interrupt. It preserves the first result for each symbol and omits mismatched
-graph context rather than fabricating a relationship. The current source contract does not
-report sector exposures, so excluded sectors remain visible as an unverified constraint.
+human-review interrupt. Ready evidence requires an attributable HTTP(S) URL and Yahoo's
+source-reported `quote_type=ETF` and `market=us_market` metadata. It preserves the first result
+for each symbol and omits mismatched graph context rather than fabricating a relationship. The
+current source contract does not report sector exposures, so excluded sectors remain visible
+as an unverified constraint.
 
 ## Retrieval evaluation
 
@@ -96,9 +98,11 @@ The optional evidence node receives its retriever through dependency injection. 
 captures one injected UTC check time, includes freshness results in state, and ends the run
 before review when retrieval is empty, provenance is incomplete, or any observation is stale
 or too far in the future. A live store failure is translated into an evidence error instead
-of producing an ungrounded review payload. Each new run clears downstream review artifacts,
-and routing uses the current node status so a reused durable thread cannot carry previously
-ready evidence across a new retrieval failure.
+of producing an ungrounded review payload. The evidence model recomputes health classifications
+from timestamps and the declared freshness window, and the workflow revalidates the serialized
+bundle so a replaceable retriever cannot bypass those invariants with an unvalidated model.
+Each new run clears downstream review artifacts, and routing uses the current node status so a
+reused durable thread cannot carry previously ready evidence across a new retrieval failure.
 
 The current policy calculation is pure and runs before evidence retrieval and the review
 interrupt. It is an arithmetic policy illustration rather than ETF selection or a prediction;

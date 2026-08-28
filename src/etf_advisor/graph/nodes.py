@@ -9,6 +9,7 @@ from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.graph.state import AdvisorState
 from etf_advisor.rag.evidence import (
+    CandidateEvidenceBundle,
     CandidateEvidenceRetriever,
     EvidenceRetrievalError,
     EvidenceStatus,
@@ -65,11 +66,21 @@ def retrieve_candidate_evidence(
 
     profile = InvestorProfile.model_validate(state["profile"])
     try:
-        bundle = retriever.retrieve(profile, limit=limit)
+        retrieved_bundle = retriever.retrieve(profile, limit=limit)
     except EvidenceRetrievalError as exc:
         return {
             "candidate_evidence": {},
             "evidence_errors": [{"type": "retrieval_error", "message": str(exc)}],
+            "status": "evidence_blocked",
+        }
+
+    try:
+        bundle = CandidateEvidenceBundle.model_validate(retrieved_bundle.model_dump(mode="python"))
+    except (AttributeError, TypeError, ValueError, ValidationError):
+        message = "Source evidence bundle failed contract validation."
+        return {
+            "candidate_evidence": {},
+            "evidence_errors": [{"type": "evidence_contract", "message": message}],
             "status": "evidence_blocked",
         }
 

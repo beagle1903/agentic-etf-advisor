@@ -47,6 +47,8 @@ def source(
         "source": "yahoo_finance",
         "source_url": f"https://finance.yahoo.com/quote/{symbol}/",
         "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
+        "quote_type": "ETF",
+        "market": "us_market",
         "category": "Large Blend",
         "fund_family": "Example Funds",
         "expense_ratio_pct": 0.03,
@@ -151,6 +153,49 @@ def test_missing_provenance_blocks_without_fabricating_source_details() -> None:
     assert results.health.observations == []
     assert "doc-qqq-11" in results.errors[0]
     assert "source_url" in results.errors[0]
+
+
+def test_malformed_source_url_blocks_review_evidence() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("QQQ", metadata_overrides={"source_url": "not-a-url"})],
+        query="technology exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert results.health.observations == []
+    assert "HTTP(S)" in results.errors[0]
+
+
+def test_non_etf_source_blocks_review_evidence() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("AAPL", metadata_overrides={"quote_type": "EQUITY"})],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert "quote_type" in results.errors[0]
+
+
+def test_non_us_listing_blocks_review_evidence() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("EUNL.DE", metadata_overrides={"market": "de_market"})],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert "market" in results.errors[0]
 
 
 def test_invalid_source_content_blocks_without_crashing_the_workflow() -> None:
@@ -298,7 +343,7 @@ def test_ready_bundle_requires_matching_healthy_observations() -> None:
     unhealthy_payload = ready.model_dump(mode="python")
     unhealthy_payload["health"]["healthy"] = False
 
-    with pytest.raises(ValidationError, match="healthy source report"):
+    with pytest.raises(ValidationError, match="recomputed freshness"):
         CandidateEvidenceBundle.model_validate(unhealthy_payload)
 
     mismatched_time_payload = ready.model_dump(mode="python")
@@ -312,3 +357,20 @@ def test_ready_bundle_requires_matching_healthy_observations() -> None:
 
     with pytest.raises(ValidationError, match="at least one error"):
         CandidateEvidenceBundle.model_validate(unexplained_block_payload)
+
+
+def test_ready_bundle_recomputes_freshness_instead_of_trusting_status_labels() -> None:
+    ready = select_candidate_evidence(
+        profile(),
+        [source("SPY")],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+    forged_payload = ready.model_dump(mode="python")
+    stale_time = CHECKED_AT - timedelta(hours=48)
+    forged_payload["candidates"][0]["observed_at"] = stale_time
+    forged_payload["health"]["observations"][0]["observed_at"] = stale_time
+
+    with pytest.raises(ValidationError, match="recomputed freshness"):
+        CandidateEvidenceBundle.model_validate(forged_payload)
