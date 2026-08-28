@@ -9,6 +9,8 @@ class AdvisorState(TypedDict, total=False):
     draft_policy: dict[str, Any]
     candidate_evidence: dict[str, Any]
     evidence_errors: list[dict[str, Any]]
+    draft_explanation: dict[str, Any]
+    explanation_errors: list[dict[str, Any]]
     review_decision: dict[str, Any]
     status: str
     final_message: str

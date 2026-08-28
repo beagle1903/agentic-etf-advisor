@@ -1,10 +1,19 @@
 import json
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.explanation import (
+    ExplanationGenerationError,
+    ExplanationRequest,
+    ExplanationResult,
+    GeneratedExplanation,
+    GroundedStatement,
+    GroundingBasis,
+)
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import (
     CandidateEvidenceBundle,
@@ -138,6 +147,110 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     assert completed["status"] == "approved"
     assert completed["final_message"].startswith("Policy draft and source evidence approved")
     assert "No ETF recommendation or trade" in completed["final_message"]
+
+
+def test_injected_explanation_is_grounded_before_review() -> None:
+    retriever = _current_evidence_retriever()
+    calls: list[str] = []
+
+    class FixedGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            calls.append(request.profile.objective.value)
+            assert request.candidate_evidence.status == "ready"
+            return ExplanationResult(
+                provider="test",
+                model="fixed",
+                explanation=_valid_generated_explanation(),
+            )
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=retriever,
+        explanation_generator=FixedGenerator(),
+    )
+    config = {"configurable": {"thread_id": "explanation-review"}}
+
+    paused = graph.invoke({"profile": valid_profile()}, config=config)
+
+    assert paused["status"] == "awaiting_human_review"
+    assert paused["draft_explanation"]["status"] == "ready"
+    assert paused["draft_explanation"]["citations"][0]["document_id"] == "doc-spy"
+    assert paused["__interrupt__"][0].value["draft_explanation"] == paused["draft_explanation"]
+    assert "grounded explanation" in paused["__interrupt__"][0].value["question"].lower()
+    json.dumps(paused["draft_explanation"])
+
+    completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
+    assert completed["status"] == "approved"
+    assert completed["final_message"].startswith("Grounded explanation")
+    assert calls == ["growth"]
+
+
+def test_explanation_failure_stops_before_human_review() -> None:
+    class FailingGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            raise ExplanationGenerationError("provider unavailable")
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=FailingGenerator(),
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "explanation-failure"}},
+    )
+
+    assert result["status"] == "explanation_blocked"
+    assert result["draft_explanation"] == {}
+    assert result["explanation_errors"] == [
+        {"type": "generation_error", "message": "provider unavailable"}
+    ]
+    assert "__interrupt__" not in result
+
+
+def test_reused_thread_clears_prior_explanation_before_provider_failure() -> None:
+    class SwitchableGenerator:
+        fail = False
+
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            if self.fail:
+                raise ExplanationGenerationError("provider unavailable")
+            return ExplanationResult(
+                provider="test",
+                model="fixed",
+                explanation=_valid_generated_explanation(),
+            )
+
+    generator = SwitchableGenerator()
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=generator,
+    )
+    config = {"configurable": {"thread_id": "reused-explanation-thread"}}
+
+    first_paused = graph.invoke({"profile": valid_profile()}, config=config)
+    assert first_paused["draft_explanation"]["status"] == "ready"
+    graph.invoke(Command(resume={"action": "approve"}), config=config)
+
+    generator.fail = True
+    second_result = graph.invoke({"profile": valid_profile()}, config=config)
+
+    assert second_result["status"] == "explanation_blocked"
+    assert second_result["draft_explanation"] == {}
+    assert second_result["review_decision"] == {}
+    assert second_result["final_message"] == ""
+    assert "__interrupt__" not in second_result
+
+
+def test_explanation_generator_requires_evidence_retriever() -> None:
+    class UnusedGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            raise AssertionError("must not be called")
+
+    with pytest.raises(ValueError, match="requires a candidate evidence retriever"):
+        build_graph(explanation_generator=UnusedGenerator())
 
 
 def test_blocked_evidence_stops_before_human_review() -> None:
@@ -355,3 +468,56 @@ class _SwitchableSearch(_FixedSearch):
         if self.fail:
             raise OSError("store unavailable")
         return super().search(query, limit=limit)
+
+
+def _current_evidence_retriever() -> HybridCandidateEvidenceRetriever:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    result = GraphEnrichedSource(
+        document_id="doc-spy",
+        content="SPY source facts",
+        metadata={
+            "symbol": "SPY",
+            "source": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
+        },
+    )
+    return HybridCandidateEvidenceRetriever(
+        _FixedSearch([result]),
+        clock=lambda: checked_at,
+        max_age=timedelta(hours=24),
+    )
+
+
+def _valid_generated_explanation() -> GeneratedExplanation:
+    return GeneratedExplanation(
+        summary=GroundedStatement(
+            text="This illustrates a growth objective.",
+            basis=GroundingBasis.POLICY,
+            references=["profile.objective"],
+        ),
+        policy_points=[
+            GroundedStatement(
+                text="The target remains inside the policy band.",
+                basis=GroundingBasis.POLICY,
+                references=["policy.target_allocation"],
+            )
+        ],
+        evidence_points=[
+            GroundedStatement(
+                text="SPY is source-grounded research context.",
+                basis=GroundingBasis.SOURCE,
+                references=["doc-spy"],
+                subject_symbols=["SPY"],
+            )
+        ],
+        tradeoffs=[
+            GroundedStatement(
+                text="The drawdown tolerance remains a review constraint.",
+                basis=GroundingBasis.POLICY,
+                references=["profile.max_drawdown_pct"],
+            )
+        ],
+    )

@@ -20,6 +20,10 @@ from etf_advisor.data.quality import (
 )
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
+from etf_advisor.explanation.provider import (
+    ProviderConfigurationError,
+    create_explanation_generator,
+)
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore, ChromaUnavailable
 from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenceRetriever
@@ -75,11 +79,18 @@ def demo(
         max=MAX_CANDIDATE_LIMIT,
         help="Maximum source-grounded ETF evidence candidates to attach to review.",
     ),
+    with_explanation: bool = typer.Option(
+        False,
+        "--with-explanation",
+        help="Generate a provider-backed grounded explanation before human review.",
+    ),
 ) -> None:
     """Run a profile -> evidence -> review -> approval lifecycle."""
 
     graph_store: Neo4jGraphStore | None = None
     try:
+        if with_explanation and not with_evidence:
+            raise ProviderConfigurationError("--with-explanation requires --with-evidence.")
         candidate_retriever: HybridCandidateEvidenceRetriever | None = None
         if with_evidence:
             semantic_store = ChromaDocumentStore(
@@ -98,10 +109,13 @@ def demo(
                 future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
             )
 
+        explanation_generator = create_explanation_generator(settings) if with_explanation else None
+
         graph = build_graph(
             checkpointer=InMemorySaver(),
             candidate_retriever=candidate_retriever,
             candidate_limit=candidate_limit,
+            explanation_generator=explanation_generator,
         )
         config = {"configurable": {"thread_id": str(uuid4())}}
         profile = {
@@ -124,7 +138,14 @@ def demo(
         _print_state("Resumed after approval:", completed)
     except typer.Exit:
         raise
-    except (ChromaUnavailable, Neo4jUnavailable, OSError, RuntimeError, ValueError) as exc:
+    except (
+        ChromaUnavailable,
+        Neo4jUnavailable,
+        OSError,
+        ProviderConfigurationError,
+        RuntimeError,
+        ValueError,
+    ) as exc:
         typer.echo(f"Demo failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc
     finally:

@@ -75,6 +75,14 @@ result is converted with `model_dump(mode="json")` before entering graph state, 
 calculation does not add a top-level state field or introduce a clock, network, database,
 provider, forecast, or trade side effect.
 
+The optional explanation stage receives a provider-agnostic `ExplanationGenerator`. It sends
+an allowlisted policy-reference index and a bounded set of source records to a structured
+Ollama or OpenRouter adapter. Every returned statement declares a policy or source-evidence
+basis. Deterministic validation rejects unknown keys, unknown document IDs, and ETF subjects
+that do not match their cited records. Citation URLs and timestamps are copied from validated
+evidence, not model output. Source text is treated as untrusted quoted data, provider failures
+stop before review, and fixed safety limitations are appended after generation.
+
 ## Workflow stages
 
 1. Validate the investor profile.
@@ -103,6 +111,11 @@ from timestamps and the declared freshness window, and the workflow revalidates 
 bundle so a replaceable retriever cannot bypass those invariants with an unvalidated model.
 Each new run clears downstream review artifacts, and routing uses the current node status so a
 reused durable thread cannot carry previously ready evidence across a new retrieval failure.
+
+The explanation node is also optional and requires ready evidence. Its generated bundle and
+errors are cleared during every profile-validation run, preventing a reused durable thread
+from retaining a prior provider result. Policy-only and evidence-only flows remain available
+for deterministic and local-store testing.
 
 The current policy calculation is pure and runs before evidence retrieval and the review
 interrupt. It is an arithmetic policy illustration rather than ETF selection or a prediction;
