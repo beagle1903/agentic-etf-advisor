@@ -37,6 +37,7 @@ uv sync --extra rag
 uv run etf-advisor data-health --symbols SPY,QQQ
 uv run etf-advisor ingest --symbols SPY,QQQ --with-graph
 uv run etf-advisor hybrid-search "broad US equity exposure"
+uv run etf-advisor demo --with-evidence --candidate-limit 5
 ```
 
 `data-health` is read-only and prints each source URL, observation timestamp, age, and
@@ -47,6 +48,13 @@ retrieval store.
 Both writes are idempotent because they use the same stable source document IDs. If one
 local service fails during ingestion, restore it and rerun the same command; the command
 verifies that every requested ID exists in both stores before reporting success.
+
+`demo --with-evidence` derives a deterministic query from its validated example profile,
+attaches ranked source evidence and optional graph context to the review interrupt, and
+recomputes freshness at retrieval time. Empty, malformed, non-ETF, non-US, stale,
+future-dated, or unavailable evidence stops before review and exits nonzero. Ready candidates
+require HTTP(S) attribution plus source-reported `quote_type=ETF` and `market=us_market`. The
+evidence is research context, not an ETF recommendation or trade instruction.
 
 ## Run the offline retrieval baseline
 

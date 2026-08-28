@@ -31,6 +31,7 @@ class FakeTicker:
         "longName": "Fake Broad Market ETF",
         "currency": "USD",
         "quoteType": "ETF",
+        "market": "us_market",
         "category": "Large Blend",
         "fundFamily": "Example Funds",
         "netExpenseRatio": 0.03,
@@ -52,9 +53,12 @@ def test_yahoo_adapter_normalizes_and_preserves_provenance() -> None:
     assert observation.close_price == 512.34
     assert observation.observed_at.tzinfo == UTC
     assert observation.expense_ratio_pct == 0.03
+    assert observation.market == "us_market"
     assert document.document_id.startswith("yahoo-finance:spy:")
     assert document.chroma_metadata()["source_url"] == "https://finance.yahoo.com/quote/SPY/"
     assert document.chroma_metadata()["expense_ratio_pct"] == 0.03
+    assert document.chroma_metadata()["quote_type"] == "ETF"
+    assert document.chroma_metadata()["market"] == "us_market"
     assert "Latest reported close: 512.34 USD" in document.content
     assert "Expense ratio: 0.03%" in document.content
 

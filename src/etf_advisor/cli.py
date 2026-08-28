@@ -22,6 +22,7 @@ from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore, ChromaUnavailable
+from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenceRetriever
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError, index_documents
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
@@ -62,26 +63,73 @@ def _assess_market_data(
 
 
 @app.command()
-def demo() -> None:
-    """Run a deterministic profile -> review -> approval lifecycle."""
+def demo(
+    with_evidence: bool = typer.Option(
+        False,
+        "--with-evidence",
+        help="Retrieve current source evidence from local Chroma and Neo4j before review.",
+    ),
+    candidate_limit: int = typer.Option(
+        5,
+        min=1,
+        max=MAX_CANDIDATE_LIMIT,
+        help="Maximum source-grounded ETF evidence candidates to attach to review.",
+    ),
+) -> None:
+    """Run a profile -> evidence -> review -> approval lifecycle."""
 
-    graph = build_graph(checkpointer=InMemorySaver())
-    config = {"configurable": {"thread_id": str(uuid4())}}
-    profile = {
-        "horizon_years": 12,
-        "risk_tolerance": "moderate",
-        "objective": "balanced",
-        "max_drawdown_pct": 25,
-        "initial_investment_usd": 25_000,
-        "recurring_monthly_usd": 500,
-        "excluded_sectors": [],
-    }
+    graph_store: Neo4jGraphStore | None = None
+    try:
+        candidate_retriever: HybridCandidateEvidenceRetriever | None = None
+        if with_evidence:
+            semantic_store = ChromaDocumentStore(
+                host=settings.chroma_host,
+                port=settings.chroma_port,
+                collection_name=settings.chroma_collection,
+            )
+            graph_store = Neo4jGraphStore(
+                uri=settings.neo4j_uri,
+                auth=settings.neo4j_credentials(),
+            )
+            candidate_retriever = HybridCandidateEvidenceRetriever(
+                HybridRetriever(semantic_store, graph_store),
+                clock=system_utc_now,
+                max_age=timedelta(hours=settings.market_data_max_age_hours),
+                future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+            )
 
-    paused = graph.invoke({"profile": profile}, config=config)
-    _print_state("Paused for human review:", paused)
+        graph = build_graph(
+            checkpointer=InMemorySaver(),
+            candidate_retriever=candidate_retriever,
+            candidate_limit=candidate_limit,
+        )
+        config = {"configurable": {"thread_id": str(uuid4())}}
+        profile = {
+            "horizon_years": 12,
+            "risk_tolerance": "moderate",
+            "objective": "balanced",
+            "max_drawdown_pct": 25,
+            "initial_investment_usd": 25_000,
+            "recurring_monthly_usd": 500,
+            "excluded_sectors": [],
+        }
 
-    completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
-    _print_state("Resumed after approval:", completed)
+        paused = graph.invoke({"profile": profile}, config=config)
+        if paused.get("status") != "awaiting_human_review":
+            _print_state("Workflow stopped before human review:", paused)
+            raise typer.Exit(code=1)
+        _print_state("Paused for human review:", paused)
+
+        completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
+        _print_state("Resumed after approval:", completed)
+    except typer.Exit:
+        raise
+    except (ChromaUnavailable, Neo4jUnavailable, OSError, RuntimeError, ValueError) as exc:
+        typer.echo(f"Demo failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    finally:
+        if graph_store is not None:
+            graph_store.close()
 
 
 @app.command()

@@ -5,8 +5,9 @@ LangGraph. The project is designed as a sequence of small, testable vertical sli
 
 The implemented slices validate an investor profile with human review, calculate an
 illustrative policy split, health-check and ingest attributable ETF snapshots, join
-Chroma-ranked documents to source-linked Neo4j context, and compare the semantic-only and
-graph-enriched paths on a deterministic offline evaluation set.
+Chroma-ranked documents to source-linked Neo4j context, compare the semantic-only and
+graph-enriched paths on a deterministic offline evaluation set, and optionally attach a
+freshness-checked source-evidence bundle to the review interrupt.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -62,6 +63,20 @@ source document IDs form the join boundary, and a missing graph record is return
 `graph_context: null` instead of silently fabricating context. Yahoo fund-family metadata is
 not presented as a legal issuer.
 
+Run the local workflow with retrieved evidence attached to human review after indexing the
+same source bundle:
+
+```powershell
+uv run etf-advisor demo --with-evidence --candidate-limit 5
+```
+
+The workflow builds a deterministic query from the profile, preserves Chroma's ranking,
+validates HTTP(S) source URLs and UTC observation timestamps, recomputes freshness, and
+requires source-reported ETF and US-market metadata before review. Missing, malformed,
+non-ETF, non-US, stale, or future-dated evidence stops the workflow before the interrupt. The
+evidence bundle is research context only; it does not select ETFs, allocate money, or execute
+trades.
+
 Run the retrieval baseline without credentials, databases, or network access:
 
 ```powershell
@@ -100,8 +115,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in
-`docs/iterations/006-deterministic-policy-calculation.md`.
+The current delivery contract is in `docs/iterations/007-source-grounded-evidence.md`.
 
 ## License
 
