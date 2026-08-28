@@ -43,6 +43,13 @@ when metadata disappears, so hybrid search cannot retain stale snapshot context.
 distance remains the ordering signal until a later evaluation demonstrates useful
 graph-aware reranking.
 
+The workflow can receive an injected `CandidateEvidenceRetriever` at its side-effect
+boundary. The live adapter wraps the existing hybrid retriever, converts ranked results into
+an evidence bundle, and rechecks source URL, observation timestamp, and freshness before the
+human-review interrupt. It preserves the first result for each symbol and omits mismatched
+graph context rather than fabricating a relationship. The current source contract does not
+report sector exposures, so excluded sectors remain visible as an unverified constraint.
+
 ## Retrieval evaluation
 
 The first offline baseline replays one versioned, curated candidate set through two explicit
@@ -71,8 +78,8 @@ provider, forecast, or trade side effect.
 1. Validate the investor profile.
 2. Clarify missing or contradictory constraints.
 3. Fetch and validate timestamped market/reference data.
-4. Retrieve unstructured and graph context.
-5. Calculate deterministic portfolio constraints and illustrative candidate ranges.
+4. Calculate deterministic portfolio constraints and illustrative policy ranges.
+5. Retrieve and validate source-grounded ETF evidence.
 6. Draft a source-grounded explanation.
 7. Run rule-based and evaluation guardrails.
 8. Pause for human review.
@@ -85,9 +92,15 @@ database writes are wrapped as explicit tasks or adapters so replay after an int
 predictable. Development tests use an in-memory checkpointer; multi-user environments use
 PostgreSQL-backed checkpoints.
 
-The current policy calculation is pure and runs before the review interrupt. It is an
-arithmetic policy illustration rather than ETF selection or a prediction; source-grounded
-ETF candidates remain a separate future stage.
+The optional evidence node receives its retriever through dependency injection. The adapter
+captures one injected UTC check time, includes freshness results in state, and ends the run
+before review when retrieval is empty, provenance is incomplete, or any observation is stale
+or too far in the future. A live store failure is translated into an evidence error instead
+of producing an ungrounded review payload.
+
+The current policy calculation is pure and runs before evidence retrieval and the review
+interrupt. It is an arithmetic policy illustration rather than ETF selection or a prediction;
+source-grounded evidence remains research context rather than a recommendation.
 
 Investor-profile validation accepts only finite initial and recurring cash amounts from
 zero through one trillion USD. Unsupported values therefore fail before decimal cent
@@ -109,3 +122,7 @@ retains the source name, URL, observation time, age, status, and reason so the s
 can be rendered by later presentation layers. The default 120-hour window accommodates
 daily-close weekends and common market holidays; it does not label those snapshots as live
 data.
+
+The same quality policy is applied again when retrieved documents become workflow evidence.
+This protects against older snapshots remaining in a retrieval collection after a later
+ingestion and keeps the review boundary fail-closed.

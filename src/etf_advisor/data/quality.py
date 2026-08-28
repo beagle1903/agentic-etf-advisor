@@ -3,10 +3,18 @@
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from enum import StrEnum
+from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from etf_advisor.data.models import ETFObservation
+
+class TimestampedSource(Protocol):
+    """The provenance fields required by the shared freshness policy."""
+
+    symbol: str
+    source: str
+    source_url: str
+    observed_at: datetime
 
 
 class MarketDataQualityError(RuntimeError):
@@ -56,7 +64,7 @@ class MarketDataHealthReport(BaseModel):
 
 
 def assess_observations(
-    observations: Sequence[ETFObservation],
+    observations: Sequence[TimestampedSource],
     *,
     checked_at: datetime,
     max_age: timedelta,

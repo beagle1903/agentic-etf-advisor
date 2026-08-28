@@ -1,0 +1,269 @@
+import json
+from datetime import UTC, datetime, timedelta
+from typing import ClassVar
+
+import pytest
+
+from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.rag.evidence import (
+    EvidenceRetrievalError,
+    EvidenceStatus,
+    HybridCandidateEvidenceRetriever,
+    build_candidate_query,
+    select_candidate_evidence,
+)
+from etf_advisor.rag.models import GraphContext, GraphEnrichedSource
+
+CHECKED_AT = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+
+
+def profile(
+    *, objective: str = "balanced", excluded_sectors: list[str] | None = None
+) -> InvestorProfile:
+    return InvestorProfile(
+        horizon_years=12,
+        risk_tolerance="moderate",
+        objective=objective,
+        max_drawdown_pct=25,
+        initial_investment_usd=25_000,
+        recurring_monthly_usd=500,
+        excluded_sectors=excluded_sectors or [],
+    )
+
+
+def source(
+    symbol: str,
+    *,
+    observed_at: datetime = CHECKED_AT - timedelta(hours=1),
+    distance: float = 0.1,
+    graph_context: GraphContext | None = None,
+    metadata_overrides: dict[str, str | int | float | bool] | None = None,
+) -> GraphEnrichedSource:
+    metadata: dict[str, str | int | float | bool] = {
+        "symbol": symbol,
+        "name": f"{symbol} test ETF",
+        "source": "yahoo_finance",
+        "source_url": f"https://finance.yahoo.com/quote/{symbol}/",
+        "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
+        "category": "Large Blend",
+        "fund_family": "Example Funds",
+        "expense_ratio_pct": 0.03,
+    }
+    if metadata_overrides:
+        metadata.update(metadata_overrides)
+    return GraphEnrichedSource(
+        document_id=f"doc-{symbol.lower()}-{observed_at.hour}",
+        content=f"{symbol} source facts",
+        metadata=metadata,
+        distance=distance,
+        graph_context=graph_context,
+    )
+
+
+def test_query_is_deterministic_and_carries_profile_constraints() -> None:
+    query = build_candidate_query(profile(objective="growth", excluded_sectors=["energy"]))
+
+    assert query == (
+        "US-listed ETF research evidence for long-horizon growth objectives and moderate "
+        "risk tolerance. Return attributable reported category, fund family, expense ratio, "
+        "latest close, and source timestamps. Reported sector exposure must be checked against "
+        "these exclusions: energy."
+    )
+
+
+def test_current_sources_become_ranked_json_safe_evidence() -> None:
+    results = select_candidate_evidence(
+        profile(excluded_sectors=["energy"]),
+        [
+            source(
+                "SPY",
+                graph_context=GraphContext(
+                    source_document_id="doc-spy-11",
+                    symbol="SPY",
+                    etf_name="SPDR S&P 500 ETF Trust",
+                    fund_family="State Street Global Advisors",
+                    category="Large Blend",
+                ),
+            ),
+            source("BND", distance=0.2),
+        ],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+        limit=2,
+    )
+
+    assert results.status == EvidenceStatus.READY
+    assert [candidate.symbol for candidate in results.candidates] == ["SPY", "BND"]
+    assert results.candidates[0].source_url.endswith("/SPY/")
+    assert results.candidates[0].graph_context is not None
+    assert results.candidates[0].graph_context.fund_family == "State Street Global Advisors"
+    assert results.health.healthy is True
+    assert any("sector exclusions" in warning.lower() for warning in results.warnings)
+    json.dumps(results.model_dump(mode="json"))
+
+
+def test_stale_source_blocks_review_evidence_and_retains_health_details() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("SPY", observed_at=CHECKED_AT - timedelta(hours=25))],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert results.health.healthy is False
+    assert results.health.observations[0].status == "stale"
+    assert results.health.observations[0].source_url.endswith("/SPY/")
+    assert any("every observation is current" in error for error in results.errors)
+
+
+def test_future_source_blocks_review_evidence() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("QQQ", observed_at=CHECKED_AT + timedelta(minutes=6))],
+        query="technology exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+        future_tolerance=timedelta(minutes=5),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert results.health.observations[0].status == "future"
+
+
+def test_missing_provenance_blocks_without_fabricating_source_details() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("QQQ", metadata_overrides={"source_url": ""})],
+        query="technology exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert results.health.observations == []
+    assert "doc-qqq-11" in results.errors[0]
+    assert "source_url" in results.errors[0]
+
+
+def test_invalid_source_content_blocks_without_crashing_the_workflow() -> None:
+    invalid = source("SPY").model_copy(update={"content": ""})
+
+    results = select_candidate_evidence(
+        profile(),
+        [invalid],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert "evidence fields are invalid" in results.errors[0]
+
+
+def test_mismatched_graph_context_is_omitted_without_fabricating_a_join() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [
+            source(
+                "VTI",
+                graph_context=GraphContext(
+                    source_document_id="different-document",
+                    symbol="QQQ",
+                    etf_name="Wrong ETF context",
+                ),
+            )
+        ],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.READY
+    assert results.candidates[0].graph_context is None
+    assert any("does not match" in warning for warning in results.warnings)
+
+
+def test_empty_retrieval_blocks_with_an_explicit_error() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.BLOCKED
+    assert results.candidates == []
+    assert results.health.healthy is False
+    assert any("No source evidence" in error for error in results.errors)
+
+
+def test_duplicate_symbols_keep_first_semantic_result() -> None:
+    results = select_candidate_evidence(
+        profile(),
+        [source("VTI", distance=0.1), source("VTI", distance=0.2)],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+        limit=2,
+    )
+
+    assert results.status == EvidenceStatus.READY
+    assert len(results.candidates) == 1
+    assert results.candidates[0].distance == 0.1
+    assert any("Duplicate source result" in warning for warning in results.warnings)
+
+
+class FakeHybridSearch:
+    results: ClassVar[list[GraphEnrichedSource]] = [source("SPY")]
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, int]] = []
+
+    def search(self, query: str, limit: int = 5) -> list[GraphEnrichedSource]:
+        self.calls.append((query, limit))
+        return self.results
+
+
+def test_hybrid_evidence_adapter_injects_clock_and_preserves_query() -> None:
+    search = FakeHybridSearch()
+    clock_calls = 0
+
+    def clock() -> datetime:
+        nonlocal clock_calls
+        clock_calls += 1
+        return CHECKED_AT
+
+    adapter = HybridCandidateEvidenceRetriever(
+        search,
+        clock=clock,
+        max_age=timedelta(hours=24),
+    )
+    result = adapter.retrieve(profile(objective="income"), limit=3)
+
+    assert result.status == EvidenceStatus.READY
+    assert result.candidates[0].symbol == "SPY"
+    assert search.calls == [(build_candidate_query(profile(objective="income")), 3)]
+    assert clock_calls == 1
+
+
+def test_hybrid_evidence_adapter_translates_store_failures() -> None:
+    class FailingSearch:
+        def search(self, query: str, limit: int = 5) -> list[GraphEnrichedSource]:
+            raise OSError("store unavailable")
+
+    adapter = HybridCandidateEvidenceRetriever(
+        FailingSearch(),
+        clock=lambda: CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    with pytest.raises(EvidenceRetrievalError, match="Source evidence retrieval failed"):
+        adapter.retrieve(profile())
