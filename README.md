@@ -34,6 +34,26 @@ the stated objective and shows cent-rounded arithmetic splits for the initial an
 USD amounts. It remains an illustrative policy calculation: it does not select ETFs,
 forecast returns or drawdowns, execute trades, or guarantee results.
 
+Install and start the local phase-one dashboard:
+
+```powershell
+uv sync --extra dashboard
+uv run etf-advisor dashboard
+```
+
+Open `http://127.0.0.1:8501`, complete the profile, inspect the exact workflow review payload,
+and approve, edit, or reject it. The default policy-only path is offline. Source evidence and a
+provider-backed explanation are opt-in and require their corresponding extras, local services,
+indexed data, and provider configuration. Checkpoints live only in the current Streamlit browser
+session in this iteration; refreshing or losing that session is not a durable resume mechanism.
+
+For the opt-in evidence and explanation path, install all required adapters together:
+
+```powershell
+uv sync --extra dashboard --extra rag --extra providers
+uv run etf-advisor dashboard
+```
+
 Install the Iteration 001 data and retrieval integrations:
 
 ```powershell
@@ -130,7 +150,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/008-source-grounded-explanations.md`.
+The current delivery contract is in `docs/iterations/009-local-dashboard-human-review.md`.
 
 ## License
 
