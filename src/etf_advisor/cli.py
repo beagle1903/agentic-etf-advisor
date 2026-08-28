@@ -1,7 +1,10 @@
 """Small command-line entry points for testable local development."""
 
 import json
+import subprocess
+import sys
 from datetime import timedelta
+from importlib.util import find_spec
 from pathlib import Path
 from typing import Annotated, Any
 from uuid import uuid4
@@ -64,6 +67,38 @@ def _assess_market_data(
         max_age=timedelta(hours=settings.market_data_max_age_hours),
         future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
     )
+
+
+@app.command()
+def dashboard(
+    port: int = typer.Option(8501, min=1024, max=65535, help="Local Streamlit port."),
+) -> None:
+    """Start the local profile and human-review dashboard."""
+
+    if find_spec("streamlit") is None:
+        typer.echo("Dashboard dependency is missing. Run: uv sync --extra dashboard", err=True)
+        raise typer.Exit(code=1)
+    app_path = Path(__file__).with_name("dashboard_app.py")
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "streamlit",
+            "run",
+            str(app_path),
+            "--server.address",
+            "127.0.0.1",
+            "--server.port",
+            str(port),
+            "--server.headless",
+            "true",
+            "--browser.gatherUsageStats",
+            "false",
+        ],
+        check=False,
+    )
+    if result.returncode != 0:
+        raise typer.Exit(code=result.returncode)
 
 
 @app.command()
