@@ -79,9 +79,11 @@ The optional explanation stage receives a provider-agnostic `ExplanationGenerato
 an allowlisted policy-reference index and a bounded set of source records to a structured
 Ollama or OpenRouter adapter. Every returned statement declares a policy or source-evidence
 basis. Deterministic validation rejects unknown keys, unknown document IDs, and ETF subjects
-that do not match their cited records. Citation URLs and timestamps are copied from validated
-evidence, not model output. Source text is treated as untrusted quoted data, provider failures
-stop before review, and fixed safety limitations are appended after generation.
+that do not match their cited records. A rule-based safety gate also rejects explicit return
+guarantees, trade or recommendation instructions, suitability claims, forecasts, and risk-free
+outcomes. Citation URLs and timestamps are copied from validated evidence, not model output.
+Source text is treated as untrusted quoted data, every ordinary provider SDK exception is
+sanitized at the adapter boundary, and fixed safety limitations are appended after generation.
 
 ## Workflow stages
 

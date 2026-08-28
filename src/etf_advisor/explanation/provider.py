@@ -6,8 +6,6 @@ import json
 from importlib import import_module
 from typing import Protocol
 
-from pydantic import ValidationError
-
 from etf_advisor.config import LlmProvider, Settings
 from etf_advisor.explanation.models import (
     ExplanationGenerationError,
@@ -43,7 +41,7 @@ class LangChainExplanationGenerator:
         try:
             response = self._model.invoke(_build_messages(request))
             explanation = GeneratedExplanation.model_validate(response)
-        except (OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
+        except Exception as exc:
             raise ExplanationGenerationError(
                 "Explanation provider failed to return a valid structured response."
             ) from exc

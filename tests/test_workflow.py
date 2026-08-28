@@ -209,6 +209,39 @@ def test_explanation_failure_stops_before_human_review() -> None:
     assert "__interrupt__" not in result
 
 
+def test_prohibited_explanation_claim_stops_before_human_review() -> None:
+    class UnsafeGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            explanation = _valid_generated_explanation()
+            explanation.evidence_points[0].text = "SPY guarantees positive returns."
+            return ExplanationResult(
+                provider="test",
+                model="unsafe",
+                explanation=explanation,
+            )
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=UnsafeGenerator(),
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "unsafe-explanation"}},
+    )
+
+    assert result["status"] == "explanation_blocked"
+    assert result["draft_explanation"] == {}
+    assert result["explanation_errors"] == [
+        {
+            "type": "explanation_contract",
+            "message": "Generated explanation failed safety or grounding validation.",
+        }
+    ]
+    assert "__interrupt__" not in result
+
+
 def test_reused_thread_clears_prior_explanation_before_provider_failure() -> None:
     class SwitchableGenerator:
         fail = False

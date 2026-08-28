@@ -138,6 +138,36 @@ def test_mismatched_subject_symbol_fails_grounding_validation() -> None:
         validate_and_bundle_explanation(_request(), result)
 
 
+@pytest.mark.parametrize(
+    "prohibited_text",
+    [
+        "SPY guarantees positive returns for this investor.",
+        "You should buy SPY for this portfolio.",
+        "SPY is suitable for you.",
+        "SPY will outperform the market.",
+        "Buy SPY now.",
+        "SPY offers risk-free growth.",
+    ],
+)
+def test_prohibited_financial_claims_fail_before_bundling(prohibited_text: str) -> None:
+    generated = _generated()
+    generated.evidence_points[0].text = prohibited_text
+    result = ExplanationResult(provider="test", model="fixed", explanation=generated)
+
+    with pytest.raises(ValueError, match="prohibited financial claims"):
+        validate_and_bundle_explanation(_request(), result)
+
+
+def test_negative_guarantee_disclaimer_is_not_treated_as_a_promise() -> None:
+    generated = _generated()
+    generated.tradeoffs[0].text = "Returns are not guaranteed."
+    result = ExplanationResult(provider="test", model="fixed", explanation=generated)
+
+    bundle = validate_and_bundle_explanation(_request(), result)
+
+    assert bundle.status == "ready"
+
+
 def test_provider_prompt_treats_source_content_as_untrusted_data() -> None:
     class CapturingModel:
         def __init__(self) -> None:
@@ -161,9 +191,12 @@ def test_provider_prompt_treats_source_content_as_untrusted_data() -> None:
 
 
 def test_provider_failure_is_sanitized() -> None:
+    class ProviderSdkError(Exception):
+        pass
+
     class FailingModel:
         def invoke(self, input: object) -> object:
-            raise RuntimeError("secret provider response")
+            raise ProviderSdkError("secret provider response")
 
     generator = LangChainExplanationGenerator(
         FailingModel(),

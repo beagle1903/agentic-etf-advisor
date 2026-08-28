@@ -66,7 +66,8 @@ uv run etf-advisor demo --with-evidence --with-explanation --candidate-limit 5
 
 `--with-explanation` requires `--with-evidence`. The workflow accepts only structured output
 whose policy keys, source document IDs, and ETF subjects match the exact provider input. A
-provider/schema/grounding failure stops before review and exits nonzero.
+provider/schema/grounding failure or explicit prohibited financial claim stops before review
+and exits nonzero.
 
 ## Run the offline retrieval baseline
 

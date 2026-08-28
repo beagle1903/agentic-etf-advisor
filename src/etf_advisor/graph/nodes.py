@@ -158,7 +158,7 @@ def draft_explanation(
             "explanation_errors": [
                 {
                     "type": "explanation_contract",
-                    "message": "Generated explanation failed grounding validation.",
+                    "message": "Generated explanation failed safety or grounding validation.",
                 }
             ],
             "status": "explanation_blocked",

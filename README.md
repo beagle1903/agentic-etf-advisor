@@ -89,8 +89,8 @@ uv run etf-advisor demo --with-evidence --with-explanation --candidate-limit 5
 Set `LLM_PROVIDER` plus the matching model and credential variables in `.env`. Ollama and
 OpenRouter are imported only for this opt-in path. Each generated statement must cite an exact
 policy key or source document ID; unknown citations, mismatched ETF subjects, malformed output,
-and provider failures stop before review. Citation URLs and timestamps come from the validated
-evidence bundle, not from model output.
+explicit guarantees/recommendations/forecasts, and provider failures stop before review.
+Citation URLs and timestamps come from the validated evidence bundle, not from model output.
 
 Run the retrieval baseline without credentials, databases, or network access:
 

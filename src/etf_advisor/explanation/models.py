@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import re
+import unicodedata
 from enum import StrEnum
-from typing import Protocol
+from typing import Final, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -12,6 +14,58 @@ from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 
 MAX_EXPLANATION_CANDIDATES = 10
+
+_PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
+    (
+        "guaranteed_outcome",
+        re.compile(
+            r"\b(?:guarantee(?:d|s)?|assur(?:e|ed|es)|certain(?:ly)?)\b.{0,80}"
+            r"\b(?:return|returns|profit|profits|gain|gains|income|outperform(?:ance)?)\b"
+        ),
+    ),
+    (
+        "guaranteed_outcome",
+        re.compile(
+            r"\b(?:return|returns|profit|profits|gain|gains|income|outperformance)\b"
+            r".{0,80}\b(?:is|are|will be)\s+(?:guaranteed|assured|certain)\b"
+        ),
+    ),
+    (
+        "personalized_trade_instruction",
+        re.compile(
+            r"\b(?:you|investors?|the user|this investor)\s+"
+            r"(?:should|must|need(?:s)? to|ought to)\s+"
+            r"(?:buy|sell|purchase|hold|trade|invest in|allocate(?: funds)? to)\b"
+        ),
+    ),
+    (
+        "imperative_trade_instruction",
+        re.compile(
+            r"(?:^|[.!?]\s+)(?:buy|sell|purchase|hold|trade|invest in|"
+            r"allocate(?: funds)? to)\b"
+        ),
+    ),
+    (
+        "recommendation_or_suitability",
+        re.compile(
+            r"\b(?:(?:i|we|this explanation|the system)\s+"
+            r"(?:recommend|advise|endorse)|(?:is|are)\s+(?:suitable|appropriate)\s+"
+            r"for\s+(?:you|the user|this investor))\b"
+        ),
+    ),
+    (
+        "forecast",
+        re.compile(
+            r"\b(?:will(?!\s+not\b)|is expected to|are expected to|is projected to|"
+            r"are projected to)\b.{0,80}\b(?:return|gain|rise|fall|outperform|underperform|"
+            r"yield)\b"
+        ),
+    ),
+    (
+        "risk_free_outcome",
+        re.compile(r"\b(?:risk[- ]free|can(?:not|'t) lose|no downside risk)\b"),
+    ),
+)
 
 
 class ExplanationGenerationError(RuntimeError):
@@ -204,6 +258,7 @@ def validate_and_bundle_explanation(
     """Reject references not present in the exact policy/evidence input."""
 
     validated = ExplanationResult.model_validate(result.model_dump(mode="python"))
+    _validate_prohibited_claims(validated.explanation)
     policy_refs = set(policy_reference_index(request))
     source_by_id = {candidate.document_id: candidate for candidate in exposed_candidates(request)}
 
@@ -272,3 +327,17 @@ def _all_statements(explanation: GeneratedExplanation) -> list[GroundedStatement
         *explanation.evidence_points,
         *explanation.tradeoffs,
     ]
+
+
+def _validate_prohibited_claims(explanation: GeneratedExplanation) -> None:
+    violations: list[str] = []
+    for statement in _all_statements(explanation):
+        normalized = " ".join(unicodedata.normalize("NFKC", statement.text).casefold().split())
+        for name, pattern in _PROHIBITED_CLAIM_PATTERNS:
+            if pattern.search(normalized):
+                violations.append(name)
+    if violations:
+        categories = ", ".join(dict.fromkeys(violations))
+        raise ValueError(
+            f"Generated explanation contains prohibited financial claims: {categories}."
+        )

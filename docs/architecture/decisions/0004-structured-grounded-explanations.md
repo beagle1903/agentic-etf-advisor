@@ -34,3 +34,16 @@ existing policy-only and evidence-only paths remain available without credential
   explanation evaluation set in a later iteration.
 - The dashboard can render one stable explanation bundle with provider identity, statements,
   citations, and limitations.
+
+## Review hardening
+
+Automated review identified that valid references alone could not stop a schema-valid model
+response from promising returns or issuing a trade recommendation. A deterministic pre-review
+safety gate now rejects explicit guarantees, personalized or imperative trade instructions,
+recommendation and suitability language, forecasts, and risk-free outcomes. Fixed limitations
+remain presentation context rather than the enforcement mechanism.
+
+The adapter also normalizes every ordinary provider exception into the sanitized
+`ExplanationGenerationError`. This includes SDK-specific exceptions that do not inherit from
+the narrower built-in exception types previously listed. Process-control exceptions derived
+directly from `BaseException` are not swallowed.

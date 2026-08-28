@@ -31,6 +31,8 @@ before the existing human-review interrupt.
 - Citation identity, URL, source, and observation timestamp are copied from validated evidence
   rather than accepted from model output.
 - Provider and schema failures expose a sanitized error and cannot produce a review interrupt.
+- Explicit guarantees, trade/recommendation instructions, suitability claims, forecasts, and
+  risk-free outcomes fail a deterministic safety gate before review.
 - Deterministic limitations prohibit advice, forecasts, allocation selection, and trades, and
   preserve the unverified-sector-exclusion warning when relevant.
 - Existing policy-only and evidence-only approve/reject lifecycles remain unchanged.
@@ -44,13 +46,26 @@ before the existing human-review interrupt.
 - ETF allocation selection, suitability claims, forecasts, and trade execution.
 - Graph-schema expansion and graph-aware reranking until measured retrieval value exists.
 
+## Review correction
+
+Automated review found that structural grounding did not prevent a model from attaching a
+valid citation to prohibited financial language. Generated statements now pass a deterministic
+pre-review safety gate for explicit guarantees, trade and recommendation instructions,
+suitability claims, forecasts, and risk-free outcomes. Regression coverage confirms that each
+category produces `explanation_blocked` state before the human-review interrupt while a
+negative guarantee disclaimer remains allowed.
+
+Provider exceptions are now normalized with an adapter-wide `Exception` boundary so unrelated
+SDK hierarchies, including Ollama response errors, cannot escape the graph. The public error
+remains sanitized and process-control exceptions are not caught.
+
 ## Verification
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes for 60 files.
 - `uv run mypy` passes for 28 source files.
-- `uv run pytest` passes offline (96 tests).
-- Focused explanation, workflow, and CLI regressions pass (23 tests).
+- `uv run pytest` passes offline (104 tests).
+- Focused explanation and workflow regressions pass (29 tests).
 - Both locked provider adapters instantiate with `uv run --extra providers` without making a
   model request.
 - `uv run etf-advisor demo` preserves the policy-only review and approval lifecycle.
