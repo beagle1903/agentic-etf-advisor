@@ -47,12 +47,24 @@ separate from ETF selection.
 - Sector/holding/benchmark expansion and graph-aware reranking until evaluation demonstrates
   measured value.
 
+## Review correction
+
+Automated review found that a reused durable thread could retain a previously ready evidence
+bundle after a later retrieval failure. The retrieval router now uses the current node status,
+new runs clear downstream review artifacts, and retrieval errors explicitly clear candidate
+evidence. Regression coverage executes a successful review and a failed retrieval on the same
+thread ID and confirms that the second run cannot reach the interrupt.
+
+The correction also makes ready-bundle health and profile/request consistency model
+invariants, translates clock failures into blocked evidence, sanitizes validation errors, and
+keeps policy-only review text distinct from evidence-backed review text.
+
 ## Verification
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
 - `uv run mypy` passes.
-- `uv run pytest` passes offline (74 tests).
+- `uv run pytest` passes offline (79 tests).
 - The injected workflow reaches review with ready evidence and ends before review for stale
   or failed evidence.
 - JSON serialization of the evidence bundle succeeds without custom encoders.

@@ -22,7 +22,7 @@ from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore, ChromaUnavailable
-from etf_advisor.rag.evidence import HybridCandidateEvidenceRetriever
+from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenceRetriever
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError, index_documents
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
@@ -72,7 +72,7 @@ def demo(
     candidate_limit: int = typer.Option(
         5,
         min=1,
-        max=50,
+        max=MAX_CANDIDATE_LIMIT,
         help="Maximum source-grounded ETF evidence candidates to attach to review.",
     ),
 ) -> None:
@@ -115,13 +115,15 @@ def demo(
         }
 
         paused = graph.invoke({"profile": profile}, config=config)
-        _print_state("Paused for human review:", paused)
         if paused.get("status") != "awaiting_human_review":
-            typer.echo("Workflow stopped before human review because source evidence was blocked.")
-            return
+            _print_state("Workflow stopped before human review:", paused)
+            raise typer.Exit(code=1)
+        _print_state("Paused for human review:", paused)
 
         completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
         _print_state("Resumed after approval:", completed)
+    except typer.Exit:
+        raise
     except (ChromaUnavailable, Neo4jUnavailable, OSError, RuntimeError, ValueError) as exc:
         typer.echo(f"Demo failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc

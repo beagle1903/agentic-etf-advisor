@@ -96,7 +96,9 @@ The optional evidence node receives its retriever through dependency injection. 
 captures one injected UTC check time, includes freshness results in state, and ends the run
 before review when retrieval is empty, provenance is incomplete, or any observation is stale
 or too far in the future. A live store failure is translated into an evidence error instead
-of producing an ungrounded review payload.
+of producing an ungrounded review payload. Each new run clears downstream review artifacts,
+and routing uses the current node status so a reused durable thread cannot carry previously
+ready evidence across a new retrieval failure.
 
 The current policy calculation is pure and runs before evidence retrieval and the review
 interrupt. It is an arithmetic policy illustration rather than ETF selection or a prediction;

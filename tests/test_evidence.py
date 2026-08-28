@@ -3,9 +3,11 @@ from datetime import UTC, datetime, timedelta
 from typing import ClassVar
 
 import pytest
+from pydantic import ValidationError
 
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import (
+    CandidateEvidenceBundle,
     EvidenceRetrievalError,
     EvidenceStatus,
     HybridCandidateEvidenceRetriever,
@@ -152,7 +154,8 @@ def test_missing_provenance_blocks_without_fabricating_source_details() -> None:
 
 
 def test_invalid_source_content_blocks_without_crashing_the_workflow() -> None:
-    invalid = source("SPY").model_copy(update={"content": ""})
+    sensitive_marker = "private-source-marker"
+    invalid = source("SPY").model_copy(update={"content": sensitive_marker + ("x" * 12_000)})
 
     results = select_candidate_evidence(
         profile(),
@@ -165,6 +168,7 @@ def test_invalid_source_content_blocks_without_crashing_the_workflow() -> None:
     assert results.status == EvidenceStatus.BLOCKED
     assert results.candidates == []
     assert "evidence fields are invalid" in results.errors[0]
+    assert sensitive_marker not in results.errors[0]
 
 
 def test_mismatched_graph_context_is_omitted_without_fabricating_a_join() -> None:
@@ -267,3 +271,44 @@ def test_hybrid_evidence_adapter_translates_store_failures() -> None:
 
     with pytest.raises(EvidenceRetrievalError, match="Source evidence retrieval failed"):
         adapter.retrieve(profile())
+
+
+def test_hybrid_evidence_adapter_translates_clock_failures() -> None:
+    def failing_clock() -> datetime:
+        raise OSError("clock unavailable")
+
+    adapter = HybridCandidateEvidenceRetriever(
+        FakeHybridSearch(),
+        clock=failing_clock,
+        max_age=timedelta(hours=24),
+    )
+
+    with pytest.raises(EvidenceRetrievalError, match="Source evidence validation failed"):
+        adapter.retrieve(profile())
+
+
+def test_ready_bundle_requires_matching_healthy_observations() -> None:
+    ready = select_candidate_evidence(
+        profile(),
+        [source("SPY")],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+    unhealthy_payload = ready.model_dump(mode="python")
+    unhealthy_payload["health"]["healthy"] = False
+
+    with pytest.raises(ValidationError, match="healthy source report"):
+        CandidateEvidenceBundle.model_validate(unhealthy_payload)
+
+    mismatched_time_payload = ready.model_dump(mode="python")
+    mismatched_time_payload["health"]["checked_at"] = CHECKED_AT - timedelta(minutes=1)
+
+    with pytest.raises(ValidationError, match="same timestamp"):
+        CandidateEvidenceBundle.model_validate(mismatched_time_payload)
+
+    unexplained_block_payload = ready.model_dump(mode="python")
+    unexplained_block_payload["status"] = "blocked"
+
+    with pytest.raises(ValidationError, match="at least one error"):
+        CandidateEvidenceBundle.model_validate(unexplained_block_payload)

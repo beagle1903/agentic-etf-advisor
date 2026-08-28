@@ -33,3 +33,11 @@ demonstration and tests.
   contract reports sector exposure.
 - Dashboard and provider work can consume the evidence bundle without owning retrieval-store
   details.
+
+## Review clarification
+
+Durable thread reuse requires each new profile-validation run to clear downstream policy,
+evidence, review-decision, and final-message state. The post-retrieval router uses the current
+node status rather than a retained evidence payload. A ready bundle must also have matching
+profile constraints, request limit, check timestamp, healthy observations, and a current
+health record for every candidate.

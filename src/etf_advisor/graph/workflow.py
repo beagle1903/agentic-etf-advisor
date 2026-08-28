@@ -12,7 +12,7 @@ from etf_advisor.graph.nodes import (
     validate_profile,
 )
 from etf_advisor.graph.state import AdvisorState
-from etf_advisor.rag.evidence import CandidateEvidenceRetriever
+from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, CandidateEvidenceRetriever
 
 
 def route_after_validation(state: AdvisorState) -> Literal["draft_policy", "end"]:
@@ -27,8 +27,8 @@ def build_graph(
 ) -> Any:
     """Build the workflow with optional, explicitly injected source evidence."""
 
-    if candidate_limit < 1 or candidate_limit > 50:
-        raise ValueError("candidate_limit must be between 1 and 50.")
+    if candidate_limit < 1 or candidate_limit > MAX_CANDIDATE_LIMIT:
+        raise ValueError(f"candidate_limit must be between 1 and {MAX_CANDIDATE_LIMIT}.")
 
     builder = StateGraph(AdvisorState)
     builder.add_node("validate_profile", validate_profile)
@@ -67,8 +67,7 @@ def build_graph(
 
 
 def route_after_evidence(state: AdvisorState) -> Literal["human_review", "end"]:
-    candidate_evidence = state.get("candidate_evidence", {})
-    return "human_review" if candidate_evidence.get("status") == "ready" else "end"
+    return "human_review" if state.get("status") == "awaiting_human_review" else "end"
 
 
 graph = build_graph()

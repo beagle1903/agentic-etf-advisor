@@ -87,7 +87,7 @@ class CandidateEvidence(BaseModel):
 class CandidateEvidenceBundle(BaseModel):
     """Review-ready evidence, including freshness results and explicit blockers."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
     query: str = Field(min_length=1, max_length=2000)
     objective: InvestmentObjective
@@ -110,8 +110,40 @@ class CandidateEvidenceBundle(BaseModel):
 
     @model_validator(mode="after")
     def validate_ready_bundle(self) -> CandidateEvidenceBundle:
-        if self.status == EvidenceStatus.READY and (self.errors or not self.candidates):
-            raise ValueError("Ready evidence must contain candidates and no errors.")
+        if self.checked_at != self.health.checked_at:
+            raise ValueError("Evidence and health checks must use the same timestamp.")
+        if self.status == EvidenceStatus.BLOCKED and not self.errors:
+            raise ValueError("Blocked evidence must include at least one error.")
+        if self.status == EvidenceStatus.READY:
+            if self.errors or not self.candidates:
+                raise ValueError("Ready evidence must contain candidates and no errors.")
+            if not self.health.healthy or not self.health.observations:
+                raise ValueError("Ready evidence must have a healthy source report.")
+            if any(
+                observation.status != FreshnessStatus.CURRENT
+                for observation in self.health.observations
+            ):
+                raise ValueError("Ready evidence cannot contain unhealthy source observations.")
+            health_sources = {
+                (
+                    observation.symbol.strip().upper(),
+                    observation.source,
+                    observation.source_url,
+                    observation.observed_at,
+                )
+                for observation in self.health.observations
+            }
+            for candidate in self.candidates:
+                candidate_source = (
+                    candidate.symbol,
+                    candidate.source,
+                    candidate.source_url,
+                    candidate.observed_at,
+                )
+                if candidate_source not in health_sources:
+                    raise ValueError(
+                        "Every ready candidate must have a matching current health observation."
+                    )
         return self
 
 
@@ -163,8 +195,8 @@ class HybridCandidateEvidenceRetriever:
                 future_tolerance=self._future_tolerance,
                 limit=limit,
             )
-        except ValueError as exc:
-            raise EvidenceRetrievalError(f"Source evidence validation failed: {exc}") from exc
+        except Exception as exc:
+            raise EvidenceRetrievalError("Source evidence validation failed.") from exc
 
 
 def build_candidate_query(profile: InvestorProfile) -> str:
@@ -217,7 +249,12 @@ def select_candidate_evidence(
     for result in bounded_results:
         try:
             parsed.append((result, _provenance_from_result(result)))
-        except (ValidationError, ValueError) as exc:
+        except ValidationError as exc:
+            errors.append(
+                f"{result.document_id}: source provenance is invalid: "
+                f"{_validation_error_summary(exc)}"
+            )
+        except ValueError as exc:
             errors.append(f"{result.document_id}: {exc}")
 
     health = assess_observations(
@@ -279,7 +316,10 @@ def select_candidate_evidence(
                 )
             )
         except ValidationError as exc:
-            errors.append(f"{result.document_id}: evidence fields are invalid: {exc}")
+            errors.append(
+                f"{result.document_id}: evidence fields are invalid: "
+                f"{_validation_error_summary(exc)}"
+            )
 
     if not bounded_results:
         errors.append("No source evidence matched the research query.")
@@ -339,6 +379,14 @@ def _optional_metadata_text(metadata: dict[str, MetadataValue], key: str) -> str
         return None
     text = str(value).strip()
     return text or None
+
+
+def _validation_error_summary(error: ValidationError) -> str:
+    details: list[str] = []
+    for item in error.errors(include_url=False):
+        location = ".".join(str(part) for part in item["loc"]) or "value"
+        details.append(f"{location}: {item['msg']}")
+    return "; ".join(details)
 
 
 def _validate_limit(limit: int) -> None:
