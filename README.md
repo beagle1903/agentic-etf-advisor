@@ -44,8 +44,21 @@ uv run etf-advisor dashboard
 Open `http://127.0.0.1:8501`, complete the profile, inspect the exact workflow review payload,
 and approve, edit, or reject it. The default policy-only path is offline. Source evidence and a
 provider-backed explanation are opt-in and require their corresponding extras, local services,
-indexed data, and provider configuration. Checkpoints live only in the current Streamlit browser
-session in this iteration; refreshing or losing that session is not a durable resume mechanism.
+indexed data, and provider configuration. The default checkpoint lives only in the current
+Streamlit browser session.
+
+To keep a review across browser sessions, start the existing PostgreSQL service and enable the
+dashboard's opt-in durable mode:
+
+```powershell
+docker compose up -d postgres
+uv sync --extra dashboard --extra checkpoint
+uv run etf-advisor dashboard
+```
+
+The dashboard puts a random review token in the local URL and can restore that exact paused or
+completed graph thread later. It never lists other checkpoints. The token is not authentication;
+this remains a single-user local development workflow rather than a production multi-user system.
 
 For the opt-in evidence and explanation path, install all required adapters together:
 
@@ -150,7 +163,7 @@ licensing decision.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/009-local-dashboard-human-review.md`.
+The current delivery contract is in `docs/iterations/010-postgres-durable-review.md`.
 
 ## License
 

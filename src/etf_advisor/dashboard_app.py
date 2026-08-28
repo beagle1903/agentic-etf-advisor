@@ -8,6 +8,7 @@ from typing import Any
 from etf_advisor.dashboard import (
     DashboardOptions,
     DashboardRun,
+    load_dashboard_run,
     parse_excluded_sectors,
     review_payload,
     start_dashboard_run,
@@ -26,7 +27,27 @@ def main() -> None:
         "human review. No recommendation or trade is produced."
     )
 
+    query_token = str(st.query_params.get("review", "")).strip()
+    if (
+        "dashboard_run" not in st.session_state
+        and query_token
+        and st.session_state.get("restore_attempted_token") != query_token
+    ):
+        _restore_saved_run(st, query_token)
+
     with st.sidebar:
+        st.header("Saved review")
+        resume_token = st.text_input(
+            "Review token",
+            value=query_token,
+            help=(
+                "Restores one PostgreSQL-backed local review. "
+                "The token does not authenticate a user."
+            ),
+        )
+        if st.button("Restore saved review"):
+            _restore_saved_run(st, resume_token)
+
         st.header("Investor profile")
         with st.form("profile-form"):
             horizon_years = st.number_input("Horizon (years)", 1, 60, 12)
@@ -59,6 +80,10 @@ def main() -> None:
                 disabled=not with_evidence,
                 help="Requires source evidence and a configured provider.",
             )
+            durable_checkpoint = st.checkbox(
+                "Keep review in local PostgreSQL",
+                help="Requires the checkpoint extra and the local PostgreSQL service.",
+            )
             candidate_limit = st.slider("Evidence candidates", 1, 10, 5)
             started = st.form_submit_button("Create review draft", type="primary")
 
@@ -78,9 +103,15 @@ def main() -> None:
                 DashboardOptions(
                     with_evidence=with_evidence,
                     with_explanation=with_explanation if with_evidence else False,
+                    durable_checkpoint=durable_checkpoint,
                     candidate_limit=candidate_limit,
                 ),
             )
+            run = st.session_state["dashboard_run"]
+            if run.durable:
+                st.query_params["review"] = run.thread_id
+            else:
+                st.query_params.pop("review", None)
         except Exception:
             st.session_state.pop("dashboard_run", None)
             st.error(
@@ -91,16 +122,37 @@ def main() -> None:
     run = st.session_state.get("dashboard_run")
     if not isinstance(run, DashboardRun):
         st.info("Complete the profile to create a local review draft.")
-        _render_safety_boundary(st)
+        _render_safety_boundary(st, durable=False)
         return
 
     _render_run(st, run)
-    _render_safety_boundary(st)
+    _render_safety_boundary(st, durable=run.durable)
+
+
+def _restore_saved_run(st: Any, review_token: str) -> None:
+    """Restore an exact durable thread while keeping database details out of the UI."""
+
+    token = review_token.strip()
+    st.session_state["restore_attempted_token"] = token
+    try:
+        run = load_dashboard_run(token)
+    except Exception:
+        st.session_state.pop("dashboard_run", None)
+        st.error(
+            "The saved review could not be restored. Check the token, checkpoint dependency, "
+            "and local PostgreSQL service."
+        )
+        return
+    st.session_state["dashboard_run"] = run
+    st.query_params["review"] = run.thread_id
 
 
 def _render_run(st: Any, run: DashboardRun) -> None:
     state = run.state
     status = state.get("status", "unknown")
+    if run.durable:
+        st.caption("Durable local review token — keep it private to this development machine.")
+        st.code(run.thread_id)
     if status == "awaiting_human_review":
         try:
             payload = review_payload(state)
@@ -227,15 +279,27 @@ def _render_decision_form(st: Any, run: DashboardRun) -> None:
     except ValueError as exc:
         st.error(str(exc))
         return
+    except Exception:
+        st.error(
+            "The app could not confirm that the saved review resumed. Check PostgreSQL, "
+            "then restore the token before submitting another decision."
+        )
+        return
     st.rerun()
 
 
-def _render_safety_boundary(st: Any) -> None:
+def _render_safety_boundary(st: Any, *, durable: bool) -> None:
     st.divider()
+    checkpoint_boundary = (
+        "PostgreSQL checkpoints survive browser-session loss, but the review token is not "
+        "user authentication and this remains a single-user local workflow."
+        if durable
+        else "The default review checkpoint is local to this browser session and is not durable."
+    )
     st.caption(
         "Educational use only. This local phase performs no brokerage connection, trade, "
         "forecast, or external financial-system write. Market data may be delayed or wrong. "
-        "The review checkpoint is local to this browser session and is not durable."
+        f"{checkpoint_boundary}"
     )
 
 

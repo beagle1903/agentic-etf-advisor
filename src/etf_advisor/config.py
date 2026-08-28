@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     chroma_collection: str = "etf_source_documents"
     neo4j_uri: str = "neo4j://localhost:17687"
     neo4j_auth: SecretStr = SecretStr("neo4j/local-dev-password")
+    postgres_uri: SecretStr = SecretStr(
+        "postgresql://etf_advisor:local-dev-password@127.0.0.1:5432/etf_advisor?connect_timeout=5"
+    )
     market_data_max_age_hours: int = Field(default=120, ge=1, le=336)
     market_data_future_tolerance_minutes: int = Field(default=5, ge=0, le=60)
     yahoo_max_attempts: int = Field(default=3, ge=1, le=5)
