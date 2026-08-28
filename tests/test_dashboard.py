@@ -1,14 +1,19 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import Any
+from uuid import uuid4
 
 import pytest
+from langgraph.checkpoint.memory import InMemorySaver
 
 import etf_advisor.dashboard as dashboard
 from etf_advisor.dashboard import (
     DashboardOptions,
     DashboardRun,
+    load_dashboard_run,
     parse_excluded_sectors,
     review_payload,
 )
@@ -26,6 +31,23 @@ class FakeGraph:
     def invoke(self, value: object, config: dict[str, Any]) -> dict[str, Any]:
         self.inputs.append(value)
         return {"status": "approved", "final_message": "Approved safely."}
+
+
+class DurableMemoryCheckpointStore:
+    durable = True
+
+    def __init__(self) -> None:
+        self.saver = InMemorySaver()
+        self.setup_calls = 0
+        self.open_calls = 0
+
+    def setup(self) -> None:
+        self.setup_calls += 1
+
+    @contextmanager
+    def open(self) -> Iterator[InMemorySaver]:
+        self.open_calls += 1
+        yield self.saver
 
 
 def valid_profile() -> InvestorProfile:
@@ -284,3 +306,38 @@ def test_policy_only_dashboard_run_needs_no_live_services(
 
     assert run.state["status"] == "awaiting_human_review"
     assert run.config == {"configurable": {"thread_id": "offline-dashboard"}}
+
+
+def test_durable_dashboard_run_restores_and_resumes_with_a_new_graph(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = DurableMemoryCheckpointStore()
+    token = str(uuid4())
+    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda connection_uri: store)
+
+    started = dashboard.start_dashboard_run(
+        valid_profile().model_dump(mode="json"),
+        DashboardOptions(durable_checkpoint=True),
+        thread_id=token,
+    )
+
+    assert started.durable is True
+    assert started.graph is None
+    assert started.thread_id == token
+    assert review_payload(started.state)["kind"] == "portfolio_policy_review"
+
+    restored = load_dashboard_run(token, checkpoint_store=store)
+    assert restored.state["status"] == "awaiting_human_review"
+    assert review_payload(restored.state)["kind"] == "portfolio_policy_review"
+
+    completed = restored.resume("approve")
+    assert completed["status"] == "approved"
+    assert load_dashboard_run(token, checkpoint_store=store).state["status"] == "approved"
+    assert store.setup_calls == 3
+    assert store.open_calls == 4
+
+
+@pytest.mark.parametrize("token", ["", "not-a-token", "00000000-0000-1000-8000-000000000000"])
+def test_saved_review_requires_an_opaque_version_four_uuid(token: str) -> None:
+    with pytest.raises(ValueError, match="Review token"):
+        load_dashboard_run(token, checkpoint_store=DurableMemoryCheckpointStore())

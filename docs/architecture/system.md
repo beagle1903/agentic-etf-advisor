@@ -123,15 +123,19 @@ The current policy calculation is pure and runs before evidence retrieval and th
 interrupt. It is an arithmetic policy illustration rather than ETF selection or a prediction;
 source-grounded evidence remains research context rather than a recommendation.
 
-The local Streamlit dashboard is an optional presentation adapter over this same interrupt. A
-browser session retains one compiled graph, in-memory checkpointer, thread ID, and latest state;
-approve, edit, or reject resumes that exact thread. It renders policy, evidence, and explanation
-fields from the interrupt rather than recalculating them. Before rendering, a typed presentation
-contract revalidates every nested field, policy/evidence consistency, and the identity, URL, and
-timestamp of explanation citations against the validated evidence records. Contract failures show
-a controlled error without review controls. Policy-only review remains offline by default, while
-evidence and provider generation are explicit opt-ins. This is local development state, not
-durable multi-user storage: losing the Streamlit session loses the checkpoint.
+The local Streamlit dashboard is an optional presentation adapter over this same interrupt. The
+default path retains one compiled graph, in-memory checkpointer, thread ID, and latest state inside
+the browser session. Durable mode instead opens short-lived connections to the local PostgreSQL
+checkpoint store for create, restore, and resume operations. A random UUID review token restores
+only that exact thread from a newly compiled graph; the UI does not enumerate saved threads.
+
+Both modes render policy, evidence, and explanation fields from the interrupt rather than
+recalculating them. Before rendering, a typed presentation contract revalidates every nested field,
+policy/evidence consistency, and the identity, URL, and timestamp of explanation citations against
+the validated evidence records. Contract failures show a controlled error without review controls.
+Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
+generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
+authorization; this remains a local development workflow.
 
 Investor-profile validation accepts only finite initial and recurring cash amounts from
 zero through one trillion USD. Unsupported values therefore fail before decimal cent

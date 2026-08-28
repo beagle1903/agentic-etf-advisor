@@ -5,12 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any, Literal
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from etf_advisor.checkpoint import (
+    DashboardCheckpointStore,
+    MemoryCheckpointStore,
+    PostgresCheckpointStore,
+)
 from etf_advisor.clock import system_utc_now
 from etf_advisor.config import settings
 from etf_advisor.domain.policy import PolicyCalculation
@@ -38,6 +42,7 @@ class DashboardOptions(BaseModel):
 
     with_evidence: bool = False
     with_explanation: bool = False
+    durable_checkpoint: bool = False
     candidate_limit: int = Field(default=5, ge=1, le=MAX_CANDIDATE_LIMIT)
 
     @model_validator(mode="after")
@@ -104,11 +109,25 @@ class ReviewPayload(BaseModel):
 
 @dataclass
 class DashboardRun:
-    """One in-memory graph thread retained by a Streamlit browser session."""
+    """One graph thread backed by either browser memory or a durable store."""
 
-    graph: Any
+    graph: Any | None
     config: dict[str, Any]
     state: dict[str, Any]
+    checkpoint_store: DashboardCheckpointStore | None = None
+
+    @property
+    def thread_id(self) -> str:
+        """Return the opaque identifier required to restore this exact graph thread."""
+
+        value = self.config.get("configurable", {}).get("thread_id")
+        if not isinstance(value, str) or not value:
+            raise ValueError("Dashboard run is missing its thread identifier.")
+        return value
+
+    @property
+    def durable(self) -> bool:
+        return self.checkpoint_store is not None and self.checkpoint_store.durable
 
     def resume(self, action: str, feedback: str = "") -> dict[str, Any]:
         """Resume the exact paused thread with a validated human decision."""
@@ -126,7 +145,15 @@ class DashboardRun:
         decision: dict[str, str] = {"action": normalized_action}
         if normalized_feedback:
             decision["feedback"] = normalized_feedback
-        result = self.graph.invoke(Command(resume=decision), config=self.config)
+        command: Command[Any] = Command(resume=decision)
+        if self.checkpoint_store is None:
+            if self.graph is None:
+                raise RuntimeError("Dashboard run has no workflow runtime.")
+            result = self.graph.invoke(command, config=self.config)
+        else:
+            with self.checkpoint_store.open() as saver:
+                graph = build_graph(checkpointer=saver)
+                result = graph.invoke(command, config=self.config)
         self.state = dict(result)
         return self.state
 
@@ -163,18 +190,71 @@ def start_dashboard_run(
         explanation_generator = (
             create_explanation_generator(settings) if validated_options.with_explanation else None
         )
-        graph = build_graph(
-            checkpointer=InMemorySaver(),
-            candidate_retriever=candidate_retriever,
-            candidate_limit=validated_options.candidate_limit,
-            explanation_generator=explanation_generator,
+        checkpoint_store: DashboardCheckpointStore = (
+            PostgresCheckpointStore(settings.postgres_uri)
+            if validated_options.durable_checkpoint
+            else MemoryCheckpointStore()
         )
-        config = {"configurable": {"thread_id": thread_id or str(uuid4())}}
-        state = dict(graph.invoke({"profile": profile}, config=config))
-        return DashboardRun(graph=graph, config=config, state=state)
+        checkpoint_store.setup()
+        selected_thread_id = thread_id or str(uuid4())
+        if checkpoint_store.durable:
+            selected_thread_id = _validated_review_token(selected_thread_id)
+        config = {"configurable": {"thread_id": selected_thread_id}}
+        with checkpoint_store.open() as saver:
+            graph = build_graph(
+                checkpointer=saver,
+                candidate_retriever=candidate_retriever,
+                candidate_limit=validated_options.candidate_limit,
+                explanation_generator=explanation_generator,
+            )
+            state = dict(graph.invoke({"profile": profile}, config=config))
+        return DashboardRun(
+            graph=None if checkpoint_store.durable else graph,
+            config=config,
+            state=state,
+            checkpoint_store=checkpoint_store if checkpoint_store.durable else None,
+        )
     finally:
         if graph_store is not None:
             graph_store.close()
+
+
+def load_dashboard_run(
+    review_token: str,
+    *,
+    checkpoint_store: DashboardCheckpointStore | None = None,
+) -> DashboardRun:
+    """Restore one durable thread without exposing or enumerating other checkpoints."""
+
+    token = _validated_review_token(review_token)
+    store = checkpoint_store or PostgresCheckpointStore(settings.postgres_uri)
+    if not store.durable:
+        raise ValueError("Saved reviews require a durable checkpoint store.")
+    store.setup()
+    config = {"configurable": {"thread_id": token}}
+    with store.open() as saver:
+        graph = build_graph(checkpointer=saver)
+        snapshot = graph.get_state(config)
+
+    if not snapshot.values:
+        raise ValueError("No saved review was found for that token.")
+    state = dict(snapshot.values)
+    if snapshot.interrupts:
+        state["__interrupt__"] = snapshot.interrupts
+    if state.get("status") == "awaiting_human_review":
+        review_payload(state)
+    return DashboardRun(graph=None, config=config, state=state, checkpoint_store=store)
+
+
+def _validated_review_token(value: str) -> str:
+    normalized = value.strip()
+    try:
+        parsed = UUID(normalized)
+    except ValueError as exc:
+        raise ValueError("Review token must be a valid UUID.") from exc
+    if parsed.version != 4:
+        raise ValueError("Review token must be a version-4 UUID.")
+    return str(parsed)
 
 
 def review_payload(state: dict[str, Any]) -> dict[str, Any]:

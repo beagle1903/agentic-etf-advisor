@@ -28,6 +28,25 @@ uv run pytest
 uv run etf-advisor demo
 ```
 
+## Run durable local human review
+
+Start PostgreSQL, install the two optional dashboard integrations, and launch Streamlit:
+
+```powershell
+docker compose up -d postgres
+uv sync --extra dashboard --extra checkpoint
+uv run etf-advisor dashboard
+```
+
+Select **Keep review in local PostgreSQL** when creating the draft. The resulting URL and displayed
+version-4 UUID identify the exact saved graph thread. Keep that review token private to the local
+development machine. Opening the URL in a new browser session or pasting the token into **Saved
+review** restores the paused or completed state and revalidates its review contract.
+
+The token is not a login, the dashboard does not list other threads, and this slice is not a
+multi-user review system. If PostgreSQL is unavailable while submitting a decision, restore the
+same token and inspect its current state before retrying.
+
 ## Exercise hybrid retrieval
 
 With Chroma and Neo4j healthy, index one shared source bundle and query it:
