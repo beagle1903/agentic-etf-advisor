@@ -44,7 +44,16 @@ LangGraph review interrupt, and resumes the same workflow thread with an explici
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes for 65 files.
 - `uv run mypy` passes for 30 source files.
-- `uv run pytest` passes offline (114 tests).
+- `uv run pytest` passes offline (124 tests).
 - A Streamlit AppTest completes the default form, review interrupt, and approval lifecycle with
   no application exceptions.
 - A headless dashboard launch returns `200 ok` from Streamlit's health endpoint.
+
+## Review correction
+
+Automated review found that the dashboard checked only the outer interrupt kind and action list,
+so missing policy fields or malformed nested evidence and explanation data could reach rendering
+and raise an uncaught exception. A typed review contract now validates the complete payload and
+its policy/evidence/citation consistency before presentation. Regression tests cover missing
+required fields, invalid actions, malformed policy, evidence, and explanation bundles, and the
+controlled UI error path.

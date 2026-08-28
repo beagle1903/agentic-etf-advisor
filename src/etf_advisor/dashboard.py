@@ -4,23 +4,31 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from etf_advisor.clock import system_utc_now
 from etf_advisor.config import settings
+from etf_advisor.domain.policy import PolicyCalculation
+from etf_advisor.explanation import ExplanationBundle
 from etf_advisor.explanation.provider import create_explanation_generator
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
-from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenceRetriever
+from etf_advisor.rag.evidence import (
+    MAX_CANDIDATE_LIMIT,
+    CandidateEvidenceBundle,
+    EvidenceStatus,
+    HybridCandidateEvidenceRetriever,
+)
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore
 
 REVIEW_ACTIONS = ("approve", "edit", "reject")
+type ReviewAction = Literal["approve", "edit", "reject"]
 
 
 class DashboardOptions(BaseModel):
@@ -36,6 +44,61 @@ class DashboardOptions(BaseModel):
     def validate_dependencies(self) -> DashboardOptions:
         if self.with_explanation and not self.with_evidence:
             raise ValueError("Provider explanations require source evidence.")
+        return self
+
+
+class ReviewPayload(BaseModel):
+    """Complete, fail-closed contract for content rendered at human review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["portfolio_policy_review"]
+    question: str = Field(min_length=1, max_length=500)
+    allowed_actions: list[ReviewAction] = Field(min_length=3, max_length=3)
+    draft_policy: PolicyCalculation
+    candidate_evidence: CandidateEvidenceBundle | None = None
+    draft_explanation: ExplanationBundle | None = None
+
+    @field_validator("question")
+    @classmethod
+    def normalize_question(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("Review question must not be empty.")
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_review_consistency(self) -> ReviewPayload:
+        if set(self.allowed_actions) != set(REVIEW_ACTIONS):
+            raise ValueError("Review actions must contain approve, edit, and reject exactly once.")
+
+        evidence = self.candidate_evidence
+        explanation = self.draft_explanation
+        if evidence is not None:
+            if evidence.status != EvidenceStatus.READY:
+                raise ValueError("Review evidence must be ready.")
+            if evidence.objective != self.draft_policy.objective:
+                raise ValueError("Review evidence objective must match the policy draft.")
+            if evidence.risk_tolerance != self.draft_policy.risk_tolerance:
+                raise ValueError("Review evidence risk tolerance must match the policy draft.")
+            if evidence.excluded_sectors != self.draft_policy.excluded_sectors:
+                raise ValueError("Review evidence exclusions must match the policy draft.")
+
+        if explanation is not None:
+            if evidence is None:
+                raise ValueError("A review explanation requires source evidence.")
+            candidates = {candidate.document_id: candidate for candidate in evidence.candidates}
+            for citation in explanation.citations:
+                candidate = candidates.get(citation.document_id)
+                if candidate is None or (
+                    citation.symbol != candidate.symbol
+                    or citation.source != candidate.source
+                    or citation.source_url != candidate.source_url
+                    or citation.observed_at != candidate.observed_at.isoformat()
+                ):
+                    raise ValueError(
+                        "Explanation citations must match the validated review evidence."
+                    )
         return self
 
 
@@ -125,14 +188,11 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
     value = getattr(interrupts[0], "value", None)
     if not isinstance(value, dict) or value.get("kind") != "portfolio_policy_review":
         raise ValueError("Workflow exposed an unsupported review interrupt.")
-    allowed_actions = value.get("allowed_actions")
-    if (
-        not isinstance(allowed_actions, list)
-        or any(not isinstance(action, str) for action in allowed_actions)
-        or not set(REVIEW_ACTIONS).issubset(allowed_actions)
-    ):
-        raise ValueError("Workflow review actions do not satisfy the dashboard contract.")
-    return value
+    try:
+        payload = ReviewPayload.model_validate(value)
+    except (TypeError, ValidationError) as exc:
+        raise ValueError("Workflow review payload failed contract validation.") from exc
+    return payload.model_dump(mode="json", exclude_none=True)
 
 
 def parse_excluded_sectors(value: str) -> list[str]:

@@ -28,3 +28,12 @@ contract.
 - Browser-session loss is also checkpoint loss in this iteration; the UI states this limitation.
 - PostgreSQL-backed, authenticated, multi-user review remains a separate iteration.
 - The dashboard performs no brokerage action or external financial-system write.
+
+## Review hardening
+
+Automated review identified that checking only the interrupt kind and allowed actions could let a
+malformed checkpoint reach presentation code. The dashboard now revalidates the complete policy,
+evidence, and explanation payload before rendering. It also requires ready evidence to agree with
+the policy constraints and requires every explanation citation to match the corresponding
+validated evidence record. Any contract failure produces a controlled UI error and cannot expose
+review controls.

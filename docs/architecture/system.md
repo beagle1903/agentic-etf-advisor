@@ -126,9 +126,12 @@ source-grounded evidence remains research context rather than a recommendation.
 The local Streamlit dashboard is an optional presentation adapter over this same interrupt. A
 browser session retains one compiled graph, in-memory checkpointer, thread ID, and latest state;
 approve, edit, or reject resumes that exact thread. It renders policy, evidence, and explanation
-fields from the interrupt rather than recalculating them. Policy-only review remains offline by
-default, while evidence and provider generation are explicit opt-ins. This is local development
-state, not durable multi-user storage: losing the Streamlit session loses the checkpoint.
+fields from the interrupt rather than recalculating them. Before rendering, a typed presentation
+contract revalidates every nested field, policy/evidence consistency, and the identity, URL, and
+timestamp of explanation citations against the validated evidence records. Contract failures show
+a controlled error without review controls. Policy-only review remains offline by default, while
+evidence and provider generation are explicit opt-ins. This is local development state, not
+durable multi-user storage: losing the Streamlit session loses the checkpoint.
 
 Investor-profile validation accepts only finite initial and recurring cash amounts from
 zero through one trillion USD. Unsupported values therefore fail before decimal cent
