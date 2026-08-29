@@ -172,17 +172,23 @@ class ETFResearchSnapshot(BaseModel):
     def to_source_documents(self) -> list[SourceDocument]:
         """Render one attributable, snapshot-scoped research document per ETF."""
 
-        return [self._to_source_document(record) for record in self.records]
+        digest = self.content_digest()
+        return [self._to_source_document(record, digest=digest) for record in self.records]
 
-    def _to_source_document(self, record: ETFResearchRecord) -> SourceDocument:
+    def _to_source_document(self, record: ETFResearchRecord, *, digest: str) -> SourceDocument:
         source_url = record.name.source_url
-        observed_at = max(field.observed_at for field in record.research_fields().values())
+        research_fields = record.research_fields()
+        observed_at = max(field.observed_at for field in research_fields.values())
+        field_provenance = {
+            field_name: research_field.model_dump(mode="json")
+            for field_name, research_field in research_fields.items()
+        }
         lines = [
             f"ETF symbol: {record.symbol}",
             f"Research snapshot: {self.snapshot_version}",
             f"Curated universe: {self.universe_id} ({self.universe_version})",
         ]
-        for field_name, research_field in record.research_fields().items():
+        for field_name, research_field in research_fields.items():
             lines.append(_render_field(field_name, research_field))
 
         metadata: dict[str, MetadataValue] = {
@@ -192,12 +198,18 @@ class ETFResearchSnapshot(BaseModel):
             "observed_at": observed_at.isoformat().replace("+00:00", "Z"),
             "ingested_at": self.ingested_at.isoformat().replace("+00:00", "Z"),
             "snapshot_version": self.snapshot_version,
-            "snapshot_digest": self.content_digest(),
+            "snapshot_digest": digest,
             "universe_id": self.universe_id,
             "universe_version": self.universe_version,
             "document_type": "etf_research_snapshot",
+            "field_provenance_schema_version": 1,
+            "field_provenance_json": json.dumps(
+                field_provenance,
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
         }
-        for field_name, research_field in record.research_fields().items():
+        for field_name, research_field in research_fields.items():
             if isinstance(research_field.value, (str, int, float, bool)):
                 metadata[field_name] = research_field.value
             metadata[f"{field_name}_status"] = (
@@ -207,7 +219,7 @@ class ETFResearchSnapshot(BaseModel):
             )
 
         return SourceDocument(
-            document_id=f"research:{self.snapshot_version}:{record.symbol.lower()}",
+            document_id=(f"research:{self.snapshot_version}:{digest}:{record.symbol.lower()}"),
             symbol=record.symbol,
             title=f"{record.symbol} versioned ETF research snapshot",
             content="\n".join(lines),

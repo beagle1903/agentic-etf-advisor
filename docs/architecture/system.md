@@ -41,13 +41,20 @@ contract covers identity, category, fund family, benchmark, fees, average volume
 sector exposure, geography exposure, and top-ten concentration. Yahoo's current development
 adapter does not report geography exposure, so that field remains explicitly provider-unsupported.
 
-Publication uses version-scoped document IDs. Chroma is staged and its IDs, version, and snapshot
-digest are read back before graph publication begins. Neo4j then writes the snapshot graph and
-changes one `ResearchCatalog` active pointer in the same query transaction. Hybrid retrieval reads
-that pointer first and filters Chroma to the exact active version. A failed stage or graph
-transaction therefore leaves the previous active snapshot reachable; inactive staged Chroma
-records do not enter advisory retrieval. A published version is content-address checked and cannot
-be reused for different snapshot content.
+Publication uses version-and-digest-scoped document IDs. Chroma is staged and its IDs, version,
+and snapshot digest are read back before graph publication begins. Neo4j then writes the snapshot
+graph and changes one `ResearchCatalog` active pointer in the same query transaction. Hybrid
+retrieval reads that pointer first and filters Chroma to the exact active version and digest. A
+failed stage or graph transaction therefore leaves the previous active snapshot reachable;
+inactive staged Chroma records do not enter advisory retrieval. A published version is
+content-address checked and cannot be reused for different snapshot content. Canonical field-level
+provenance JSON is retained on each source document in both stores.
+
+The publication CLI writes the validated canonical snapshot payload atomically to an ignored local
+artifact before either database is changed. An explicit-version retry loads that payload rather
+than refetching mutable provider data. If Neo4j already reports the requested version and digest as
+active, a retry without the local payload returns a successful no-op; reactivating an inactive
+version requires its original payload.
 
 The first implemented Neo4j projection uses `ETF`, `FundFamily`, `Category`, and
 `SourceDocument` nodes. Yahoo's `fundFamily` field is preserved as fund-family/provider

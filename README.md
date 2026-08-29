@@ -113,9 +113,18 @@ zero exposure.
 
 Publication stages versioned Chroma documents and verifies their IDs and digest metadata before
 Neo4j writes and activates the same snapshot in one graph transaction. Hybrid retrieval uses the
-Neo4j active pointer to filter Chroma. If staging or graph publication fails, the previous active
-snapshot remains available; inactive staged documents are not searched by the advisory path. A
-published version cannot be reused for different content.
+Neo4j active pointer's version and digest to filter Chroma. Document IDs include both values, so
+two concurrent attempts using the same version cannot overwrite each other's staged content.
+Complete per-field provenance is retained as canonical structured JSON in both stores. If staging
+or graph publication fails, the previous active snapshot remains available; inactive staged
+documents are not searched by the advisory path. A published version cannot be reused for
+different content.
+
+Before either store is changed, the command atomically saves the canonical snapshot under the
+ignored `.artifacts/research-snapshots/` directory. Re-running the same explicit version reuses
+that payload instead of refetching mutable Yahoo data. Use `--snapshot-file PATH` to select or
+restore a particular canonical payload; an already-active version is reported as a successful
+no-op when its local payload is unavailable.
 
 Run the local workflow with retrieved evidence attached to human review after indexing the
 same source bundle:

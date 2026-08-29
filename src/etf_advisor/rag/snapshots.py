@@ -13,7 +13,7 @@ from etf_advisor.research.models import ETFResearchSnapshot
 class SnapshotGraphStore(Protocol):
     """Graph boundary that owns the authoritative active-snapshot pointer."""
 
-    def active_snapshot_version(self) -> str | None: ...
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None: ...
 
     def snapshot_digest(self, snapshot_version: str) -> str | None: ...
 
@@ -47,6 +47,15 @@ class SnapshotPublicationReport:
     previous_snapshot_version: str | None
     chroma_count: int
     neo4j_count: int
+    already_active: bool = False
+
+
+@dataclass(frozen=True)
+class ActiveSnapshotIdentity:
+    """Graph-authoritative identity used to scope cross-store retrieval."""
+
+    snapshot_version: str
+    snapshot_digest: str
 
 
 def publish_research_snapshot(
@@ -56,7 +65,7 @@ def publish_research_snapshot(
 ) -> SnapshotPublicationReport:
     """Stage Chroma first, then atomically activate the graph snapshot.
 
-    Versioned document IDs keep the previous Chroma snapshot intact. Neo4j performs graph
+    Content-addressed document IDs keep every staged candidate snapshot intact. Neo4j performs graph
     writes and the active-pointer change in one query transaction, so staged Chroma records
     remain unreachable when graph publication fails.
     """
@@ -67,7 +76,7 @@ def publish_research_snapshot(
         raise ValueError("Research snapshot document IDs must be unique.")
 
     digest = snapshot.content_digest()
-    previous_version = neo4j_store.active_snapshot_version()
+    previous_identity = neo4j_store.active_snapshot_identity()
     existing_digest = neo4j_store.snapshot_digest(snapshot.snapshot_version)
     if existing_digest is not None and existing_digest != digest:
         raise ValueError(
@@ -104,13 +113,18 @@ def publish_research_snapshot(
     )
     if neo4j_count != len(documents):
         raise IndexConsistencyError("Neo4j did not publish the complete research snapshot.")
-    if neo4j_store.active_snapshot_version() != snapshot.snapshot_version:
+    if neo4j_store.active_snapshot_identity() != ActiveSnapshotIdentity(
+        snapshot_version=snapshot.snapshot_version,
+        snapshot_digest=digest,
+    ):
         raise IndexConsistencyError("Neo4j did not activate the validated research snapshot.")
 
     return SnapshotPublicationReport(
         snapshot_version=snapshot.snapshot_version,
         snapshot_digest=digest,
-        previous_snapshot_version=previous_version,
+        previous_snapshot_version=(
+            previous_identity.snapshot_version if previous_identity is not None else None
+        ),
         chroma_count=chroma_count,
         neo4j_count=neo4j_count,
     )

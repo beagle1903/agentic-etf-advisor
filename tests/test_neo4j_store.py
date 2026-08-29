@@ -5,6 +5,7 @@ import pytest
 
 from etf_advisor.rag.models import SourceDocument
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 
 class FakeResult:
@@ -35,7 +36,14 @@ class FakeDriver:
         if "RETURN snapshot.version AS snapshot_version" in query:
             if self.active_snapshot is None:
                 return FakeResult()
-            return FakeResult([{"snapshot_version": self.active_snapshot}])
+            return FakeResult(
+                [
+                    {
+                        "snapshot_version": self.active_snapshot,
+                        "snapshot_digest": self.snapshot_digest,
+                    }
+                ]
+            )
         if "RETURN snapshot.digest AS snapshot_digest" in query:
             if self.snapshot_digest is None:
                 return FakeResult()
@@ -145,7 +153,7 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     driver = FakeDriver()
     store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
     document = SourceDocument(
-        document_id="research:snapshot-v1:spy",
+        document_id="research:snapshot-v1:abc123:spy",
         symbol="SPY",
         title="SPY research snapshot",
         content="Source content",
@@ -157,6 +165,8 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
             "name": "SPDR S&P 500 ETF Trust",
             "fund_family": "State Street Global Advisors",
             "category": "Large Blend",
+            "field_provenance_schema_version": 1,
+            "field_provenance_json": '{"name":{"provider":"yahoo_finance"}}',
         },
     )
 
@@ -169,14 +179,20 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     )
 
     assert count == 1
-    assert store.active_snapshot_version() == "snapshot-v1"
+    assert store.active_snapshot_identity() == ActiveSnapshotIdentity("snapshot-v1", "abc123")
     assert store.snapshot_digest("snapshot-v1") == "abc123"
     parameters = driver.snapshot_parameters[0]
     assert parameters["expected_count"] == 1
     assert parameters["documents"][0]["category_name"] == "Large Blend"
+    assert parameters["documents"][0]["field_provenance_schema_version"] == 1
+    assert parameters["documents"][0]["field_provenance_json"] == (
+        '{"name":{"provider":"yahoo_finance"}}'
+    )
     snapshot_query = next(query for query in driver.upsert_queries if "ResearchSnapshot" in query)
     assert "ON CREATE SET snapshot.universe_id" in snapshot_query
     assert "AND snapshot.digest = $snapshot_digest" in snapshot_query
+    assert "source.snapshot_digest = $snapshot_digest" in snapshot_query
+    assert "source.field_provenance_json = document.field_provenance_json" in snapshot_query
     assert snapshot_query.index("WHERE published_count") < snapshot_query.index("ACTIVE_SNAPSHOT")
 
 
@@ -184,7 +200,7 @@ def test_neo4j_snapshot_publish_rejects_mixed_versions_before_writing() -> None:
     driver = FakeDriver()
     store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
     document = SourceDocument(
-        document_id="research:snapshot-v1:spy",
+        document_id="research:snapshot-v1:abc123:spy",
         symbol="SPY",
         title="SPY research snapshot",
         content="Source content",

@@ -18,6 +18,7 @@ from etf_advisor.evaluation.models import (
 )
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, RetrievedSource
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 _CONTEXT_FIELDS = ("fund_family", "category")
 
@@ -75,7 +76,7 @@ class CuratedRelationshipStore:
             if document_id in self._contexts
         }
 
-    def active_snapshot_version(self) -> str | None:
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
         return None
 
 

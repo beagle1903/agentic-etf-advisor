@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.models import GraphContext, RetrievedSource
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 
 class FakeSemanticStore:
@@ -36,7 +37,7 @@ class FakeSemanticStore:
 
 
 class FakeRelationshipStore:
-    def active_snapshot_version(self) -> str | None:
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
         return None
 
     def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]:
@@ -65,8 +66,8 @@ def test_hybrid_search_preserves_ranking_and_exposes_missing_context() -> None:
 
 def test_hybrid_search_scopes_semantic_candidates_to_active_snapshot() -> None:
     class ActiveRelationshipStore(FakeRelationshipStore):
-        def active_snapshot_version(self) -> str | None:
-            return "snapshot-v2"
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+            return ActiveSnapshotIdentity("snapshot-v2", "digest-v2")
 
     class SnapshotSemanticStore(FakeSemanticStore):
         def search(
@@ -75,7 +76,12 @@ def test_hybrid_search_scopes_semantic_candidates_to_active_snapshot() -> None:
             limit: int = 5,
             where: dict[str, Any] | None = None,
         ) -> list[RetrievedSource]:
-            assert where == {"snapshot_version": "snapshot-v2"}
+            assert where == {
+                "$and": [
+                    {"snapshot_version": "snapshot-v2"},
+                    {"snapshot_digest": "digest-v2"},
+                ]
+            }
             return self.results[:limit]
 
     results = HybridRetriever(SnapshotSemanticStore(), ActiveRelationshipStore()).search(

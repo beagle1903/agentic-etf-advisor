@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from typing import Any, cast
 
 from etf_advisor.rag.models import GraphContext, SourceDocument
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 _CONSTRAINTS = (
     "CREATE CONSTRAINT etf_symbol IF NOT EXISTS FOR (etf:ETF) REQUIRE etf.symbol IS UNIQUE",
@@ -88,7 +89,10 @@ SET source.source = document.source,
     source.source_url = document.source_url,
     source.observed_at = datetime(document.observed_at),
     source.document_type = document.document_type,
-    source.snapshot_version = $snapshot_version
+    source.snapshot_version = $snapshot_version,
+    source.snapshot_digest = $snapshot_digest,
+    source.field_provenance_schema_version = document.field_provenance_schema_version,
+    source.field_provenance_json = document.field_provenance_json
 MERGE (etf)-[:DESCRIBED_BY]->(source)
 MERGE (snapshot)-[:CONTAINS]->(source)
 WITH snapshot, etf, source, document
@@ -114,9 +118,9 @@ MERGE (catalog)-[:ACTIVE_SNAPSHOT]->(snapshot)
 RETURN published_count
 """
 
-_ACTIVE_SNAPSHOT_VERSION = """
+_ACTIVE_SNAPSHOT_IDENTITY = """
 MATCH (:ResearchCatalog {id: 'active'})-[:ACTIVE_SNAPSHOT]->(snapshot:ResearchSnapshot)
-RETURN snapshot.version AS snapshot_version
+RETURN snapshot.version AS snapshot_version, snapshot.digest AS snapshot_digest
 """
 
 _SNAPSHOT_DIGEST = """
@@ -213,6 +217,10 @@ class Neo4jGraphStore:
                     "document_type": document.document_type,
                     "fund_family_name": _optional_string(metadata.get("fund_family")),
                     "category_name": _optional_string(metadata.get("category")),
+                    "field_provenance_schema_version": metadata.get(
+                        "field_provenance_schema_version"
+                    ),
+                    "field_provenance_json": metadata.get("field_provenance_json"),
                 }
             )
 
@@ -240,18 +248,22 @@ class Neo4jGraphStore:
             raise Neo4jUnavailable("Neo4j returned an invalid snapshot publication count.")
         return published_count
 
-    def active_snapshot_version(self) -> str | None:
-        """Return the graph-authoritative version used to scope hybrid retrieval."""
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+        """Return the graph-authoritative identity used to scope hybrid retrieval."""
 
-        records = list(self._execute(_ACTIVE_SNAPSHOT_VERSION))
+        records = list(self._execute(_ACTIVE_SNAPSHOT_IDENTITY))
         if not records:
             return None
         if len(records) != 1:
             raise Neo4jUnavailable("Neo4j returned multiple active research snapshots.")
-        value = _record_data(records[0]).get("snapshot_version")
-        if not isinstance(value, str) or not value.strip():
+        data = _record_data(records[0])
+        version = data.get("snapshot_version")
+        digest = data.get("snapshot_digest")
+        if not isinstance(version, str) or not version.strip():
             raise Neo4jUnavailable("Neo4j returned an invalid active snapshot version.")
-        return value
+        if not isinstance(digest, str) or not digest.strip():
+            raise Neo4jUnavailable("Neo4j returned an invalid active snapshot digest.")
+        return ActiveSnapshotIdentity(snapshot_version=version, snapshot_digest=digest)
 
     def snapshot_digest(self, snapshot_version: str) -> str | None:
         """Return an existing immutable snapshot digest, if this version was published."""

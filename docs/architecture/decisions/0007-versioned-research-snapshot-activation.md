@@ -44,3 +44,22 @@ development path remains available.
 - A network failure after Neo4j commits can make the CLI outcome uncertain, as with any remote
   commit acknowledgement. Re-running the same snapshot version is idempotent and reveals the
   active version.
+
+## Review hardening addendum
+
+PR review exposed three details that the original decision did not make strong enough. This
+addendum supersedes the version-only identity and refetch-on-retry implications above:
+
+- Source-document IDs are scoped by both snapshot version and content digest. Concurrent publishers
+  that propose different content under the same version therefore stage disjoint Chroma records;
+  the Neo4j uniqueness check permits at most one digest to own that version.
+- The active graph identity contains both version and digest, and hybrid retrieval filters Chroma
+  on both values. A losing or abandoned same-version candidate cannot become reachable through a
+  winner's active pointer.
+- Each source document persists deterministic structured JSON for every field's value or missing
+  reason, provider, source URL, observation time, ingestion time, unit, and snapshot version in
+  Chroma and Neo4j.
+- Before store writes, the CLI atomically persists the canonical validated payload. An
+  explicit-version retry reuses that payload. If the requested version and digest are already
+  active, a missing local payload is handled as a successful no-op; an inactive published version
+  still requires its original payload for safe reactivation.

@@ -63,9 +63,20 @@ partially updated advisory dataset.
 
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
-- `uv run mypy` passes for 38 source files.
-- `uv run pytest` passes offline (155 tests).
+- `uv run mypy` passes for 39 source files.
+- `uv run pytest` passes offline (162 tests).
 - `uv run etf-advisor --help` exposes `publish-research-universe`.
 - `uv build` produces source and wheel artifacts.
 - The wheel contains the packaged `research/universe_v1.json` file.
 - `docker compose config --quiet` passes.
+
+## PR review hardening
+
+- Snapshot source-document IDs now include both immutable version and content digest, preventing
+  same-version concurrent staging attempts from overwriting each other.
+- Neo4j's active identity and the Chroma retrieval filter now use both version and digest.
+- Canonical per-field provenance JSON is persisted in both Chroma and Neo4j source documents.
+- The publication command persists a canonical local payload before store writes and reuses it for
+  explicit-version retries instead of refetching mutable provider data.
+- Tests cover provenance round-tripping, distinct same-version candidate identities, exact active
+  digest filtering, persisted-payload retries, and already-active no-op retries.

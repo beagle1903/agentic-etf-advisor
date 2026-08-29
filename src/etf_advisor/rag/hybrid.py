@@ -3,6 +3,7 @@
 from typing import Any, Protocol
 
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, RetrievedSource
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 
 class SemanticStore(Protocol):
@@ -17,7 +18,7 @@ class SemanticStore(Protocol):
 class RelationshipStore(Protocol):
     def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]: ...
 
-    def active_snapshot_version(self) -> str | None: ...
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None: ...
 
 
 class HybridRetriever:
@@ -30,8 +31,17 @@ class HybridRetriever:
         self._relationship_store = relationship_store
 
     def search(self, query: str, limit: int = 5) -> list[GraphEnrichedSource]:
-        snapshot_version = self._relationship_store.active_snapshot_version()
-        where = {"snapshot_version": snapshot_version} if snapshot_version is not None else None
+        active_snapshot = self._relationship_store.active_snapshot_identity()
+        where = (
+            {
+                "$and": [
+                    {"snapshot_version": active_snapshot.snapshot_version},
+                    {"snapshot_digest": active_snapshot.snapshot_digest},
+                ]
+            }
+            if active_snapshot is not None
+            else None
+        )
         semantic_results = self._semantic_store.search(query, limit=limit, where=where)
         contexts = self._relationship_store.find_contexts(
             [result.document_id for result in semantic_results]

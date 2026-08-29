@@ -40,7 +40,16 @@ from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenc
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError, index_documents
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
-from etf_advisor.rag.snapshots import publish_research_snapshot
+from etf_advisor.rag.snapshots import (
+    ActiveSnapshotIdentity,
+    SnapshotPublicationReport,
+    publish_research_snapshot,
+)
+from etf_advisor.research.snapshot_io import (
+    default_snapshot_path,
+    load_research_snapshot,
+    persist_research_snapshot,
+)
 from etf_advisor.research.universe import load_research_universe
 
 app = typer.Typer(no_args_is_help=True)
@@ -284,29 +293,72 @@ def publish_research_universe(
             help="Explicit version for reproducible reruns; defaults to a UTC timestamp.",
         ),
     ] = None,
+    snapshot_file: Annotated[
+        Path | None,
+        typer.Option(
+            "--snapshot-file",
+            dir_okay=False,
+            help=(
+                "Canonical snapshot payload to reuse or create; defaults to an ignored "
+                ".artifacts path keyed by snapshot version."
+            ),
+        ),
+    ] = None,
 ) -> None:
     """Fetch, validate, stage, and atomically activate the curated research universe."""
 
     graph_store: Neo4jGraphStore | None = None
     try:
-        universe = load_research_universe(universe_path)
         version = snapshot_version or system_utc_now().strftime("%Y%m%dT%H%M%SZ")
-        adapter = YahooResearchAdapter(
-            clock=system_utc_now,
-            max_attempts=settings.yahoo_max_attempts,
-            retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
-        )
-        snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
-        chroma_store = ChromaDocumentStore(
-            host=settings.chroma_host,
-            port=settings.chroma_port,
-            collection_name=settings.chroma_collection,
-        )
+        payload_path = snapshot_file or default_snapshot_path(version)
         graph_store = Neo4jGraphStore(
             uri=settings.neo4j_uri,
             auth=settings.neo4j_credentials(),
         )
-        report = publish_research_snapshot(snapshot, chroma_store, graph_store)
+        active_identity = graph_store.active_snapshot_identity()
+        existing_digest = graph_store.snapshot_digest(version)
+        if not payload_path.exists() and existing_digest is not None:
+            requested_identity = ActiveSnapshotIdentity(version, existing_digest)
+            if active_identity == requested_identity:
+                report = SnapshotPublicationReport(
+                    snapshot_version=version,
+                    snapshot_digest=existing_digest,
+                    previous_snapshot_version=version,
+                    chroma_count=0,
+                    neo4j_count=0,
+                    already_active=True,
+                )
+            else:
+                raise ValueError(
+                    "The immutable snapshot version already exists, but its canonical payload "
+                    "is unavailable. Retry with the original --snapshot-file."
+                )
+        else:
+            universe = load_research_universe(universe_path)
+            if payload_path.exists():
+                snapshot = load_research_snapshot(payload_path)
+                if snapshot.snapshot_version != version:
+                    raise ValueError(
+                        "The canonical snapshot payload does not match --snapshot-version."
+                    )
+                if snapshot.universe_id != universe.universe_id:
+                    raise ValueError(
+                        "The canonical snapshot payload does not match the selected universe."
+                    )
+            else:
+                adapter = YahooResearchAdapter(
+                    clock=system_utc_now,
+                    max_attempts=settings.yahoo_max_attempts,
+                    retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
+                )
+                snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
+                persist_research_snapshot(snapshot, payload_path)
+            chroma_store = ChromaDocumentStore(
+                host=settings.chroma_host,
+                port=settings.chroma_port,
+                collection_name=settings.chroma_collection,
+            )
+            report = publish_research_snapshot(snapshot, chroma_store, graph_store)
     except (
         IndexConsistencyError,
         MarketDataError,

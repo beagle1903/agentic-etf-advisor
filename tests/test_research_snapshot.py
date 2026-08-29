@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 
 import pytest
@@ -18,12 +19,13 @@ def research_field[T](
     *,
     version: str = "snapshot-v1",
     missing_reason: MissingReason | None = None,
+    provider: str = "test_provider",
 ) -> ResearchField[T]:
     observed_at = datetime(2026, 8, 29, 12, 0, tzinfo=UTC)
     return ResearchField[T](
         value=value,
         unit="text",
-        provider="test_provider",
+        provider=provider,
         source_url="https://example.com/SPY",
         observed_at=observed_at,
         ingested_at=observed_at,
@@ -55,7 +57,11 @@ def research_record(*, version: str = "snapshot-v1") -> ETFResearchRecord:
             version=version,
             missing_reason=MissingReason.PROVIDER_UNSUPPORTED,
         ),
-        top_10_concentration_pct=research_field(12.5, version=version),
+        top_10_concentration_pct=research_field(
+            12.5,
+            version=version,
+            provider="yahoo_finance_derived",
+        ),
     )
 
 
@@ -82,11 +88,38 @@ def test_snapshot_renders_explicit_missingness_and_stable_version_metadata() -> 
     document = snapshot.to_source_documents()[0]
 
     assert snapshot.content_digest() == snapshot.content_digest()
-    assert document.document_id == "research:snapshot-v1:spy"
+    digest = snapshot.content_digest()
+    assert document.document_id == f"research:snapshot-v1:{digest}:spy"
     assert document.metadata["snapshot_version"] == "snapshot-v1"
     assert document.metadata["benchmark_status"] == "not_reported"
     assert document.metadata["geography_exposures_status"] == "provider_unsupported"
     assert "Benchmark: not reported (not_reported)" in document.content
+
+    provenance = json.loads(str(document.metadata["field_provenance_json"]))
+    assert document.metadata["field_provenance_schema_version"] == 1
+    assert provenance["top_10_concentration_pct"] == {
+        "ingested_at": "2026-08-29T12:00:00Z",
+        "missing_reason": None,
+        "observed_at": "2026-08-29T12:00:00Z",
+        "provider": "yahoo_finance_derived",
+        "snapshot_version": "snapshot-v1",
+        "source_url": "https://example.com/SPY",
+        "unit": "text",
+        "value": 12.5,
+    }
+    assert provenance["benchmark"]["missing_reason"] == "not_reported"
+
+
+def test_same_version_different_content_has_distinct_document_identity() -> None:
+    first = research_snapshot()
+    second = first.model_copy(deep=True)
+    second.records[0].name.value = "Changed ETF name"
+
+    first_document = first.to_source_documents()[0]
+    second_document = second.to_source_documents()[0]
+
+    assert first.content_digest() != second.content_digest()
+    assert first_document.document_id != second_document.document_id
 
 
 def test_research_field_requires_value_xor_missing_reason() -> None:
