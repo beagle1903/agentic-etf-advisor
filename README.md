@@ -156,14 +156,15 @@ licensing decision.
 
 - `wishlist.md`: raw, user-owned ideas and requests.
 - `AGENTS.md`: operating rules for coding agents.
-- `docs/product/`: stable product intent and scope.
+- `docs/product/`: stable product intent, scope, and the directional roadmap.
 - `docs/architecture/`: current architecture and immutable decisions.
 - `docs/iterations/`: short delivery plans and acceptance criteria.
 - `docs/runbooks/`: reproducible operational procedures.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
 
-The current delivery contract is in `docs/iterations/010-postgres-durable-review.md`.
+The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
+`docs/iterations/010-postgres-durable-review.md`.
 
 ## License
 
