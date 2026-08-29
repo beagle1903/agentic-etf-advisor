@@ -70,7 +70,7 @@ _PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
 )
 
 _NUMERIC_CLAIM_PATTERN: Final[re.Pattern[str]] = re.compile(
-    r"(?<![\w.])[+-]?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?)%?"
+    r"(?<![\w.])[+-]?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?|[.,]\d+)%?"
 )
 _NON_SUPPORT_METADATA_FIELDS: Final[frozenset[str]] = frozenset(
     {"source", "source_url", "observed_at"}

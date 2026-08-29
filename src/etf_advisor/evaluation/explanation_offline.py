@@ -16,7 +16,21 @@ from etf_advisor.evaluation.explanation_models import (
     ExplanationEvaluationMetrics,
     ExplanationEvaluationReport,
 )
-from etf_advisor.explanation.models import validate_and_bundle_explanation
+from etf_advisor.explanation.models import (
+    ExplanationGenerationError,
+    ExplanationRequest,
+    ExplanationResult,
+    validate_and_bundle_explanation,
+)
+from etf_advisor.graph.nodes import draft_explanation
+from etf_advisor.graph.state import AdvisorState
+
+
+class _ProviderRefusalGenerator:
+    """Replay a provider refusal through the production explanation node."""
+
+    def generate(self, request: ExplanationRequest) -> ExplanationResult:
+        raise ExplanationGenerationError("Evaluation fixture provider refused generation.")
 
 
 def load_explanation_evaluation_dataset(
@@ -79,8 +93,28 @@ def _evaluate_case(
     case: ExplanationEvaluationCase,
 ) -> ExplanationEvaluationCaseResult:
     if case.provider_refusal:
-        actual = ExplanationEvaluationDecision.REJECT
-        reason = "provider_refusal"
+        node_result = draft_explanation(
+            AdvisorState(
+                profile=dataset.request.profile.model_dump(mode="json"),
+                draft_policy=dataset.request.draft_policy.model_dump(mode="json"),
+                candidate_evidence=dataset.request.candidate_evidence.model_dump(mode="json"),
+            ),
+            generator=_ProviderRefusalGenerator(),
+        )
+        blocked = (
+            node_result.get("status") == "explanation_blocked"
+            and node_result.get("draft_explanation") == {}
+            and any(
+                error.get("type") == "generation_error"
+                for error in node_result.get("explanation_errors", [])
+            )
+        )
+        actual = (
+            ExplanationEvaluationDecision.REJECT
+            if blocked
+            else ExplanationEvaluationDecision.ACCEPT
+        )
+        reason = "production_generation_error" if blocked else "refusal_reached_review"
     else:
         try:
             if case.result is None:  # Defensive after dataset validation.

@@ -168,9 +168,12 @@ def test_negative_guarantee_disclaimer_is_not_treated_as_a_promise() -> None:
     assert bundle.status == "ready"
 
 
-def test_numeric_claim_absent_from_cited_source_fails_support_validation() -> None:
+@pytest.mark.parametrize("unsupported_value", ["0.03%", ".03%", "-.03%"])
+def test_numeric_claim_absent_from_cited_source_fails_support_validation(
+    unsupported_value: str,
+) -> None:
     generated = _generated()
-    generated.evidence_points[0].text = "SPY has an expense ratio of 0.03%."
+    generated.evidence_points[0].text = f"SPY has an expense ratio of {unsupported_value}."
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
     with pytest.raises(ValueError, match="numeric claim absent from its cited support"):

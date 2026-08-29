@@ -298,7 +298,7 @@
           ],
           "evidence_points": [
             {
-              "text": "SPY has an expense ratio of 0.03%.",
+              "text": "SPY has an expense ratio of .03%.",
               "basis": "source_evidence",
               "references": ["doc-spy"],
               "subject_symbols": ["SPY"]

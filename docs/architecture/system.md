@@ -102,6 +102,10 @@ packaged cases are a small regression baseline, not proof of general semantic en
 model safety. LangSmith-backed comparisons remain an optional future adapter; offline evaluation
 stays independently runnable and authoritative for repository verification.
 
+Provider refusal is the one case replayed through the production `draft_explanation` node because
+there is no structured output to validate. The case passes only when the node returns the complete
+blocked generation-error state with no review-ready draft.
+
 ## Workflow stages
 
 1. Validate the investor profile.

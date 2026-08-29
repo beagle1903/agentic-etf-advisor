@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 from typer.testing import CliRunner
 
+import etf_advisor.evaluation.explanation_offline as explanation_offline
 from etf_advisor.cli import app
 from etf_advisor.evaluation.explanation_models import ExplanationEvaluationDataset
 from etf_advisor.evaluation.explanation_offline import (
@@ -52,6 +53,28 @@ def test_unexpected_validator_decision_fails_the_gate_and_dimension_score() -> N
     assert report.cases[0].actual_decision == "accept"
     assert report.cases[0].passed is False
     assert "grounded-safe-response" in report.conclusion
+
+
+def test_refusal_metric_replays_the_production_explanation_node(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def unsafe_refusal_path(*args: object, **kwargs: object) -> dict[str, object]:
+        return {
+            "status": "awaiting_human_review",
+            "draft_explanation": {"status": "ready"},
+            "explanation_errors": [],
+        }
+
+    monkeypatch.setattr(explanation_offline, "draft_explanation", unsafe_refusal_path)
+
+    report = run_offline_explanation_evaluation(load_explanation_evaluation_dataset())
+    refusal = next(case for case in report.cases if case.case_id == "provider-refusal")
+
+    assert refusal.actual_decision == "accept"
+    assert refusal.reason == "refusal_reached_review"
+    assert refusal.passed is False
+    assert report.metrics.refusal_behavior.accuracy == 0.0
+    assert report.metrics.passed is False
 
 
 def test_dataset_requires_every_quality_dimension() -> None:
