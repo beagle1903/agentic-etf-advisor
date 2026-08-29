@@ -44,7 +44,9 @@ from etf_advisor.rag.snapshots import (
     ActiveSnapshotIdentity,
     SnapshotPublicationReport,
     publish_research_snapshot,
+    verify_snapshot_documents,
 )
+from etf_advisor.research.models import ETFResearchSnapshot
 from etf_advisor.research.snapshot_io import (
     default_snapshot_path,
     load_research_snapshot,
@@ -81,6 +83,21 @@ def _assess_market_data(
 
     return assess_observations(
         observations,
+        checked_at=clock(),
+        max_age=timedelta(hours=settings.market_data_max_age_hours),
+        future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+    )
+
+
+def _assess_research_snapshot(
+    snapshot: ETFResearchSnapshot,
+    *,
+    clock: Clock,
+) -> MarketDataHealthReport:
+    """Apply the shared freshness boundary to source-reported research timestamps."""
+
+    return assess_observations(
+        snapshot.to_source_documents(),
         checked_at=clock(),
         max_age=timedelta(hours=settings.market_data_max_age_hours),
         future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
@@ -320,12 +337,35 @@ def publish_research_universe(
         if not payload_path.exists() and existing_digest is not None:
             requested_identity = ActiveSnapshotIdentity(version, existing_digest)
             if active_identity == requested_identity:
+                manifest = graph_store.snapshot_manifest(version)
+                if manifest is None or (
+                    manifest.snapshot_version != version
+                    or manifest.snapshot_digest != existing_digest
+                ):
+                    raise IndexConsistencyError(
+                        "Neo4j did not return the active snapshot's immutable manifest."
+                    )
+                chroma_store = ChromaDocumentStore(
+                    host=settings.chroma_host,
+                    port=settings.chroma_port,
+                    collection_name=settings.chroma_collection,
+                    create_if_missing=False,
+                )
+                verified_count = verify_snapshot_documents(
+                    requested_identity,
+                    list(manifest.document_ids),
+                    chroma_store,
+                )
+                if graph_store.active_snapshot_identity() != requested_identity:
+                    raise IndexConsistencyError(
+                        "The active research snapshot changed during retry verification."
+                    )
                 report = SnapshotPublicationReport(
                     snapshot_version=version,
                     snapshot_digest=existing_digest,
                     previous_snapshot_version=version,
-                    chroma_count=0,
-                    neo4j_count=0,
+                    chroma_count=verified_count,
+                    neo4j_count=manifest.document_count,
                     already_active=True,
                 )
             else:
@@ -335,6 +375,7 @@ def publish_research_universe(
                 )
         else:
             universe = load_research_universe(universe_path)
+            persist_payload = False
             if payload_path.exists():
                 snapshot = load_research_snapshot(payload_path)
                 if snapshot.snapshot_version != version:
@@ -352,6 +393,9 @@ def publish_research_universe(
                     retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
                 )
                 snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
+                persist_payload = True
+            _assess_research_snapshot(snapshot, clock=system_utc_now).require_healthy()
+            if persist_payload:
                 persist_research_snapshot(snapshot, payload_path)
             chroma_store = ChromaDocumentStore(
                 host=settings.chroma_host,
@@ -361,6 +405,7 @@ def publish_research_universe(
             report = publish_research_snapshot(snapshot, chroma_store, graph_store)
     except (
         IndexConsistencyError,
+        MarketDataQualityError,
         MarketDataError,
         ChromaUnavailable,
         Neo4jUnavailable,

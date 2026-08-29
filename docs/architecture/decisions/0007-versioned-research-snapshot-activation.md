@@ -63,3 +63,19 @@ addendum supersedes the version-only identity and refetch-on-retry implications 
   explicit-version retry reuses that payload. If the requested version and digest are already
   active, a missing local payload is handled as a successful no-op; an inactive published version
   still requires its original payload for safe reactivation.
+
+## Post-merge integrity correction
+
+A read-only review of the merged implementation found four gaps in those guarantees. The
+implementation now applies the original activation decision as follows:
+
+- With no active snapshot, hybrid retrieval performs an explicit legacy-only query instead of an
+  unfiltered query, so an abandoned first-stage snapshot cannot reach advisory retrieval.
+- Yahoo research fields use the source-reported market timestamp, and the shared stale/future
+  boundary runs before the canonical payload or retrieval stores are written.
+- Snapshot publication replaces normalized ETF fund-family/category relationships as well as
+  source-specific relationships inside the active-pointer transaction.
+- Every new graph snapshot persists its expected document count. A missing-payload no-op reads that
+  manifest, verifies exact Chroma IDs and identity metadata, and rechecks the active pointer before
+  reporting success. Older snapshots without a count require their canonical payload once to
+  backfill it.

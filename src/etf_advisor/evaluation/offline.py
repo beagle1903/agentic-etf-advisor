@@ -58,6 +58,9 @@ class CuratedSemanticStore:
             for candidate in case.semantic_candidates[:limit]
         ]
 
+    def search_unversioned(self, query: str, limit: int = 5) -> list[RetrievedSource]:
+        return self.search(query, limit=limit)
+
 
 class CuratedRelationshipStore:
     """Replay source-linked graph context from the same versioned dataset."""

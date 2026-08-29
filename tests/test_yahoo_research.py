@@ -1,6 +1,9 @@
 from datetime import UTC, datetime
 from typing import ClassVar
 
+import pytest
+
+from etf_advisor.data.yahoo import MarketDataError
 from etf_advisor.data.yahoo_research import YahooResearchAdapter
 from etf_advisor.research.models import MissingReason
 from etf_advisor.research.universe import ResearchUniverse, UniverseMember
@@ -31,6 +34,7 @@ class FakeTicker:
         "indexName": "Example Broad Market Index",
         "netExpenseRatio": 0.03,
         "averageDailyVolume10Day": 10_000_000,
+        "regularMarketTime": int(datetime(2026, 8, 29, 11, 55, tzinfo=UTC).timestamp()),
     }
     funds_data: ClassVar[FakeFundsData] = FakeFundsData()
 
@@ -44,12 +48,7 @@ def one_member_universe() -> ResearchUniverse:
 
 
 def test_yahoo_research_adapter_builds_rich_field_level_provenance() -> None:
-    instants = iter(
-        [
-            datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
-            datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
-        ]
-    )
+    instants = iter([datetime(2026, 8, 29, 12, 1, tzinfo=UTC)])
     adapter = YahooResearchAdapter(
         clock=lambda: next(instants),
         ticker_factory=lambda symbol: FakeTicker(),
@@ -71,6 +70,7 @@ def test_yahoo_research_adapter_builds_rich_field_level_provenance() -> None:
     for field in record.research_fields().values():
         assert field.snapshot_version == "snapshot-v1"
         assert field.ingested_at == snapshot.ingested_at
+        assert field.observed_at == datetime(2026, 8, 29, 11, 55, tzinfo=UTC)
         assert field.source_url == "https://finance.yahoo.com/quote/SPY/"
 
 
@@ -80,12 +80,7 @@ def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
         def funds_data(self) -> object:
             raise OSError("fund endpoint unavailable")
 
-    instants = iter(
-        [
-            datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
-            datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
-        ]
-    )
+    instants = iter([datetime(2026, 8, 29, 12, 1, tzinfo=UTC)])
     adapter = YahooResearchAdapter(
         clock=lambda: next(instants),
         ticker_factory=lambda symbol: FailingFundsTicker(),
@@ -98,3 +93,39 @@ def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
     assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
     assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
     assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_yahoo_research_adapter_rejects_missing_source_observation_timestamp() -> None:
+    class MissingTimestampTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {
+            key: value for key, value in FakeTicker.info.items() if key != "regularMarketTime"
+        }
+
+    adapter = YahooResearchAdapter(
+        clock=lambda: datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
+        ticker_factory=lambda symbol: MissingTimestampTicker(),
+    )
+
+    with pytest.raises(MarketDataError, match="observation timestamp"):
+        adapter.fetch_snapshot(one_member_universe(), snapshot_version="snapshot-v1")
+
+
+def test_yahoo_research_adapter_retries_missing_timestamp_with_fresh_ticker() -> None:
+    class MissingTimestampTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {
+            key: value for key, value in FakeTicker.info.items() if key != "regularMarketTime"
+        }
+
+    tickers = iter([MissingTimestampTicker(), FakeTicker()])
+    sleeps: list[float] = []
+    adapter = YahooResearchAdapter(
+        clock=lambda: datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
+        ticker_factory=lambda symbol: next(tickers),
+        max_attempts=2,
+        sleeper=sleeps.append,
+    )
+
+    snapshot = adapter.fetch_snapshot(one_member_universe(), snapshot_version="snapshot-v1")
+
+    assert snapshot.records[0].name.value == "Example Broad Market ETF"
+    assert sleeps == [0.25]

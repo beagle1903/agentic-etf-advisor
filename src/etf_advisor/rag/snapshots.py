@@ -58,6 +58,45 @@ class ActiveSnapshotIdentity:
     snapshot_digest: str
 
 
+@dataclass(frozen=True)
+class SnapshotManifest:
+    """Graph-authoritative document manifest for one immutable snapshot."""
+
+    snapshot_version: str
+    snapshot_digest: str
+    document_count: int
+    document_ids: tuple[str, ...]
+
+
+def verify_snapshot_documents(
+    identity: ActiveSnapshotIdentity,
+    document_ids: list[str],
+    document_store: SnapshotDocumentStore,
+) -> int:
+    """Verify exact identity metadata for a complete semantic-store manifest."""
+
+    if not document_ids or len(document_ids) != len(set(document_ids)):
+        raise IndexConsistencyError("Snapshot document manifest is empty or contains duplicates.")
+    missing_document_ids = document_store.missing_document_ids(document_ids)
+    if missing_document_ids:
+        raise IndexConsistencyError(
+            f"Chroma is missing {len(missing_document_ids)} active snapshot document(s)."
+        )
+    stored_metadata = document_store.document_metadatas(document_ids)
+    invalid_document_ids = [
+        document_id
+        for document_id in document_ids
+        if stored_metadata.get(document_id, {}).get("snapshot_version") != identity.snapshot_version
+        or stored_metadata.get(document_id, {}).get("snapshot_digest") != identity.snapshot_digest
+    ]
+    if invalid_document_ids:
+        raise IndexConsistencyError(
+            f"Chroma identity verification failed for {len(invalid_document_ids)} "
+            "snapshot document(s)."
+        )
+    return len(document_ids)
+
+
 def publish_research_snapshot(
     snapshot: ETFResearchSnapshot,
     chroma_store: SnapshotDocumentStore,
@@ -86,24 +125,11 @@ def publish_research_snapshot(
     chroma_count = chroma_store.upsert(documents)
     if chroma_count != len(documents):
         raise IndexConsistencyError("Chroma did not stage the complete research snapshot.")
-    missing_from_chroma = chroma_store.missing_document_ids(document_ids)
-    if missing_from_chroma:
-        raise IndexConsistencyError(
-            f"Chroma did not retain {len(missing_from_chroma)} staged snapshot document(s)."
-        )
-
-    staged_metadata = chroma_store.document_metadatas(document_ids)
-    invalid_staged_ids = [
-        document_id
-        for document_id in document_ids
-        if staged_metadata.get(document_id, {}).get("snapshot_version") != snapshot.snapshot_version
-        or staged_metadata.get(document_id, {}).get("snapshot_digest") != digest
-    ]
-    if invalid_staged_ids:
-        raise IndexConsistencyError(
-            f"Chroma metadata verification failed for {len(invalid_staged_ids)} "
-            "staged snapshot document(s)."
-        )
+    verify_snapshot_documents(
+        ActiveSnapshotIdentity(snapshot.snapshot_version, digest),
+        document_ids,
+        chroma_store,
+    )
     neo4j_count = neo4j_store.publish_snapshot(
         documents,
         snapshot_version=snapshot.snapshot_version,

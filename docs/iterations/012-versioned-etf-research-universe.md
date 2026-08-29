@@ -64,7 +64,7 @@ partially updated advisory dataset.
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
 - `uv run mypy` passes for 39 source files.
-- `uv run pytest` passes offline (162 tests).
+- `uv run pytest` passes offline (171 tests).
 - `uv run etf-advisor --help` exposes `publish-research-universe`.
 - `uv build` produces source and wheel artifacts.
 - The wheel contains the packaged `research/universe_v1.json` file.
@@ -80,3 +80,15 @@ partially updated advisory dataset.
   explicit-version retries instead of refetching mutable provider data.
 - Tests cover provenance round-tripping, distinct same-version candidate identities, exact active
   digest filtering, persisted-payload retries, and already-active no-op retries.
+
+## Post-merge integrity fixes
+
+- No-active hybrid retrieval now excludes staged versioned documents while preserving the legacy
+  unversioned development path.
+- Yahoo research observation time comes from `regularMarketTime`; missing, invalid, stale, and
+  future timestamps block publication before local payload or store writes.
+- Neo4j snapshot activation replaces stale ETF-level fund-family/category relationships alongside
+  source-specific relationships.
+- New snapshots persist an immutable document-count manifest. Already-active retries without a
+  local payload verify the complete manifest against Chroma and recheck activation before
+  reporting success.

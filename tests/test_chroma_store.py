@@ -12,6 +12,9 @@ class FakeCollection:
     def upsert(self, **kwargs: Any) -> None:
         self.upsert_payload = kwargs
 
+    def count(self) -> int:
+        return 1
+
     def query(self, **kwargs: Any) -> dict[str, Any]:
         assert kwargs["query_texts"] == ["broad market"]
         return {
@@ -42,6 +45,10 @@ class FakeClient:
         assert name == "test_sources"
         return self.collection
 
+    def get_collection(self, name: str) -> FakeCollection:
+        assert name == "test_sources"
+        return self.collection
+
 
 def test_chroma_store_upserts_and_returns_provenance() -> None:
     client = FakeClient()
@@ -68,3 +75,50 @@ def test_chroma_store_upserts_and_returns_provenance() -> None:
     assert store.document_metadatas(["doc-1", "missing-doc"]) == {
         "doc-1": {"snapshot_version": "snapshot-v1", "snapshot_digest": "abc123"}
     }
+
+
+def test_chroma_store_unversioned_search_excludes_inactive_snapshot_documents() -> None:
+    class MixedCollection(FakeCollection):
+        def count(self) -> int:
+            return 3
+
+        def query(self, **kwargs: Any) -> dict[str, Any]:
+            assert kwargs["n_results"] == 3
+            return {
+                "ids": [["staged", "legacy-1", "legacy-2"]],
+                "documents": [["staged", "legacy one", "legacy two"]],
+                "metadatas": [
+                    [
+                        {
+                            "symbol": "SPY",
+                            "snapshot_version": "snapshot-v1",
+                            "snapshot_digest": "digest-v1",
+                        },
+                        {"symbol": "QQQ"},
+                        {"symbol": "VTI"},
+                    ]
+                ],
+                "distances": [[0.01, 0.02, 0.03]],
+            }
+
+    client = FakeClient()
+    client.collection = MixedCollection()
+    store = ChromaDocumentStore(client=client, collection_name="test_sources")
+
+    results = store.search_unversioned("broad market", limit=2)
+
+    assert [result.document_id for result in results] == ["legacy-1", "legacy-2"]
+
+
+def test_chroma_store_can_open_existing_collection_without_creating_it() -> None:
+    class ExistingOnlyClient(FakeClient):
+        def get_or_create_collection(self, name: str) -> FakeCollection:
+            raise AssertionError("verification must not create a collection")
+
+    store = ChromaDocumentStore(
+        client=ExistingOnlyClient(),
+        collection_name="test_sources",
+        create_if_missing=False,
+    )
+
+    assert store.search("broad market")[0].document_id == "doc-1"

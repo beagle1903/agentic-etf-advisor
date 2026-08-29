@@ -22,6 +22,7 @@ class ChromaDocumentStore:
         collection_name: str = "etf_source_documents",
         *,
         client: Any | None = None,
+        create_if_missing: bool = True,
     ) -> None:
         if client is None:
             try:
@@ -33,7 +34,16 @@ class ChromaDocumentStore:
                 ) from exc
             client = chromadb.HttpClient(host=host, port=port)
         self._client = client
-        self._collection = client.get_or_create_collection(name=collection_name)
+        try:
+            self._collection = (
+                client.get_or_create_collection(name=collection_name)
+                if create_if_missing
+                else client.get_collection(name=collection_name)
+            )
+        except Exception as exc:
+            raise ChromaUnavailable(
+                f"Chroma collection '{collection_name}' is unavailable."
+            ) from exc
 
     def upsert(self, documents: list[SourceDocument]) -> int:
         if not documents:
@@ -51,11 +61,38 @@ class ChromaDocumentStore:
         limit: int = 5,
         where: dict[str, Any] | None = None,
     ) -> list[RetrievedSource]:
+        self._validate_search(query, limit)
+        return self._query(query, limit=limit, where=where)
+
+    def search_unversioned(self, query: str, limit: int = 5) -> list[RetrievedSource]:
+        """Return only legacy documents when no research snapshot is active."""
+
+        self._validate_search(query, limit)
+        collection_count = int(self._collection.count())
+        if collection_count < 1:
+            return []
+        candidates = self._query(query, limit=collection_count)
+        return [
+            candidate
+            for candidate in candidates
+            if "snapshot_version" not in candidate.metadata
+            and "snapshot_digest" not in candidate.metadata
+        ][:limit]
+
+    @staticmethod
+    def _validate_search(query: str, limit: int) -> None:
         if not query.strip():
             raise ValueError("A non-empty search query is required.")
         if limit < 1:
             raise ValueError("Search limit must be at least 1.")
 
+    def _query(
+        self,
+        query: str,
+        *,
+        limit: int,
+        where: dict[str, Any] | None = None,
+    ) -> list[RetrievedSource]:
         kwargs: dict[str, Any] = {"query_texts": [query], "n_results": limit}
         if where:
             kwargs["where"] = where

@@ -7,7 +7,7 @@ import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
@@ -100,8 +100,7 @@ class YahooResearchAdapter:
             "metadata",
             lambda: self._ticker_factory(symbol),
         )
-        info = self._retry(symbol, "metadata", lambda: _required_info(ticker))
-        observed_at = self._clock()
+        ticker, info, observed_at = self._fetch_info_snapshot(symbol, ticker)
 
         funds_data: Any | None
         try:
@@ -135,6 +134,27 @@ class YahooResearchAdapter:
             sector_exposures_error=sectors_error,
             observed_at=observed_at,
         )
+
+    def _fetch_info_snapshot(
+        self,
+        symbol: str,
+        initial_ticker: Any,
+    ) -> tuple[Any, dict[str, Any], datetime]:
+        """Retry metadata with a fresh ticker after the initial attempt."""
+
+        for attempt in range(1, self._max_attempts + 1):
+            try:
+                ticker = initial_ticker if attempt == 1 else self._ticker_factory(symbol)
+                info, observed_at = _required_info_snapshot(ticker, symbol)
+                return ticker, info, observed_at
+            except Exception as exc:
+                if attempt == self._max_attempts:
+                    raise MarketDataError(
+                        f"Yahoo Finance metadata failed for {symbol} after "
+                        f"{attempt} attempt(s): {exc}"
+                    ) from exc
+                self._sleeper(self._retry_backoff_seconds * (2 ** (attempt - 1)))
+        raise MarketDataError(f"Yahoo Finance metadata failed for {symbol}.")
 
     def _retry(
         self,
@@ -254,6 +274,27 @@ def _required_info(ticker: Any) -> dict[str, Any]:
     if not isinstance(info, dict):
         raise TypeError("metadata response is not an object")
     return dict(info)
+
+
+def _required_info_snapshot(ticker: Any, symbol: str) -> tuple[dict[str, Any], datetime]:
+    info = _required_info(ticker)
+    return info, _source_observed_at(info, symbol)
+
+
+def _source_observed_at(info: dict[str, Any], symbol: str) -> datetime:
+    """Return Yahoo's source-reported quote timestamp for snapshot freshness."""
+
+    epoch_seconds = _number(info.get("regularMarketTime"))
+    if epoch_seconds is None or epoch_seconds <= 0:
+        raise MarketDataError(
+            f"Yahoo Finance metadata did not report a usable observation timestamp for {symbol}."
+        )
+    try:
+        return datetime.fromtimestamp(epoch_seconds, tz=UTC)
+    except (OSError, OverflowError, ValueError) as exc:
+        raise MarketDataError(
+            f"Yahoo Finance metadata reported an invalid observation timestamp for {symbol}."
+        ) from exc
 
 
 def _optional_source_value[FieldValue](

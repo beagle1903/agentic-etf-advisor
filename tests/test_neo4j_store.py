@@ -5,7 +5,7 @@ import pytest
 
 from etf_advisor.rag.models import SourceDocument
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
-from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotManifest
 
 
 class FakeResult:
@@ -41,6 +41,18 @@ class FakeDriver:
                     {
                         "snapshot_version": self.active_snapshot,
                         "snapshot_digest": self.snapshot_digest,
+                    }
+                ]
+            )
+        if "snapshot.document_count AS document_count" in query:
+            if self.snapshot_digest is None or self.active_snapshot is None:
+                return FakeResult()
+            return FakeResult(
+                [
+                    {
+                        "snapshot_digest": self.snapshot_digest,
+                        "document_count": 1,
+                        "document_ids": ["research:snapshot-v1:abc123:spy"],
                     }
                 ]
             )
@@ -162,6 +174,7 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
         observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
         metadata={
             "snapshot_version": "snapshot-v1",
+            "snapshot_digest": "abc123",
             "name": "SPDR S&P 500 ETF Trust",
             "fund_family": "State Street Global Advisors",
             "category": "Large Blend",
@@ -181,6 +194,12 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     assert count == 1
     assert store.active_snapshot_identity() == ActiveSnapshotIdentity("snapshot-v1", "abc123")
     assert store.snapshot_digest("snapshot-v1") == "abc123"
+    assert store.snapshot_manifest("snapshot-v1") == SnapshotManifest(
+        snapshot_version="snapshot-v1",
+        snapshot_digest="abc123",
+        document_count=1,
+        document_ids=("research:snapshot-v1:abc123:spy",),
+    )
     parameters = driver.snapshot_parameters[0]
     assert parameters["expected_count"] == 1
     assert parameters["documents"][0]["category_name"] == "Large Blend"
@@ -191,8 +210,13 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     snapshot_query = next(query for query in driver.upsert_queries if "ResearchSnapshot" in query)
     assert "ON CREATE SET snapshot.universe_id" in snapshot_query
     assert "AND snapshot.digest = $snapshot_digest" in snapshot_query
+    assert "snapshot.document_count = $expected_count" in snapshot_query
     assert "source.snapshot_digest = $snapshot_digest" in snapshot_query
     assert "source.field_provenance_json = document.field_provenance_json" in snapshot_query
+    assert "DELETE stale_etf_relationship" in snapshot_query
+    assert "MERGE (etf)-[:IN_FUND_FAMILY]->(fund_family)" in snapshot_query
+    assert "MERGE (etf)-[:IN_CATEGORY]->(category)" in snapshot_query
+    assert "count(DISTINCT published_source) AS published_count" in snapshot_query
     assert snapshot_query.index("WHERE published_count") < snapshot_query.index("ACTIVE_SNAPSHOT")
 
 
@@ -207,7 +231,7 @@ def test_neo4j_snapshot_publish_rejects_mixed_versions_before_writing() -> None:
         source="yahoo_finance",
         source_url="https://finance.yahoo.com/quote/SPY/",
         observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
-        metadata={"snapshot_version": "snapshot-v0"},
+        metadata={"snapshot_version": "snapshot-v0", "snapshot_digest": "abc123"},
     )
 
     with pytest.raises(ValueError, match="match the published snapshot"):
@@ -220,3 +244,28 @@ def test_neo4j_snapshot_publish_rejects_mixed_versions_before_writing() -> None:
         )
 
     assert driver.snapshot_parameters == []
+
+
+def test_neo4j_snapshot_manifest_requires_persisted_document_count() -> None:
+    class LegacyManifestDriver(FakeDriver):
+        def execute_query(self, query: str, **kwargs: Any) -> FakeResult:
+            if "snapshot.document_count AS document_count" in query:
+                return FakeResult(
+                    [
+                        {
+                            "snapshot_digest": "abc123",
+                            "document_count": None,
+                            "document_ids": ["doc-spy"],
+                        }
+                    ]
+                )
+            return super().execute_query(query, **kwargs)
+
+    store = Neo4jGraphStore(
+        "neo4j://unused",
+        ("user", "password"),
+        driver=LegacyManifestDriver(),
+    )
+
+    with pytest.raises(Neo4jUnavailable, match="canonical payload"):
+        store.snapshot_manifest("snapshot-v1")
