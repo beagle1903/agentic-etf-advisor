@@ -202,14 +202,17 @@ product, replace or license the market-data source and review redistribution ter
 Yahoo price-history and metadata requests use bounded retries with configurable exponential
 backoff. A metadata exception exhausts those retries and fails the symbol; a successful
 metadata object may still contain legitimately absent individual fields. After collection,
-a deterministic quality boundary compares each source timestamp with one UTC check time
-captured through an injected clock interface. Stale observations or timestamps too far in
-the future block ingestion before the canonical research payload or either retrieval store is
-written. Rich Yahoo research uses the source-reported `regularMarketTime`; a missing or invalid
-source timestamp fails metadata collection rather than being replaced by the local fetch time. The
-health result retains the source name, URL, observation time, age, status, and reason so the same
-evidence can be rendered by later presentation layers. The default 120-hour window accommodates
-daily-close weekends and common market holidays; it does not label those snapshots as live data.
+a deterministic quality boundary compares every field's source timestamp with one UTC check time
+captured through an injected clock interface. One current field cannot mask stale data elsewhere
+in the same ETF record. Stale observations or timestamps too far in the future block ingestion
+before the canonical research payload or either retrieval store is written. Rich Yahoo research
+uses the source-reported `regularMarketTime`; a missing or invalid source timestamp fails metadata
+collection rather than being replaced by the local fetch time. A source timestamp slightly ahead
+of ingestion remains intact and is accepted only within the configured future tolerance. The
+health result retains the ETF field name, source name, URL, observation time, age, status, and
+reason so the same evidence can be rendered by later presentation layers. The default 120-hour
+window accommodates daily-close weekends and common market holidays; it does not label those
+snapshots as live data.
 
 The same quality policy is applied again when retrieved documents become workflow evidence.
 This protects against older snapshots remaining in a retrieval collection after a later

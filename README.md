@@ -130,8 +130,9 @@ back from Chroma. Snapshots created before manifest counts were introduced requi
 payload once so publication can backfill that count safely.
 
 Yahoo research snapshots use the source-reported `regularMarketTime` rather than the local fetch
-clock as their observation timestamp. The shared stale/future quality gate runs before the
-canonical payload or either retrieval store is written.
+clock as their observation timestamp. The shared stale/future quality gate checks every research
+field independently before the canonical payload or either retrieval store is written. Bounded
+future source-clock skew is preserved and handled by the configured tolerance.
 
 Run the local workflow with retrieved evidence attached to human review after indexing the
 same source bundle:

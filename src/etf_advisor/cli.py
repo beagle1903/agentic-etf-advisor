@@ -3,8 +3,8 @@
 import json
 import subprocess
 import sys
-from dataclasses import asdict
-from datetime import timedelta
+from dataclasses import asdict, dataclass
+from datetime import datetime, timedelta
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Annotated, Any
@@ -57,6 +57,16 @@ from etf_advisor.research.universe import load_research_universe
 app = typer.Typer(no_args_is_help=True)
 
 
+@dataclass
+class _ResearchFieldObservation:
+    """Expose one research field to the shared timestamp quality boundary."""
+
+    symbol: str
+    source: str
+    source_url: str
+    observed_at: datetime
+
+
 @app.callback()
 def main() -> None:
     """Run local Agentic ETF Advisor workflows."""
@@ -96,8 +106,18 @@ def _assess_research_snapshot(
 ) -> MarketDataHealthReport:
     """Apply the shared freshness boundary to source-reported research timestamps."""
 
+    observations = [
+        _ResearchFieldObservation(
+            symbol=f"{record.symbol}.{field_name}",
+            source=research_field.provider,
+            source_url=research_field.source_url,
+            observed_at=research_field.observed_at,
+        )
+        for record in snapshot.records
+        for field_name, research_field in record.research_fields().items()
+    ]
     return assess_observations(
-        snapshot.to_source_documents(),
+        observations,
         checked_at=clock(),
         max_age=timedelta(hours=settings.market_data_max_age_hours),
         future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),

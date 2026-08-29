@@ -248,6 +248,37 @@ def test_research_snapshot_freshness_uses_source_observation_time() -> None:
     assert report.observations[0].status == "stale"
 
 
+def test_research_snapshot_freshness_checks_every_field() -> None:
+    snapshot = research_snapshot()
+    record = snapshot.records[0]
+    record.benchmark.observed_at = snapshot.ingested_at - timedelta(hours=121)
+
+    report = cli._assess_research_snapshot(
+        snapshot,
+        clock=lambda: snapshot.ingested_at,
+    )
+    health_by_field = {item.symbol: item.status for item in report.observations}
+
+    assert report.healthy is False
+    assert len(report.observations) == len(record.research_fields())
+    assert health_by_field["SPY.name"] == "current"
+    assert health_by_field["SPY.benchmark"] == "stale"
+
+
+def test_research_snapshot_freshness_accepts_configured_future_tolerance() -> None:
+    snapshot = research_snapshot()
+    snapshot.records[0].name.observed_at = snapshot.ingested_at + timedelta(minutes=4)
+
+    report = cli._assess_research_snapshot(
+        snapshot,
+        clock=lambda: snapshot.ingested_at,
+    )
+
+    assert report.healthy is True
+    assert report.observations[0].symbol == "SPY.name"
+    assert report.observations[0].status == "current"
+
+
 def test_publish_rejects_stale_canonical_payload_before_opening_chroma(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,

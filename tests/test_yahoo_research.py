@@ -74,6 +74,25 @@ def test_yahoo_research_adapter_builds_rich_field_level_provenance() -> None:
         assert field.source_url == "https://finance.yahoo.com/quote/SPY/"
 
 
+def test_yahoo_research_adapter_preserves_tolerable_future_source_timestamp() -> None:
+    class FutureTimestampTicker(FakeTicker):
+        info: ClassVar[dict[str, object]] = {
+            **FakeTicker.info,
+            "regularMarketTime": int(datetime(2026, 8, 29, 12, 4, tzinfo=UTC).timestamp()),
+        }
+
+    ingested_at = datetime(2026, 8, 29, 12, 0, tzinfo=UTC)
+    adapter = YahooResearchAdapter(
+        clock=lambda: ingested_at,
+        ticker_factory=lambda symbol: FutureTimestampTicker(),
+    )
+
+    snapshot = adapter.fetch_snapshot(one_member_universe(), snapshot_version="snapshot-v1")
+
+    assert snapshot.ingested_at == ingested_at
+    assert snapshot.records[0].name.observed_at == datetime(2026, 8, 29, 12, 4, tzinfo=UTC)
+
+
 def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
     class FailingFundsTicker(FakeTicker):
         @property
