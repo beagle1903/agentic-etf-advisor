@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
+from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Final, Protocol
 
@@ -65,6 +67,13 @@ _PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
         "risk_free_outcome",
         re.compile(r"\b(?:risk[- ]free|can(?:not|'t) lose|no downside risk)\b"),
     ),
+)
+
+_NUMERIC_CLAIM_PATTERN: Final[re.Pattern[str]] = re.compile(
+    r"(?<![\w.])[+-]?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?|[.,]\d+)%?"
+)
+_NON_SUPPORT_METADATA_FIELDS: Final[frozenset[str]] = frozenset(
+    {"source", "source_url", "observed_at"}
 )
 
 
@@ -281,6 +290,8 @@ def validate_and_bundle_explanation(
     if errors:
         raise ValueError(" ".join(dict.fromkeys(errors)))
 
+    _validate_numeric_claim_support(request, validated.explanation, source_by_id)
+
     referenced_ids = {
         reference
         for statement in _all_statements(validated.explanation)
@@ -341,3 +352,70 @@ def _validate_prohibited_claims(explanation: GeneratedExplanation) -> None:
         raise ValueError(
             f"Generated explanation contains prohibited financial claims: {categories}."
         )
+
+
+def _validate_numeric_claim_support(
+    request: ExplanationRequest,
+    explanation: GeneratedExplanation,
+    source_by_id: dict[str, CandidateEvidence],
+) -> None:
+    policy_refs = policy_reference_index(request)
+    for statement in _all_statements(explanation):
+        claimed_numbers = _numeric_tokens(statement.text)
+        if not claimed_numbers:
+            continue
+        if statement.basis == GroundingBasis.POLICY:
+            support_text = " ".join(
+                json.dumps(policy_refs[reference], sort_keys=True)
+                for reference in statement.references
+            )
+        else:
+            support_text = " ".join(
+                _candidate_support_text(source_by_id[reference])
+                for reference in statement.references
+            )
+        unsupported = claimed_numbers - _numeric_tokens(support_text)
+        if unsupported:
+            raise ValueError(
+                "Generated explanation contains a numeric claim absent from its cited support."
+            )
+
+
+def _candidate_support_text(candidate: CandidateEvidence) -> str:
+    metadata = {
+        key: value
+        for key, value in candidate.metadata.items()
+        if key not in _NON_SUPPORT_METADATA_FIELDS
+    }
+    return " ".join(
+        (
+            candidate.symbol,
+            candidate.name or "",
+            candidate.content,
+            candidate.fund_family or "",
+            candidate.category or "",
+            json.dumps(metadata, sort_keys=True, default=str),
+        )
+    )
+
+
+def _numeric_tokens(text: str) -> set[str]:
+    normalized: set[str] = set()
+    for raw in _NUMERIC_CLAIM_PATTERN.findall(text):
+        try:
+            number = raw.removesuffix("%")
+            if "," in number and "." in number:
+                number = number.replace(",", "")
+            elif "," in number:
+                parts = number.split(",")
+                integer = parts[0]
+                number = (
+                    number.replace(",", "")
+                    if len(parts) > 2 or (len(parts[-1]) == 3 and integer.lstrip("+-") != "0")
+                    else number.replace(",", ".")
+                )
+            value = Decimal(number).normalize()
+        except InvalidOperation:
+            continue
+        normalized.add(str(value))
+    return normalized

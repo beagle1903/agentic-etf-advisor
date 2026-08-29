@@ -47,3 +47,15 @@ The adapter also normalizes every ordinary provider exception into the sanitized
 `ExplanationGenerationError`. This includes SDK-specific exceptions that do not inherit from
 the narrower built-in exception types previously listed. Process-control exceptions derived
 directly from `BaseException` are not swallowed.
+
+## Evaluation hardening
+
+Iteration 011 adds a deterministic numeric-support rule: each number in a generated statement
+must occur in that statement's exact cited policy values or source records. This blocks a class of
+schema-valid fabricated fees, percentages, and amounts while leaving general semantic entailment
+as an explicit limitation.
+
+A versioned offline baseline replays curated accepted, rejected, and provider-refusal cases through
+the production validator. The aggregate gate fails if any expected decision changes. Hosted
+LangSmith comparisons remain optional; repository verification does not require credentials or an
+external evaluator.
