@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+from dataclasses import asdict
 from datetime import timedelta
 from importlib.util import find_spec
 from pathlib import Path
@@ -22,6 +23,7 @@ from etf_advisor.data.quality import (
     assess_observations,
 )
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
+from etf_advisor.data.yahoo_research import YahooResearchAdapter
 from etf_advisor.evaluation import (
     load_evaluation_dataset,
     load_explanation_evaluation_dataset,
@@ -38,6 +40,8 @@ from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenc
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError, index_documents
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
+from etf_advisor.rag.snapshots import publish_research_snapshot
+from etf_advisor.research.universe import load_research_universe
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -259,6 +263,67 @@ def ingest(
                 }
             )
         )
+
+
+@app.command("publish-research-universe")
+def publish_research_universe(
+    universe_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--universe",
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            help="Optional versioned universe JSON; defaults to the packaged six-ETF baseline.",
+        ),
+    ] = None,
+    snapshot_version: Annotated[
+        str | None,
+        typer.Option(
+            "--snapshot-version",
+            help="Explicit version for reproducible reruns; defaults to a UTC timestamp.",
+        ),
+    ] = None,
+) -> None:
+    """Fetch, validate, stage, and atomically activate the curated research universe."""
+
+    graph_store: Neo4jGraphStore | None = None
+    try:
+        universe = load_research_universe(universe_path)
+        version = snapshot_version or system_utc_now().strftime("%Y%m%dT%H%M%SZ")
+        adapter = YahooResearchAdapter(
+            clock=system_utc_now,
+            max_attempts=settings.yahoo_max_attempts,
+            retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
+        )
+        snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
+        chroma_store = ChromaDocumentStore(
+            host=settings.chroma_host,
+            port=settings.chroma_port,
+            collection_name=settings.chroma_collection,
+        )
+        graph_store = Neo4jGraphStore(
+            uri=settings.neo4j_uri,
+            auth=settings.neo4j_credentials(),
+        )
+        report = publish_research_snapshot(snapshot, chroma_store, graph_store)
+    except (
+        IndexConsistencyError,
+        MarketDataError,
+        ChromaUnavailable,
+        Neo4jUnavailable,
+        OSError,
+        RuntimeError,
+        ValueError,
+        json.JSONDecodeError,
+    ) as exc:
+        typer.echo(f"Research-universe publication failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    finally:
+        if graph_store is not None:
+            graph_store.close()
+
+    typer.echo(json.dumps(asdict(report), indent=2))
 
 
 @app.command("data-health")

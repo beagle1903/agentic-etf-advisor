@@ -4,6 +4,7 @@ from typer.testing import CliRunner
 import etf_advisor.cli as cli
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import EvidenceRetrievalError
+from etf_advisor.rag.snapshots import SnapshotPublicationReport
 
 
 def test_explanation_demo_requires_evidence() -> None:
@@ -84,3 +85,50 @@ def test_dashboard_command_launches_local_streamlit(
         "false",
     ]
     assert calls[0][1] is False
+
+
+def test_publish_research_universe_wires_versioned_snapshot_and_closes_graph(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeAdapter:
+        def fetch_snapshot(self, universe: object, *, snapshot_version: str) -> str:
+            assert universe == "curated-universe"
+            assert snapshot_version == "snapshot-v1"
+            return "validated-snapshot"
+
+    class FakeGraphStore:
+        def __init__(self) -> None:
+            self.closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    graph_store = FakeGraphStore()
+    monkeypatch.setattr(cli, "load_research_universe", lambda path: "curated-universe")
+    monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FakeAdapter())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: "chroma-store")
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: graph_store)
+
+    def fake_publish(snapshot: object, chroma: object, graph: object) -> SnapshotPublicationReport:
+        assert snapshot == "validated-snapshot"
+        assert chroma == "chroma-store"
+        assert graph is graph_store
+        return SnapshotPublicationReport(
+            snapshot_version="snapshot-v1",
+            snapshot_digest="abc123",
+            previous_snapshot_version="snapshot-v0",
+            chroma_count=6,
+            neo4j_count=6,
+        )
+
+    monkeypatch.setattr(cli, "publish_research_snapshot", fake_publish)
+
+    result = CliRunner().invoke(
+        cli.app,
+        ["publish-research-universe", "--snapshot-version", "snapshot-v1"],
+    )
+
+    assert result.exit_code == 0
+    assert '"snapshot_version": "snapshot-v1"' in result.output
+    assert '"previous_snapshot_version": "snapshot-v0"' in result.output
+    assert graph_store.closed is True

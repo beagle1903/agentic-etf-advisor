@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "universe_id": "us-etf-research-core",
+  "universe_version": "1.0.0",
+  "members": [
+    {"symbol": "SPY", "role": "Large-cap US equity market reference"},
+    {"symbol": "VTI", "role": "Broad US total-market equity reference"},
+    {"symbol": "QQQ", "role": "Large-cap growth and technology-tilted reference"},
+    {"symbol": "BND", "role": "Broad US investment-grade bond reference"},
+    {"symbol": "VEA", "role": "Developed markets outside the US reference"},
+    {"symbol": "VWO", "role": "Emerging-markets equity reference"}
+  ]
+}

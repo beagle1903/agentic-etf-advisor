@@ -22,8 +22,16 @@ class FakeCollection:
         }
 
     def get(self, **kwargs: Any) -> dict[str, Any]:
+        ids = [document_id for document_id in kwargs["ids"] if document_id == "doc-1"]
+        if kwargs["include"] == ["metadatas"]:
+            return {
+                "ids": ids,
+                "metadatas": [
+                    {"snapshot_version": "snapshot-v1", "snapshot_digest": "abc123"} for _ in ids
+                ],
+            }
         assert kwargs["include"] == []
-        return {"ids": [document_id for document_id in kwargs["ids"] if document_id == "doc-1"]}
+        return {"ids": ids}
 
 
 class FakeClient:
@@ -57,3 +65,6 @@ def test_chroma_store_upserts_and_returns_provenance() -> None:
     assert results[0].metadata["source"] == "yahoo_finance"
     assert results[0].distance == 0.12
     assert store.missing_document_ids(["doc-1", "missing-doc"]) == ["missing-doc"]
+    assert store.document_metadatas(["doc-1", "missing-doc"]) == {
+        "doc-1": {"snapshot_version": "snapshot-v1", "snapshot_digest": "abc123"}
+    }

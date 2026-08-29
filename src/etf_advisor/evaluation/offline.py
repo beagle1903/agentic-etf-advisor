@@ -6,7 +6,7 @@ import json
 from collections.abc import Sequence
 from importlib.resources import files
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from etf_advisor.evaluation.models import (
     DatasetProvenance,
@@ -37,7 +37,13 @@ class CuratedSemanticStore:
             item.source_document.document_id: item.source_document for item in dataset.documents
         }
 
-    def search(self, query: str, limit: int = 5) -> list[RetrievedSource]:
+    def search(
+        self,
+        query: str,
+        limit: int = 5,
+        where: dict[str, Any] | None = None,
+    ) -> list[RetrievedSource]:
+        del where
         case = self._cases.get(query)
         if case is None:
             raise ValueError(f"Query is not present in the curated evaluation set: {query}")
@@ -68,6 +74,9 @@ class CuratedRelationshipStore:
             for document_id in document_ids
             if document_id in self._contexts
         }
+
+    def active_snapshot_version(self) -> str | None:
+        return None
 
 
 def load_evaluation_dataset(path: Path | None = None) -> RetrievalEvaluationDataset:

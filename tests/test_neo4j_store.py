@@ -16,6 +16,9 @@ class FakeDriver:
     def __init__(self) -> None:
         self.upsert_parameters: list[dict[str, Any]] = []
         self.upsert_queries: list[str] = []
+        self.snapshot_parameters: list[dict[str, Any]] = []
+        self.active_snapshot: str | None = None
+        self.snapshot_digest: str | None = None
         self.closed = False
 
     def execute_query(self, query: str, **kwargs: Any) -> FakeResult:
@@ -24,6 +27,19 @@ class FakeDriver:
         if "MERGE (etf:ETF" in query:
             self.upsert_queries.append(query)
             self.upsert_parameters.append(parameters)
+        if "RETURN published_count" in query:
+            self.snapshot_parameters.append(parameters)
+            self.active_snapshot = str(parameters["snapshot_version"])
+            self.snapshot_digest = str(parameters["snapshot_digest"])
+            return FakeResult([{"published_count": len(parameters["documents"])}])
+        if "RETURN snapshot.version AS snapshot_version" in query:
+            if self.active_snapshot is None:
+                return FakeResult()
+            return FakeResult([{"snapshot_version": self.active_snapshot}])
+        if "RETURN snapshot.digest AS snapshot_digest" in query:
+            if self.snapshot_digest is None:
+                return FakeResult()
+            return FakeResult([{"snapshot_digest": self.snapshot_digest}])
         if "RETURN source.document_id AS document_id" in query:
             return FakeResult([{"document_id": "doc-spy"}])
         if "RETURN document_id AS source_document_id" in query:
@@ -123,3 +139,68 @@ def test_neo4j_store_rejects_ambiguous_legacy_context() -> None:
 
     with pytest.raises(Neo4jUnavailable, match="multiple relationship contexts"):
         store.find_contexts(["doc-spy"])
+
+
+def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
+    driver = FakeDriver()
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="research:snapshot-v1:spy",
+        symbol="SPY",
+        title="SPY research snapshot",
+        content="Source content",
+        source="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/SPY/",
+        observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        metadata={
+            "snapshot_version": "snapshot-v1",
+            "name": "SPDR S&P 500 ETF Trust",
+            "fund_family": "State Street Global Advisors",
+            "category": "Large Blend",
+        },
+    )
+
+    count = store.publish_snapshot(
+        [document],
+        snapshot_version="snapshot-v1",
+        universe_id="core",
+        universe_version="1.0.0",
+        snapshot_digest="abc123",
+    )
+
+    assert count == 1
+    assert store.active_snapshot_version() == "snapshot-v1"
+    assert store.snapshot_digest("snapshot-v1") == "abc123"
+    parameters = driver.snapshot_parameters[0]
+    assert parameters["expected_count"] == 1
+    assert parameters["documents"][0]["category_name"] == "Large Blend"
+    snapshot_query = next(query for query in driver.upsert_queries if "ResearchSnapshot" in query)
+    assert "ON CREATE SET snapshot.universe_id" in snapshot_query
+    assert "AND snapshot.digest = $snapshot_digest" in snapshot_query
+    assert snapshot_query.index("WHERE published_count") < snapshot_query.index("ACTIVE_SNAPSHOT")
+
+
+def test_neo4j_snapshot_publish_rejects_mixed_versions_before_writing() -> None:
+    driver = FakeDriver()
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="research:snapshot-v1:spy",
+        symbol="SPY",
+        title="SPY research snapshot",
+        content="Source content",
+        source="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/SPY/",
+        observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        metadata={"snapshot_version": "snapshot-v0"},
+    )
+
+    with pytest.raises(ValueError, match="match the published snapshot"):
+        store.publish_snapshot(
+            [document],
+            snapshot_version="snapshot-v1",
+            universe_id="core",
+            universe_version="1.0.0",
+            snapshot_digest="abc123",
+        )
+
+    assert driver.snapshot_parameters == []

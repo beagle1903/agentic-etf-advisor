@@ -34,6 +34,21 @@ Human review interrupt -> final explanation
 - Hybrid retrieval merges semantic candidates with graph neighborhoods, then reranks and
   applies freshness and source-quality checks.
 
+The versioned research-universe path packages six curated symbols separately from mutable source
+data. Every material field stores either a value or an explicit missing reason together with its
+provider, source URL, observation time, ingestion time, unit, and snapshot version. The first rich
+contract covers identity, category, fund family, benchmark, fees, average volume, top holdings,
+sector exposure, geography exposure, and top-ten concentration. Yahoo's current development
+adapter does not report geography exposure, so that field remains explicitly provider-unsupported.
+
+Publication uses version-scoped document IDs. Chroma is staged and its IDs, version, and snapshot
+digest are read back before graph publication begins. Neo4j then writes the snapshot graph and
+changes one `ResearchCatalog` active pointer in the same query transaction. Hybrid retrieval reads
+that pointer first and filters Chroma to the exact active version. A failed stage or graph
+transaction therefore leaves the previous active snapshot reachable; inactive staged Chroma
+records do not enter advisory retrieval. A published version is content-address checked and cannot
+be reused for different snapshot content.
+
 The first implemented Neo4j projection uses `ETF`, `FundFamily`, `Category`, and
 `SourceDocument` nodes. Yahoo's `fundFamily` field is preserved as fund-family/provider
 context; it is not presented as the ETF's legal issuer. ETF relationships provide the
@@ -43,14 +58,19 @@ when metadata disappears, so hybrid search cannot retain stale snapshot context.
 distance remains the ordering signal until a later evaluation demonstrates useful
 graph-aware reranking.
 
+Rich holdings, sector, geography, benchmark, and overlap relationships remain outside the graph
+projection until Iteration 013 measures a ranking, constraint-verification, or explanation-context
+benefit on versioned cases.
+
 The workflow can receive an injected `CandidateEvidenceRetriever` at its side-effect
 boundary. The live adapter wraps the existing hybrid retriever, converts ranked results into
 an evidence bundle, and rechecks source URL, observation timestamp, and freshness before the
 human-review interrupt. Ready evidence requires an attributable HTTP(S) URL and Yahoo's
 source-reported `quote_type=ETF` and `market=us_market` metadata. It preserves the first result
 for each symbol and omits mismatched graph context rather than fabricating a relationship. The
-current source contract does not report sector exposures, so excluded sectors remain visible
-as an unverified constraint.
+current evidence model does not yet expose normalized sector weights to deterministic constraint
+checks, so excluded sectors remain visible as an unverified constraint even when research content
+contains source-reported sector data.
 
 ## Retrieval evaluation
 

@@ -85,6 +85,22 @@ class ChromaDocumentStore:
         existing = {str(document_id) for document_id in result.get("ids", [])}
         return [document_id for document_id in document_ids if document_id not in existing]
 
+    def document_metadatas(
+        self, document_ids: list[str]
+    ) -> dict[str, dict[str, str | int | float | bool]]:
+        """Read back scalar metadata for exact staged-snapshot verification."""
+
+        if not document_ids:
+            return {}
+        result = self._collection.get(ids=document_ids, include=["metadatas"])
+        ids = [str(document_id) for document_id in result.get("ids", [])]
+        metadatas = list(result.get("metadatas", []))
+        return {
+            document_id: dict(metadatas[index])
+            for index, document_id in enumerate(ids)
+            if index < len(metadatas) and metadatas[index] is not None
+        }
+
 
 def _first_row(value: Any) -> list[Any]:
     if not value:
