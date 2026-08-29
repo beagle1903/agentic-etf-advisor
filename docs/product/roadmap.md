@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-010
+## Proven baseline: iterations 000-012
 
 The repository already proves the following vertical slices:
 
@@ -23,6 +23,10 @@ The repository already proves the following vertical slices:
 - Freshness-checked ETF evidence and structured, source-grounded model explanations.
 - A local Streamlit review experience with approve, edit, and reject decisions.
 - Optional PostgreSQL checkpoints that survive browser-session and process loss.
+- A deterministic explanation/safety evaluation gate covering grounding, refusal, unsafe language,
+  numeric support, and prompt injection.
+- A curated six-ETF research universe with field-level provenance, explicit missingness, stable
+  snapshot digests, and graph-authoritative cross-store activation.
 
 This is a strong research and review foundation, but it is not yet a complete portfolio
 advisor. It does not build an ETF portfolio, validate all portfolio constraints, authenticate
@@ -30,7 +34,7 @@ users, use production-licensed market data, or execute trades.
 
 ## Next: prove advisory quality
 
-### Iteration 011: explanation and safety evaluation baseline
+### Iteration 011: explanation and safety evaluation baseline (complete)
 
 Build a small versioned evaluation set for grounded explanations before adding more model-led
 behavior.
@@ -42,7 +46,7 @@ Acceptance gate:
 - Keep a deterministic offline evaluator; add LangSmith-backed runs only as an optional adapter.
 - Block progression when a regression can put an unsupported or unsafe claim before review.
 
-### Iteration 012: versioned ETF research universe
+### Iteration 012: versioned ETF research universe (complete)
 
 Move from manually supplied symbols to a small, curated, reproducible US ETF universe with a
 richer source contract.

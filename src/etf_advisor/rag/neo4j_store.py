@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from typing import Any, cast
 
 from etf_advisor.rag.models import GraphContext, SourceDocument
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 _CONSTRAINTS = (
     "CREATE CONSTRAINT etf_symbol IF NOT EXISTS FOR (etf:ETF) REQUIRE etf.symbol IS UNIQUE",
@@ -16,6 +17,10 @@ _CONSTRAINTS = (
     "FOR (category:Category) REQUIRE category.name IS UNIQUE",
     "CREATE CONSTRAINT source_document_id IF NOT EXISTS "
     "FOR (source:SourceDocument) REQUIRE source.document_id IS UNIQUE",
+    "CREATE CONSTRAINT research_snapshot_version IF NOT EXISTS "
+    "FOR (snapshot:ResearchSnapshot) REQUIRE snapshot.version IS UNIQUE",
+    "CREATE CONSTRAINT research_catalog_id IF NOT EXISTS "
+    "FOR (catalog:ResearchCatalog) REQUIRE catalog.id IS UNIQUE",
 )
 
 _UPSERT_DOCUMENT = """
@@ -65,6 +70,62 @@ _FIND_EXISTING_IDS = """
 MATCH (source:SourceDocument)
 WHERE source.document_id IN $document_ids
 RETURN source.document_id AS document_id
+"""
+
+_PUBLISH_SNAPSHOT = """
+MERGE (snapshot:ResearchSnapshot {version: $snapshot_version})
+ON CREATE SET snapshot.universe_id = $universe_id,
+    snapshot.universe_version = $universe_version,
+    snapshot.digest = $snapshot_digest
+WITH snapshot
+WHERE snapshot.universe_id = $universe_id
+  AND snapshot.universe_version = $universe_version
+  AND snapshot.digest = $snapshot_digest
+UNWIND $documents AS document
+MERGE (etf:ETF {symbol: document.symbol})
+SET etf.name = document.etf_name
+MERGE (source:SourceDocument {document_id: document.document_id})
+SET source.source = document.source,
+    source.source_url = document.source_url,
+    source.observed_at = datetime(document.observed_at),
+    source.document_type = document.document_type,
+    source.snapshot_version = $snapshot_version,
+    source.snapshot_digest = $snapshot_digest,
+    source.field_provenance_schema_version = document.field_provenance_schema_version,
+    source.field_provenance_json = document.field_provenance_json
+MERGE (etf)-[:DESCRIBED_BY]->(source)
+MERGE (snapshot)-[:CONTAINS]->(source)
+WITH snapshot, etf, source, document
+OPTIONAL MATCH (source)-[
+    stale_source_relationship:REPORTS_FUND_FAMILY|REPORTS_CATEGORY|REPORTS_ISSUER
+]->()
+DELETE stale_source_relationship
+WITH DISTINCT snapshot, etf, source, document
+FOREACH (_ IN CASE WHEN document.fund_family_name IS NULL THEN [] ELSE [1] END |
+    MERGE (fund_family:FundFamily {name: document.fund_family_name})
+    MERGE (source)-[:REPORTS_FUND_FAMILY]->(fund_family)
+)
+FOREACH (_ IN CASE WHEN document.category_name IS NULL THEN [] ELSE [1] END |
+    MERGE (category:Category {name: document.category_name})
+    MERGE (source)-[:REPORTS_CATEGORY]->(category)
+)
+WITH snapshot, count(DISTINCT source) AS published_count
+WHERE published_count = $expected_count
+MERGE (catalog:ResearchCatalog {id: 'active'})
+OPTIONAL MATCH (catalog)-[previous:ACTIVE_SNAPSHOT]->(:ResearchSnapshot)
+DELETE previous
+MERGE (catalog)-[:ACTIVE_SNAPSHOT]->(snapshot)
+RETURN published_count
+"""
+
+_ACTIVE_SNAPSHOT_IDENTITY = """
+MATCH (:ResearchCatalog {id: 'active'})-[:ACTIVE_SNAPSHOT]->(snapshot:ResearchSnapshot)
+RETURN snapshot.version AS snapshot_version, snapshot.digest AS snapshot_digest
+"""
+
+_SNAPSHOT_DIGEST = """
+MATCH (snapshot:ResearchSnapshot {version: $snapshot_version})
+RETURN snapshot.digest AS snapshot_digest
 """
 
 
@@ -123,6 +184,99 @@ class Neo4jGraphStore:
                 },
             )
         return len(documents)
+
+    def publish_snapshot(
+        self,
+        documents: list[SourceDocument],
+        *,
+        snapshot_version: str,
+        universe_id: str,
+        universe_version: str,
+        snapshot_digest: str,
+    ) -> int:
+        """Write one graph snapshot and change its active pointer in one transaction."""
+
+        if not documents:
+            raise ValueError("A research snapshot must contain at least one document.")
+        document_ids = [document.document_id for document in documents]
+        if len(document_ids) != len(set(document_ids)):
+            raise ValueError("Research snapshot document IDs must be unique.")
+        rows: list[dict[str, Any]] = []
+        for document in documents:
+            metadata = document.chroma_metadata()
+            if metadata.get("snapshot_version") != snapshot_version:
+                raise ValueError("Every graph document must match the published snapshot version.")
+            rows.append(
+                {
+                    "document_id": document.document_id,
+                    "symbol": document.symbol,
+                    "etf_name": str(metadata.get("name", document.symbol)),
+                    "source": document.source,
+                    "source_url": document.source_url,
+                    "observed_at": document.observed_at.isoformat(),
+                    "document_type": document.document_type,
+                    "fund_family_name": _optional_string(metadata.get("fund_family")),
+                    "category_name": _optional_string(metadata.get("category")),
+                    "field_provenance_schema_version": metadata.get(
+                        "field_provenance_schema_version"
+                    ),
+                    "field_provenance_json": metadata.get("field_provenance_json"),
+                }
+            )
+
+        self.ensure_schema()
+        records = list(
+            self._execute(
+                _PUBLISH_SNAPSHOT,
+                {
+                    "snapshot_version": snapshot_version,
+                    "universe_id": universe_id,
+                    "universe_version": universe_version,
+                    "snapshot_digest": snapshot_digest,
+                    "expected_count": len(rows),
+                    "documents": rows,
+                },
+            )
+        )
+        if len(records) != 1:
+            raise Neo4jUnavailable(
+                "Neo4j did not activate the complete research snapshot; "
+                "the prior snapshot remains active."
+            )
+        published_count = _record_data(records[0]).get("published_count")
+        if not isinstance(published_count, int):
+            raise Neo4jUnavailable("Neo4j returned an invalid snapshot publication count.")
+        return published_count
+
+    def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+        """Return the graph-authoritative identity used to scope hybrid retrieval."""
+
+        records = list(self._execute(_ACTIVE_SNAPSHOT_IDENTITY))
+        if not records:
+            return None
+        if len(records) != 1:
+            raise Neo4jUnavailable("Neo4j returned multiple active research snapshots.")
+        data = _record_data(records[0])
+        version = data.get("snapshot_version")
+        digest = data.get("snapshot_digest")
+        if not isinstance(version, str) or not version.strip():
+            raise Neo4jUnavailable("Neo4j returned an invalid active snapshot version.")
+        if not isinstance(digest, str) or not digest.strip():
+            raise Neo4jUnavailable("Neo4j returned an invalid active snapshot digest.")
+        return ActiveSnapshotIdentity(snapshot_version=version, snapshot_digest=digest)
+
+    def snapshot_digest(self, snapshot_version: str) -> str | None:
+        """Return an existing immutable snapshot digest, if this version was published."""
+
+        records = list(self._execute(_SNAPSHOT_DIGEST, {"snapshot_version": snapshot_version}))
+        if not records:
+            return None
+        if len(records) != 1:
+            raise Neo4jUnavailable("Neo4j returned duplicate research snapshot versions.")
+        value = _record_data(records[0]).get("snapshot_digest")
+        if not isinstance(value, str) or not value.strip():
+            raise Neo4jUnavailable("Neo4j returned an invalid research snapshot digest.")
+        return value
 
     def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]:
         if not document_ids:

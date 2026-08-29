@@ -16,3 +16,4 @@ build/
 chroma-data/
 neo4j-data/
 postgres-data/
+.artifacts/

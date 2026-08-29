@@ -1,9 +1,15 @@
+from pathlib import Path
+from types import SimpleNamespace
+
 import pytest
+from test_research_snapshot import research_snapshot
 from typer.testing import CliRunner
 
 import etf_advisor.cli as cli
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import EvidenceRetrievalError
+from etf_advisor.rag.indexing import IndexConsistencyError
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotPublicationReport
 
 
 def test_explanation_demo_requires_evidence() -> None:
@@ -84,3 +90,170 @@ def test_dashboard_command_launches_local_streamlit(
         "false",
     ]
     assert calls[0][1] is False
+
+
+def test_publish_research_universe_wires_versioned_snapshot_and_closes_graph(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    snapshot = research_snapshot()
+    universe = SimpleNamespace(universe_id="test-universe")
+
+    class FakeAdapter:
+        def fetch_snapshot(self, universe: object, *, snapshot_version: str) -> object:
+            assert universe is not None
+            assert snapshot_version == "snapshot-v1"
+            return snapshot
+
+    class FakeGraphStore:
+        def __init__(self) -> None:
+            self.closed = False
+
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+            return None
+
+        def snapshot_digest(self, version: str) -> str | None:
+            assert version == "snapshot-v1"
+            return None
+
+        def close(self) -> None:
+            self.closed = True
+
+    graph_store = FakeGraphStore()
+    monkeypatch.setattr(cli, "load_research_universe", lambda path: universe)
+    monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FakeAdapter())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: "chroma-store")
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: graph_store)
+
+    def fake_publish(snapshot: object, chroma: object, graph: object) -> SnapshotPublicationReport:
+        assert snapshot == research_snapshot()
+        assert chroma == "chroma-store"
+        assert graph is graph_store
+        return SnapshotPublicationReport(
+            snapshot_version="snapshot-v1",
+            snapshot_digest="abc123",
+            previous_snapshot_version="snapshot-v0",
+            chroma_count=6,
+            neo4j_count=6,
+        )
+
+    monkeypatch.setattr(cli, "publish_research_snapshot", fake_publish)
+
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            "snapshot-v1",
+            "--snapshot-file",
+            str(tmp_path / "snapshot.json"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert '"snapshot_version": "snapshot-v1"' in result.output
+    assert '"previous_snapshot_version": "snapshot-v0"' in result.output
+    assert graph_store.closed is True
+
+
+def test_publish_retry_reuses_payload_saved_before_store_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    snapshot = research_snapshot()
+    universe = SimpleNamespace(universe_id="test-universe")
+    payload_path = tmp_path / "snapshot.json"
+    fetch_calls = 0
+    publish_calls = 0
+
+    class FakeAdapter:
+        def fetch_snapshot(self, universe: object, *, snapshot_version: str) -> object:
+            nonlocal fetch_calls
+            fetch_calls += 1
+            assert universe is not None
+            assert snapshot_version == "snapshot-v1"
+            return snapshot
+
+    class FakeGraphStore:
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+            return None
+
+        def snapshot_digest(self, version: str) -> str | None:
+            return None
+
+        def close(self) -> None:
+            pass
+
+    def fake_publish(*args: object) -> SnapshotPublicationReport:
+        nonlocal publish_calls
+        publish_calls += 1
+        if publish_calls == 1:
+            raise IndexConsistencyError("activation acknowledgement lost")
+        assert args[0] == snapshot
+        return SnapshotPublicationReport(
+            snapshot_version="snapshot-v1",
+            snapshot_digest=snapshot.content_digest(),
+            previous_snapshot_version=None,
+            chroma_count=1,
+            neo4j_count=1,
+        )
+
+    monkeypatch.setattr(cli, "load_research_universe", lambda path: universe)
+    monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FakeAdapter())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: object())
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FakeGraphStore())
+    monkeypatch.setattr(cli, "publish_research_snapshot", fake_publish)
+    arguments = [
+        "publish-research-universe",
+        "--snapshot-version",
+        "snapshot-v1",
+        "--snapshot-file",
+        str(payload_path),
+    ]
+
+    first = CliRunner().invoke(cli.app, arguments)
+    second = CliRunner().invoke(cli.app, arguments)
+
+    assert first.exit_code == 1
+    assert second.exit_code == 0
+    assert fetch_calls == 1
+    assert publish_calls == 2
+
+
+def test_publish_retry_noops_when_requested_snapshot_is_already_active(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    identity = ActiveSnapshotIdentity("snapshot-v1", "published-digest")
+
+    class FakeGraphStore:
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity:
+            return identity
+
+        def snapshot_digest(self, version: str) -> str:
+            assert version == "snapshot-v1"
+            return identity.snapshot_digest
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FakeGraphStore())
+    monkeypatch.setattr(
+        cli,
+        "YahooResearchAdapter",
+        lambda **kwargs: pytest.fail("an already-active retry must not refetch Yahoo"),
+    )
+
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            "snapshot-v1",
+            "--snapshot-file",
+            str(tmp_path / "missing.json"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert '"already_active": true' in result.output

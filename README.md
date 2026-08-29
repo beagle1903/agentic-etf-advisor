@@ -8,7 +8,8 @@ illustrative policy split, health-check and ingest attributable ETF snapshots, j
 Chroma-ranked documents to source-linked Neo4j context, compare the semantic-only and
 graph-enriched paths on a deterministic offline evaluation set, and optionally attach a
 freshness-checked source-evidence bundle and grounded provider explanation to the review
-interrupt.
+interrupt. A versioned six-ETF research universe now retains field-level provenance and explicit
+missingness and activates one verified Chroma/Neo4j snapshot for hybrid retrieval.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -97,6 +98,34 @@ source document IDs form the join boundary, and a missing graph record is return
 `graph_context: null` instead of silently fabricating context. Yahoo fund-family metadata is
 not presented as a legal issuer.
 
+Publish the packaged research universe as one snapshot after starting Chroma and Neo4j:
+
+```powershell
+uv run etf-advisor publish-research-universe --snapshot-version research-2026-08-29
+```
+
+The packaged membership is SPY, VTI, QQQ, BND, VEA, and VWO. The richer contract records fees,
+average volume, category, benchmark, top holdings, sector exposure, geography exposure, and
+top-ten concentration. Each field carries its own provider, source URL, observation and ingestion
+times, units, version, and either a value or an explicit missing reason. The current Yahoo adapter
+does not supply geography exposure, so it reports that field as unsupported rather than implying
+zero exposure.
+
+Publication stages versioned Chroma documents and verifies their IDs and digest metadata before
+Neo4j writes and activates the same snapshot in one graph transaction. Hybrid retrieval uses the
+Neo4j active pointer's version and digest to filter Chroma. Document IDs include both values, so
+two concurrent attempts using the same version cannot overwrite each other's staged content.
+Complete per-field provenance is retained as canonical structured JSON in both stores. If staging
+or graph publication fails, the previous active snapshot remains available; inactive staged
+documents are not searched by the advisory path. A published version cannot be reused for
+different content.
+
+Before either store is changed, the command atomically saves the canonical snapshot under the
+ignored `.artifacts/research-snapshots/` directory. Re-running the same explicit version reuses
+that payload instead of refetching mutable Yahoo data. Use `--snapshot-file PATH` to select or
+restore a particular canonical payload; an already-active version is reported as a successful
+no-op when its local payload is unavailable.
+
 Run the local workflow with retrieved evidence attached to human review after indexing the
 same source bundle:
 
@@ -175,7 +204,7 @@ licensing decision.
 - `tests/`: executable behavior and safety checks.
 
 The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
-`docs/iterations/011-explanation-safety-evaluation.md`.
+`docs/iterations/012-versioned-etf-research-universe.md`.
 
 ## License
 
