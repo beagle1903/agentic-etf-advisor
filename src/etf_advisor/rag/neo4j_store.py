@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from typing import Any, cast
 
 from etf_advisor.rag.models import GraphContext, SourceDocument
-from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
+from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotManifest
 
 _CONSTRAINTS = (
     "CREATE CONSTRAINT etf_symbol IF NOT EXISTS FOR (etf:ETF) REQUIRE etf.symbol IS UNIQUE",
@@ -76,11 +76,15 @@ _PUBLISH_SNAPSHOT = """
 MERGE (snapshot:ResearchSnapshot {version: $snapshot_version})
 ON CREATE SET snapshot.universe_id = $universe_id,
     snapshot.universe_version = $universe_version,
-    snapshot.digest = $snapshot_digest
+    snapshot.digest = $snapshot_digest,
+    snapshot.document_count = $expected_count
 WITH snapshot
 WHERE snapshot.universe_id = $universe_id
   AND snapshot.universe_version = $universe_version
   AND snapshot.digest = $snapshot_digest
+SET snapshot.document_count = coalesce(snapshot.document_count, $expected_count)
+WITH snapshot
+WHERE snapshot.document_count = $expected_count
 UNWIND $documents AS document
 MERGE (etf:ETF {symbol: document.symbol})
 SET etf.name = document.etf_name
@@ -101,15 +105,24 @@ OPTIONAL MATCH (source)-[
 ]->()
 DELETE stale_source_relationship
 WITH DISTINCT snapshot, etf, source, document
+OPTIONAL MATCH (etf)-[stale_etf_relationship:IN_FUND_FAMILY|IN_CATEGORY|ISSUED_BY]->()
+DELETE stale_etf_relationship
+WITH DISTINCT snapshot, etf, source, document
 FOREACH (_ IN CASE WHEN document.fund_family_name IS NULL THEN [] ELSE [1] END |
     MERGE (fund_family:FundFamily {name: document.fund_family_name})
+    MERGE (etf)-[:IN_FUND_FAMILY]->(fund_family)
     MERGE (source)-[:REPORTS_FUND_FAMILY]->(fund_family)
 )
 FOREACH (_ IN CASE WHEN document.category_name IS NULL THEN [] ELSE [1] END |
     MERGE (category:Category {name: document.category_name})
+    MERGE (etf)-[:IN_CATEGORY]->(category)
     MERGE (source)-[:REPORTS_CATEGORY]->(category)
 )
-WITH snapshot, count(DISTINCT source) AS published_count
+WITH DISTINCT snapshot
+MATCH (snapshot)-[:CONTAINS]->(published_source:SourceDocument)
+WHERE published_source.snapshot_version = $snapshot_version
+  AND published_source.snapshot_digest = $snapshot_digest
+WITH snapshot, count(DISTINCT published_source) AS published_count
 WHERE published_count = $expected_count
 MERGE (catalog:ResearchCatalog {id: 'active'})
 OPTIONAL MATCH (catalog)-[previous:ACTIVE_SNAPSHOT]->(:ResearchSnapshot)
@@ -126,6 +139,16 @@ RETURN snapshot.version AS snapshot_version, snapshot.digest AS snapshot_digest
 _SNAPSHOT_DIGEST = """
 MATCH (snapshot:ResearchSnapshot {version: $snapshot_version})
 RETURN snapshot.digest AS snapshot_digest
+"""
+
+_SNAPSHOT_MANIFEST = """
+MATCH (snapshot:ResearchSnapshot {version: $snapshot_version})
+OPTIONAL MATCH (snapshot)-[:CONTAINS]->(source:SourceDocument)
+WHERE source.snapshot_version = snapshot.version
+  AND source.snapshot_digest = snapshot.digest
+RETURN snapshot.digest AS snapshot_digest,
+       snapshot.document_count AS document_count,
+       collect(source.document_id) AS document_ids
 """
 
 
@@ -201,11 +224,16 @@ class Neo4jGraphStore:
         document_ids = [document.document_id for document in documents]
         if len(document_ids) != len(set(document_ids)):
             raise ValueError("Research snapshot document IDs must be unique.")
+        symbols = [document.symbol for document in documents]
+        if len(symbols) != len(set(symbols)):
+            raise ValueError("Research snapshot symbols must be unique.")
         rows: list[dict[str, Any]] = []
         for document in documents:
             metadata = document.chroma_metadata()
             if metadata.get("snapshot_version") != snapshot_version:
                 raise ValueError("Every graph document must match the published snapshot version.")
+            if metadata.get("snapshot_digest") != snapshot_digest:
+                raise ValueError("Every graph document must match the published snapshot digest.")
             rows.append(
                 {
                     "document_id": document.document_id,
@@ -277,6 +305,42 @@ class Neo4jGraphStore:
         if not isinstance(value, str) or not value.strip():
             raise Neo4jUnavailable("Neo4j returned an invalid research snapshot digest.")
         return value
+
+    def snapshot_manifest(self, snapshot_version: str) -> SnapshotManifest | None:
+        """Return the immutable graph manifest needed to verify the semantic store."""
+
+        records = list(self._execute(_SNAPSHOT_MANIFEST, {"snapshot_version": snapshot_version}))
+        if not records:
+            return None
+        if len(records) != 1:
+            raise Neo4jUnavailable("Neo4j returned duplicate research snapshot manifests.")
+        data = _record_data(records[0])
+        digest = data.get("snapshot_digest")
+        document_count = data.get("document_count")
+        raw_document_ids = data.get("document_ids")
+        if not isinstance(digest, str) or not digest.strip():
+            raise Neo4jUnavailable("Neo4j returned an invalid research snapshot digest.")
+        if not isinstance(document_count, int) or document_count < 1:
+            raise Neo4jUnavailable(
+                "The active snapshot has no verifiable document count; retry with its "
+                "canonical payload."
+            )
+        if not isinstance(raw_document_ids, list) or any(
+            not isinstance(document_id, str) or not document_id.strip()
+            for document_id in raw_document_ids
+        ):
+            raise Neo4jUnavailable("Neo4j returned an invalid research snapshot manifest.")
+        document_ids = tuple(str(document_id) for document_id in raw_document_ids)
+        if len(document_ids) != document_count or len(document_ids) != len(set(document_ids)):
+            raise Neo4jUnavailable(
+                "Neo4j research snapshot manifest does not match its published document count."
+            )
+        return SnapshotManifest(
+            snapshot_version=snapshot_version,
+            snapshot_digest=digest,
+            document_count=document_count,
+            document_ids=document_ids,
+        )
 
     def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]:
         if not document_ids:

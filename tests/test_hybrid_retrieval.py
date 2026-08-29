@@ -32,7 +32,12 @@ class FakeSemanticStore:
     ) -> list[RetrievedSource]:
         assert query == "broad market"
         assert limit == 2
-        assert where is None
+        assert where is not None
+        return self.results
+
+    def search_unversioned(self, query: str, limit: int = 5) -> list[RetrievedSource]:
+        assert query == "broad market"
+        assert limit == 2
         return self.results
 
 
@@ -85,6 +90,21 @@ def test_hybrid_search_scopes_semantic_candidates_to_active_snapshot() -> None:
             return self.results[:limit]
 
     results = HybridRetriever(SnapshotSemanticStore(), ActiveRelationshipStore()).search(
+        "broad market", limit=2
+    )
+
+    assert [result.document_id for result in results] == ["doc-spy", "doc-missing"]
+
+
+def test_hybrid_search_never_exposes_staged_documents_without_an_active_snapshot() -> None:
+    class LegacyOnlySemanticStore(FakeSemanticStore):
+        def search(self, *args: object, **kwargs: object) -> list[RetrievedSource]:
+            raise AssertionError("unfiltered search must not run without an active snapshot")
+
+        def search_unversioned(self, query: str, limit: int = 5) -> list[RetrievedSource]:
+            return self.results[:limit]
+
+    results = HybridRetriever(LegacyOnlySemanticStore(), FakeRelationshipStore()).search(
         "broad market", limit=2
     )
 

@@ -81,8 +81,6 @@ class ResearchField[ResearchValue](BaseModel):
     def validate_value_or_missing_reason(self) -> ResearchField[ResearchValue]:
         if (self.value is None) == (self.missing_reason is None):
             raise ValueError("Provide exactly one of value or missing_reason.")
-        if self.ingested_at < self.observed_at:
-            raise ValueError("Research field ingestion cannot precede its observation.")
         return self
 
 

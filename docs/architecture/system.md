@@ -48,22 +48,26 @@ retrieval reads that pointer first and filters Chroma to the exact active versio
 failed stage or graph transaction therefore leaves the previous active snapshot reachable;
 inactive staged Chroma records do not enter advisory retrieval. A published version is
 content-address checked and cannot be reused for different snapshot content. Canonical field-level
-provenance JSON is retained on each source document in both stores.
+provenance JSON is retained on each source document in both stores. When no snapshot has ever been
+activated, hybrid retrieval uses a dedicated legacy-only semantic query that removes every record
+carrying version or digest metadata, so a failed first publication cannot bypass activation.
 
 The publication CLI writes the validated canonical snapshot payload atomically to an ignored local
 artifact before either database is changed. An explicit-version retry loads that payload rather
 than refetching mutable provider data. If Neo4j already reports the requested version and digest as
-active, a retry without the local payload returns a successful no-op; reactivating an inactive
-version requires its original payload.
+active, a retry without the local payload reads Neo4j's persisted document count and IDs, verifies
+every ID plus exact version/digest metadata in Chroma, and rechecks the active pointer before
+returning a successful no-op. Reactivating an inactive version requires its original payload.
 
 The first implemented Neo4j projection uses `ETF`, `FundFamily`, `Category`, and
 `SourceDocument` nodes. Yahoo's `fundFamily` field is preserved as fund-family/provider
 context; it is not presented as the ETF's legal issuer. ETF relationships provide the
 reusable entity graph, while each source document also links directly to the fund family and
 category it reported. Each upsert replaces those source-specific relationships, including
-when metadata disappears, so hybrid search cannot retain stale snapshot context. Chroma
-distance remains the ordering signal until a later evaluation demonstrates useful
-graph-aware reranking.
+when metadata disappears. Snapshot publication also replaces the normalized ETF-level fund-family
+and category relationships in the same activation transaction, preventing legacy relationships
+from surviving a newer snapshot. Chroma distance remains the ordering signal until a later
+evaluation demonstrates useful graph-aware reranking.
 
 Rich holdings, sector, geography, benchmark, and overlap relationships remain outside the graph
 projection until Iteration 013 measures a ranking, constraint-verification, or explanation-context
@@ -198,13 +202,17 @@ product, replace or license the market-data source and review redistribution ter
 Yahoo price-history and metadata requests use bounded retries with configurable exponential
 backoff. A metadata exception exhausts those retries and fails the symbol; a successful
 metadata object may still contain legitimately absent individual fields. After collection,
-a deterministic quality boundary compares each source timestamp with one UTC check time
-captured through an injected clock interface. Stale observations or timestamps too far in
-the future block ingestion before either retrieval store is opened. The health result
-retains the source name, URL, observation time, age, status, and reason so the same evidence
-can be rendered by later presentation layers. The default 120-hour window accommodates
-daily-close weekends and common market holidays; it does not label those snapshots as live
-data.
+a deterministic quality boundary compares every field's source timestamp with one UTC check time
+captured through an injected clock interface. One current field cannot mask stale data elsewhere
+in the same ETF record. Stale observations or timestamps too far in the future block ingestion
+before the canonical research payload or either retrieval store is written. Rich Yahoo research
+uses the source-reported `regularMarketTime`; a missing or invalid source timestamp fails metadata
+collection rather than being replaced by the local fetch time. A source timestamp slightly ahead
+of ingestion remains intact and is accepted only within the configured future tolerance. The
+health result retains the ETF field name, source name, URL, observation time, age, status, and
+reason so the same evidence can be rendered by later presentation layers. The default 120-hour
+window accommodates daily-close weekends and common market holidays; it does not label those
+snapshots as live data.
 
 The same quality policy is applied again when retrieved documents become workflow evidence.
 This protects against older snapshots remaining in a retrieval collection after a later

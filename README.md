@@ -117,14 +117,22 @@ Neo4j active pointer's version and digest to filter Chroma. Document IDs include
 two concurrent attempts using the same version cannot overwrite each other's staged content.
 Complete per-field provenance is retained as canonical structured JSON in both stores. If staging
 or graph publication fails, the previous active snapshot remains available; inactive staged
-documents are not searched by the advisory path. A published version cannot be reused for
-different content.
+documents are not searched by the advisory path. Before the first activation, a dedicated
+legacy-only query excludes every document carrying snapshot identity metadata. A published version
+cannot be reused for different content.
 
 Before either store is changed, the command atomically saves the canonical snapshot under the
 ignored `.artifacts/research-snapshots/` directory. Re-running the same explicit version reuses
 that payload instead of refetching mutable Yahoo data. Use `--snapshot-file PATH` to select or
-restore a particular canonical payload; an already-active version is reported as a successful
-no-op when its local payload is unavailable.
+restore a particular canonical payload. An already-active version is reported as a successful
+no-op only after its persisted Neo4j document manifest and exact version/digest metadata are read
+back from Chroma. Snapshots created before manifest counts were introduced require their original
+payload once so publication can backfill that count safely.
+
+Yahoo research snapshots use the source-reported `regularMarketTime` rather than the local fetch
+clock as their observation timestamp. The shared stale/future quality gate checks every research
+field independently before the canonical payload or either retrieval store is written. Bounded
+future source-clock skew is preserved and handled by the configured tolerance.
 
 Run the local workflow with retrieved evidence attached to human review after indexing the
 same source bundle:

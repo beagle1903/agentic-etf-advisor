@@ -14,6 +14,12 @@ class SemanticStore(Protocol):
         where: dict[str, Any] | None = None,
     ) -> list[RetrievedSource]: ...
 
+    def search_unversioned(
+        self,
+        query: str,
+        limit: int = 5,
+    ) -> list[RetrievedSource]: ...
+
 
 class RelationshipStore(Protocol):
     def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]: ...
@@ -32,17 +38,19 @@ class HybridRetriever:
 
     def search(self, query: str, limit: int = 5) -> list[GraphEnrichedSource]:
         active_snapshot = self._relationship_store.active_snapshot_identity()
-        where = (
-            {
-                "$and": [
-                    {"snapshot_version": active_snapshot.snapshot_version},
-                    {"snapshot_digest": active_snapshot.snapshot_digest},
-                ]
-            }
-            if active_snapshot is not None
-            else None
-        )
-        semantic_results = self._semantic_store.search(query, limit=limit, where=where)
+        if active_snapshot is None:
+            semantic_results = self._semantic_store.search_unversioned(query, limit=limit)
+        else:
+            semantic_results = self._semantic_store.search(
+                query,
+                limit=limit,
+                where={
+                    "$and": [
+                        {"snapshot_version": active_snapshot.snapshot_version},
+                        {"snapshot_digest": active_snapshot.snapshot_digest},
+                    ]
+                },
+            )
         contexts = self._relationship_store.find_contexts(
             [result.document_id for result in semantic_results]
         )

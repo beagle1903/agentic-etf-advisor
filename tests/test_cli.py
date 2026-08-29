@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,7 +10,12 @@ import etf_advisor.cli as cli
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import EvidenceRetrievalError
 from etf_advisor.rag.indexing import IndexConsistencyError
-from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotPublicationReport
+from etf_advisor.rag.snapshots import (
+    ActiveSnapshotIdentity,
+    SnapshotManifest,
+    SnapshotPublicationReport,
+)
+from etf_advisor.research.snapshot_io import persist_research_snapshot
 
 
 def test_explanation_demo_requires_evidence() -> None:
@@ -120,6 +126,11 @@ def test_publish_research_universe_wires_versioned_snapshot_and_closes_graph(
             self.closed = True
 
     graph_store = FakeGraphStore()
+    monkeypatch.setattr(
+        cli,
+        "system_utc_now",
+        lambda: datetime(2026, 8, 29, 12, 5, tzinfo=UTC),
+    )
     monkeypatch.setattr(cli, "load_research_universe", lambda path: universe)
     monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FakeAdapter())
     monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: "chroma-store")
@@ -198,6 +209,11 @@ def test_publish_retry_reuses_payload_saved_before_store_failure(
             neo4j_count=1,
         )
 
+    monkeypatch.setattr(
+        cli,
+        "system_utc_now",
+        lambda: datetime(2026, 8, 29, 12, 5, tzinfo=UTC),
+    )
     monkeypatch.setattr(cli, "load_research_universe", lambda path: universe)
     monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FakeAdapter())
     monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: object())
@@ -220,11 +236,117 @@ def test_publish_retry_reuses_payload_saved_before_store_failure(
     assert publish_calls == 2
 
 
+def test_research_snapshot_freshness_uses_source_observation_time() -> None:
+    snapshot = research_snapshot()
+
+    report = cli._assess_research_snapshot(
+        snapshot,
+        clock=lambda: snapshot.ingested_at + timedelta(hours=121),
+    )
+
+    assert report.healthy is False
+    assert report.observations[0].status == "stale"
+
+
+def test_research_snapshot_freshness_checks_every_field() -> None:
+    snapshot = research_snapshot()
+    record = snapshot.records[0]
+    record.benchmark.observed_at = snapshot.ingested_at - timedelta(hours=121)
+
+    report = cli._assess_research_snapshot(
+        snapshot,
+        clock=lambda: snapshot.ingested_at,
+    )
+    health_by_field = {item.symbol: item.status for item in report.observations}
+
+    assert report.healthy is False
+    assert len(report.observations) == len(record.research_fields())
+    assert health_by_field["SPY.name"] == "current"
+    assert health_by_field["SPY.benchmark"] == "stale"
+
+
+def test_research_snapshot_freshness_accepts_configured_future_tolerance() -> None:
+    snapshot = research_snapshot()
+    snapshot.records[0].name.observed_at = snapshot.ingested_at + timedelta(minutes=4)
+
+    report = cli._assess_research_snapshot(
+        snapshot,
+        clock=lambda: snapshot.ingested_at,
+    )
+
+    assert report.healthy is True
+    assert report.observations[0].symbol == "SPY.name"
+    assert report.observations[0].status == "current"
+
+
+def test_publish_rejects_stale_canonical_payload_before_opening_chroma(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    snapshot = research_snapshot()
+    payload_path = tmp_path / "snapshot.json"
+    persist_research_snapshot(snapshot, payload_path)
+
+    class FakeGraphStore:
+        def active_snapshot_identity(self) -> None:
+            return None
+
+        def snapshot_digest(self, version: str) -> None:
+            return None
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(
+        cli,
+        "system_utc_now",
+        lambda: snapshot.ingested_at + timedelta(hours=121),
+    )
+    monkeypatch.setattr(
+        cli,
+        "load_research_universe",
+        lambda path: SimpleNamespace(universe_id=snapshot.universe_id),
+    )
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FakeGraphStore())
+    monkeypatch.setattr(
+        cli,
+        "ChromaDocumentStore",
+        lambda **kwargs: pytest.fail("stale research must not reach Chroma"),
+    )
+
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            snapshot.snapshot_version,
+            "--snapshot-file",
+            str(payload_path),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Market-data health check failed" in result.output
+
+
 def test_publish_retry_noops_when_requested_snapshot_is_already_active(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     identity = ActiveSnapshotIdentity("snapshot-v1", "published-digest")
+
+    class FakeChromaStore:
+        def missing_document_ids(self, document_ids: list[str]) -> list[str]:
+            assert document_ids == ["doc-spy"]
+            return []
+
+        def document_metadatas(self, document_ids: list[str]) -> dict[str, dict[str, str]]:
+            return {
+                "doc-spy": {
+                    "snapshot_version": identity.snapshot_version,
+                    "snapshot_digest": identity.snapshot_digest,
+                }
+            }
 
     class FakeGraphStore:
         def active_snapshot_identity(self) -> ActiveSnapshotIdentity:
@@ -234,10 +356,19 @@ def test_publish_retry_noops_when_requested_snapshot_is_already_active(
             assert version == "snapshot-v1"
             return identity.snapshot_digest
 
+        def snapshot_manifest(self, version: str) -> SnapshotManifest:
+            return SnapshotManifest(
+                snapshot_version=version,
+                snapshot_digest=identity.snapshot_digest,
+                document_count=1,
+                document_ids=("doc-spy",),
+            )
+
         def close(self) -> None:
             pass
 
     monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FakeGraphStore())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: FakeChromaStore())
     monkeypatch.setattr(
         cli,
         "YahooResearchAdapter",
@@ -257,3 +388,49 @@ def test_publish_retry_noops_when_requested_snapshot_is_already_active(
 
     assert result.exit_code == 0
     assert '"already_active": true' in result.output
+    assert '"chroma_count": 1' in result.output
+
+
+def test_publish_retry_fails_when_active_chroma_documents_are_missing(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    identity = ActiveSnapshotIdentity("snapshot-v1", "published-digest")
+
+    class FakeGraphStore:
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity:
+            return identity
+
+        def snapshot_digest(self, version: str) -> str:
+            return identity.snapshot_digest
+
+        def snapshot_manifest(self, version: str) -> SnapshotManifest:
+            return SnapshotManifest(version, identity.snapshot_digest, 1, ("doc-spy",))
+
+        def close(self) -> None:
+            pass
+
+    class MissingChromaStore:
+        def missing_document_ids(self, document_ids: list[str]) -> list[str]:
+            return list(document_ids)
+
+        def document_metadatas(self, document_ids: list[str]) -> dict[str, dict[str, str]]:
+            return {}
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FakeGraphStore())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: MissingChromaStore())
+
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            "snapshot-v1",
+            "--snapshot-file",
+            str(tmp_path / "missing.json"),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Chroma is missing 1 active snapshot document" in result.output
+    assert '"already_active": true' not in result.output

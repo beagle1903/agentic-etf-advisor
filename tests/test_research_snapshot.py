@@ -129,6 +129,23 @@ def test_research_field_requires_value_xor_missing_reason() -> None:
         research_field("value", missing_reason=MissingReason.NOT_REPORTED)
 
 
+def test_research_field_preserves_source_clock_ahead_of_ingestion() -> None:
+    ingested_at = datetime(2026, 8, 29, 12, 0, tzinfo=UTC)
+
+    field = ResearchField[str](
+        value="Example ETF",
+        unit="text",
+        provider="test_provider",
+        source_url="https://example.com/SPY",
+        observed_at=datetime(2026, 8, 29, 12, 4, tzinfo=UTC),
+        ingested_at=ingested_at,
+        snapshot_version="snapshot-v1",
+    )
+
+    assert field.ingested_at == ingested_at
+    assert field.observed_at > field.ingested_at
+
+
 def test_snapshot_rejects_cross_version_fields() -> None:
     with pytest.raises(ValidationError, match="different snapshot version"):
         ETFResearchSnapshot(
