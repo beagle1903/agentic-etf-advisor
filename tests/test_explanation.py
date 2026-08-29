@@ -168,6 +168,31 @@ def test_negative_guarantee_disclaimer_is_not_treated_as_a_promise() -> None:
     assert bundle.status == "ready"
 
 
+def test_numeric_claim_absent_from_cited_source_fails_support_validation() -> None:
+    generated = _generated()
+    generated.evidence_points[0].text = "SPY has an expense ratio of 0.03%."
+    result = ExplanationResult(provider="test", model="fixed", explanation=generated)
+
+    with pytest.raises(ValueError, match="numeric claim absent from its cited support"):
+        validate_and_bundle_explanation(_request(), result)
+
+
+def test_numeric_claim_present_in_cited_policy_field_is_allowed() -> None:
+    generated = _generated()
+    generated.policy_points[
+        0
+    ].text = "The illustrative growth target is 70%, applied to $50,000 initially."
+    generated.policy_points[0].references = [
+        "policy.target_allocation",
+        "policy.initial_investment_usd",
+    ]
+    result = ExplanationResult(provider="test", model="fixed", explanation=generated)
+
+    bundle = validate_and_bundle_explanation(_request(), result)
+
+    assert bundle.status == "ready"
+
+
 def test_provider_prompt_treats_source_content_as_untrusted_data() -> None:
     class CapturingModel:
         def __init__(self) -> None:

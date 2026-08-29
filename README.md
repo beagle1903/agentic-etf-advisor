@@ -136,6 +136,17 @@ initial dataset demonstrates context lift but no ranking lift because graph enri
 intentionally preserves semantic ordering; it is not evidence to expand the graph schema
 yet.
 
+Run the explanation and safety baseline through the exact production pre-review validator:
+
+```powershell
+uv run etf-advisor evaluate-explanations
+```
+
+The versioned offline cases cover valid and invalid citations, supported and fabricated numeric
+claims, ETF/source agreement, provider refusal, unsafe financial language, and prompt injection.
+The command prints deterministic per-dimension JSON metrics and exits nonzero if any expected
+accept/reject decision regresses. It does not call a model, service, database, network, or clock.
+
 Start the local data services:
 
 ```powershell
@@ -164,7 +175,7 @@ licensing decision.
 - `tests/`: executable behavior and safety checks.
 
 The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
-`docs/iterations/010-postgres-durable-review.md`.
+`docs/iterations/011-explanation-safety-evaluation.md`.
 
 ## License
 

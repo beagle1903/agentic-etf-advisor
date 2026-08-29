@@ -84,6 +84,23 @@ guarantees, trade or recommendation instructions, suitability claims, forecasts,
 outcomes. Citation URLs and timestamps are copied from validated evidence, not model output.
 Source text is treated as untrusted quoted data, every ordinary provider SDK exception is
 sanitized at the adapter boundary, and fixed safety limitations are appended after generation.
+Every numeric value in a generated statement must also be present in that statement's exact
+cited policy fields or source records. This deterministic check blocks fabricated fees,
+percentages, amounts, and other numbers without claiming to solve general semantic entailment.
+
+## Explanation evaluation
+
+The first explanation baseline replays one versioned request and eight curated provider outputs
+through the same `validate_and_bundle_explanation` function used before human review. It covers
+valid and invalid citations, supported and unsupported numeric claims, matching and mismatched ETF
+subjects, provider refusal, unsafe financial language, and both resisted and followed prompt
+injection. Per-dimension accuracy and the overall gate are deterministic and require no provider,
+network, database, credential, or wall-clock access.
+
+The gate passes only when every actual accept/reject decision matches its curated expectation. The
+packaged cases are a small regression baseline, not proof of general semantic entailment or broad
+model safety. LangSmith-backed comparisons remain an optional future adapter; offline evaluation
+stays independently runnable and authoritative for repository verification.
 
 ## Workflow stages
 

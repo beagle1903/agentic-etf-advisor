@@ -22,7 +22,12 @@ from etf_advisor.data.quality import (
     assess_observations,
 )
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
-from etf_advisor.evaluation import load_evaluation_dataset, run_offline_evaluation
+from etf_advisor.evaluation import (
+    load_evaluation_dataset,
+    load_explanation_evaluation_dataset,
+    run_offline_evaluation,
+    run_offline_explanation_evaluation,
+)
 from etf_advisor.explanation.provider import (
     ProviderConfigurationError,
     create_explanation_generator,
@@ -351,6 +356,32 @@ def evaluate_retrieval(
         typer.echo(f"Retrieval evaluation failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc
     typer.echo(report.model_dump_json(indent=2))
+
+
+@app.command("evaluate-explanations")
+def evaluate_explanations(
+    dataset_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--dataset",
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            help="Optional evaluation JSON; defaults to the packaged offline baseline.",
+        ),
+    ] = None,
+) -> None:
+    """Replay explanation and safety cases through the production review gate."""
+
+    try:
+        dataset = load_explanation_evaluation_dataset(dataset_path)
+        report = run_offline_explanation_evaluation(dataset)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        typer.echo(f"Explanation evaluation failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(report.model_dump_json(indent=2))
+    if not report.metrics.passed:
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
