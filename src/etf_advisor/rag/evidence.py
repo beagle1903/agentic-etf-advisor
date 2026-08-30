@@ -126,6 +126,16 @@ class CandidateEvidence(BaseModel):
             raise ValueError("Candidate evidence market must identify a US listing.")
         return "us_market"
 
+    @model_validator(mode="after")
+    def validate_graph_context_identity(self) -> CandidateEvidence:
+        if self.graph_context is None:
+            return self
+        if self.graph_context.source_document_id != self.document_id:
+            raise ValueError("Candidate graph context must reference its source document ID.")
+        if self.graph_context.symbol.strip().upper() != self.symbol:
+            raise ValueError("Candidate graph context symbol must match its source symbol.")
+        return self
+
 
 class CandidateEvidenceBundle(BaseModel):
     """Review-ready evidence, including freshness results and explicit blockers."""

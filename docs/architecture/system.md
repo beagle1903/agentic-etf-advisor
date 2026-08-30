@@ -82,8 +82,11 @@ human-review interrupt. Ready evidence requires an attributable HTTP(S) URL and 
 source-reported `quote_type=ETF` and `market=us_market` metadata. It preserves the first result
 for each symbol and omits mismatched graph context rather than fabricating a relationship. The
 evidence model now exposes normalized source-linked sector weights and explicit availability
-status. Excluded sectors remain visible as an unverified constraint until Iteration 014 applies
-deterministic pass, fail, and unknown screening rules.
+status. The persisted candidate contract independently requires the graph context's source ID and
+normalized symbol to match the candidate, so restored checkpoints and replaceable retrievers
+cannot relabel another ETF's sector weights as citation support. Excluded sectors remain visible as
+an unverified constraint until Iteration 014 applies deterministic pass, fail, and unknown
+screening rules.
 
 ## Retrieval evaluation
 

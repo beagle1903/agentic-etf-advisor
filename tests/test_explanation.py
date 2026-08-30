@@ -2,6 +2,7 @@ import json
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic import ValidationError
 
 from etf_advisor.config import LlmProvider, Settings
 from etf_advisor.domain.policy import calculate_policy
@@ -223,6 +224,17 @@ def test_numeric_sector_claim_is_supported_by_structured_graph_context() -> None
 
     assert bundle.status == "ready"
     assert any("rules have not yet been applied" in item for item in bundle.limitations)
+
+
+def test_foreign_sector_context_is_rejected_before_numeric_support_validation() -> None:
+    payload = _request(with_sector_context=True).model_dump(mode="python")
+    graph_context = payload["candidate_evidence"]["candidates"][0]["graph_context"]
+    graph_context["source_document_id"] = "doc-qqq"
+    graph_context["symbol"] = "QQQ"
+    graph_context["sector_exposures"][0]["weight_pct"] = 57.95
+
+    with pytest.raises(ValidationError, match="source document ID"):
+        ExplanationRequest.model_validate(payload)
 
 
 def test_provider_prompt_treats_source_content_as_untrusted_data() -> None:

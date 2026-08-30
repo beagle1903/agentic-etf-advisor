@@ -21,7 +21,7 @@ from etf_advisor.rag.evidence import (
     HybridCandidateEvidenceRetriever,
     select_candidate_evidence,
 )
-from etf_advisor.rag.models import GraphEnrichedSource
+from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, SectorExposure
 
 
 def valid_profile() -> dict[str, object]:
@@ -471,6 +471,65 @@ def test_workflow_revalidates_freshness_from_replaceable_retrievers() -> None:
     result = graph.invoke(
         {"profile": valid_profile()},
         config={"configurable": {"thread_id": "forged-freshness"}},
+    )
+
+    assert result["status"] == "evidence_blocked"
+    assert result["candidate_evidence"] == {}
+    assert result["evidence_errors"] == [
+        {
+            "type": "evidence_contract",
+            "message": "Source evidence bundle failed contract validation.",
+        }
+    ]
+    assert "__interrupt__" not in result
+
+
+def test_workflow_rejects_foreign_graph_context_from_replaceable_retriever() -> None:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    source_result = GraphEnrichedSource(
+        document_id="doc-spy",
+        content="SPY source facts",
+        metadata={
+            "symbol": "SPY",
+            "source": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-08-28T11:00:00Z",
+            "quote_type": "ETF",
+            "market": "us_market",
+        },
+        graph_context=GraphContext(
+            source_document_id="doc-spy",
+            symbol="SPY",
+            etf_name="SPY",
+            sector_exposures_status="available",
+            sector_exposures=[SectorExposure(name="technology", weight_pct=37.4)],
+        ),
+    )
+    ready = select_candidate_evidence(
+        InvestorProfile.model_validate(valid_profile()),
+        [source_result],
+        query="broad US exposure",
+        checked_at=checked_at,
+        max_age=timedelta(hours=24),
+    )
+    foreign_context = ready.candidates[0].graph_context.model_copy(
+        update={
+            "source_document_id": "doc-qqq",
+            "symbol": "QQQ",
+            "sector_exposures": [SectorExposure(name="technology", weight_pct=57.95)],
+        }
+    )
+    forged_candidate = ready.candidates[0].model_copy(update={"graph_context": foreign_context})
+    forged_bundle = ready.model_copy(update={"candidates": [forged_candidate]})
+
+    class ForgedRetriever:
+        def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+            return forged_bundle
+
+    graph = build_graph(checkpointer=InMemorySaver(), candidate_retriever=ForgedRetriever())
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "foreign-graph-context"}},
     )
 
     assert result["status"] == "evidence_blocked"

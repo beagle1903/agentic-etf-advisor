@@ -7,6 +7,7 @@ from pydantic import ValidationError
 
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.rag.evidence import (
+    CandidateEvidence,
     CandidateEvidenceBundle,
     EvidenceRetrievalError,
     EvidenceStatus,
@@ -262,6 +263,38 @@ def test_mismatched_graph_context_is_omitted_without_fabricating_a_join() -> Non
     assert results.status == EvidenceStatus.READY
     assert results.candidates[0].graph_context is None
     assert any("does not match" in warning for warning in results.warnings)
+
+
+@pytest.mark.parametrize(
+    ("context_update", "error_match"),
+    [
+        ({"source_document_id": "doc-qqq-11"}, "source document ID"),
+        ({"symbol": "QQQ"}, "source symbol"),
+    ],
+)
+def test_candidate_evidence_rejects_mismatched_persisted_graph_identity(
+    context_update: dict[str, str],
+    error_match: str,
+) -> None:
+    matching_context = GraphContext(
+        source_document_id="doc-spy-11",
+        symbol="SPY",
+        etf_name="SPDR S&P 500 ETF Trust",
+        sector_exposures_status="available",
+        sector_exposures=[SectorExposure(name="technology", weight_pct=37.4)],
+    )
+    candidate = select_candidate_evidence(
+        profile(),
+        [source("SPY", graph_context=matching_context)],
+        query="broad US exposure",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    ).candidates[0]
+    payload = candidate.model_dump(mode="python")
+    payload["graph_context"].update(context_update)
+
+    with pytest.raises(ValidationError, match=error_match):
+        CandidateEvidence.model_validate(payload)
 
 
 def test_empty_retrieval_blocks_with_an_explicit_error() -> None:

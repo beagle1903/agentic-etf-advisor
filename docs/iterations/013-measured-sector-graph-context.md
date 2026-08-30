@@ -68,3 +68,11 @@ value rather than a ranking claim.
 - `uv run pytest` passes offline.
 - `uv build` produces source and wheel artifacts.
 - `docker compose config --quiet` passes.
+
+## PR review hardening
+
+- `CandidateEvidence` now revalidates that nested graph context references the same source
+  document ID and normalized ETF symbol before persisted, restored, or replacement-retriever
+  evidence can reach an explanation provider.
+- Regression tests prove that foreign sector weights cannot become numeric support for a cited
+  candidate and that a replacement retriever carrying mismatched graph context fails closed.
