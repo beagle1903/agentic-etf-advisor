@@ -126,6 +126,16 @@ class CandidateEvidence(BaseModel):
             raise ValueError("Candidate evidence market must identify a US listing.")
         return "us_market"
 
+    @model_validator(mode="after")
+    def validate_graph_context_identity(self) -> CandidateEvidence:
+        if self.graph_context is None:
+            return self
+        if self.graph_context.source_document_id != self.document_id:
+            raise ValueError("Candidate graph context must reference its source document ID.")
+        if self.graph_context.symbol.strip().upper() != self.symbol:
+            raise ValueError("Candidate graph context symbol must match its source symbol.")
+        return self
+
 
 class CandidateEvidenceBundle(BaseModel):
     """Review-ready evidence, including freshness results and explicit blockers."""
@@ -388,10 +398,20 @@ def select_candidate_evidence(
     elif not candidates and not errors:
         errors.append("No usable source evidence remained after validation.")
     if profile.excluded_sectors:
-        warnings.append(
-            "Sector exclusions are carried into review, but the current source contract does "
-            "not report sector exposures; no exclusion claim is made."
-        )
+        sector_contexts = [candidate.graph_context for candidate in candidates]
+        if sector_contexts and all(
+            context is not None and context.sector_exposures_status == "available"
+            for context in sector_contexts
+        ):
+            warnings.append(
+                "Structured sector exposure evidence is available for every candidate, but "
+                "deterministic exclusion screening is deferred; no exclusion claim is made."
+            )
+        else:
+            warnings.append(
+                "Sector exclusions remain unverified because one or more candidates lack "
+                "available structured sector exposure evidence."
+            )
 
     status = EvidenceStatus.READY if candidates and not errors else EvidenceStatus.BLOCKED
     return CandidateEvidenceBundle(

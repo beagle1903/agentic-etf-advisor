@@ -59,19 +59,21 @@ active, a retry without the local payload reads Neo4j's persisted document count
 every ID plus exact version/digest metadata in Chroma, and rechecks the active pointer before
 returning a successful no-op. Reactivating an inactive version requires its original payload.
 
-The first implemented Neo4j projection uses `ETF`, `FundFamily`, `Category`, and
+The implemented Neo4j projection uses `ETF`, `FundFamily`, `Category`, `Sector`, and
 `SourceDocument` nodes. Yahoo's `fundFamily` field is preserved as fund-family/provider
 context; it is not presented as the ETF's legal issuer. ETF relationships provide the
-reusable entity graph, while each source document also links directly to the fund family and
-category it reported. Each upsert replaces those source-specific relationships, including
-when metadata disappears. Snapshot publication also replaces the normalized ETF-level fund-family
-and category relationships in the same activation transaction, preventing legacy relationships
-from surviving a newer snapshot. Chroma distance remains the ordering signal until a later
-evaluation demonstrates useful graph-aware reranking.
+reusable entity graph, while each source document also links directly to the fund family,
+category, and weighted sector exposures it reported. Each upsert replaces those source-specific
+relationships, including when metadata disappears. Snapshot publication also replaces the
+normalized ETF-level fund-family, category, and weighted sector relationships in the same
+activation transaction, preventing legacy relationships from surviving a newer snapshot. Sector
+relationships are parsed fail-closed from canonical field provenance, and retrieval preserves the
+source status so unavailable evidence cannot become a zero weight. Chroma distance remains the
+ordering signal; the sector evaluation demonstrates constraint-context value, not ranking lift.
 
-Rich holdings, sector, geography, benchmark, and overlap relationships remain outside the graph
-projection until Iteration 013 measures a ranking, constraint-verification, or explanation-context
-benefit on versioned cases.
+Holdings, geography, benchmark, and overlap relationships remain outside the graph projection.
+Geography is provider-unsupported, and the other relationship families have no measured
+graph-specific consumer yet.
 
 The workflow can receive an injected `CandidateEvidenceRetriever` at its side-effect
 boundary. The live adapter wraps the existing hybrid retriever, converts ranked results into
@@ -79,25 +81,30 @@ an evidence bundle, and rechecks source URL, observation timestamp, and freshnes
 human-review interrupt. Ready evidence requires an attributable HTTP(S) URL and Yahoo's
 source-reported `quote_type=ETF` and `market=us_market` metadata. It preserves the first result
 for each symbol and omits mismatched graph context rather than fabricating a relationship. The
-current evidence model does not yet expose normalized sector weights to deterministic constraint
-checks, so excluded sectors remain visible as an unverified constraint even when research content
-contains source-reported sector data.
+evidence model now exposes normalized source-linked sector weights and explicit availability
+status. The persisted candidate contract independently requires the graph context's source ID and
+normalized symbol to match the candidate, so restored checkpoints and replaceable retrievers
+cannot relabel another ETF's sector weights as citation support. Excluded sectors remain visible as
+an unverified constraint until Iteration 014 applies deterministic pass, fail, and unknown
+screening rules.
 
 ## Retrieval evaluation
 
-The first offline baseline replays one versioned, curated candidate set through two explicit
+The offline baseline replays one versioned, curated candidate set through two explicit
 interfaces: semantic retrieval alone and the existing source-linked graph enrichment path.
 Both variants receive the same candidates in the same order. Deterministic metrics report
 hit rate, recall at K, mean reciprocal rank, source-attribution rate, graph-context recall,
-and exact fund-family/category field accuracy.
+exact fund-family/category field accuracy, sector-context coverage, and exact sector-threshold
+matching.
 
 The packaged baseline contains only source-attributable documents with UTC observation
 timestamps. Source documents reject timezone-naive observations rather than silently
 assigning UTC to an unknown wall time. The baseline does not call Chroma, Neo4j, an embedding
 model, a provider, the network, or the wall clock. This makes metric changes reviewable and
 repeatable while leaving live-store and LangSmith-backed evaluation behind replaceable
-adapters. Because the current hybrid retriever preserves Chroma order, context-quality
-improvements are not ranking lift and do not yet justify expanding the graph schema.
+adapters. Because the hybrid retriever preserves Chroma order, the measured sector improvement is
+explicitly constraint-context lift. It justifies the sector projection but not any further schema
+expansion.
 
 The policy draft now calls a pure deterministic calculation boundary. It selects an
 illustrative target inside the existing risk-tolerance band based on the stated objective,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from etf_advisor.rag.models import GraphContext, SourceDocument
 
@@ -42,6 +42,34 @@ class EvaluationCandidate(BaseModel):
     distance: float | None = Field(default=None, ge=0)
 
 
+class SectorConstraintJudgment(BaseModel):
+    """Expected structured matches for one sector exposure threshold."""
+
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+
+    sector: str = Field(min_length=1, max_length=200)
+    minimum_weight_pct: float = Field(ge=0, le=100)
+    expected_matching_document_ids: list[str] = Field(min_length=1)
+
+    @field_validator("sector")
+    @classmethod
+    def normalize_sector(cls, value: str) -> str:
+        normalized = " ".join(value.replace("_", " ").split())
+        if not normalized:
+            raise ValueError("Sector constraint names cannot be blank.")
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_unique_matches(self) -> SectorConstraintJudgment:
+        if any(not document_id.strip() for document_id in self.expected_matching_document_ids):
+            raise ValueError("Sector constraint document IDs cannot be blank.")
+        if len(self.expected_matching_document_ids) != len(
+            set(self.expected_matching_document_ids)
+        ):
+            raise ValueError("Sector constraint judgments cannot repeat document IDs.")
+        return self
+
+
 class EvaluationCase(BaseModel):
     """A query, ranked candidates, and explicit relevance/context judgments."""
 
@@ -52,6 +80,7 @@ class EvaluationCase(BaseModel):
     semantic_candidates: list[EvaluationCandidate] = Field(min_length=1)
     relevant_document_ids: list[str] = Field(min_length=1)
     expected_graph_contexts: list[GraphContext] = Field(default_factory=list)
+    sector_constraint_judgments: list[SectorConstraintJudgment] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_case_ids(self) -> EvaluationCase:
@@ -65,6 +94,12 @@ class EvaluationCase(BaseModel):
             raise ValueError(f"Evaluation case '{self.case_id}' has duplicate context judgments.")
         if not set(context_ids).issubset(self.relevant_document_ids):
             raise ValueError("Graph context judgments must refer to relevant documents.")
+        candidate_id_set = set(candidate_ids)
+        for judgment in self.sector_constraint_judgments:
+            if not set(judgment.expected_matching_document_ids).issubset(candidate_id_set):
+                raise ValueError(
+                    "Sector constraint judgments must refer to semantic candidate documents."
+                )
         return self
 
 
@@ -96,6 +131,11 @@ class RetrievalEvaluationDataset(BaseModel):
                 *(candidate.document_id for candidate in case.semantic_candidates),
                 *case.relevant_document_ids,
                 *(context.source_document_id for context in case.expected_graph_contexts),
+                *(
+                    document_id
+                    for judgment in case.sector_constraint_judgments
+                    for document_id in judgment.expected_matching_document_ids
+                ),
             }
             unknown_ids = sorted(referenced_ids - known_ids)
             if unknown_ids:
@@ -128,6 +168,8 @@ class RetrievalMetrics(BaseModel):
     source_attribution_rate: float
     graph_context_recall: float
     graph_context_field_accuracy: float
+    sector_context_coverage: float
+    sector_constraint_exact_match_rate: float
 
 
 class MetricDeltas(BaseModel):
@@ -139,6 +181,8 @@ class MetricDeltas(BaseModel):
     source_attribution_rate: float
     graph_context_recall: float
     graph_context_field_accuracy: float
+    sector_context_coverage: float
+    sector_constraint_exact_match_rate: float
 
 
 class RetrievalEvaluationReport(BaseModel):

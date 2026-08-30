@@ -71,6 +71,8 @@ class FakeDriver:
                         "etf_name": "SPDR S&P 500 ETF Trust",
                         "fund_family": "State Street Global Advisors",
                         "category": "Large Blend",
+                        "sector_exposures_status": "available",
+                        "sector_exposures": [{"name": "technology", "weight_pct": 37.4}],
                     }
                 ]
             )
@@ -179,7 +181,12 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
             "fund_family": "State Street Global Advisors",
             "category": "Large Blend",
             "field_provenance_schema_version": 1,
-            "field_provenance_json": '{"name":{"provider":"yahoo_finance"}}',
+            "field_provenance_json": (
+                '{"sector_exposures":{"missing_reason":null,'
+                '"value":[{"name":"technology","symbol":null,'
+                '"weight_pct":37.4}]}}'
+            ),
+            "sector_exposures_status": "available",
         },
     )
 
@@ -203,9 +210,14 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     parameters = driver.snapshot_parameters[0]
     assert parameters["expected_count"] == 1
     assert parameters["documents"][0]["category_name"] == "Large Blend"
+    assert parameters["documents"][0]["sector_exposures_status"] == "available"
+    assert parameters["documents"][0]["sector_exposures"] == [
+        {"name": "technology", "weight_pct": 37.4}
+    ]
     assert parameters["documents"][0]["field_provenance_schema_version"] == 1
     assert parameters["documents"][0]["field_provenance_json"] == (
-        '{"name":{"provider":"yahoo_finance"}}'
+        '{"sector_exposures":{"missing_reason":null,'
+        '"value":[{"name":"technology","symbol":null,"weight_pct":37.4}]}}'
     )
     snapshot_query = next(query for query in driver.upsert_queries if "ResearchSnapshot" in query)
     assert "ON CREATE SET snapshot.universe_id" in snapshot_query
@@ -216,8 +228,101 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
     assert "DELETE stale_etf_relationship" in snapshot_query
     assert "MERGE (etf)-[:IN_FUND_FAMILY]->(fund_family)" in snapshot_query
     assert "MERGE (etf)-[:IN_CATEGORY]->(category)" in snapshot_query
+    assert "MERGE (source)-[reported:REPORTS_SECTOR_EXPOSURE]->(sector)" in snapshot_query
+    assert "MERGE (etf)-[has_exposure:HAS_SECTOR_EXPOSURE]->(sector)" in snapshot_query
     assert "count(DISTINCT published_source) AS published_count" in snapshot_query
     assert snapshot_query.index("WHERE published_count") < snapshot_query.index("ACTIVE_SNAPSHOT")
+
+
+def test_neo4j_snapshot_publish_preserves_explicit_missing_sector_status() -> None:
+    driver = FakeDriver()
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="research:snapshot-v1:abc123:bnd",
+        symbol="BND",
+        title="BND research snapshot",
+        content="Source content",
+        source="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/BND/",
+        observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        metadata={
+            "snapshot_version": "snapshot-v1",
+            "snapshot_digest": "abc123",
+            "field_provenance_schema_version": 1,
+            "field_provenance_json": (
+                '{"sector_exposures":{"missing_reason":"not_reported","value":null}}'
+            ),
+            "sector_exposures_status": "not_reported",
+        },
+    )
+
+    assert (
+        store.publish_snapshot(
+            [document],
+            snapshot_version="snapshot-v1",
+            universe_id="core",
+            universe_version="1.0.0",
+            snapshot_digest="abc123",
+        )
+        == 1
+    )
+    row = driver.snapshot_parameters[0]["documents"][0]
+    assert row["sector_exposures_status"] == "not_reported"
+    assert row["sector_exposures"] == []
+
+
+@pytest.mark.parametrize(
+    ("sector_provenance", "error_match"),
+    [
+        (
+            '{"sector_exposures":{"missing_reason":"source_error","value":null}}',
+            "Available sector exposure provenance",
+        ),
+        (
+            '{"sector_exposures":{"missing_reason":null,"value":[]}}',
+            "non-empty list",
+        ),
+        (
+            '{"sector_exposures":{"missing_reason":null,"value":['
+            '{"name":"technology","weight_pct":37.4},'
+            '{"name":"Technology","weight_pct":35.0}]}}',
+            "unique after normalization",
+        ),
+    ],
+)
+def test_neo4j_snapshot_publish_rejects_invalid_sector_provenance(
+    sector_provenance: str,
+    error_match: str,
+) -> None:
+    driver = FakeDriver()
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="research:snapshot-v1:abc123:spy",
+        symbol="SPY",
+        title="SPY research snapshot",
+        content="Source content",
+        source="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/SPY/",
+        observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        metadata={
+            "snapshot_version": "snapshot-v1",
+            "snapshot_digest": "abc123",
+            "field_provenance_schema_version": 1,
+            "field_provenance_json": sector_provenance,
+            "sector_exposures_status": "available",
+        },
+    )
+
+    with pytest.raises(ValueError, match=error_match):
+        store.publish_snapshot(
+            [document],
+            snapshot_version="snapshot-v1",
+            universe_id="core",
+            universe_version="1.0.0",
+            snapshot_digest="abc123",
+        )
+
+    assert driver.snapshot_parameters == []
 
 
 def test_neo4j_snapshot_publish_rejects_mixed_versions_before_writing() -> None:

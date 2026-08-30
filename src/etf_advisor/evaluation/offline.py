@@ -124,10 +124,14 @@ def run_offline_evaluation(
         abs(deltas.mean_reciprocal_rank),
     )
     conclusion = (
-        "Graph enrichment adds correctly linked fund-family/category context but does not improve "
-        "semantic ranking in this baseline. Do not expand the graph schema on ranking-lift "
-        "grounds yet."
-        if ranking_lift == 0 and deltas.graph_context_field_accuracy > 0
+        "Source-linked sector relationships add complete structured sector context and exact "
+        "threshold-match verification without changing semantic ranking. Retain the sector "
+        "projection; defer other graph expansions until they demonstrate comparable value."
+        if ranking_lift == 0
+        and graph_metrics.sector_context_coverage == 1.0
+        and graph_metrics.sector_constraint_exact_match_rate == 1.0
+        and deltas.sector_context_coverage > 0
+        and deltas.sector_constraint_exact_match_rate > 0
         else "Review the metric deltas before changing retrieval or graph scope."
     )
     return RetrievalEvaluationReport(
@@ -164,6 +168,10 @@ def evaluate_strategy(
     matched_context_count = 0
     expected_field_count = 0
     correct_field_count = 0
+    sector_context_result_count = 0
+    sector_context_candidate_count = 0
+    sector_judgment_count = 0
+    exact_sector_judgment_count = 0
 
     for case in cases:
         results = list(strategy.search(case.query, limit=limit))
@@ -182,6 +190,11 @@ def evaluate_strategy(
             for result in results
             if isinstance(result, GraphEnrichedSource) and result.graph_context is not None
         }
+        if case.sector_constraint_judgments:
+            sector_context_candidate_count += len(results)
+            sector_context_result_count += sum(
+                context.sector_exposures_status is not None for context in result_contexts.values()
+            )
         for expected in case.expected_graph_contexts:
             expected_context_count += 1
             actual = result_contexts.get(expected.source_document_id)
@@ -191,6 +204,21 @@ def evaluate_strategy(
                 expected_field_count += 1
                 if actual is not None and getattr(actual, field) == getattr(expected, field):
                     correct_field_count += 1
+
+        for judgment in case.sector_constraint_judgments:
+            sector_judgment_count += 1
+            expected_matches = set(judgment.expected_matching_document_ids)
+            actual_matches = {
+                document_id
+                for document_id, context in result_contexts.items()
+                if context.sector_exposures_status == "available"
+                and any(
+                    _sector_key(exposure.name) == _sector_key(judgment.sector)
+                    and exposure.weight_pct >= judgment.minimum_weight_pct
+                    for exposure in context.sector_exposures
+                )
+            }
+            exact_sector_judgment_count += int(actual_matches == expected_matches)
 
     case_count = len(cases)
     return RetrievalMetrics(
@@ -202,6 +230,10 @@ def evaluate_strategy(
         source_attribution_rate=_ratio(attributed_result_count, result_count),
         graph_context_recall=_ratio(matched_context_count, expected_context_count),
         graph_context_field_accuracy=_ratio(correct_field_count, expected_field_count),
+        sector_context_coverage=_ratio(sector_context_result_count, sector_context_candidate_count),
+        sector_constraint_exact_match_rate=_ratio(
+            exact_sector_judgment_count, sector_judgment_count
+        ),
     )
 
 
@@ -225,3 +257,7 @@ def _ratio(numerator: float | int, denominator: int) -> float:
 
 def _rounded(value: float) -> float:
     return round(value, 6)
+
+
+def _sector_key(value: str) -> str:
+    return " ".join(value.replace("_", " ").casefold().split())
