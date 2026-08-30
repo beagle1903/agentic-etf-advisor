@@ -9,7 +9,9 @@ Chroma-ranked documents to source-linked Neo4j context, compare the semantic-onl
 graph-enriched paths on a deterministic offline evaluation set, and optionally attach a
 freshness-checked source-evidence bundle and grounded provider explanation to the review
 interrupt. A versioned six-ETF research universe now retains field-level provenance and explicit
-missingness and activates one verified Chroma/Neo4j snapshot for hybrid retrieval.
+missingness and activates one verified Chroma/Neo4j snapshot for hybrid retrieval. Measured
+source-linked sector relationships add structured threshold context without changing semantic
+ranking.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -93,15 +95,17 @@ uv run etf-advisor ingest --symbols SPY,QQQ,VTI,BND --with-graph
 uv run etf-advisor hybrid-search "broad US equity exposure"
 ```
 
-The graph stores ETF, fund-family/provider, category, and source-document nodes. Stable
+The graph stores ETF, fund-family/provider, category, sector, and source-document nodes. Stable
 source document IDs form the join boundary, and a missing graph record is returned as
 `graph_context: null` instead of silently fabricating context. Yahoo fund-family metadata is
-not presented as a legal issuer.
+not presented as a legal issuer. Versioned research snapshots retain source-linked sector weights
+and explicit missingness; holdings, geography, benchmark, and overlap relationships remain
+deferred until they demonstrate measured value.
 
 Publish the packaged research universe as one snapshot after starting Chroma and Neo4j:
 
 ```powershell
-uv run etf-advisor publish-research-universe --snapshot-version research-2026-08-29
+uv run etf-advisor publish-research-universe --snapshot-version research-2026-08-30
 ```
 
 The packaged membership is SPY, VTI, QQQ, BND, VEA, and VWO. The richer contract records fees,
@@ -110,6 +114,10 @@ top-ten concentration. Each field carries its own provider, source URL, observat
 times, units, version, and either a value or an explicit missing reason. The current Yahoo adapter
 does not supply geography exposure, so it reports that field as unsupported rather than implying
 zero exposure.
+
+Publish a new immutable snapshot version after upgrading from Iteration 012 so Neo4j receives the
+measured sector projection. Rechecking an already-active older version without its canonical local
+payload verifies that snapshot but intentionally does not mutate it.
 
 Publication stages versioned Chroma documents and verifies their IDs and digest metadata before
 Neo4j writes and activates the same snapshot in one graph transaction. Hybrid retrieval uses the
@@ -168,10 +176,10 @@ Run the retrieval baseline without credentials, databases, or network access:
 uv run etf-advisor evaluate-retrieval
 ```
 
-The JSON report separates ranking metrics from fund-family/category context metrics. The
-initial dataset demonstrates context lift but no ranking lift because graph enrichment
-intentionally preserves semantic ordering; it is not evidence to expand the graph schema
-yet.
+The JSON report separates ranking metrics from fund-family/category and sector-context metrics.
+The version-three dataset demonstrates complete structured sector context and an exact technology
+threshold match with no ranking delta. That evidence retains the sector projection only; it does
+not justify adding unmeasured graph relationships.
 
 Run the explanation and safety baseline through the exact production pre-review validator:
 
@@ -212,7 +220,7 @@ licensing decision.
 - `tests/`: executable behavior and safety checks.
 
 The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
-`docs/iterations/012-versioned-etf-research-universe.md`.
+`docs/iterations/013-measured-sector-graph-context.md`.
 
 ## License
 

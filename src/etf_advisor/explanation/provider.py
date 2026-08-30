@@ -128,6 +128,19 @@ def _build_messages(request: ExplanationRequest) -> list[tuple[str, str]]:
             "observed_at": candidate.observed_at.isoformat(),
             "fund_family": candidate.fund_family,
             "category": candidate.category,
+            "sector_exposures_status": (
+                candidate.graph_context.sector_exposures_status
+                if candidate.graph_context is not None
+                else None
+            ),
+            "sector_exposures": (
+                [
+                    exposure.model_dump(mode="json")
+                    for exposure in candidate.graph_context.sector_exposures
+                ]
+                if candidate.graph_context is not None
+                else []
+            ),
         }
         for candidate in exposed_candidates(request)
     ]
@@ -143,7 +156,8 @@ def _build_messages(request: ExplanationRequest) -> list[tuple[str, str]]:
         "use policy_reference_index keys and no ETF subjects. Evidence statements use source "
         "document_id values and exact matching symbol subjects. Do not recommend ETFs, claim "
         "suitability, forecast returns or drawdowns, promise outcomes, execute trades, or claim "
-        "that sector exclusions were verified. Do not introduce a numeric value unless it is "
+        "that sector exclusions were applied or verified. Source-reported sector exposure may "
+        "be described as evidence only. Do not introduce a numeric value unless it is "
         "present in the exact references cited by that statement. Tradeoffs may use either "
         "grounding basis."
     )

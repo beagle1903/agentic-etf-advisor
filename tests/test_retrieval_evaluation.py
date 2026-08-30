@@ -17,20 +17,26 @@ def test_offline_evaluation_compares_ranking_and_context_deterministically() -> 
 
     assert first == second
     assert first.dataset.dataset_id == "retrieval-baseline"
-    assert first.dataset.version == 2
-    assert first.dataset.document_count == 4
+    assert first.dataset.version == 3
+    assert first.dataset.document_count == 7
     assert first.dataset.sources == ["Yahoo Finance"]
     assert first.dataset.observation_start.isoformat() == "2026-08-26T20:00:00+00:00"
+    assert first.dataset.observation_end.isoformat() == "2026-08-28T20:00:00+00:00"
     assert first.semantic_only.hit_rate_at_k == 1.0
     assert first.semantic_only.recall_at_k == 1.0
-    assert first.semantic_only.mean_reciprocal_rank == 0.875
+    assert first.semantic_only.mean_reciprocal_rank == 0.9
     assert first.semantic_only.source_attribution_rate == 1.0
     assert first.semantic_only.graph_context_recall == 0.0
+    assert first.semantic_only.sector_context_coverage == 0.0
+    assert first.semantic_only.sector_constraint_exact_match_rate == 0.0
     assert first.graph_enriched.graph_context_recall == 1.0
     assert first.graph_enriched.graph_context_field_accuracy == 1.0
+    assert first.graph_enriched.sector_context_coverage == 1.0
+    assert first.graph_enriched.sector_constraint_exact_match_rate == 1.0
     assert first.deltas.mean_reciprocal_rank == 0.0
     assert first.deltas.graph_context_field_accuracy == 1.0
-    assert "does not improve semantic ranking" in first.conclusion
+    assert first.deltas.sector_constraint_exact_match_rate == 1.0
+    assert "without changing semantic ranking" in first.conclusion
 
 
 def test_missing_graph_context_lowers_context_metrics() -> None:
@@ -44,8 +50,8 @@ def test_missing_graph_context_lowers_context_metrics() -> None:
 
     report = run_offline_evaluation(RetrievalEvaluationDataset.model_validate(payload))
 
-    assert report.graph_enriched.graph_context_recall == 0.6
-    assert report.graph_enriched.graph_context_field_accuracy == 0.6
+    assert report.graph_enriched.graph_context_recall == 0.666667
+    assert report.graph_enriched.graph_context_field_accuracy == 0.666667
 
 
 def test_incorrect_graph_context_lowers_field_accuracy() -> None:
@@ -60,7 +66,28 @@ def test_incorrect_graph_context_lowers_field_accuracy() -> None:
     report = run_offline_evaluation(RetrievalEvaluationDataset.model_validate(payload))
 
     assert report.graph_enriched.graph_context_recall == 1.0
-    assert report.graph_enriched.graph_context_field_accuracy == 0.8
+    assert report.graph_enriched.graph_context_field_accuracy == 0.833333
+
+
+def test_incorrect_sector_weight_fails_exact_constraint_match() -> None:
+    payload = load_evaluation_dataset().model_dump(mode="json")
+    qqq = next(
+        document
+        for document in payload["documents"]
+        if document["source_document"]["document_id"].endswith("QQQ:2026-08-28:sectors")
+    )
+    technology = next(
+        exposure
+        for exposure in qqq["graph_context"]["sector_exposures"]
+        if exposure["name"] == "technology"
+    )
+    technology["weight_pct"] = 39.0
+
+    report = run_offline_evaluation(RetrievalEvaluationDataset.model_validate(payload))
+
+    assert report.graph_enriched.sector_context_coverage == 1.0
+    assert report.graph_enriched.sector_constraint_exact_match_rate == 0.0
+    assert report.conclusion == "Review the metric deltas before changing retrieval or graph scope."
 
 
 def test_dataset_validation_rejects_naive_observation_timestamp() -> None:
@@ -102,5 +129,7 @@ def test_evaluate_retrieval_cli_emits_stable_json_offline() -> None:
     assert first.stdout == second.stdout
     report = json.loads(first.stdout)
     assert report["dataset"]["dataset_id"] == "retrieval-baseline"
-    assert report["semantic_only"]["mean_reciprocal_rank"] == 0.875
+    assert report["semantic_only"]["mean_reciprocal_rank"] == 0.9
     assert report["deltas"]["mean_reciprocal_rank"] == 0.0
+    assert report["deltas"]["sector_context_coverage"] == 1.0
+    assert report["deltas"]["sector_constraint_exact_match_rate"] == 1.0

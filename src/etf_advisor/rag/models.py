@@ -1,10 +1,20 @@
 """Attributable documents and retrieval results."""
 
-from datetime import UTC, datetime
+from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from datetime import UTC, datetime
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 type MetadataValue = str | int | float | bool
+type SectorExposureStatus = Literal[
+    "available",
+    "not_reported",
+    "source_error",
+    "provider_unsupported",
+    "not_applicable",
+]
 
 
 class SourceDocument(BaseModel):
@@ -57,6 +67,23 @@ class RetrievedSource(BaseModel):
     distance: float | None = None
 
 
+class SectorExposure(BaseModel):
+    """One normalized, source-reported ETF sector exposure."""
+
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+
+    name: str = Field(min_length=1, max_length=200)
+    weight_pct: float = Field(ge=0, le=100)
+
+    @field_validator("name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        normalized = " ".join(value.replace("_", " ").split())
+        if not normalized:
+            raise ValueError("Sector exposure names cannot be blank.")
+        return normalized
+
+
 class GraphContext(BaseModel):
     """Normalized Neo4j neighborhood linked to one retrieved source document."""
 
@@ -67,6 +94,20 @@ class GraphContext(BaseModel):
     etf_name: str
     fund_family: str | None = None
     category: str | None = None
+    sector_exposures_status: SectorExposureStatus | None = None
+    sector_exposures: list[SectorExposure] = Field(default_factory=list, max_length=100)
+
+    @model_validator(mode="after")
+    def validate_sector_projection(self) -> GraphContext:
+        names = [exposure.name.casefold() for exposure in self.sector_exposures]
+        if len(names) != len(set(names)):
+            raise ValueError("Graph sector exposures must have unique normalized names.")
+        if self.sector_exposures_status == "available" and not self.sector_exposures:
+            raise ValueError("Available graph sector exposure context cannot be empty.")
+        if self.sector_exposures_status != "available" and self.sector_exposures:
+            raise ValueError("Graph sector exposures require an available source status.")
+        self.sector_exposures.sort(key=lambda item: (-item.weight_pct, item.name.casefold()))
+        return self
 
 
 class GraphEnrichedSource(RetrievedSource):

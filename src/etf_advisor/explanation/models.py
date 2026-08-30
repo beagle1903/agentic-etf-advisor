@@ -318,10 +318,20 @@ def validate_and_bundle_explanation(
         ),
     ]
     if request.profile.excluded_sectors:
-        limitations.append(
-            "Current source evidence does not verify sector exposures against the stated "
-            "exclusions."
-        )
+        if all(
+            candidate.graph_context is not None
+            and candidate.graph_context.sector_exposures_status == "available"
+            for candidate in exposed_candidates(request)
+        ):
+            limitations.append(
+                "Structured sector exposure evidence is available, but exclusion rules have "
+                "not yet been applied or verified."
+            )
+        else:
+            limitations.append(
+                "Current source evidence does not completely verify sector exposures against "
+                "the stated exclusions."
+            )
     return ExplanationBundle(
         provider=validated.provider,
         model=validated.model,
@@ -394,6 +404,11 @@ def _candidate_support_text(candidate: CandidateEvidence) -> str:
             candidate.content,
             candidate.fund_family or "",
             candidate.category or "",
+            (
+                json.dumps(candidate.graph_context.model_dump(mode="json"), sort_keys=True)
+                if candidate.graph_context is not None
+                else ""
+            ),
             json.dumps(metadata, sort_keys=True, default=str),
         )
     )

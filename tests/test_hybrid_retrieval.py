@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from etf_advisor.rag.hybrid import HybridRetriever
-from etf_advisor.rag.models import GraphContext, RetrievedSource
+from etf_advisor.rag.models import GraphContext, RetrievedSource, SectorExposure
 from etf_advisor.rag.snapshots import ActiveSnapshotIdentity
 
 
@@ -121,4 +121,32 @@ def test_graph_context_rejects_unsupported_issuer_claims() -> None:
                 "issuer": "State Street Global Advisors",
                 "category": "Large Blend",
             }
+        )
+
+
+def test_graph_context_normalizes_and_orders_sector_exposures() -> None:
+    context = GraphContext(
+        source_document_id="doc-spy",
+        symbol="SPY",
+        etf_name="SPY",
+        sector_exposures_status="available",
+        sector_exposures=[
+            SectorExposure(name="consumer_cyclical", weight_pct=9.57),
+            SectorExposure(name="Technology", weight_pct=37.4),
+        ],
+    )
+
+    assert [exposure.name for exposure in context.sector_exposures] == [
+        "Technology",
+        "consumer cyclical",
+    ]
+
+
+def test_graph_context_rejects_exposures_without_available_status() -> None:
+    with pytest.raises(ValidationError, match="require an available source status"):
+        GraphContext(
+            source_document_id="doc-spy",
+            symbol="SPY",
+            etf_name="SPY",
+            sector_exposures=[SectorExposure(name="technology", weight_pct=37.4)],
         )

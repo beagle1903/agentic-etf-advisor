@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import importlib
-from collections.abc import Iterable
+import json
+from collections.abc import Iterable, Mapping
 from typing import Any, cast
 
-from etf_advisor.rag.models import GraphContext, SourceDocument
+from etf_advisor.rag.models import GraphContext, SectorExposure, SourceDocument
 from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotManifest
 
 _CONSTRAINTS = (
@@ -15,6 +16,7 @@ _CONSTRAINTS = (
     "FOR (fund_family:FundFamily) REQUIRE fund_family.name IS UNIQUE",
     "CREATE CONSTRAINT category_name IF NOT EXISTS "
     "FOR (category:Category) REQUIRE category.name IS UNIQUE",
+    "CREATE CONSTRAINT sector_name IF NOT EXISTS FOR (sector:Sector) REQUIRE sector.name IS UNIQUE",
     "CREATE CONSTRAINT source_document_id IF NOT EXISTS "
     "FOR (source:SourceDocument) REQUIRE source.document_id IS UNIQUE",
     "CREATE CONSTRAINT research_snapshot_version IF NOT EXISTS "
@@ -58,11 +60,23 @@ UNWIND $document_ids AS document_id
 MATCH (etf:ETF)-[:DESCRIBED_BY]->(source:SourceDocument {document_id: document_id})
 OPTIONAL MATCH (source)-[:REPORTS_FUND_FAMILY]->(fund_family:FundFamily)
 OPTIONAL MATCH (source)-[:REPORTS_CATEGORY]->(category:Category)
+OPTIONAL MATCH (source)-[
+    sector_exposure:REPORTS_SECTOR_EXPOSURE
+]->(sector:Sector)
+WITH document_id, etf, source, fund_family, category,
+     [item IN collect(
+        CASE WHEN sector IS NULL THEN null ELSE {
+            name: sector.name,
+            weight_pct: sector_exposure.weight_pct
+        } END
+     ) WHERE item IS NOT NULL] AS sector_exposures
 RETURN document_id AS source_document_id,
        etf.symbol AS symbol,
        etf.name AS etf_name,
        fund_family.name AS fund_family,
-       category.name AS category
+       category.name AS category,
+       source.sector_exposures_status AS sector_exposures_status,
+       sector_exposures
 ORDER BY source_document_id
 """
 
@@ -96,16 +110,20 @@ SET source.source = document.source,
     source.snapshot_version = $snapshot_version,
     source.snapshot_digest = $snapshot_digest,
     source.field_provenance_schema_version = document.field_provenance_schema_version,
-    source.field_provenance_json = document.field_provenance_json
+    source.field_provenance_json = document.field_provenance_json,
+    source.sector_exposures_status = document.sector_exposures_status
 MERGE (etf)-[:DESCRIBED_BY]->(source)
 MERGE (snapshot)-[:CONTAINS]->(source)
 WITH snapshot, etf, source, document
 OPTIONAL MATCH (source)-[
-    stale_source_relationship:REPORTS_FUND_FAMILY|REPORTS_CATEGORY|REPORTS_ISSUER
+    stale_source_relationship:REPORTS_FUND_FAMILY|REPORTS_CATEGORY|REPORTS_ISSUER|
+        REPORTS_SECTOR_EXPOSURE
 ]->()
 DELETE stale_source_relationship
 WITH DISTINCT snapshot, etf, source, document
-OPTIONAL MATCH (etf)-[stale_etf_relationship:IN_FUND_FAMILY|IN_CATEGORY|ISSUED_BY]->()
+OPTIONAL MATCH (etf)-[
+    stale_etf_relationship:IN_FUND_FAMILY|IN_CATEGORY|ISSUED_BY|HAS_SECTOR_EXPOSURE
+]->()
 DELETE stale_etf_relationship
 WITH DISTINCT snapshot, etf, source, document
 FOREACH (_ IN CASE WHEN document.fund_family_name IS NULL THEN [] ELSE [1] END |
@@ -117,6 +135,13 @@ FOREACH (_ IN CASE WHEN document.category_name IS NULL THEN [] ELSE [1] END |
     MERGE (category:Category {name: document.category_name})
     MERGE (etf)-[:IN_CATEGORY]->(category)
     MERGE (source)-[:REPORTS_CATEGORY]->(category)
+)
+FOREACH (sector_exposure IN document.sector_exposures |
+    MERGE (sector:Sector {name: sector_exposure.name})
+    MERGE (source)-[reported:REPORTS_SECTOR_EXPOSURE]->(sector)
+    SET reported.weight_pct = sector_exposure.weight_pct
+    MERGE (etf)-[has_exposure:HAS_SECTOR_EXPOSURE]->(sector)
+    SET has_exposure.weight_pct = sector_exposure.weight_pct
 )
 WITH DISTINCT snapshot
 MATCH (snapshot)-[:CONTAINS]->(published_source:SourceDocument)
@@ -234,6 +259,7 @@ class Neo4jGraphStore:
                 raise ValueError("Every graph document must match the published snapshot version.")
             if metadata.get("snapshot_digest") != snapshot_digest:
                 raise ValueError("Every graph document must match the published snapshot digest.")
+            sector_status, sector_exposures = _sector_projection(metadata)
             rows.append(
                 {
                     "document_id": document.document_id,
@@ -249,6 +275,8 @@ class Neo4jGraphStore:
                         "field_provenance_schema_version"
                     ),
                     "field_provenance_json": metadata.get("field_provenance_json"),
+                    "sector_exposures_status": sector_status,
+                    "sector_exposures": sector_exposures,
                 }
             )
 
@@ -391,6 +419,61 @@ def _optional_string(value: object) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+def _sector_projection(
+    metadata: Mapping[str, object],
+) -> tuple[str, list[dict[str, str | float]]]:
+    """Validate and project canonical sector provenance into graph rows."""
+
+    allowed_statuses = {
+        "available",
+        "not_reported",
+        "source_error",
+        "provider_unsupported",
+        "not_applicable",
+    }
+    status = _optional_string(metadata.get("sector_exposures_status"))
+    if status not in allowed_statuses:
+        raise ValueError("Snapshot sector exposure status is missing or invalid.")
+    raw_provenance = metadata.get("field_provenance_json")
+    if not isinstance(raw_provenance, str) or not raw_provenance.strip():
+        raise ValueError("Snapshot field provenance JSON is required for sector projection.")
+    try:
+        provenance = json.loads(raw_provenance)
+    except json.JSONDecodeError as exc:
+        raise ValueError("Snapshot field provenance JSON is invalid.") from exc
+    if not isinstance(provenance, dict):
+        raise ValueError("Snapshot field provenance must be a JSON object.")
+    sector_field = provenance.get("sector_exposures")
+    if not isinstance(sector_field, dict):
+        raise ValueError("Snapshot field provenance must include sector exposures.")
+
+    value = sector_field.get("value")
+    missing_reason = sector_field.get("missing_reason")
+    if status != "available":
+        if value is not None or missing_reason != status:
+            raise ValueError("Snapshot sector exposure status conflicts with field provenance.")
+        return status, []
+    if missing_reason is not None or not isinstance(value, list) or not value:
+        raise ValueError("Available sector exposure provenance must contain a non-empty list.")
+
+    exposures: list[SectorExposure] = []
+    for item in value:
+        if not isinstance(item, dict):
+            raise ValueError("Sector exposure provenance entries must be JSON objects.")
+        exposures.append(
+            SectorExposure.model_validate(
+                {"name": item.get("name"), "weight_pct": item.get("weight_pct")}
+            )
+        )
+    names = [exposure.name.casefold() for exposure in exposures]
+    if len(names) != len(set(names)):
+        raise ValueError("Snapshot sector exposure names must be unique after normalization.")
+    exposures.sort(key=lambda item: (-item.weight_pct, item.name.casefold()))
+    return status, [
+        {"name": exposure.name, "weight_pct": exposure.weight_pct} for exposure in exposures
+    ]
 
 
 def _record_data(record: Any) -> dict[str, Any]:

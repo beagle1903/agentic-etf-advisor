@@ -1,6 +1,6 @@
 {
   "dataset_id": "retrieval-baseline",
-  "version": 2,
+  "version": 3,
   "documents": [
     {
       "source_document": {
@@ -97,6 +97,120 @@
         "fund_family": "Vanguard",
         "category": "Intermediate Core Bond"
       }
+    },
+    {
+      "source_document": {
+        "document_id": "yahoo-finance:SPY:2026-08-28:sectors",
+        "symbol": "SPY",
+        "title": "SPY source-reported sector snapshot",
+        "content": "SPY sector weights are retained as structured source-linked graph context for deterministic evaluation.",
+        "source": "Yahoo Finance",
+        "source_url": "https://finance.yahoo.com/quote/SPY/",
+        "observed_at": "2026-08-28T20:00:00Z",
+        "document_type": "curated_sector_snapshot",
+        "metadata": {
+          "name": "SPDR S&P 500 ETF Trust",
+          "fund_family": "State Street Global Advisors",
+          "category": "Large Blend"
+        }
+      },
+      "graph_context": {
+        "source_document_id": "yahoo-finance:SPY:2026-08-28:sectors",
+        "symbol": "SPY",
+        "etf_name": "SPDR S&P 500 ETF Trust",
+        "fund_family": "State Street Global Advisors",
+        "category": "Large Blend",
+        "sector_exposures_status": "available",
+        "sector_exposures": [
+          {"name": "technology", "weight_pct": 37.4},
+          {"name": "financial_services", "weight_pct": 12.24},
+          {"name": "communication_services", "weight_pct": 9.91},
+          {"name": "consumer_cyclical", "weight_pct": 9.57},
+          {"name": "healthcare", "weight_pct": 9.1},
+          {"name": "industrials", "weight_pct": 8.16},
+          {"name": "consumer_defensive", "weight_pct": 4.61},
+          {"name": "energy", "weight_pct": 3.36},
+          {"name": "utilities", "weight_pct": 2.15},
+          {"name": "realestate", "weight_pct": 1.88},
+          {"name": "basic_materials", "weight_pct": 1.62}
+        ]
+      }
+    },
+    {
+      "source_document": {
+        "document_id": "yahoo-finance:VTI:2026-08-28:sectors",
+        "symbol": "VTI",
+        "title": "VTI source-reported sector snapshot",
+        "content": "VTI sector weights are retained as structured source-linked graph context for deterministic evaluation.",
+        "source": "Yahoo Finance",
+        "source_url": "https://finance.yahoo.com/quote/VTI/",
+        "observed_at": "2026-08-28T20:00:00Z",
+        "document_type": "curated_sector_snapshot",
+        "metadata": {
+          "name": "Vanguard Total Stock Market ETF",
+          "fund_family": "Vanguard",
+          "category": "Large Blend"
+        }
+      },
+      "graph_context": {
+        "source_document_id": "yahoo-finance:VTI:2026-08-28:sectors",
+        "symbol": "VTI",
+        "etf_name": "Vanguard Total Stock Market ETF",
+        "fund_family": "Vanguard",
+        "category": "Large Blend",
+        "sector_exposures_status": "available",
+        "sector_exposures": [
+          {"name": "technology", "weight_pct": 35.06},
+          {"name": "financial_services", "weight_pct": 12.55},
+          {"name": "healthcare", "weight_pct": 9.85},
+          {"name": "industrials", "weight_pct": 9.62},
+          {"name": "consumer_cyclical", "weight_pct": 9.49},
+          {"name": "communication_services", "weight_pct": 9.15},
+          {"name": "consumer_defensive", "weight_pct": 4.39},
+          {"name": "energy", "weight_pct": 3.54},
+          {"name": "realestate", "weight_pct": 2.39},
+          {"name": "utilities", "weight_pct": 2.13},
+          {"name": "basic_materials", "weight_pct": 1.84}
+        ]
+      }
+    },
+    {
+      "source_document": {
+        "document_id": "yahoo-finance:QQQ:2026-08-28:sectors",
+        "symbol": "QQQ",
+        "title": "QQQ source-reported sector snapshot",
+        "content": "QQQ sector weights are retained as structured source-linked graph context for deterministic evaluation.",
+        "source": "Yahoo Finance",
+        "source_url": "https://finance.yahoo.com/quote/QQQ/",
+        "observed_at": "2026-08-28T20:00:00Z",
+        "document_type": "curated_sector_snapshot",
+        "metadata": {
+          "name": "Invesco QQQ Trust",
+          "fund_family": "Invesco",
+          "category": "Large Growth"
+        }
+      },
+      "graph_context": {
+        "source_document_id": "yahoo-finance:QQQ:2026-08-28:sectors",
+        "symbol": "QQQ",
+        "etf_name": "Invesco QQQ Trust",
+        "fund_family": "Invesco",
+        "category": "Large Growth",
+        "sector_exposures_status": "available",
+        "sector_exposures": [
+          {"name": "technology", "weight_pct": 57.95},
+          {"name": "communication_services", "weight_pct": 13.56},
+          {"name": "consumer_cyclical", "weight_pct": 11.21},
+          {"name": "consumer_defensive", "weight_pct": 6.66},
+          {"name": "industrials", "weight_pct": 3.85},
+          {"name": "healthcare", "weight_pct": 3.8},
+          {"name": "utilities", "weight_pct": 1.19},
+          {"name": "basic_materials", "weight_pct": 1.02},
+          {"name": "energy", "weight_pct": 0.54},
+          {"name": "financial_services", "weight_pct": 0.23},
+          {"name": "realestate", "weight_pct": 0.0}
+        ]
+      }
     }
   ],
   "cases": [
@@ -183,6 +297,48 @@
           "etf_name": "Vanguard Total Bond Market ETF",
           "fund_family": "Vanguard",
           "category": "Intermediate Core Bond"
+        }
+      ]
+    },
+    {
+      "case_id": "technology-sector-threshold",
+      "query": "ETF technology exposure at or above forty percent",
+      "semantic_candidates": [
+        {"document_id": "yahoo-finance:QQQ:2026-08-28:sectors", "distance": 0.07},
+        {"document_id": "yahoo-finance:SPY:2026-08-28:sectors", "distance": 0.08},
+        {"document_id": "yahoo-finance:VTI:2026-08-28:sectors", "distance": 0.1}
+      ],
+      "relevant_document_ids": ["yahoo-finance:QQQ:2026-08-28:sectors"],
+      "expected_graph_contexts": [
+        {
+          "source_document_id": "yahoo-finance:QQQ:2026-08-28:sectors",
+          "symbol": "QQQ",
+          "etf_name": "Invesco QQQ Trust",
+          "fund_family": "Invesco",
+          "category": "Large Growth",
+          "sector_exposures_status": "available",
+          "sector_exposures": [
+            {"name": "technology", "weight_pct": 57.95},
+            {"name": "communication_services", "weight_pct": 13.56},
+            {"name": "consumer_cyclical", "weight_pct": 11.21},
+            {"name": "consumer_defensive", "weight_pct": 6.66},
+            {"name": "industrials", "weight_pct": 3.85},
+            {"name": "healthcare", "weight_pct": 3.8},
+            {"name": "utilities", "weight_pct": 1.19},
+            {"name": "basic_materials", "weight_pct": 1.02},
+            {"name": "energy", "weight_pct": 0.54},
+            {"name": "financial_services", "weight_pct": 0.23},
+            {"name": "realestate", "weight_pct": 0.0}
+          ]
+        }
+      ],
+      "sector_constraint_judgments": [
+        {
+          "sector": "Technology",
+          "minimum_weight_pct": 40.0,
+          "expected_matching_document_ids": [
+            "yahoo-finance:QQQ:2026-08-28:sectors"
+          ]
         }
       ]
     }

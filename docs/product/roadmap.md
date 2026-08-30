@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-012
+## Proven baseline: iterations 000-013
 
 The repository already proves the following vertical slices:
 
@@ -27,6 +27,8 @@ The repository already proves the following vertical slices:
   numeric support, and prompt injection.
 - A curated six-ETF research universe with field-level provenance, explicit missingness, stable
   snapshot digests, and graph-authoritative cross-store activation.
+- Measured source-linked sector relationships that provide structured threshold context without
+  changing semantic ranking; unmeasured graph expansions remain deferred.
 
 This is a strong research and review foundation, but it is not yet a complete portfolio
 advisor. It does not build an ETF portfolio, validate all portfolio constraints, authenticate
@@ -62,7 +64,7 @@ Acceptance gate:
   intact.
 - Keep Yahoo/yfinance development-only and retain a replaceable path to licensed data.
 
-### Iteration 013: measured graph and retrieval improvement
+### Iteration 013: measured graph and retrieval improvement (complete)
 
 Expand relationships only where the richer data can demonstrate decision value.
 

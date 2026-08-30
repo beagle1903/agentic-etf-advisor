@@ -14,7 +14,7 @@ from etf_advisor.rag.evidence import (
     build_candidate_query,
     select_candidate_evidence,
 )
-from etf_advisor.rag.models import GraphContext, GraphEnrichedSource
+from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, SectorExposure
 
 CHECKED_AT = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
 
@@ -122,6 +122,31 @@ def test_stale_source_blocks_review_evidence_and_retains_health_details() -> Non
     assert results.health.observations[0].status == "stale"
     assert results.health.observations[0].source_url.endswith("/SPY/")
     assert any("every observation is current" in error for error in results.errors)
+
+
+def test_available_sector_context_is_preserved_without_claiming_screening() -> None:
+    context = GraphContext(
+        source_document_id="doc-spy-11",
+        symbol="SPY",
+        etf_name="SPDR S&P 500 ETF Trust",
+        sector_exposures_status="available",
+        sector_exposures=[SectorExposure(name="technology", weight_pct=37.4)],
+    )
+
+    results = select_candidate_evidence(
+        profile(excluded_sectors=["technology"]),
+        [source("SPY", graph_context=context)],
+        query="technology exclusion evidence",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert results.status == EvidenceStatus.READY
+    assert results.candidates[0].graph_context == context
+    assert any(
+        "available for every candidate" in warning and "no exclusion claim" in warning
+        for warning in results.warnings
+    )
 
 
 def test_future_source_blocks_review_evidence() -> None:
