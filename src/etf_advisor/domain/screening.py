@@ -121,6 +121,35 @@ class ScreeningRuleResult(BaseModel):
     observed_value: str | float | None = None
     threshold: str | float | None = None
     citation: ScreeningCitation | None = None
+    unresolved_exclusions: list[str] = Field(default_factory=list, max_length=25)
+
+    @field_validator("unresolved_exclusions")
+    @classmethod
+    def normalize_unresolved_exclusions(cls, values: list[str]) -> list[str]:
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for value in values:
+            item = value.strip()
+            key = item.casefold()
+            if not item or len(item) > 200:
+                raise ValueError("Unresolved exclusions must be non-empty and at most 200 chars.")
+            if key not in seen:
+                normalized.append(item)
+                seen.add(key)
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_unresolved_exclusions(self) -> ScreeningRuleResult:
+        if self.unresolved_exclusions and self.criterion != ScreeningCriterion.SECTOR_EXCLUSIONS:
+            raise ValueError("Only the sector-exclusion rule can retain unresolved exclusions.")
+        if self.unresolved_exclusions and self.verdict == ScreeningVerdict.PASS:
+            raise ValueError("A passing rule cannot retain unresolved exclusions.")
+        if (
+            self.reason_code == ScreeningReason.UNSUPPORTED_SECTOR_EXCLUSION
+            and not self.unresolved_exclusions
+        ):
+            raise ValueError("Unsupported sector exclusions must be retained explicitly.")
+        return self
 
 
 class CandidateScreeningResult(BaseModel):
@@ -483,17 +512,6 @@ def _sector_rule(
         else _candidate_citation(candidate, "sector_exposures")
     )
     requested, unsupported = _normalize_requested_sectors(excluded_sectors)
-    if unsupported:
-        return ScreeningRuleResult(
-            criterion=ScreeningCriterion.SECTOR_EXCLUSIONS,
-            verdict=ScreeningVerdict.UNKNOWN,
-            reason_code=ScreeningReason.UNSUPPORTED_SECTOR_EXCLUSION,
-            message="One or more exclusions are outside the available sector taxonomy.",
-            observed_value=", ".join(unsupported),
-            threshold=f"greater than {tolerance:g}%",
-            citation=citation,
-        )
-
     context = candidate.graph_context
     if (
         context is None
@@ -514,6 +532,7 @@ def _sector_rule(
             observed_value=missing_status,
             threshold=f"greater than {tolerance:g}%",
             citation=citation,
+            unresolved_exclusions=excluded_sectors,
         )
 
     source_exposures = _weighted_exposures(candidate, provenance.value)
@@ -533,14 +552,29 @@ def _sector_rule(
     }
     if detected:
         details = ", ".join(f"{name}={weight:g}%" for name, weight in sorted(detected.items()))
+        message = "Reported exposure exceeds the tolerance for an excluded sector."
+        if unsupported:
+            message += " Other exclusions remain unresolved outside the sector taxonomy."
         return ScreeningRuleResult(
             criterion=ScreeningCriterion.SECTOR_EXCLUSIONS,
             verdict=ScreeningVerdict.FAIL,
             reason_code=ScreeningReason.EXCLUDED_SECTOR_DETECTED,
-            message="Reported exposure exceeds the tolerance for an excluded sector.",
+            message=message,
             observed_value=details,
             threshold=f"greater than {tolerance:g}%",
             citation=citation,
+            unresolved_exclusions=unsupported,
+        )
+    if unsupported:
+        return ScreeningRuleResult(
+            criterion=ScreeningCriterion.SECTOR_EXCLUSIONS,
+            verdict=ScreeningVerdict.UNKNOWN,
+            reason_code=ScreeningReason.UNSUPPORTED_SECTOR_EXCLUSION,
+            message="One or more exclusions are outside the available sector taxonomy.",
+            observed_value=", ".join(unsupported),
+            threshold=f"greater than {tolerance:g}%",
+            citation=citation,
+            unresolved_exclusions=unsupported,
         )
     return ScreeningRuleResult(
         criterion=ScreeningCriterion.SECTOR_EXCLUSIONS,

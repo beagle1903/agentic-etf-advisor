@@ -270,6 +270,8 @@ def _render_screening(st: Any, bundle: dict[str, Any]) -> None:
             for rule in candidate["rules"]:
                 st.write(f"{rule['criterion']}: {rule['verdict']} · {rule['reason_code']}")
                 st.caption(rule["message"])
+                if rule.get("unresolved_exclusions"):
+                    st.caption("Unresolved exclusions: " + ", ".join(rule["unresolved_exclusions"]))
                 citation = rule.get("citation")
                 if citation:
                     st.link_button(

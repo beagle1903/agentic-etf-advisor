@@ -31,9 +31,10 @@ canonical sector field before applying exclusions. Use a closed provider-sector 
 documented common aliases; an exclusion outside that taxonomy is `unknown`, not a pass.
 
 Preserve retrieval order and emit stable reason codes plus exact source URLs and observation
-timestamps. Do not ask a model to apply rules or rank candidates. Recompute the complete screening
-bundle from evidence at the dashboard presentation boundary so a forged or stale checkpoint
-cannot change a rule result silently.
+timestamps. When a supported exclusion fails alongside an unsupported term, retain the unsupported
+term as structured unresolved evidence while failure takes precedence. Do not ask a model to apply
+rules or rank candidates. Recompute the complete screening bundle from evidence at the dashboard
+presentation boundary so a forged or stale checkpoint cannot change a rule result silently.
 
 ## Consequences
 

@@ -116,6 +116,22 @@ def test_unsupported_industry_exclusion_is_unknown_not_a_false_sector_pass() -> 
     assert rule.verdict == ScreeningVerdict.UNKNOWN
     assert rule.reason_code == ScreeningReason.UNSUPPORTED_SECTOR_EXCLUSION
     assert rule.observed_value == "tobacco"
+    assert rule.unresolved_exclusions == ["tobacco"]
+
+
+def test_supported_exclusion_failure_precedes_unknown_unsupported_term() -> None:
+    evidence = _evidence(
+        excluded_sectors=["tobacco", "technology"],
+        technology_weight_pct=25,
+    )
+
+    rule = screen_candidate_evidence(evidence).candidates[0].rules[-1]
+
+    assert rule.verdict == ScreeningVerdict.FAIL
+    assert rule.reason_code == ScreeningReason.EXCLUDED_SECTOR_DETECTED
+    assert rule.observed_value == "technology=25%"
+    assert rule.unresolved_exclusions == ["tobacco"]
+    assert "remain unresolved" in rule.message
 
 
 def test_missing_sector_evidence_is_unknown() -> None:
@@ -125,6 +141,7 @@ def test_missing_sector_evidence_is_unknown() -> None:
 
     assert rule.verdict == ScreeningVerdict.UNKNOWN
     assert rule.reason_code == ScreeningReason.SECTOR_EXPOSURE_UNKNOWN
+    assert rule.unresolved_exclusions == ["energy"]
 
 
 def test_configurable_policy_changes_only_deterministic_threshold_judgments() -> None:

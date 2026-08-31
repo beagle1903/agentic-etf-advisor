@@ -31,6 +31,8 @@ financial rules, missing-data interpretation, or candidate ranking to a model.
   judgments without changing retrieval order.
 - Requested supported-sector exposure above the configured tolerance fails; missing sector
   evidence and unsupported exclusion terms are unknown rather than passes.
+- A supported-sector failure takes precedence when another requested exclusion is unsupported;
+  unsupported terms remain explicitly unresolved in the same rule result.
 - Missing fee, liquidity, or concentration evidence is unknown with an attributable missing
   reason.
 - Conflicting canonical provenance, flattened metadata, graph context, or persisted screening
@@ -43,7 +45,7 @@ financial rules, missing-data interpretation, or candidate ranking to a model.
 
 ## Verification
 
-- `uv run pytest` passes all 205 offline tests.
+- `uv run pytest` passes all 206 offline tests.
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` passes.
 - `uv run mypy` passes in strict mode.
