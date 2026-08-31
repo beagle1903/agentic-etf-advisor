@@ -156,8 +156,9 @@ def _build_messages(request: ExplanationRequest) -> list[tuple[str, str]]:
         "use policy_reference_index keys and no ETF subjects. Evidence statements use source "
         "document_id values and exact matching symbol subjects. Do not recommend ETFs, claim "
         "suitability, forecast returns or drawdowns, promise outcomes, execute trades, or claim "
-        "that sector exclusions were applied or verified. Source-reported sector exposure may "
-        "be described as evidence only. Do not introduce a numeric value unless it is "
+        "inside the generated explanation that sector exclusions were applied or verified; "
+        "deterministic screening reports those results separately. Source-reported sector "
+        "exposure may be described as evidence only. Do not introduce a numeric value unless it is "
         "present in the exact references cited by that statement. Tradeoffs may use either "
         "grounding basis."
     )

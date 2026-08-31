@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-013
+## Proven baseline: iterations 000-014
 
 The repository already proves the following vertical slices:
 
@@ -29,6 +29,9 @@ The repository already proves the following vertical slices:
   snapshot digests, and graph-authoritative cross-store activation.
 - Measured source-linked sector relationships that provide structured threshold context without
   changing semantic ranking; unmeasured graph expansions remain deferred.
+- Deterministic, source-attributable candidate screening with explicit pass, fail, and unknown
+  reason codes for listing, instrument type, freshness, fees, liquidity, concentration, and
+  supported sector exclusions.
 
 This is a strong research and review foundation, but it is not yet a complete portfolio
 advisor. It does not build an ETF portfolio, validate all portfolio constraints, authenticate
@@ -77,7 +80,7 @@ Acceptance gate:
   retaining each schema expansion.
 - Remove or defer graph complexity that does not earn its operational cost.
 
-### Iteration 014: deterministic candidate screening
+### Iteration 014: deterministic candidate screening (complete)
 
 Turn retrieved research candidates into an auditable eligibility and comparison stage without
 delegating financial rules to the model.

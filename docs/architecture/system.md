@@ -84,9 +84,27 @@ for each symbol and omits mismatched graph context rather than fabricating a rel
 evidence model now exposes normalized source-linked sector weights and explicit availability
 status. The persisted candidate contract independently requires the graph context's source ID and
 normalized symbol to match the candidate, so restored checkpoints and replaceable retrievers
-cannot relabel another ETF's sector weights as citation support. Excluded sectors remain visible as
-an unverified constraint until Iteration 014 applies deterministic pass, fail, and unknown
-screening rules.
+cannot relabel another ETF's sector weights as citation support.
+
+## Deterministic candidate screening
+
+Ready evidence enters a pure, side-effect-free screening stage before optional explanation
+generation. The stage applies the same stable rule sequence to every candidate: US listing, ETF
+type, freshness, expense ratio, average daily volume, top-ten concentration, and requested sector
+exclusions. Rules and candidates use `pass`, `fail`, or `unknown`; missing evidence and exclusions
+outside the available sector taxonomy never become silent passes.
+
+The default research policy uses a maximum 1.0% expense ratio, minimum 100,000-share average daily
+volume, maximum 60.0% top-ten concentration, and zero exposure tolerance for a supported requested
+sector. The values are checkpointed, configurable, and explicitly labeled as illustrative filters
+rather than suitability thresholds. Screening preserves Chroma order and does not produce a model
+ranking.
+
+Scalar judgments read canonical field provenance and require its flattened status and value to
+agree. Sector judgments require the source-linked Neo4j weights to match the canonical sector
+field exactly. Every result carries a stable reason code, observed value, threshold, source URL,
+and observation timestamp. The dashboard recomputes the bundle from evidence before rendering,
+which prevents persisted or replacement data from silently relabeling a result.
 
 ## Retrieval evaluation
 
@@ -151,10 +169,11 @@ blocked generation-error state with no review-ready draft.
 3. Fetch and validate timestamped market/reference data.
 4. Calculate deterministic portfolio constraints and illustrative policy ranges.
 5. Retrieve and validate source-grounded ETF evidence.
-6. Draft a source-grounded explanation.
-7. Run rule-based and evaluation guardrails.
-8. Pause for human review.
-9. Finalize, revise, or reject.
+6. Apply deterministic candidate screening and retain pass, fail, and unknown reasons.
+7. Draft a source-grounded explanation.
+8. Run rule-based and evaluation guardrails.
+9. Pause for human review.
+10. Finalize, revise, or reject.
 
 ## State and side effects
 
@@ -191,7 +210,9 @@ only that exact thread from a newly compiled graph; the UI does not enumerate sa
 Both modes render policy, evidence, and explanation fields from the interrupt rather than
 recalculating them. Before rendering, a typed presentation contract revalidates every nested field,
 policy/evidence consistency, and the identity, URL, and timestamp of explanation citations against
-the validated evidence records. Contract failures show a controlled error without review controls.
+the validated evidence records. It also recomputes deterministic candidate screening from the
+evidence and checkpointed policy before accepting the comparison table. Contract failures show a
+controlled error without review controls.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.

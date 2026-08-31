@@ -135,9 +135,13 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     assert paused["status"] == "awaiting_human_review"
     assert paused["candidate_evidence"]["status"] == "ready"
     assert paused["candidate_evidence"]["candidates"][0]["symbol"] == "SPY"
+    assert paused["candidate_screening"]["status"] == "ready"
+    assert paused["candidate_screening"]["candidates"][0]["verdict"] == "unknown"
     assert paused["__interrupt__"][0].value["candidate_evidence"] == paused["candidate_evidence"]
+    assert paused["__interrupt__"][0].value["candidate_screening"] == paused["candidate_screening"]
     assert "source evidence" in paused["__interrupt__"][0].value["question"].lower()
     json.dumps(paused["candidate_evidence"])
+    json.dumps(paused["candidate_screening"])
 
     completed = graph.invoke(
         Command(resume={"action": "approve"}),
@@ -145,7 +149,7 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     )
 
     assert completed["status"] == "approved"
-    assert completed["final_message"].startswith("Policy draft and source evidence approved")
+    assert completed["final_message"].startswith("Candidate screening")
     assert "No ETF recommendation or trade" in completed["final_message"]
 
 
@@ -205,6 +209,34 @@ def test_explanation_failure_stops_before_human_review() -> None:
     assert result["draft_explanation"] == {}
     assert result["explanation_errors"] == [
         {"type": "generation_error", "message": "provider unavailable"}
+    ]
+    assert "__interrupt__" not in result
+
+
+def test_screening_contract_failure_stops_before_explanation_or_review() -> None:
+    class TamperedRetriever:
+        def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+            bundle = _current_evidence_retriever().retrieve(profile, limit=limit)
+            bundle.candidates[0].metadata["field_provenance_json"] = "{not-json"
+            return bundle
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=TamperedRetriever(),
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "screening-contract-failure"}},
+    )
+
+    assert result["status"] == "screening_blocked"
+    assert result["candidate_screening"] == {}
+    assert result["screening_errors"] == [
+        {
+            "type": "screening_contract",
+            "message": "Candidate screening failed source or policy contract validation.",
+        }
     ]
     assert "__interrupt__" not in result
 
@@ -336,6 +368,8 @@ def test_retrieval_failure_stops_before_human_review() -> None:
 
     assert result["status"] == "evidence_blocked"
     assert result["candidate_evidence"] == {}
+    assert result["candidate_screening"] == {}
+    assert result["screening_errors"] == []
     assert result["evidence_errors"] == [
         {"type": "retrieval_error", "message": "source service unavailable"}
     ]
@@ -375,6 +409,8 @@ def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure()
 
     assert second_result["status"] == "evidence_blocked"
     assert second_result["candidate_evidence"] == {}
+    assert second_result["candidate_screening"] == {}
+    assert second_result["screening_errors"] == []
     assert second_result["evidence_errors"] == [
         {"type": "retrieval_error", "message": "Source evidence retrieval failed."}
     ]

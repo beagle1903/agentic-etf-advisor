@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
@@ -17,9 +17,10 @@ from etf_advisor.dashboard import (
     parse_excluded_sectors,
     review_payload,
 )
-from etf_advisor.dashboard_app import _render_run
+from etf_advisor.dashboard_app import _render_run, _render_screening
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.screening import screen_candidate_evidence
 from etf_advisor.rag.evidence import select_candidate_evidence
 from etf_advisor.rag.models import GraphEnrichedSource
 
@@ -102,6 +103,7 @@ def paused_state_with_evidence_and_explanation() -> dict[str, Any]:
         max_age=timedelta(hours=24),
     )
     payload["candidate_evidence"] = evidence.model_dump(mode="json")
+    payload["candidate_screening"] = screen_candidate_evidence(evidence).model_dump(mode="json")
     payload["draft_explanation"] = {
         "status": "ready",
         "provider": "test",
@@ -175,6 +177,7 @@ def test_review_payload_rejects_missing_or_unsupported_interrupts() -> None:
         ("allowed_actions", ["approve", "approve", "reject"]),
         ("draft_policy", {"target_allocation": {}}),
         ("candidate_evidence", {"status": "ready"}),
+        ("candidate_screening", {"status": "ready"}),
         ("draft_explanation", {"status": "ready"}),
     ],
 )
@@ -210,9 +213,59 @@ def test_renderer_reports_malformed_review_payload_without_crashing() -> None:
     assert st.errors == ["The workflow returned an invalid review contract."]
 
 
+def test_screening_renderer_shows_comparison_reasons_and_source_links() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.rows: list[dict[str, str]] = []
+            self.links: list[str] = []
+
+        def subheader(self, message: str) -> None:
+            pass
+
+        def caption(self, message: str) -> None:
+            pass
+
+        def dataframe(self, rows: list[dict[str, str]], **kwargs: object) -> None:
+            self.rows = rows
+
+        def expander(self, label: str) -> Any:
+            return nullcontext()
+
+        def write(self, message: str) -> None:
+            pass
+
+        def link_button(self, label: str, url: str) -> None:
+            self.links.append(url)
+
+    payload = paused_state_with_evidence_and_explanation()["__interrupt__"][0].value
+    st = FakeStreamlit()
+
+    _render_screening(st, payload["candidate_screening"])
+
+    assert st.rows == [
+        {
+            "Symbol": "SPY",
+            "Result": "unknown",
+            "Failed rules": "—",
+            "Unknown rules": ("expense_ratio_unknown, volume_unknown, concentration_unknown"),
+        }
+    ]
+    assert st.links
+    assert set(st.links) == {"https://finance.yahoo.com/quote/SPY/"}
+
+
 def test_review_payload_requires_evidence_to_match_policy_constraints() -> None:
     state = paused_state_with_evidence_and_explanation()
     state["__interrupt__"][0].value["candidate_evidence"]["objective"] = "growth"
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+def test_review_payload_recomputes_screening_from_evidence() -> None:
+    state = paused_state_with_evidence_and_explanation()
+    screening = state["__interrupt__"][0].value["candidate_screening"]
+    screening["candidates"][0]["rules"][3]["reason_code"] = "expense_ratio_within_limit"
 
     with pytest.raises(ValueError, match="failed contract validation"):
         review_payload(state)

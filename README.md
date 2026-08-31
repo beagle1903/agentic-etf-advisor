@@ -11,7 +11,8 @@ freshness-checked source-evidence bundle and grounded provider explanation to th
 interrupt. A versioned six-ETF research universe now retains field-level provenance and explicit
 missingness and activates one verified Chroma/Neo4j snapshot for hybrid retrieval. Measured
 source-linked sector relationships add structured threshold context without changing semantic
-ranking.
+ranking. A deterministic comparison stage now turns attributable candidate facts into explicit
+pass, fail, and unknown rule results before human review.
 
 > [!IMPORTANT]
 > This project is educational software, not personalized financial, tax, or legal advice.
@@ -155,6 +156,15 @@ requires source-reported ETF and US-market metadata before review. Missing, malf
 non-ETF, non-US, stale, or future-dated evidence stops the workflow before the interrupt. The
 evidence bundle is research context only; it does not select ETFs, allocate money, or execute
 trades.
+
+Before review, ready evidence passes through deterministic candidate screening. The same rules
+check US listing, ETF type, freshness, expense ratio, average daily volume, top-ten concentration,
+and supported sector exclusions. Results preserve retrieval order and include stable reason codes,
+thresholds, field source URLs, and observation timestamps. Missing evidence and exclusion terms
+outside the available sector taxonomy remain `unknown`; they never become silent passes. The
+default 1.0% expense-ratio maximum, 100,000-share volume minimum, 60.0% top-ten concentration
+maximum, and zero sector-exposure tolerance are configurable illustrative research filters, not
+suitability thresholds or an ETF ranking.
 
 Install the optional provider adapters and generate a structured explanation from the policy
 and ready evidence:

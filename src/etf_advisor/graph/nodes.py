@@ -7,6 +7,11 @@ from pydantic import ValidationError
 
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.screening import (
+    CandidateScreeningBundle,
+    CandidateScreeningPolicy,
+    screen_candidate_evidence,
+)
 from etf_advisor.explanation import (
     ExplanationGenerationError,
     ExplanationGenerator,
@@ -35,6 +40,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
             "draft_policy": {},
             "candidate_evidence": {},
             "evidence_errors": [],
+            "candidate_screening": {},
+            "screening_errors": [],
             "draft_explanation": {},
             "explanation_errors": [],
             "review_decision": {},
@@ -48,6 +55,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
         "draft_policy": {},
         "candidate_evidence": {},
         "evidence_errors": [],
+        "candidate_screening": {},
+        "screening_errors": [],
         "draft_explanation": {},
         "explanation_errors": [],
         "review_decision": {},
@@ -130,6 +139,31 @@ def retrieve_candidate_evidence(
     }
 
 
+def screen_candidates(
+    state: AdvisorState,
+    *,
+    policy: CandidateScreeningPolicy,
+) -> AdvisorState:
+    """Apply pure candidate rules before explanation generation or human review."""
+
+    try:
+        evidence = CandidateEvidenceBundle.model_validate(state["candidate_evidence"])
+        screening = screen_candidate_evidence(evidence, policy)
+        validated = CandidateScreeningBundle.model_validate(screening.model_dump(mode="python"))
+    except (KeyError, AttributeError, TypeError, ValueError, ValidationError):
+        message = "Candidate screening failed source or policy contract validation."
+        return {
+            "candidate_screening": {},
+            "screening_errors": [{"type": "screening_contract", "message": message}],
+            "status": "screening_blocked",
+        }
+    return {
+        "candidate_screening": validated.model_dump(mode="json"),
+        "screening_errors": [],
+        "status": "awaiting_human_review",
+    }
+
+
 def draft_explanation(
     state: AdvisorState,
     *,
@@ -175,16 +209,20 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
 
     candidate_evidence = state.get("candidate_evidence", {})
     has_ready_evidence = candidate_evidence.get("status") == EvidenceStatus.READY
+    candidate_screening = state.get("candidate_screening", {})
+    has_ready_screening = candidate_screening.get("status") == "ready"
     draft_explanation = state.get("draft_explanation", {})
     has_ready_explanation = draft_explanation.get("status") == "ready"
     review_payload: dict[str, Any] = {
         "kind": "portfolio_policy_review",
         "question": (
-            "Approve this grounded explanation, policy draft, and source evidence?"
+            "Approve this grounded explanation, candidate screening, policy draft, "
+            "and source evidence?"
             if has_ready_explanation
             else (
-                "Approve this policy draft and its source evidence before finalization?"
-                if has_ready_evidence
+                "Approve this candidate screening, policy draft, and source evidence "
+                "before finalization?"
+                if has_ready_evidence and has_ready_screening
                 else "Approve this policy draft before finalization?"
             )
         ),
@@ -193,6 +231,8 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
     }
     if has_ready_evidence:
         review_payload["candidate_evidence"] = candidate_evidence
+    if has_ready_screening:
+        review_payload["candidate_screening"] = candidate_screening
     if has_ready_explanation:
         review_payload["draft_explanation"] = draft_explanation
     decision = interrupt(review_payload)
@@ -210,16 +250,19 @@ def finalize_review(state: AdvisorState) -> AdvisorState:
         has_ready_evidence = (
             state.get("candidate_evidence", {}).get("status") == EvidenceStatus.READY
         )
+        has_ready_screening = state.get("candidate_screening", {}).get("status") == "ready"
         has_ready_explanation = state.get("draft_explanation", {}).get("status") == "ready"
         return {
             "status": "approved",
             "final_message": (
                 (
-                    "Grounded explanation, policy draft, and source evidence approved. "
+                    "Grounded explanation, candidate screening, policy draft, and source "
+                    "evidence approved. "
                     if has_ready_explanation
                     else (
-                        "Policy draft and source evidence approved for the next research stage. "
-                        if has_ready_evidence
+                        "Candidate screening, policy draft, and source evidence approved "
+                        "for the next research stage. "
+                        if has_ready_evidence and has_ready_screening
                         else "Policy draft approved for the next research stage. "
                     )
                 )

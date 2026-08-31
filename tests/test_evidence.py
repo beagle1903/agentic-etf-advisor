@@ -125,7 +125,7 @@ def test_stale_source_blocks_review_evidence_and_retains_health_details() -> Non
     assert any("every observation is current" in error for error in results.errors)
 
 
-def test_available_sector_context_is_preserved_without_claiming_screening() -> None:
+def test_available_sector_context_is_preserved_for_deterministic_validation() -> None:
     context = GraphContext(
         source_document_id="doc-spy-11",
         symbol="SPY",
@@ -145,7 +145,7 @@ def test_available_sector_context_is_preserved_without_claiming_screening() -> N
     assert results.status == EvidenceStatus.READY
     assert results.candidates[0].graph_context == context
     assert any(
-        "available for every candidate" in warning and "no exclusion claim" in warning
+        "attached for deterministic sector exclusions validation" in warning
         for warning in results.warnings
     )
 

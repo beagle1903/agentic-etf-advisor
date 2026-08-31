@@ -162,6 +162,8 @@ def _render_run(st: Any, run: DashboardRun) -> None:
         st.subheader("Human review")
         st.write(payload["question"])
         _render_policy(st, payload["draft_policy"])
+        if "candidate_screening" in payload:
+            _render_screening(st, payload["candidate_screening"])
         if "candidate_evidence" in payload:
             _render_evidence(st, payload["candidate_evidence"])
         if "draft_explanation" in payload:
@@ -178,6 +180,7 @@ def _render_run(st: Any, run: DashboardRun) -> None:
         errors = [
             *state.get("validation_errors", []),
             *state.get("evidence_errors", []),
+            *state.get("screening_errors", []),
             *state.get("explanation_errors", []),
         ]
         if errors:
@@ -230,6 +233,49 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
             right.write(f"Observed: {candidate['observed_at']}")
             st.text(candidate["content"])
             st.link_button("Open source", candidate["source_url"])
+
+
+def _render_screening(st: Any, bundle: dict[str, Any]) -> None:
+    st.subheader("Deterministic candidate screening")
+    policy = bundle["policy"]
+    st.caption(
+        "Illustrative research filters — not suitability thresholds or an ETF ranking. "
+        f"Expense ratio ≤ {policy['max_expense_ratio_pct']:g}%, "
+        f"average daily volume ≥ {policy['min_average_daily_volume']:g}, "
+        f"top-ten concentration ≤ {policy['max_top_10_concentration_pct']:g}%."
+    )
+    st.dataframe(
+        [
+            {
+                "Symbol": candidate["symbol"],
+                "Result": candidate["verdict"],
+                "Failed rules": ", ".join(
+                    rule["reason_code"] for rule in candidate["rules"] if rule["verdict"] == "fail"
+                )
+                or "—",
+                "Unknown rules": ", ".join(
+                    rule["reason_code"]
+                    for rule in candidate["rules"]
+                    if rule["verdict"] == "unknown"
+                )
+                or "—",
+            }
+            for candidate in bundle["candidates"]
+        ],
+        hide_index=True,
+        width="stretch",
+    )
+    for candidate in bundle["candidates"]:
+        with st.expander(f"{candidate['symbol']} screening details"):
+            for rule in candidate["rules"]:
+                st.write(f"{rule['criterion']}: {rule['verdict']} · {rule['reason_code']}")
+                st.caption(rule["message"])
+                citation = rule.get("citation")
+                if citation:
+                    st.link_button(
+                        f"Source · {citation['field_name']} · {citation['observed_at']}",
+                        citation["source_url"],
+                    )
 
 
 def _render_explanation(st: Any, bundle: dict[str, Any]) -> None:
