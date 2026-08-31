@@ -4,6 +4,7 @@ from typing import Any, Literal
 
 from langgraph.graph import END, START, StateGraph
 
+from etf_advisor.domain.screening import DEFAULT_SCREENING_POLICY, CandidateScreeningPolicy
 from etf_advisor.explanation import ExplanationGenerator
 from etf_advisor.graph.nodes import (
     draft_explanation,
@@ -11,6 +12,7 @@ from etf_advisor.graph.nodes import (
     finalize_review,
     request_human_review,
     retrieve_candidate_evidence,
+    screen_candidates,
     validate_profile,
 )
 from etf_advisor.graph.state import AdvisorState
@@ -27,6 +29,7 @@ def build_graph(
     candidate_retriever: CandidateEvidenceRetriever | None = None,
     candidate_limit: int = 5,
     explanation_generator: ExplanationGenerator | None = None,
+    screening_policy: CandidateScreeningPolicy = DEFAULT_SCREENING_POLICY,
 ) -> Any:
     """Build the workflow with optional, explicitly injected source evidence."""
 
@@ -34,6 +37,9 @@ def build_graph(
         raise ValueError(f"candidate_limit must be between 1 and {MAX_CANDIDATE_LIMIT}.")
     if explanation_generator is not None and candidate_retriever is None:
         raise ValueError("An explanation generator requires a candidate evidence retriever.")
+    validated_screening_policy = CandidateScreeningPolicy.model_validate(
+        screening_policy.model_dump(mode="python")
+    )
 
     builder = StateGraph(AdvisorState)
     builder.add_node("validate_profile", validate_profile)
@@ -46,6 +52,10 @@ def build_graph(
                 retriever=candidate_retriever,
                 limit=candidate_limit,
             ),
+        )
+        builder.add_node(
+            "screen_candidates",
+            lambda state: screen_candidates(state, policy=validated_screening_policy),
         )
     if explanation_generator is not None:
         builder.add_node(
@@ -68,6 +78,14 @@ def build_graph(
         builder.add_conditional_edges(
             "retrieve_candidate_evidence",
             route_after_evidence,
+            {
+                "next": "screen_candidates",
+                "end": END,
+            },
+        )
+        builder.add_conditional_edges(
+            "screen_candidates",
+            route_after_screening,
             {
                 "next": (
                     "draft_explanation" if explanation_generator is not None else "human_review"
@@ -93,6 +111,10 @@ def route_after_evidence(state: AdvisorState) -> Literal["next", "end"]:
 
 def route_after_explanation(state: AdvisorState) -> Literal["human_review", "end"]:
     return "human_review" if state.get("status") == "awaiting_human_review" else "end"
+
+
+def route_after_screening(state: AdvisorState) -> Literal["next", "end"]:
+    return "next" if state.get("status") == "awaiting_human_review" else "end"
 
 
 graph = build_graph()

@@ -18,6 +18,7 @@ from etf_advisor.checkpoint import (
 from etf_advisor.clock import system_utc_now
 from etf_advisor.config import settings
 from etf_advisor.domain.policy import PolicyCalculation
+from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
 from etf_advisor.explanation import ExplanationBundle
 from etf_advisor.explanation.provider import create_explanation_generator
 from etf_advisor.graph.workflow import build_graph
@@ -62,6 +63,7 @@ class ReviewPayload(BaseModel):
     allowed_actions: list[ReviewAction] = Field(min_length=3, max_length=3)
     draft_policy: PolicyCalculation
     candidate_evidence: CandidateEvidenceBundle | None = None
+    candidate_screening: CandidateScreeningBundle | None = None
     draft_explanation: ExplanationBundle | None = None
 
     @field_validator("question")
@@ -78,6 +80,7 @@ class ReviewPayload(BaseModel):
             raise ValueError("Review actions must contain approve, edit, and reject exactly once.")
 
         evidence = self.candidate_evidence
+        screening = self.candidate_screening
         explanation = self.draft_explanation
         if evidence is not None:
             if evidence.status != EvidenceStatus.READY:
@@ -88,6 +91,13 @@ class ReviewPayload(BaseModel):
                 raise ValueError("Review evidence risk tolerance must match the policy draft.")
             if evidence.excluded_sectors != self.draft_policy.excluded_sectors:
                 raise ValueError("Review evidence exclusions must match the policy draft.")
+
+        if (evidence is None) != (screening is None):
+            raise ValueError("Review evidence and candidate screening must appear together.")
+        if evidence is not None and screening is not None:
+            expected_screening = screen_candidate_evidence(evidence, screening.policy)
+            if screening != expected_screening:
+                raise ValueError("Review screening must match recomputed source evidence rules.")
 
         if explanation is not None:
             if evidence is None:

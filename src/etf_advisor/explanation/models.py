@@ -318,20 +318,10 @@ def validate_and_bundle_explanation(
         ),
     ]
     if request.profile.excluded_sectors:
-        if all(
-            candidate.graph_context is not None
-            and candidate.graph_context.sector_exposures_status == "available"
-            for candidate in exposed_candidates(request)
-        ):
-            limitations.append(
-                "Structured sector exposure evidence is available, but exclusion rules have "
-                "not yet been applied or verified."
-            )
-        else:
-            limitations.append(
-                "Current source evidence does not completely verify sector exposures against "
-                "the stated exclusions."
-            )
+        limitations.append(
+            "Sector exclusion results are provided separately by deterministic screening; "
+            "this explanation does not replace or extend those results."
+        )
     return ExplanationBundle(
         provider=validated.provider,
         model=validated.model,

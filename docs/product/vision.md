@@ -11,7 +11,7 @@ risk controls, and explicit human review.
 1. A user supplies goals, horizon, risk tolerance, constraints, and portfolio context.
 2. The system identifies missing or conflicting information.
 3. Retrieval supplies attributable ETF facts and relevant relationship context.
-4. Deterministic calculations produce candidate allocation ranges.
+4. Deterministic rules screen candidates and produce illustrative allocation ranges.
 5. An LLM explains evidence and trade-offs without inventing facts.
 6. The user reviews and can approve, edit, or reject the draft.
 

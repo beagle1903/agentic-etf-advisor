@@ -404,13 +404,13 @@ def select_candidate_evidence(
             for context in sector_contexts
         ):
             warnings.append(
-                "Structured sector exposure evidence is available for every candidate, but "
-                "deterministic exclusion screening is deferred; no exclusion claim is made."
+                "Structured sector exposure context is attached for deterministic sector "
+                "exclusions validation against field provenance."
             )
         else:
             warnings.append(
-                "Sector exclusions remain unverified because one or more candidates lack "
-                "available structured sector exposure evidence."
+                "One or more candidates lack available structured sector exposure context; "
+                "deterministic screening of sector exclusions will preserve an unknown result."
             )
 
     status = EvidenceStatus.READY if candidates and not errors else EvidenceStatus.BLOCKED

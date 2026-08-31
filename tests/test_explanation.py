@@ -123,7 +123,7 @@ def test_valid_explanation_is_bundled_with_deterministic_citations_and_limits() 
     assert bundle.status == "ready"
     assert bundle.citations[0].document_id == "doc-spy"
     assert bundle.citations[0].source_url == "https://finance.yahoo.com/quote/SPY/"
-    assert any("sector exposures" in limitation for limitation in bundle.limitations)
+    assert any("deterministic screening" in limitation for limitation in bundle.limitations)
     json.dumps(bundle.model_dump(mode="json"))
 
 
@@ -223,7 +223,9 @@ def test_numeric_sector_claim_is_supported_by_structured_graph_context() -> None
     )
 
     assert bundle.status == "ready"
-    assert any("rules have not yet been applied" in item for item in bundle.limitations)
+    assert any(
+        "provided separately by deterministic screening" in item for item in bundle.limitations
+    )
 
 
 def test_foreign_sector_context_is_rejected_before_numeric_support_validation() -> None:
