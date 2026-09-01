@@ -180,6 +180,14 @@ policy key or source document ID; unknown citations, mismatched ETF subjects, ma
 explicit guarantees/recommendations/forecasts, and provider failures stop before review.
 Citation URLs and timestamps come from the validated evidence bundle, not from model output.
 
+Output handling is capability-aware and does not hard-code model names. Local Ollama uses
+provider-enforced JSON schema. Direct Ollama Cloud receives the same schema in the prompt and is
+validated locally because its Cloud endpoint does not currently support structured outputs.
+OpenRouter uses strict function calling. A failed provider run reports a redacted category,
+provider, model, method, and optional HTTP status in CLI/dashboard state without exposing
+credentials, prompts, retrieved source content, or raw model responses. Each review attempt makes
+one provider request and does not automatically retry with another output method.
+
 Run the retrieval baseline without credentials, databases, or network access:
 
 ```powershell

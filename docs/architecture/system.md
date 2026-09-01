@@ -144,6 +144,20 @@ Every numeric value in a generated statement must also be present in that statem
 cited policy fields or source records. This deterministic check blocks fabricated fees,
 percentages, amounts, and other numbers without claiming to solve general semantic entailment.
 
+Provider output steering follows the configured endpoint's capability rather than a model-name
+allowlist. Local Ollama uses its JSON-schema `format` support, while direct Ollama Cloud receives an
+explicit output schema in the bounded prompt and returns ordinary text because the Cloud endpoint
+does not currently support structured outputs. The adapter extracts at most one bounded JSON
+object and applies the same Pydantic and deterministic validators locally; raw Cloud text is never
+rendered. OpenRouter continues to use strict function calling. None of these paths automatically
+retry with a second output method.
+
+Provider exceptions are categorized into stable redacted diagnostics: authentication, rate limit,
+unsupported capability, invalid response, unavailability, or other provider error. Graph state may
+retain the category, provider, model, output method, and HTTP status. Credentials, prompts, source
+content, and raw model responses remain outside checkpoints and presentation. The local dashboard
+labels these fields as redacted before rendering them.
+
 ## Explanation evaluation
 
 The first explanation baseline replays one versioned request and eight curated provider outputs

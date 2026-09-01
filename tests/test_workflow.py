@@ -13,6 +13,8 @@ from etf_advisor.explanation import (
     GeneratedExplanation,
     GroundedStatement,
     GroundingBasis,
+    ProviderFailureCode,
+    ProviderFailureDiagnostic,
 )
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import (
@@ -211,6 +213,46 @@ def test_explanation_failure_stops_before_human_review() -> None:
         {"type": "generation_error", "message": "provider unavailable"}
     ]
     assert "__interrupt__" not in result
+
+
+def test_explanation_failure_persists_redacted_provider_diagnostics() -> None:
+    class FailingGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            raise ExplanationGenerationError(
+                "The explanation provider rate limit was reached.",
+                diagnostic=ProviderFailureDiagnostic(
+                    code=ProviderFailureCode.RATE_LIMIT,
+                    provider="ollama",
+                    model="test-cloud-model",
+                    method="function_calling",
+                    http_status=429,
+                ),
+            )
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=FailingGenerator(),
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "explanation-diagnostics"}},
+    )
+
+    assert result["status"] == "explanation_blocked"
+    assert result["explanation_errors"] == [
+        {
+            "type": "generation_error",
+            "message": "The explanation provider rate limit was reached.",
+            "code": "rate_limit",
+            "provider": "ollama",
+            "model": "test-cloud-model",
+            "method": "function_calling",
+            "http_status": 429,
+        }
+    ]
+    json.dumps(result["explanation_errors"])
 
 
 def test_screening_contract_failure_stops_before_explanation_or_review() -> None:

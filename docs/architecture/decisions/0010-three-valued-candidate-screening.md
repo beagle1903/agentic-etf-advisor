@@ -20,7 +20,7 @@ exclusions. Each rule and candidate resolves to `pass`, `fail`, or `unknown`; a 
 precedence over unknown, and unknown takes precedence over pass.
 
 Use explicit, configurable research-policy defaults of a maximum 1.0% expense ratio, minimum
-100,000-share average daily volume, maximum 60.0% top-ten concentration, and zero tolerance above
+100,000 shares/day average daily volume, maximum 60.0% top-ten concentration, and zero tolerance above
 reported weight for a requested sector. These are transparent illustrative filters, not universal
 suitability thresholds, forecasts, or personalized advice. Preserve them in the checkpointed
 screening result so later reviews remain reproducible.

@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
@@ -17,7 +18,13 @@ from etf_advisor.dashboard import (
     parse_excluded_sectors,
     review_payload,
 )
-from etf_advisor.dashboard_app import _render_run, _render_screening
+from etf_advisor.dashboard_app import (
+    _CREATION_ERROR_KEY,
+    _CREATION_IN_PROGRESS_KEY,
+    _render_creation_button,
+    _render_run,
+    _render_screening,
+)
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import screen_candidate_evidence
@@ -159,6 +166,91 @@ def test_dashboard_options_require_evidence_for_explanation() -> None:
         DashboardOptions(with_explanation=True)
 
 
+def test_dashboard_evidence_toggle_unlocks_explanation_in_original_order() -> None:
+    streamlit_testing = pytest.importorskip("streamlit.testing.v1")
+    app_path = Path(__file__).resolve().parents[1] / "src" / "etf_advisor" / "dashboard_app.py"
+    app = streamlit_testing.AppTest.from_file(str(app_path)).run()
+
+    evidence, explanation = app.sidebar.checkbox[:2]
+    sidebar_labels = [getattr(element, "label", None) for element in app.sidebar]
+    assert (
+        sidebar_labels.index("Excluded sectors")
+        < sidebar_labels.index("Attach local source evidence")
+        < sidebar_labels.index("Generate grounded explanation")
+    )
+    assert evidence.proto.form_id == ""
+    assert explanation.proto.form_id == ""
+    assert explanation.disabled is True
+
+    app.sidebar.checkbox[0].set_value(True).run()
+
+    assert app.sidebar.checkbox[1].disabled is False
+
+
+def test_create_review_button_locks_before_creation() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.session_state: dict[str, Any] = {_CREATION_ERROR_KEY: "previous failure"}
+            self.buttons: list[tuple[str, dict[str, Any]]] = []
+            self.captions: list[str] = []
+
+        def button(self, label: str, **kwargs: Any) -> None:
+            self.buttons.append((label, kwargs))
+
+        def caption(self, message: str) -> None:
+            self.captions.append(message)
+
+    st = FakeStreamlit()
+    _render_creation_button(st)
+    label, options = st.buttons[-1]
+
+    assert label == "Create review draft"
+    assert options["disabled"] is False
+    options["on_click"](*options["args"])
+    assert st.session_state[_CREATION_IN_PROGRESS_KEY] is True
+    assert _CREATION_ERROR_KEY not in st.session_state
+
+    _render_creation_button(st)
+
+    assert st.buttons[-1][1]["disabled"] is True
+    assert st.captions == ["Creating review draft…"]
+
+
+def test_create_review_double_click_runs_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    streamlit_testing = pytest.importorskip("streamlit.testing.v1")
+    calls: list[tuple[dict[str, object], DashboardOptions]] = []
+
+    def fake_start_dashboard_run(
+        profile: dict[str, object], options: DashboardOptions
+    ) -> DashboardRun:
+        calls.append((profile, options))
+        return DashboardRun(
+            graph=None,
+            config={"configurable": {"thread_id": "test-thread"}},
+            state={"status": "approved", "final_message": "Created once."},
+        )
+
+    monkeypatch.setattr(dashboard, "start_dashboard_run", fake_start_dashboard_run)
+    app_path = Path(__file__).resolve().parents[1] / "src" / "etf_advisor" / "dashboard_app.py"
+    app = streamlit_testing.AppTest.from_file(str(app_path)).run()
+    create_button = next(
+        button for button in app.sidebar.button if button.label == "Create review draft"
+    )
+
+    create_button.click()
+    create_button.click()
+    app.run()
+
+    assert len(calls) == 1
+    assert (
+        next(
+            button for button in app.sidebar.button if button.label == "Create review draft"
+        ).disabled
+        is False
+    )
+    assert [message.value for message in app.success] == ["Created once."]
+
+
 def test_review_payload_rejects_missing_or_unsupported_interrupts() -> None:
     with pytest.raises(ValueError, match="exactly one"):
         review_payload({"status": "awaiting_human_review"})
@@ -211,6 +303,42 @@ def test_renderer_reports_malformed_review_payload_without_crashing() -> None:
     _render_run(st, DashboardRun(graph=FakeGraph(), config={}, state=state))
 
     assert st.errors == ["The workflow returned an invalid review contract."]
+
+
+def test_renderer_labels_redacted_provider_diagnostics() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.errors: list[str] = []
+            self.captions: list[str] = []
+            self.payloads: list[object] = []
+
+        def error(self, message: str) -> None:
+            self.errors.append(message)
+
+        def caption(self, message: str) -> None:
+            self.captions.append(message)
+
+        def json(self, payload: object) -> None:
+            self.payloads.append(payload)
+
+    diagnostic = {
+        "type": "generation_error",
+        "message": "The selected provider does not support the required method.",
+        "code": "unsupported_capability",
+        "provider": "ollama",
+        "model": "test-cloud-model",
+        "method": "function_calling",
+    }
+    state = {"status": "explanation_blocked", "explanation_errors": [diagnostic]}
+    st = FakeStreamlit()
+
+    _render_run(st, DashboardRun(graph=FakeGraph(), config={}, state=state))
+
+    assert st.errors == ["The workflow stopped before human review."]
+    assert st.payloads == [[diagnostic]]
+    assert len(st.captions) == 1
+    assert "credentials" in st.captions[0]
+    assert "raw model responses" in st.captions[0]
 
 
 def test_screening_renderer_shows_comparison_reasons_and_source_links() -> None:

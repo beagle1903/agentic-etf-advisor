@@ -9,6 +9,8 @@ from etf_advisor.explanation.models import (
     GeneratedExplanation,
     GroundedStatement,
     GroundingBasis,
+    ProviderFailureCode,
+    ProviderFailureDiagnostic,
     build_explanation_request,
     validate_and_bundle_explanation,
 )
@@ -22,6 +24,8 @@ __all__ = [
     "GeneratedExplanation",
     "GroundedStatement",
     "GroundingBasis",
+    "ProviderFailureCode",
+    "ProviderFailureDiagnostic",
     "build_explanation_request",
     "validate_and_bundle_explanation",
 ]

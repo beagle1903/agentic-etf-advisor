@@ -61,6 +61,7 @@ def test_yahoo_research_adapter_builds_rich_field_level_provenance() -> None:
     assert record.benchmark.value == "Example Broad Market Index"
     assert record.expense_ratio_pct.value == 0.03
     assert record.average_daily_volume.value == 10_000_000
+    assert record.average_daily_volume.unit == "shares_per_day"
     assert record.top_holdings.value is not None
     assert record.top_holdings.value[0].weight_pct == 12
     assert record.sector_exposures.value is not None
