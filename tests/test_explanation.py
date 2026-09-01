@@ -10,6 +10,8 @@ from etf_advisor.config import LlmProvider, Settings
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.explanation.models import (
+    ExplanationContractError,
+    ExplanationContractFailureCode,
     ExplanationGenerationError,
     ExplanationRequest,
     ExplanationResult,
@@ -135,8 +137,9 @@ def test_unknown_source_reference_fails_grounding_validation() -> None:
     generated.evidence_points[0].references = ["doc-invented"]
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
-    with pytest.raises(ValueError, match="unknown source reference"):
+    with pytest.raises(ExplanationContractError, match="unknown source reference") as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.UNKNOWN_SOURCE_REFERENCE
 
 
 def test_unknown_policy_reference_fails_grounding_validation() -> None:
@@ -144,8 +147,9 @@ def test_unknown_policy_reference_fails_grounding_validation() -> None:
     generated.policy_points[0].references = ["policy.forecast_return"]
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
-    with pytest.raises(ValueError, match="unknown grounding reference"):
+    with pytest.raises(ExplanationContractError, match="unknown grounding reference") as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.UNKNOWN_POLICY_REFERENCE
 
 
 def test_mismatched_subject_symbol_fails_grounding_validation() -> None:
@@ -153,8 +157,9 @@ def test_mismatched_subject_symbol_fails_grounding_validation() -> None:
     generated.evidence_points[0].subject_symbols = ["QQQ"]
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
-    with pytest.raises(ValueError, match="subjects do not match"):
+    with pytest.raises(ExplanationContractError, match="subjects do not match") as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.SUBJECT_MISMATCH
 
 
 @pytest.mark.parametrize(
@@ -173,8 +178,9 @@ def test_prohibited_financial_claims_fail_before_bundling(prohibited_text: str) 
     generated.evidence_points[0].text = prohibited_text
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
-    with pytest.raises(ValueError, match="prohibited financial claims"):
+    with pytest.raises(ExplanationContractError, match="prohibited financial claims") as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.PROHIBITED_CLAIM
 
 
 def test_negative_guarantee_disclaimer_is_not_treated_as_a_promise() -> None:
@@ -195,8 +201,12 @@ def test_numeric_claim_absent_from_cited_source_fails_support_validation(
     generated.evidence_points[0].text = f"SPY has an expense ratio of {unsupported_value}."
     result = ExplanationResult(provider="test", model="fixed", explanation=generated)
 
-    with pytest.raises(ValueError, match="numeric claim absent from its cited support"):
+    with pytest.raises(
+        ExplanationContractError,
+        match="numeric claim absent from its cited support",
+    ) as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.UNSUPPORTED_NUMERIC_CLAIM
 
 
 def test_numeric_claim_present_in_cited_policy_field_is_allowed() -> None:

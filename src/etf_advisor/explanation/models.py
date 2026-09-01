@@ -88,6 +88,25 @@ class ProviderFailureCode(StrEnum):
     PROVIDER_ERROR = "provider_error"
 
 
+class ExplanationContractFailureCode(StrEnum):
+    """Stable, non-secret categories for local explanation validation failures."""
+
+    PROHIBITED_CLAIM = "prohibited_claim"
+    UNKNOWN_POLICY_REFERENCE = "unknown_policy_reference"
+    UNKNOWN_SOURCE_REFERENCE = "unknown_source_reference"
+    SUBJECT_MISMATCH = "subject_mismatch"
+    UNSUPPORTED_NUMERIC_CLAIM = "unsupported_numeric_claim"
+    CONTRACT_VALIDATION_ERROR = "contract_validation_error"
+
+
+class ExplanationContractError(ValueError):
+    """Raised when generated content fails one deterministic local contract rule."""
+
+    def __init__(self, code: ExplanationContractFailureCode, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
 class ProviderFailureDiagnostic(BaseModel):
     """Redacted provider failure details safe for graph state and local presentation."""
 
@@ -303,24 +322,28 @@ def validate_and_bundle_explanation(
     policy_refs = set(policy_reference_index(request))
     source_by_id = {candidate.document_id: candidate for candidate in exposed_candidates(request)}
 
-    errors: list[str] = []
     for statement in _all_statements(validated.explanation):
         if statement.basis == GroundingBasis.POLICY:
             unknown = set(statement.references) - policy_refs
             if unknown:
-                errors.append("Policy statement contains an unknown grounding reference.")
+                raise ExplanationContractError(
+                    ExplanationContractFailureCode.UNKNOWN_POLICY_REFERENCE,
+                    "Policy statement contains an unknown grounding reference.",
+                )
             continue
 
         unknown = set(statement.references) - set(source_by_id)
         if unknown:
-            errors.append("Evidence statement contains an unknown source reference.")
-            continue
+            raise ExplanationContractError(
+                ExplanationContractFailureCode.UNKNOWN_SOURCE_REFERENCE,
+                "Evidence statement contains an unknown source reference.",
+            )
         cited_symbols = {source_by_id[reference].symbol for reference in statement.references}
         if set(statement.subject_symbols) != cited_symbols:
-            errors.append("Evidence statement subjects do not match its cited sources.")
-
-    if errors:
-        raise ValueError(" ".join(dict.fromkeys(errors)))
+            raise ExplanationContractError(
+                ExplanationContractFailureCode.SUBJECT_MISMATCH,
+                "Evidence statement subjects do not match its cited sources.",
+            )
 
     _validate_numeric_claim_support(request, validated.explanation, source_by_id)
 
@@ -381,8 +404,9 @@ def _validate_prohibited_claims(explanation: GeneratedExplanation) -> None:
                 violations.append(name)
     if violations:
         categories = ", ".join(dict.fromkeys(violations))
-        raise ValueError(
-            f"Generated explanation contains prohibited financial claims: {categories}."
+        raise ExplanationContractError(
+            ExplanationContractFailureCode.PROHIBITED_CLAIM,
+            f"Generated explanation contains prohibited financial claims: {categories}.",
         )
 
 
@@ -408,8 +432,9 @@ def _validate_numeric_claim_support(
             )
         unsupported = claimed_numbers - _numeric_tokens(support_text)
         if unsupported:
-            raise ValueError(
-                "Generated explanation contains a numeric claim absent from its cited support."
+            raise ExplanationContractError(
+                ExplanationContractFailureCode.UNSUPPORTED_NUMERIC_CLAIM,
+                "Generated explanation contains a numeric claim absent from its cited support.",
             )
 
 

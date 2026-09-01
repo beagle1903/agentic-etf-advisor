@@ -13,6 +13,8 @@ from etf_advisor.domain.screening import (
     screen_candidate_evidence,
 )
 from etf_advisor.explanation import (
+    ExplanationContractError,
+    ExplanationContractFailureCode,
     ExplanationGenerationError,
     ExplanationGenerator,
     ExplanationResult,
@@ -189,6 +191,18 @@ def draft_explanation(
             "explanation_errors": [error],
             "status": "explanation_blocked",
         }
+    except ExplanationContractError as exc:
+        return {
+            "draft_explanation": {},
+            "explanation_errors": [
+                {
+                    "type": "explanation_contract",
+                    "message": "Generated explanation failed safety or grounding validation.",
+                    "code": exc.code.value,
+                }
+            ],
+            "status": "explanation_blocked",
+        }
     except (AttributeError, TypeError, ValueError, ValidationError):
         return {
             "draft_explanation": {},
@@ -196,6 +210,7 @@ def draft_explanation(
                 {
                     "type": "explanation_contract",
                     "message": "Generated explanation failed safety or grounding validation.",
+                    "code": ExplanationContractFailureCode.CONTRACT_VALIDATION_ERROR.value,
                 }
             ],
             "status": "explanation_blocked",

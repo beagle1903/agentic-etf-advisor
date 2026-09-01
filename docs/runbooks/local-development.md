@@ -100,6 +100,13 @@ are `authentication`, `rate_limit`, `unsupported_capability`, `invalid_response`
 and `provider_error`. A new review draft creates a new provider request; restoring a stopped token
 does not replay the provider call.
 
+If the provider response parses but local safety or grounding validation rejects it, the error uses
+one contract code: `prohibited_claim`, `unknown_policy_reference`, `unknown_source_reference`,
+`subject_mismatch`, `unsupported_numeric_claim`, or `contract_validation_error`. These categories
+are safe to copy from the dashboard when troubleshooting. Stop repeated provider attempts after a
+recurring code; the rejected generated text is intentionally unavailable and restoring the saved
+review does not regenerate it.
+
 ## Run the offline retrieval baseline
 
 The packaged curated dataset needs no services, credentials, model downloads, or network:
