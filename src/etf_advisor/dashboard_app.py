@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 from importlib import import_module
 from typing import Any
 
@@ -12,6 +13,13 @@ from etf_advisor.dashboard import (
     parse_excluded_sectors,
     review_payload,
     start_dashboard_run,
+)
+
+_CREATION_IN_PROGRESS_KEY = "review_creation_in_progress"
+_CREATION_ERROR_KEY = "review_creation_error"
+_CREATION_ERROR_MESSAGE = (
+    "The workflow could not create a review draft. Check the local services and "
+    "provider configuration, then try again."
 )
 
 
@@ -49,48 +57,44 @@ def main() -> None:
             _restore_saved_run(st, resume_token)
 
         st.header("Investor profile")
-        # Keep this dependency control outside the form. Streamlit forms defer
-        # reruns until submission, which otherwise leaves the explanation
-        # checkbox disabled after the user checks evidence.
+        horizon_years = st.number_input("Horizon (years)", 1, 60, 12)
+        risk_tolerance = st.selectbox(
+            "Risk tolerance", ["conservative", "moderate", "aggressive"], index=1
+        )
+        objective = st.selectbox("Objective", ["income", "balanced", "growth"], index=1)
+        max_drawdown_pct = st.number_input(
+            "Maximum tolerable drawdown (%)", 0.1, 100.0, 25.0, step=0.5
+        )
+        initial_investment_usd = st.number_input(
+            "Initial amount (USD)", 0.0, 1_000_000_000_000.0, 25_000.0, step=500.0
+        )
+        recurring_monthly_usd = st.number_input(
+            "Recurring monthly amount (USD)",
+            0.0,
+            1_000_000_000_000.0,
+            500.0,
+            step=50.0,
+        )
+        excluded_sectors = st.text_input(
+            "Excluded sectors", help="Optional comma-separated research constraints."
+        )
         with_evidence = st.checkbox(
             "Attach local source evidence",
             help="Requires indexed Chroma and Neo4j data.",
         )
-        with st.form("profile-form"):
-            horizon_years = st.number_input("Horizon (years)", 1, 60, 12)
-            risk_tolerance = st.selectbox(
-                "Risk tolerance", ["conservative", "moderate", "aggressive"], index=1
-            )
-            objective = st.selectbox("Objective", ["income", "balanced", "growth"], index=1)
-            max_drawdown_pct = st.number_input(
-                "Maximum tolerable drawdown (%)", 0.1, 100.0, 25.0, step=0.5
-            )
-            initial_investment_usd = st.number_input(
-                "Initial amount (USD)", 0.0, 1_000_000_000_000.0, 25_000.0, step=500.0
-            )
-            recurring_monthly_usd = st.number_input(
-                "Recurring monthly amount (USD)",
-                0.0,
-                1_000_000_000_000.0,
-                500.0,
-                step=50.0,
-            )
-            excluded_sectors = st.text_input(
-                "Excluded sectors", help="Optional comma-separated research constraints."
-            )
-            with_explanation = st.checkbox(
-                "Generate grounded explanation",
-                disabled=not with_evidence,
-                help="Requires source evidence and a configured provider.",
-            )
-            durable_checkpoint = st.checkbox(
-                "Keep review in local PostgreSQL",
-                help="Requires the checkpoint extra and the local PostgreSQL service.",
-            )
-            candidate_limit = st.slider("Evidence candidates", 1, 10, 5)
-            started = st.form_submit_button("Create review draft", type="primary")
+        with_explanation = st.checkbox(
+            "Generate grounded explanation",
+            disabled=not with_evidence,
+            help="Requires source evidence and a configured provider.",
+        )
+        durable_checkpoint = st.checkbox(
+            "Keep review in local PostgreSQL",
+            help="Requires the checkpoint extra and the local PostgreSQL service.",
+        )
+        candidate_limit = st.slider("Evidence candidates", 1, 10, 5)
+        _render_creation_button(st)
 
-    if started:
+    if st.session_state.get(_CREATION_IN_PROGRESS_KEY, False):
         profile: dict[str, object] = {
             "horizon_years": int(horizon_years),
             "risk_tolerance": risk_tolerance,
@@ -111,16 +115,21 @@ def main() -> None:
                 ),
             )
             run = st.session_state["dashboard_run"]
+            st.session_state.pop(_CREATION_ERROR_KEY, None)
             if run.durable:
                 st.query_params["review"] = run.thread_id
             else:
                 st.query_params.pop("review", None)
         except Exception:
             st.session_state.pop("dashboard_run", None)
-            st.error(
-                "The workflow could not create a review draft. Check the local services and "
-                "provider configuration, then try again."
-            )
+            st.session_state[_CREATION_ERROR_KEY] = _CREATION_ERROR_MESSAGE
+        finally:
+            st.session_state[_CREATION_IN_PROGRESS_KEY] = False
+        st.rerun()
+
+    creation_error = st.session_state.get(_CREATION_ERROR_KEY)
+    if isinstance(creation_error, str):
+        st.error(creation_error)
 
     run = st.session_state.get("dashboard_run")
     if not isinstance(run, DashboardRun):
@@ -130,6 +139,30 @@ def main() -> None:
 
     _render_run(st, run)
     _render_safety_boundary(st, durable=run.durable)
+
+
+def _render_creation_button(st: Any) -> None:
+    """Render a submission control that locks before review creation begins."""
+
+    creation_in_progress = bool(st.session_state.get(_CREATION_IN_PROGRESS_KEY, False))
+    st.button(
+        "Create review draft",
+        type="primary",
+        disabled=creation_in_progress,
+        on_click=_request_review_creation,
+        args=(st.session_state,),
+    )
+    if creation_in_progress:
+        st.caption("Creating review draft…")
+
+
+def _request_review_creation(session_state: MutableMapping[str, Any]) -> None:
+    """Queue one creation run and clear any error from the previous attempt."""
+
+    if session_state.get(_CREATION_IN_PROGRESS_KEY, False):
+        return
+    session_state[_CREATION_IN_PROGRESS_KEY] = True
+    session_state.pop(_CREATION_ERROR_KEY, None)
 
 
 def _restore_saved_run(st: Any, review_token: str) -> None:
