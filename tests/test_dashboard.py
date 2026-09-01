@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
@@ -157,6 +158,20 @@ def paused_state_with_evidence_and_explanation() -> dict[str, Any]:
 def test_dashboard_options_require_evidence_for_explanation() -> None:
     with pytest.raises(ValueError, match="require source evidence"):
         DashboardOptions(with_explanation=True)
+
+
+def test_dashboard_evidence_toggle_unlocks_explanation_before_form_submit() -> None:
+    streamlit_testing = pytest.importorskip("streamlit.testing.v1")
+    app_path = Path(__file__).resolve().parents[1] / "src" / "etf_advisor" / "dashboard_app.py"
+    app = streamlit_testing.AppTest.from_file(str(app_path)).run()
+
+    evidence, explanation = app.sidebar.checkbox[:2]
+    assert evidence.proto.form_id == ""
+    assert explanation.disabled is True
+
+    app.sidebar.checkbox[0].set_value(True).run()
+
+    assert app.sidebar.checkbox[1].disabled is False
 
 
 def test_review_payload_rejects_missing_or_unsupported_interrupts() -> None:

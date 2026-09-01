@@ -49,6 +49,13 @@ def main() -> None:
             _restore_saved_run(st, resume_token)
 
         st.header("Investor profile")
+        # Keep this dependency control outside the form. Streamlit forms defer
+        # reruns until submission, which otherwise leaves the explanation
+        # checkbox disabled after the user checks evidence.
+        with_evidence = st.checkbox(
+            "Attach local source evidence",
+            help="Requires indexed Chroma and Neo4j data.",
+        )
         with st.form("profile-form"):
             horizon_years = st.number_input("Horizon (years)", 1, 60, 12)
             risk_tolerance = st.selectbox(
@@ -70,10 +77,6 @@ def main() -> None:
             )
             excluded_sectors = st.text_input(
                 "Excluded sectors", help="Optional comma-separated research constraints."
-            )
-            with_evidence = st.checkbox(
-                "Attach local source evidence",
-                help="Requires indexed Chroma and Neo4j data.",
             )
             with_explanation = st.checkbox(
                 "Generate grounded explanation",
