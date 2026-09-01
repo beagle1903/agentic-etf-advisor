@@ -3,7 +3,6 @@ description: Track acceptance evidence that CI cannot produce.
 title: "[Verification] "
 labels:
   - "kind:verification"
-  - "needs:live-verification"
 body:
   - type: input
     id: parent
