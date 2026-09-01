@@ -338,8 +338,8 @@ def _screen_candidate(
             unknown_reason=ScreeningReason.VOLUME_UNKNOWN,
             pass_message="Average daily volume meets the illustrative minimum.",
             fail_message="Average daily volume is below the illustrative minimum.",
-            expected_unit="shares",
-            threshold_unit="shares",
+            expected_unit="shares_per_day",
+            threshold_unit="shares/day",
         ),
         _numeric_rule(
             candidate,

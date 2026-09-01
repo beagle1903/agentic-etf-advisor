@@ -25,7 +25,7 @@ financial rules, missing-data interpretation, or candidate ranking to a model.
 
 - Source-reported US listing, ETF type, and freshness are retained as explicit deterministic
   checks rather than assumed by the comparison UI.
-- Expense ratio values at or below 1.0% pass; average daily volume at or above 100,000 shares
+- Expense ratio values at or below 1.0% pass; average daily volume at or above 100,000 shares/day
   passes; top-ten concentration at or below 60.0% passes.
 - Values on every boundary are covered by tests, and configurable policy values can change those
   judgments without changing retrieval order.

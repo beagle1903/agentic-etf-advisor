@@ -51,6 +51,16 @@ def test_boundary_values_pass_with_stable_reason_codes_and_citations() -> None:
     json.dumps(bundle.model_dump(mode="json"))
 
 
+def test_average_daily_volume_uses_canonical_shares_per_day_unit() -> None:
+    evidence = _evidence()
+
+    liquidity_rule = screen_candidate_evidence(evidence).candidates[0].rules[4]
+
+    assert liquidity_rule.verdict == ScreeningVerdict.PASS
+    assert liquidity_rule.observed_value == 100_000
+    assert liquidity_rule.threshold == "100000 shares/day"
+
+
 def test_conflicting_constraints_fail_without_model_ranking() -> None:
     evidence = _evidence(
         excluded_sectors=["technology"],
@@ -218,7 +228,7 @@ def _evidence(
         "market": "classification",
         "quote_type": "classification",
         "expense_ratio_pct": "percent",
-        "average_daily_volume": "shares",
+        "average_daily_volume": "shares_per_day",
         "top_10_concentration_pct": "percent",
         "sector_exposures": "percent",
     }
