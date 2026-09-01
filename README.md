@@ -192,6 +192,9 @@ Locally parsed explanations that fail deterministic validation report one redact
 `prohibited_claim`, `unknown_policy_reference`, `unknown_source_reference`, `subject_mismatch`,
 `unsupported_numeric_claim`, or the fallback `contract_validation_error`. The code identifies the
 failed rule without retaining generated text or model-supplied references in the checkpoint.
+Each provider prompt also receives separate request-scoped policy and source reference allowlists.
+For plain Ollama Cloud text, those exact strings are enumerated in the embedded output schema;
+unknown model references are never silently rewritten or retried.
 
 Run the retrieval baseline without credentials, databases, or network access:
 
