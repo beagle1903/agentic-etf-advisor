@@ -14,6 +14,7 @@ weakening the existing fail-closed review boundary.
 - A model-agnostic Ollama Cloud JSON-text path with strict local Pydantic validation.
 - Stable redacted provider diagnostics persisted in JSON-serializable graph state.
 - Stable redacted local contract diagnostics persisted in JSON-serializable graph state.
+- Request-scoped policy/source reference allowlists and Cloud schema enums.
 - Dashboard and CLI visibility for provider, model, method, failure category, and optional HTTP
   status.
 - Offline regression coverage for endpoint routing, JSON extraction, sanitization, state
@@ -32,6 +33,8 @@ weakening the existing fail-closed review boundary.
   checkpointing generated text, model references, or unsupported values.
 - A configured model that returns malformed JSON fails with `invalid_response` and identifies the
   provider, model, and `prompt_json` method.
+- Provider prompts identify the exact references allowed for each grounding basis, and the Cloud
+  schema enumerates those strings without normalizing an unknown response.
 - Local Ollama continues to use `json_schema`; OpenRouter continues to use strict
   `function_calling`.
 - Ruff, formatting, mypy, the full offline test suite, packaging, Docker Compose validation, and
@@ -54,3 +57,6 @@ weakening the existing fail-closed review boundary.
   at the generic deterministic contract boundary. Evidence and screening were ready in both runs.
   This verified the `prompt_json` routing path but exposed the need for redacted local rule codes
   before spending another provider request.
+- The first live attempt after adding local rule diagnostics returned `unknown_policy_reference`.
+  The follow-up implementation makes the policy/source allowlists explicit and constrains the
+  request-scoped Cloud schema while retaining the same fail-closed validator and one-request rule.

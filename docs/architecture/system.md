@@ -152,6 +152,13 @@ object and applies the same Pydantic and deterministic validators locally; raw C
 rendered. OpenRouter continues to use strict function calling. None of these paths automatically
 retry with a second output method.
 
+Every explanation prompt carries separate request-scoped allowlists for policy references and
+source-document references. References must be copied exactly from the list matching each
+statement's grounding basis. The schema embedded for plain Ollama Cloud output further enumerates
+the union of allowed reference strings and source symbols. The adapter does not guess, normalize,
+or remap unknown model references; deterministic basis, reference, and subject validation remains
+authoritative.
+
 Provider exceptions are categorized into stable redacted diagnostics: authentication, rate limit,
 unsupported capability, invalid response, unavailability, or other provider error. Graph state may
 retain the category, provider, model, output method, and HTTP status. Credentials, prompts, source
