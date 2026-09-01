@@ -1,7 +1,8 @@
 # Iteration 015: Ollama Cloud provider compatibility
 
-- Status: In progress
+- Status: Complete
 - Started: 2026-09-01
+- Completed: 2026-09-01
 
 ## Goal
 
@@ -51,8 +52,8 @@ weakening the existing fail-closed review boundary.
 - `git diff --check` passes.
 - One approved Cloud function-calling probe reached `gemma4:31b` but returned tool arguments that
   failed the nested explanation contract, motivating the final model-agnostic `prompt_json` path.
-- Live verification of the final `prompt_json` path remains pending; no additional Cloud request
-  was made before this implementation was pushed.
+- Live verification of the then-new `prompt_json` path was still pending at that point; no
+  additional Cloud request was made before that implementation was pushed.
 - Two later direct Ollama Cloud review attempts returned schema-valid explanations but both stopped
   at the generic deterministic contract boundary. Evidence and screening were ready in both runs.
   This verified the `prompt_json` routing path but exposed the need for redacted local rule codes
@@ -60,3 +61,7 @@ weakening the existing fail-closed review boundary.
 - The first live attempt after adding local rule diagnostics returned `unknown_policy_reference`.
   The follow-up implementation makes the policy/source allowlists explicit and constrains the
   request-scoped Cloud schema while retaining the same fail-closed validator and one-request rule.
+- One explicitly approved verification run from current `main` commit `3e5a253` used Ollama Cloud
+  with `gemma4:31b` and the `prompt_json` path. The single request returned a schema-valid,
+  deterministically grounded explanation with no explanation errors, reached the human-review
+  boundary, and completed successfully. No fallback request or automatic retry was made.
