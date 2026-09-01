@@ -88,6 +88,18 @@ whose policy keys, source document IDs, and ETF subjects match the exact provide
 provider/schema/grounding failure or explicit prohibited financial claim stops before review
 and exits nonzero.
 
+Local Ollama uses provider-enforced JSON schema. Direct Ollama Cloud uses one ordinary generation
+request with the required schema embedded in the prompt, then applies the exact Pydantic,
+grounding, numeric-support, and financial-safety checks locally. OpenRouter uses strict function
+calling. No provider path automatically retries with a second method.
+
+When generation stops, inspect `explanation_errors` in the CLI output or dashboard. Provider
+failures include a redacted `code`, `provider`, `model`, `method`, and optional `http_status`.
+Credentials, prompts, source content, and raw responses are intentionally omitted. Common codes
+are `authentication`, `rate_limit`, `unsupported_capability`, `invalid_response`, `unavailable`,
+and `provider_error`. A new review draft creates a new provider request; restoring a stopped token
+does not replay the provider call.
+
 ## Run the offline retrieval baseline
 
 The packaged curated dataset needs no services, credentials, model downloads, or network:

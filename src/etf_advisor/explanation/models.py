@@ -77,8 +77,40 @@ _NON_SUPPORT_METADATA_FIELDS: Final[frozenset[str]] = frozenset(
 )
 
 
+class ProviderFailureCode(StrEnum):
+    """Stable, non-secret categories for provider troubleshooting."""
+
+    AUTHENTICATION = "authentication"
+    RATE_LIMIT = "rate_limit"
+    UNSUPPORTED_CAPABILITY = "unsupported_capability"
+    INVALID_RESPONSE = "invalid_response"
+    UNAVAILABLE = "unavailable"
+    PROVIDER_ERROR = "provider_error"
+
+
+class ProviderFailureDiagnostic(BaseModel):
+    """Redacted provider failure details safe for graph state and local presentation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: ProviderFailureCode
+    provider: str = Field(min_length=1, max_length=80)
+    model: str = Field(min_length=1, max_length=200)
+    method: str = Field(min_length=1, max_length=80)
+    http_status: int | None = Field(default=None, ge=100, le=599)
+
+
 class ExplanationGenerationError(RuntimeError):
     """Raised when a provider cannot return a valid structured explanation."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        diagnostic: ProviderFailureDiagnostic | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.diagnostic = diagnostic
 
 
 class GroundingBasis(StrEnum):

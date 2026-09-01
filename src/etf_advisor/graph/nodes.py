@@ -181,9 +181,12 @@ def draft_explanation(
         result = ExplanationResult.model_validate(generated_result.model_dump(mode="python"))
         bundle = validate_and_bundle_explanation(request, result)
     except ExplanationGenerationError as exc:
+        error: dict[str, Any] = {"type": "generation_error", "message": str(exc)}
+        if exc.diagnostic is not None:
+            error.update(exc.diagnostic.model_dump(mode="json", exclude_none=True))
         return {
             "draft_explanation": {},
-            "explanation_errors": [{"type": "generation_error", "message": str(exc)}],
+            "explanation_errors": [error],
             "status": "explanation_blocked",
         }
     except (AttributeError, TypeError, ValueError, ValidationError):

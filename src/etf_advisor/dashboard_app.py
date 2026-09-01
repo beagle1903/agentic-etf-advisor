@@ -220,6 +220,14 @@ def _render_run(st: Any, run: DashboardRun) -> None:
             *state.get("explanation_errors", []),
         ]
         if errors:
+            if any(
+                isinstance(error, dict) and error.get("provider") and error.get("code")
+                for error in errors
+            ):
+                st.caption(
+                    "Provider diagnostics are redacted: credentials, prompts, source content, "
+                    "and raw model responses are not displayed."
+                )
             st.json(errors)
 
 
