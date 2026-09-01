@@ -1,0 +1,76 @@
+name: Iteration
+description: Plan and track one short, testable delivery iteration.
+title: "[Iteration NNN] "
+labels:
+  - "kind:iteration"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when promoting roadmap work into a numbered iteration. Create and link the
+        canonical `docs/iterations/NNN-*.md` file before implementation begins.
+  - type: input
+    id: canonical-document
+    attributes:
+      label: Canonical iteration document
+      description: Repository path to the version-controlled execution contract.
+      placeholder: docs/iterations/016-example.md
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Intended outcome
+      description: Describe the user-visible or system-verifiable result, not implementation activity.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+      description: Summarize what is included and explicitly excluded. Keep details in the iteration document.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance summary
+      description: List the observable conditions required before the parent issue can close.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: work-items
+    attributes:
+      label: Planned sub-issues
+      description: List independently closable contract, implementation, presentation, evaluation, or verification work.
+      placeholder: Create and attach sub-issues after opening this parent.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification plan
+      description: Include automated gates and any manual, live, credentialed, or paid verification.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and blockers
+      description: Link blocking issues or state that none are known.
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Readiness confirmation
+      options:
+        - label: The iteration number does not conflict with accepted history.
+          required: true
+        - label: External credentials, cost, data, and approval requirements are identified.
+          required: true
+        - label: The work remains educational and does not execute trades or promise returns.
+          required: true

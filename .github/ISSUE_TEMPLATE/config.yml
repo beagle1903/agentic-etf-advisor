@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Product roadmap
+    url: https://github.com/beagle1903/agentic-etf-advisor/blob/main/docs/product/roadmap.md
+    about: Review planned and completed iterations before proposing new roadmap work.
+  - name: Product scope and non-goals
+    url: https://github.com/beagle1903/agentic-etf-advisor/blob/main/docs/product/vision.md
+    about: Confirm that a proposal fits the educational decision-support scope.

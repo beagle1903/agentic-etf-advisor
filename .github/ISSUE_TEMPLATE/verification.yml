@@ -1,0 +1,67 @@
+name: Manual or live verification
+description: Track acceptance evidence that CI cannot produce.
+title: "[Verification] "
+labels:
+  - "kind:verification"
+  - "needs:live-verification"
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent iteration
+      placeholder: "#21"
+    validations:
+      required: true
+  - type: input
+    id: canonical-document
+    attributes:
+      label: Canonical iteration document
+      placeholder: docs/iterations/016-example.md
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Verification objective
+      description: Identify the acceptance criterion that automated tests cannot prove.
+    validations:
+      required: true
+  - type: textarea
+    id: procedure
+    attributes:
+      label: Procedure
+      description: Provide bounded, reproducible steps including the tested commit.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: dropdown
+    id: external-service
+    attributes:
+      label: External service or paid request
+      options:
+        - Not required
+        - Required and already approved
+        - Required but awaiting approval
+    validations:
+      required: true
+  - type: textarea
+    id: evidence-plan
+    attributes:
+      label: Evidence and redaction plan
+      description: State what will be retained in the iteration document and what sensitive output must be excluded.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safeguards
+    attributes:
+      label: Safeguards
+      options:
+        - label: The procedure does not execute trades or write to an external financial system.
+          required: true
+        - label: Credentials, private data, prompts, source content, raw provider responses, and review tokens will not be published.
+          required: true
