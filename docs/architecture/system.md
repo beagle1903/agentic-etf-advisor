@@ -106,6 +106,36 @@ field exactly. Every result carries a stable reason code, observed value, thresh
 and observation timestamp. The dashboard recomputes the bundle from evidence before rendering,
 which prevents persisted or replacement data from silently relabeling a result.
 
+## Accepted model-portfolio contract (implementation pending)
+
+ADR 0014 defines the next deterministic stage between candidate screening and optional explanation
+generation. It will revalidate the profile, policy calculation, ready evidence, recomputed
+screening, and checkpointed construction policy without a model or side effect. Only candidates
+with a complete `pass` screening verdict and consistent, supported category provenance can enter
+feasibility search.
+
+The accepted contract uses exact source-category mapping to assign candidates to the existing
+growth and defensive policy sleeves. It does not infer an asset class from a ticker, source prose,
+fund-family/provider value, or model output. The initial policy requires three to five positions,
+5.00% to 80.00% per position, at most 80.00% in one source-reported category, and one-basis-point
+weight precision. These values are illustrative research controls rather than suitability or
+optimization claims.
+
+Construction chooses the feasible subset with the most positions and uses upstream retrieval order
+only for deterministic tie-breaking. It divides each exact policy sleeve equally in integer basis
+points, reconciles initial and recurring cash independently in integer cents, and uses stable
+remainder rules to preserve every total. Missing or unsupported candidate category evidence may
+exclude that candidate; stale evidence, contradictory provenance, cross-contract mismatches,
+tampered screening, or an infeasible complete constraint set block the stage before explanation or
+human review.
+
+The planned graph payload is one JSON-mode `portfolio_construction` bundle containing the
+checkpointed construction policy, optional draft, validation checks, excluded-candidate audit
+records, and stable errors. The dashboard must recompute the bundle from its upstream state before
+rendering it, just as it currently recomputes candidate screening. An explanation provider may
+describe only a validated draft and cannot select candidates, change weights, repair a blocker, or
+decide suitability.
+
 ## Retrieval evaluation
 
 The offline baseline replays one versioned, curated candidate set through two explicit
@@ -197,10 +227,12 @@ blocked generation-error state with no review-ready draft.
 4. Calculate deterministic portfolio constraints and illustrative policy ranges.
 5. Retrieve and validate source-grounded ETF evidence.
 6. Apply deterministic candidate screening and retain pass, fail, and unknown reasons.
-7. Draft a source-grounded explanation.
-8. Run rule-based and evaluation guardrails.
-9. Pause for human review.
-10. Finalize, revise, or reject.
+7. Construct and validate an illustrative model portfolio (accepted in ADR 0014; pending
+   implementation).
+8. Draft a source-grounded explanation of the validated result.
+9. Run rule-based and evaluation guardrails.
+10. Pause for human review.
+11. Finalize, revise, or reject.
 
 ## State and side effects
 
