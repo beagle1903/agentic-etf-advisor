@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-014
+## Proven baseline: iterations 000-015
 
 The repository already proves the following vertical slices:
 
@@ -32,6 +32,8 @@ The repository already proves the following vertical slices:
 - Deterministic, source-attributable candidate screening with explicit pass, fail, and unknown
   reason codes for listing, instrument type, freshness, fees, liquidity, concentration, and
   supported sector exclusions.
+- Capability-aware Ollama Cloud explanation generation with strict local validation, request-scoped
+  reference allowlists, one-request behavior, and redacted provider and contract diagnostics.
 
 This is a strong research and review foundation, but it is not yet a complete portfolio
 advisor. It does not build an ETF portfolio, validate all portfolio constraints, authenticate
@@ -93,7 +95,21 @@ Acceptance gate:
 - Produce a comparison table with reason codes and citations, not an unexplained model ranking.
 - Cover boundary values and conflicting constraints with deterministic tests.
 
-### Iteration 015: explainable model-portfolio construction
+### Iteration 015: Ollama Cloud provider compatibility (complete)
+
+Make optional grounded explanations usable and diagnosable across Ollama Cloud models without
+weakening the fail-closed human-review boundary.
+
+Acceptance gate:
+
+- Route output handling by endpoint capability rather than model-name allowlists.
+- Validate plain Cloud JSON locally against the exact explanation, grounding, numeric-support, and
+  financial-safety contracts.
+- Persist only stable redacted provider and local-contract diagnostics.
+- Make one provider request per review attempt, with no automatic fallback retry.
+- Complete offline quality gates and one explicitly approved successful Cloud verification.
+
+### Iteration 016: explainable model-portfolio construction
 
 Combine the policy ranges and eligible candidates into an illustrative portfolio draft that a
 human can inspect and change.
@@ -113,7 +129,7 @@ Acceptance gate:
 
 ## Then: make review operationally complete
 
-### Iteration 016: revision loop and audit trail
+### Iteration 017: revision loop and audit trail
 
 Make edit and reject decisions useful inputs to a controlled rerun instead of terminal labels.
 
@@ -125,7 +141,7 @@ Acceptance gate:
   lineage auditable.
 - Add explicit retention and deletion behavior for local checkpoints.
 
-### Iteration 017: authenticated multi-user review
+### Iteration 018: authenticated multi-user review
 
 Add identity and authorization before exposing discovery or collaboration features.
 

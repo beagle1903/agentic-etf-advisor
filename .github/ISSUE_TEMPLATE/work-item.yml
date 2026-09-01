@@ -1,0 +1,66 @@
+name: Iteration work item
+description: Track one independently reviewable development, design, evaluation, or presentation outcome.
+title: "[Work] "
+labels:
+  - "kind:work-item"
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent iteration
+      description: Link the parent issue.
+      placeholder: "#21"
+    validations:
+      required: true
+  - type: input
+    id: canonical-document
+    attributes:
+      label: Canonical iteration document
+      placeholder: docs/iterations/016-example.md
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: State the independently observable result this issue delivers.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: List focused tests and any required manual evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link blockers with GitHub relationships after submission, or state that there are none.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety boundary
+      options:
+        - label: Graph state remains JSON-serializable and side effects stay behind explicit interfaces.
+          required: true
+        - label: No credentials, private data, trade execution, or guaranteed-return claims are introduced.
+          required: true

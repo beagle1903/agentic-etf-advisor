@@ -244,9 +244,10 @@ licensing decision.
 - `docs/runbooks/`: reproducible operational procedures.
 - `src/etf_advisor/`: application code.
 - `tests/`: executable behavior and safety checks.
+- `CONTRIBUTING.md`: issue, pull-request, verification-evidence, and closure workflow.
 
 The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
-`docs/iterations/013-measured-sector-graph-context.md`.
+`docs/iterations/016-explainable-model-portfolio-construction.md`.
 
 ## License
 
