@@ -341,6 +341,39 @@ def test_renderer_labels_redacted_provider_diagnostics() -> None:
     assert "raw model responses" in st.captions[0]
 
 
+def test_renderer_labels_redacted_explanation_contract_diagnostics() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.errors: list[str] = []
+            self.captions: list[str] = []
+            self.payloads: list[object] = []
+
+        def error(self, message: str) -> None:
+            self.errors.append(message)
+
+        def caption(self, message: str) -> None:
+            self.captions.append(message)
+
+        def json(self, payload: object) -> None:
+            self.payloads.append(payload)
+
+    diagnostic = {
+        "type": "explanation_contract",
+        "message": "Generated explanation failed safety or grounding validation.",
+        "code": "unsupported_numeric_claim",
+    }
+    state = {"status": "explanation_blocked", "explanation_errors": [diagnostic]}
+    st = FakeStreamlit()
+
+    _render_run(st, DashboardRun(graph=FakeGraph(), config={}, state=state))
+
+    assert st.errors == ["The workflow stopped before human review."]
+    assert st.payloads == [[diagnostic]]
+    assert len(st.captions) == 1
+    assert "failed local validation rule" in st.captions[0]
+    assert "generated text" in st.captions[0]
+
+
 def test_screening_renderer_shows_comparison_reasons_and_source_links() -> None:
     class FakeStreamlit:
         def __init__(self) -> None:

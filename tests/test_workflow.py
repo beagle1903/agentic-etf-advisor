@@ -311,8 +311,39 @@ def test_prohibited_explanation_claim_stops_before_human_review() -> None:
         {
             "type": "explanation_contract",
             "message": "Generated explanation failed safety or grounding validation.",
+            "code": "prohibited_claim",
         }
     ]
+    json.dumps(result["explanation_errors"])
+    assert "__interrupt__" not in result
+
+
+def test_unexpected_explanation_validation_failure_uses_redacted_fallback_code() -> None:
+    class InvalidGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            raise ValueError("secret rejected generated text")
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=InvalidGenerator(),
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "unexpected-explanation-contract"}},
+    )
+
+    assert result["status"] == "explanation_blocked"
+    assert result["draft_explanation"] == {}
+    assert result["explanation_errors"] == [
+        {
+            "type": "explanation_contract",
+            "message": "Generated explanation failed safety or grounding validation.",
+            "code": "contract_validation_error",
+        }
+    ]
+    assert "secret rejected generated text" not in json.dumps(result)
     assert "__interrupt__" not in result
 
 

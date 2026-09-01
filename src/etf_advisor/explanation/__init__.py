@@ -2,6 +2,8 @@
 
 from etf_advisor.explanation.models import (
     ExplanationBundle,
+    ExplanationContractError,
+    ExplanationContractFailureCode,
     ExplanationGenerationError,
     ExplanationGenerator,
     ExplanationRequest,
@@ -17,6 +19,8 @@ from etf_advisor.explanation.models import (
 
 __all__ = [
     "ExplanationBundle",
+    "ExplanationContractError",
+    "ExplanationContractFailureCode",
     "ExplanationGenerationError",
     "ExplanationGenerator",
     "ExplanationRequest",

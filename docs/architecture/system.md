@@ -158,6 +158,12 @@ retain the category, provider, model, output method, and HTTP status. Credential
 content, and raw model responses remain outside checkpoints and presentation. The local dashboard
 labels these fields as redacted before rendering them.
 
+Provider output that passes the Pydantic schema but fails deterministic local validation receives a
+separate stable contract category: prohibited claim, unknown policy reference, unknown source
+reference, subject mismatch, unsupported numeric claim, or an unexpected contract-validation
+failure. The graph retains only that category and the generic fail-closed message. It does not
+retain the rejected generated text, model-supplied references, or unsupported numeric values.
+
 ## Explanation evaluation
 
 The first explanation baseline replays one versioned request and eight curated provider outputs

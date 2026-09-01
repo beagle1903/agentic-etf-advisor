@@ -220,13 +220,25 @@ def _render_run(st: Any, run: DashboardRun) -> None:
             *state.get("explanation_errors", []),
         ]
         if errors:
-            if any(
+            has_provider_diagnostic = any(
                 isinstance(error, dict) and error.get("provider") and error.get("code")
                 for error in errors
-            ):
+            )
+            has_contract_diagnostic = any(
+                isinstance(error, dict)
+                and error.get("type") == "explanation_contract"
+                and error.get("code")
+                for error in errors
+            )
+            if has_provider_diagnostic:
                 st.caption(
                     "Provider diagnostics are redacted: credentials, prompts, source content, "
                     "and raw model responses are not displayed."
+                )
+            if has_contract_diagnostic:
+                st.caption(
+                    "Explanation contract diagnostics identify only the failed local validation "
+                    "rule; generated text and raw model responses are not displayed."
                 )
             st.json(errors)
 
