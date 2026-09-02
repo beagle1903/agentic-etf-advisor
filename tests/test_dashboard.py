@@ -586,6 +586,30 @@ def test_review_payload_blocks_tampered_persisted_portfolio() -> None:
         review_payload(state)
 
 
+@pytest.mark.parametrize(
+    "field",
+    [
+        "draft_policy",
+        "candidate_evidence",
+        "candidate_screening",
+        "portfolio_construction",
+    ],
+)
+def test_review_payload_blocks_checkpointed_upstream_mismatch(field: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    if field == "draft_policy":
+        state[field]["notes"][0] = "Tampered checkpointed policy note."
+    elif field == "candidate_evidence":
+        state[field]["query"] = "tampered checkpointed evidence query"
+    elif field == "candidate_screening":
+        state[field]["policy"]["max_expense_ratio_pct"] = 0.9
+    else:
+        state[field]["draft"]["positions"][0]["name"] = "Tampered checkpointed position"
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
 def test_review_payload_requires_portfolio_with_source_evidence() -> None:
     state = paused_state_with_portfolio_and_explanation()
     state["__interrupt__"][0].value.pop("portfolio_construction")

@@ -299,16 +299,32 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
             screening = payload.candidate_screening
             if evidence is None or screening is None:
                 raise ValueError("Review construction requires evidence and screening.")
-            if state.get("portfolio_construction") != construction.model_dump(mode="json"):
-                raise ValueError("Review construction must match checkpointed workflow state.")
+            checkpointed_policy = PolicyCalculation.model_validate(state.get("draft_policy", {}))
+            checkpointed_evidence = CandidateEvidenceBundle.model_validate(
+                state.get("candidate_evidence", {})
+            )
+            checkpointed_screening = CandidateScreeningBundle.model_validate(
+                state.get("candidate_screening", {})
+            )
+            checkpointed_construction = PortfolioConstructionBundle.model_validate(
+                state.get("portfolio_construction", {})
+            )
+            checkpoint_pairs = (
+                (checkpointed_policy, payload.draft_policy),
+                (checkpointed_evidence, evidence),
+                (checkpointed_screening, screening),
+                (checkpointed_construction, construction),
+            )
+            if any(checkpointed != interrupted for checkpointed, interrupted in checkpoint_pairs):
+                raise ValueError("Review payload must match checkpointed workflow state.")
             inputs = PortfolioConstructionInput(
                 profile=InvestorProfile.model_validate(state.get("profile", {})),
-                policy_calculation=payload.draft_policy,
-                candidate_evidence=evidence,
-                candidate_screening=screening,
-                construction_policy=construction.policy,
+                policy_calculation=checkpointed_policy,
+                candidate_evidence=checkpointed_evidence,
+                candidate_screening=checkpointed_screening,
+                construction_policy=checkpointed_construction.policy,
             )
-            recomputed = validate_persisted_construction(inputs, construction)
+            recomputed = validate_persisted_construction(inputs, checkpointed_construction)
             if recomputed.status != "ready":
                 raise ValueError("Review construction failed deterministic recomputation.")
     except (TypeError, ValidationError) as exc:
