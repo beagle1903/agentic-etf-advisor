@@ -113,7 +113,7 @@ The implementation must distinguish candidate-local exclusion from a globally in
 | Category value conflicts with canonical provenance | Block construction as contradictory evidence. |
 | Evidence missing, blocked, stale, future-dated, or identity-mismatched | Block construction before subset search. |
 | Persisted screening differs from deterministic recomputation | Block construction before subset search. |
-| No subset satisfies sleeve, count, weight, and category rules | Block with all applicable infeasibility reason codes. |
+| No subset satisfies sleeve, count, weight, and category rules | Block with the stable reason code reached by the ordered feasibility checks. |
 | Persisted construction differs from deterministic recomputation | Block presentation and expose no review controls. |
 
 Candidate-local exclusions remain in an audit list and never receive a weight. The complete stage
@@ -130,16 +130,19 @@ uses stable codes including `candidate_screening_failed`, `candidate_screening_u
 1. Revalidate and cross-check every upstream payload, confirm the exact target remains inside its
    checkpointed allocation bands, and recompute screening.
 2. Retain only passing candidates with supported, source-consistent category evidence.
-3. Generate subsets in upstream retrieval order whose size is between three and five and that
-   cover every non-zero policy sleeve.
-4. For each subset, divide the exact growth and defensive target basis points equally within its
+3. If fewer than `policy.min_positions` candidates remain, block with
+   `insufficient_eligible_candidates` before assigning weights.
+4. Generate subsets in upstream retrieval order whose size is within the inclusive
+   `policy.min_positions` and `policy.max_positions` bounds and that cover every non-zero policy
+   sleeve.
+5. For each subset, divide the exact growth and defensive target basis points equally within its
    sleeve. Use integer quotient and remainder; award remaining basis points in upstream order.
-5. Reject subsets whose positions or normalized category totals exceed any boundary.
-6. Choose the feasible subset with the greatest position count. Break a remaining tie by the
+6. Reject subsets whose positions or normalized category totals exceed any boundary.
+7. Choose the feasible subset with the greatest position count. Break a remaining tie by the
    lexicographically earliest tuple of upstream indexes and retain that order in the draft.
-7. Reconcile initial and recurring cash separately, sleeve by sleeve, from the cent-rounded policy
+8. Reconcile initial and recurring cash separately, sleeve by sleeve, from the cent-rounded policy
    totals. Use proportional integer cents with largest remainders awarded in draft order.
-8. Run the full validator over the independently constructed output before returning `ready`.
+9. Run the full validator over the independently constructed output before returning `ready`.
 
 This is a reproducible tie-breaker over upstream research order, not performance optimization or an
 ETF ranking. A target percentage that cannot be represented exactly in integer basis points is
@@ -190,8 +193,9 @@ These examples are acceptance fixtures for #29; ties refer to the shown upstream
 
 - Policy target: growth 9,500 basis points and defensive 500 basis points.
 - Passing classified candidates: QQQ/Large Growth and BND/Intermediate Core Bond only.
-- Expected result: `blocked`; two positions violate `min_positions`, while QQQ at 95.00% also
-  violates `max_position_weight_bps`. No draft or review interrupt is permitted.
+- Expected result: `blocked` with `insufficient_eligible_candidates` because two candidates are
+  below the default `min_positions` value of three. The algorithm assigns no weights, produces no
+  draft, and permits no review interrupt.
 
 The model has no role in any example. Once #29 implements these contracts, focused tests will load
 the same values and assert byte-stable JSON-mode results across repeated calls and checkpoint
