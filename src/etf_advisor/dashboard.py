@@ -17,7 +17,13 @@ from etf_advisor.checkpoint import (
 )
 from etf_advisor.clock import system_utc_now
 from etf_advisor.config import settings
+from etf_advisor.domain.construction import (
+    PortfolioConstructionBundle,
+    PortfolioConstructionInput,
+    validate_persisted_construction,
+)
 from etf_advisor.domain.policy import PolicyCalculation
+from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
 from etf_advisor.explanation import ExplanationBundle
 from etf_advisor.explanation.provider import create_explanation_generator
@@ -64,6 +70,7 @@ class ReviewPayload(BaseModel):
     draft_policy: PolicyCalculation
     candidate_evidence: CandidateEvidenceBundle | None = None
     candidate_screening: CandidateScreeningBundle | None = None
+    portfolio_construction: PortfolioConstructionBundle | None = None
     draft_explanation: ExplanationBundle | None = None
 
     @field_validator("question")
@@ -81,6 +88,7 @@ class ReviewPayload(BaseModel):
 
         evidence = self.candidate_evidence
         screening = self.candidate_screening
+        construction = self.portfolio_construction
         explanation = self.draft_explanation
         if evidence is not None:
             if evidence.status != EvidenceStatus.READY:
@@ -99,9 +107,14 @@ class ReviewPayload(BaseModel):
             if screening != expected_screening:
                 raise ValueError("Review screening must match recomputed source evidence rules.")
 
+        if (evidence is None) != (construction is None):
+            raise ValueError("Review evidence and portfolio construction must appear together.")
+        if construction is not None and construction.status != "ready":
+            raise ValueError("Review portfolio construction must be ready.")
+
         if explanation is not None:
-            if evidence is None:
-                raise ValueError("A review explanation requires source evidence.")
+            if evidence is None or construction is None:
+                raise ValueError("A review explanation requires a validated portfolio.")
             candidates = {candidate.document_id: candidate for candidate in evidence.candidates}
             for citation in explanation.citations:
                 candidate = candidates.get(citation.document_id)
@@ -280,7 +293,27 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Workflow exposed an unsupported review interrupt.")
     try:
         payload = ReviewPayload.model_validate(value)
+        construction = payload.portfolio_construction
+        if construction is not None:
+            evidence = payload.candidate_evidence
+            screening = payload.candidate_screening
+            if evidence is None or screening is None:
+                raise ValueError("Review construction requires evidence and screening.")
+            if state.get("portfolio_construction") != construction.model_dump(mode="json"):
+                raise ValueError("Review construction must match checkpointed workflow state.")
+            inputs = PortfolioConstructionInput(
+                profile=InvestorProfile.model_validate(state.get("profile", {})),
+                policy_calculation=payload.draft_policy,
+                candidate_evidence=evidence,
+                candidate_screening=screening,
+                construction_policy=construction.policy,
+            )
+            recomputed = validate_persisted_construction(inputs, construction)
+            if recomputed.status != "ready":
+                raise ValueError("Review construction failed deterministic recomputation.")
     except (TypeError, ValidationError) as exc:
+        raise ValueError("Workflow review payload failed contract validation.") from exc
+    except ValueError as exc:
         raise ValueError("Workflow review payload failed contract validation.") from exc
     return payload.model_dump(mode="json", exclude_none=True)
 

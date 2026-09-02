@@ -138,8 +138,8 @@ human review.
 
 The graph payload is one JSON-mode `portfolio_construction` bundle containing the
 checkpointed construction policy, optional draft, validation checks, excluded-candidate audit
-records, and stable errors. The dashboard must recompute the bundle from its upstream state before
-rendering it, just as it currently recomputes candidate screening. An explanation provider may
+records, and stable errors. The dashboard recomputes the bundle from its upstream state before
+rendering it, just as it recomputes candidate screening. An explanation provider may
 describe only a validated draft and cannot select candidates, change weights, repair a blocker, or
 decide suitability.
 
@@ -149,7 +149,8 @@ points. It reconciles initial and recurring cash independently in integer cents 
 largest-remainder ordering, then runs an independent validation pass over eligibility, sleeve and
 position constraints, category concentration, exact totals, and source attribution. A blocked
 bundle stops the workflow before optional explanation generation or human review. Presentation of
-the ready bundle remains the separate Iteration 016 dashboard work item.
+the ready bundle shows its positions, exact weight and cash totals, allocation bands, construction
+rules, validation outcomes, deterministic reasons, exclusions, and attributable source metadata.
 
 ## Retrieval evaluation
 
@@ -284,12 +285,13 @@ the browser session. Durable mode instead opens short-lived connections to the l
 checkpoint store for create, restore, and resume operations. A random UUID review token restores
 only that exact thread from a newly compiled graph; the UI does not enumerate saved threads.
 
-Both modes render policy, evidence, and explanation fields from the interrupt rather than
-recalculating them. Before rendering, a typed presentation contract revalidates every nested field,
-policy/evidence consistency, and the identity, URL, and timestamp of explanation citations against
-the validated evidence records. It also recomputes deterministic candidate screening from the
-evidence and checkpointed policy before accepting the comparison table. Contract failures show a
-controlled error without review controls.
+Both modes render policy, evidence, deterministic portfolio construction, and explanation fields
+from the interrupt rather than reconstructing an allocation in the UI. Before rendering, a typed
+presentation contract revalidates every nested field, policy/evidence consistency, and the identity,
+URL, and timestamp of explanation citations against the validated evidence records. It recomputes
+candidate screening from the evidence and checkpointed screening policy, then recomputes portfolio
+construction from the validated profile, policy calculation, evidence, screening, and checkpointed
+construction policy. Either persisted mismatch produces a controlled error without review controls.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.

@@ -285,18 +285,20 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
     has_ready_evidence = candidate_evidence.get("status") == EvidenceStatus.READY
     candidate_screening = state.get("candidate_screening", {})
     has_ready_screening = candidate_screening.get("status") == "ready"
+    portfolio_construction = state.get("portfolio_construction", {})
+    has_ready_construction = portfolio_construction.get("status") == "ready"
     draft_explanation = state.get("draft_explanation", {})
     has_ready_explanation = draft_explanation.get("status") == "ready"
     review_payload: dict[str, Any] = {
         "kind": "portfolio_policy_review",
         "question": (
-            "Approve this grounded explanation, candidate screening, policy draft, "
-            "and source evidence?"
+            "Approve this grounded explanation, illustrative portfolio, candidate screening, "
+            "policy draft, and source evidence?"
             if has_ready_explanation
             else (
-                "Approve this candidate screening, policy draft, and source evidence "
-                "before finalization?"
-                if has_ready_evidence and has_ready_screening
+                "Approve this illustrative portfolio, candidate screening, policy draft, "
+                "and source evidence before finalization?"
+                if has_ready_evidence and has_ready_screening and has_ready_construction
                 else "Approve this policy draft before finalization?"
             )
         ),
@@ -307,6 +309,8 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
         review_payload["candidate_evidence"] = candidate_evidence
     if has_ready_screening:
         review_payload["candidate_screening"] = candidate_screening
+    if has_ready_construction:
+        review_payload["portfolio_construction"] = portfolio_construction
     if has_ready_explanation:
         review_payload["draft_explanation"] = draft_explanation
     decision = interrupt(review_payload)
@@ -325,18 +329,19 @@ def finalize_review(state: AdvisorState) -> AdvisorState:
             state.get("candidate_evidence", {}).get("status") == EvidenceStatus.READY
         )
         has_ready_screening = state.get("candidate_screening", {}).get("status") == "ready"
+        has_ready_construction = state.get("portfolio_construction", {}).get("status") == "ready"
         has_ready_explanation = state.get("draft_explanation", {}).get("status") == "ready"
         return {
             "status": "approved",
             "final_message": (
                 (
-                    "Grounded explanation, candidate screening, policy draft, and source "
-                    "evidence approved. "
+                    "Grounded explanation, illustrative portfolio, candidate screening, "
+                    "policy draft, and source evidence approved. "
                     if has_ready_explanation
                     else (
-                        "Candidate screening, policy draft, and source evidence approved "
-                        "for the next research stage. "
-                        if has_ready_evidence and has_ready_screening
+                        "Candidate screening, illustrative portfolio, policy draft, and source "
+                        "evidence approved for the next research stage. "
+                        if has_ready_evidence and has_ready_screening and has_ready_construction
                         else "Policy draft approved for the next research stage. "
                     )
                 )

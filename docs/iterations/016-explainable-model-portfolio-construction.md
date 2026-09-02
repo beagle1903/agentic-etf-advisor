@@ -52,7 +52,7 @@ model to make eligibility, allocation, or suitability decisions.
 
 - [x] Define the deterministic construction contract and policy defaults in ADR 0014 (#28).
 - [x] Implement portfolio construction and validation (#29).
-- [ ] Present the draft and its evidence at human review (#30).
+- [x] Present the draft and its evidence at human review (#30).
 - [ ] Add allocation, safety, persistence, and presentation evaluation coverage (#31).
 - [ ] Run the end-to-end acceptance verification and record durable evidence here (#32).
 
@@ -220,8 +220,17 @@ human review. Repository-wide gate results are recorded in the pull request for 
 - `docker compose config --quiet` passes.
 - `git diff --check` passes.
 
-Dashboard presentation, portfolio-aware explanation changes, broader evaluation coverage, and the
-end-to-end Iteration 016 acceptance record remain assigned to #30, #31, and #32.
+The #30 presentation slice adds the ready construction bundle to the human-review interrupt and
+recomputes it from the complete upstream state before the dashboard can render or resume. The UI
+shows exact position, sleeve, weight, initial-cash, recurring-cash, policy-band, construction-rule,
+validation, exclusion, reason, and source-attribution details while retaining explicit educational,
+non-advisory language. Missing, malformed, blocked, or deterministically mismatched construction
+produces a controlled failure without review controls. Focused tests cover presentation-contract
+recomputation and tampering, portfolio rendering, blocked-state rendering, workflow payloads, and
+the existing approve, edit, reject, restore, and malformed-payload paths.
+
+Portfolio-aware explanation changes, broader evaluation coverage, and the end-to-end Iteration 016
+acceptance record remain assigned to #31 and #32.
 
 ## Open design decisions
 
