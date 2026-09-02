@@ -198,6 +198,8 @@ def _render_run(st: Any, run: DashboardRun) -> None:
         st.subheader("Human review")
         st.write(payload["question"])
         _render_policy(st, payload["draft_policy"])
+        if "portfolio_construction" in payload:
+            _render_portfolio(st, payload["portfolio_construction"])
         if "candidate_screening" in payload:
             _render_screening(st, payload["candidate_screening"])
         if "candidate_evidence" in payload:
@@ -217,6 +219,7 @@ def _render_run(st: Any, run: DashboardRun) -> None:
             *state.get("validation_errors", []),
             *state.get("evidence_errors", []),
             *state.get("screening_errors", []),
+            *state.get("construction_errors", []),
             *state.get("explanation_errors", []),
         ]
         if errors:
@@ -257,6 +260,23 @@ def _render_policy(st: Any, policy: dict[str, Any]) -> None:
         [
             _cash_flow_row("Initial", policy["initial_investment_usd"]),
             _cash_flow_row("Monthly", policy["recurring_monthly_usd"]),
+        ],
+        hide_index=True,
+        width="stretch",
+    )
+    bands = policy["allocation_bands"]
+    st.dataframe(
+        [
+            {
+                "Policy sleeve": "Growth assets",
+                "Illustrative band": _pct_band(bands["growth_assets_pct"]),
+                "Selected target": f"{growth:.2f}%",
+            },
+            {
+                "Policy sleeve": "Defensive assets",
+                "Illustrative band": _pct_band(bands["defensive_assets_pct"]),
+                "Selected target": f"{defensive:.2f}%",
+            },
         ],
         hide_index=True,
         width="stretch",
@@ -336,6 +356,108 @@ def _render_screening(st: Any, bundle: dict[str, Any]) -> None:
                     )
 
 
+def _render_portfolio(st: Any, bundle: dict[str, Any]) -> None:
+    st.subheader("Illustrative model portfolio")
+    st.caption(
+        "Deterministically constructed from the validated policy and source evidence. "
+        "The model and dashboard do not select instruments or change allocations. This is "
+        "not a recommendation, suitability decision, forecast, guarantee, or trade instruction."
+    )
+    draft = bundle["draft"]
+    policy = bundle["policy"]
+    first, second, third, fourth = st.columns(4)
+    first.metric("Total weight", _bps(draft["total_weight_bps"]))
+    second.metric("Positions", str(len(draft["positions"])))
+    third.metric("Initial total", _usd_cents(draft["initial_total_cents"]))
+    fourth.metric("Monthly total", _usd_cents(draft["recurring_total_cents"]))
+
+    st.dataframe(
+        [
+            {
+                "Symbol": position["symbol"],
+                "Sleeve": position["sleeve"],
+                "Source category": position["source_category"],
+                "Weight": _bps(position["weight_bps"]),
+                "Initial": _usd_cents(position["initial_usd_cents"]),
+                "Monthly": _usd_cents(position["recurring_usd_cents"]),
+                "Deterministic reason": position["reason_code"],
+            }
+            for position in draft["positions"]
+        ],
+        hide_index=True,
+        width="stretch",
+    )
+
+    with st.expander("Construction constraints and validation"):
+        st.dataframe(
+            [
+                {
+                    "Constraint": "Position count",
+                    "Configured rule": f"{policy['min_positions']} to {policy['max_positions']}",
+                },
+                {
+                    "Constraint": "Position weight",
+                    "Configured rule": (
+                        f"{_bps(policy['min_position_weight_bps'])} to "
+                        f"{_bps(policy['max_position_weight_bps'])}"
+                    ),
+                },
+                {
+                    "Constraint": "Maximum one source category",
+                    "Configured rule": _bps(policy["max_category_weight_bps"]),
+                },
+                {
+                    "Constraint": "Weight precision",
+                    "Configured rule": _bps(policy["weight_precision_bps"]),
+                },
+            ],
+            hide_index=True,
+            width="stretch",
+        )
+        st.dataframe(
+            [
+                {
+                    "Validation check": check["name"],
+                    "Outcome": "pass" if check["passed"] else "fail",
+                    "Reason": check.get("reason_code") or "—",
+                    "Details": check["message"],
+                }
+                for check in bundle["validation"]["checks"]
+            ],
+            hide_index=True,
+            width="stretch",
+        )
+
+    for position in draft["positions"]:
+        with st.expander(f"{position['symbol']} allocation evidence"):
+            st.write(f"Deterministic reason: {position['reason_code']}")
+            st.write(f"Policy reference: {position['policy_reference']}")
+            st.write(f"Source category: {position['source_category']}")
+            st.write(f"Source: {position['source']}")
+            st.write(f"Observed: {position['observed_at']}")
+            st.caption("Screening evidence: " + ", ".join(position["screening_reason_codes"]))
+            st.link_button("Open attributable source", position["source_url"])
+
+    excluded = bundle["excluded_candidates"]
+    if excluded:
+        with st.expander("Excluded candidate audit"):
+            st.dataframe(
+                [
+                    {
+                        "Symbol": candidate["symbol"],
+                        "Screening result": candidate["screening_verdict"],
+                        "Exclusion reason": candidate["reason_code"],
+                        "Screening reasons": ", ".join(candidate["screening_reason_codes"]) or "—",
+                    }
+                    for candidate in excluded
+                ],
+                hide_index=True,
+                width="stretch",
+            )
+    else:
+        st.caption("No candidate-local exclusions were needed for this deterministic draft.")
+
+
 def _render_explanation(st: Any, bundle: dict[str, Any]) -> None:
     st.subheader("Grounded explanation")
     st.caption(f"Provider: {bundle['provider']} · Model: {bundle['model']}")
@@ -409,6 +531,18 @@ def _render_safety_boundary(st: Any, *, durable: bool) -> None:
 
 def _usd(value: float | int | str) -> str:
     return f"${float(value):,.2f}"
+
+
+def _usd_cents(value: int) -> str:
+    return f"${value / 100:,.2f}"
+
+
+def _bps(value: int) -> str:
+    return f"{value / 100:.2f}%"
+
+
+def _pct_band(values: list[float]) -> str:
+    return f"{values[0]:.2f}% to {values[1]:.2f}%"
 
 
 if __name__ == "__main__":

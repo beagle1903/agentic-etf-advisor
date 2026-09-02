@@ -46,7 +46,10 @@ uv run etf-advisor dashboard
 ```
 
 Open `http://127.0.0.1:8501`, complete the profile, inspect the exact workflow review payload,
-and approve, edit, or reject it. The default policy-only path is offline. Source evidence and a
+and approve, edit, or reject it. With source evidence enabled, the dashboard recomputes the
+checkpointed deterministic construction before showing its illustrative positions, exact weight
+and cash totals, constraints, validation outcomes, reasons, and sources. A mismatch fails closed
+without review controls. The default policy-only path is offline. Source evidence and a
 provider-backed explanation are opt-in and require their corresponding extras, local services,
 indexed data, and provider configuration. The default checkpoint lives only in the current
 Streamlit browser session.

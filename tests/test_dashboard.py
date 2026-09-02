@@ -1,3 +1,4 @@
+import json
 from collections.abc import Iterator
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
@@ -22,14 +23,20 @@ from etf_advisor.dashboard_app import (
     _CREATION_ERROR_KEY,
     _CREATION_IN_PROGRESS_KEY,
     _render_creation_button,
+    _render_portfolio,
     _render_run,
     _render_screening,
+)
+from etf_advisor.domain.construction import (
+    PortfolioConstructionInput,
+    construct_model_portfolio,
 )
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import screen_candidate_evidence
 from etf_advisor.rag.evidence import select_candidate_evidence
 from etf_advisor.rag.models import GraphEnrichedSource
+from etf_advisor.research.models import ResearchField
 
 
 class FakeGraph:
@@ -161,6 +168,116 @@ def paused_state_with_evidence_and_explanation() -> dict[str, Any]:
     return state
 
 
+def paused_state_with_portfolio_and_explanation() -> dict[str, Any]:
+    profile = valid_profile()
+    observed_at = datetime(2026, 8, 28, 11, tzinfo=UTC)
+    checked_at = datetime(2026, 8, 28, 12, tzinfo=UTC)
+    evidence = select_candidate_evidence(
+        profile,
+        [
+            _construction_source(symbol, category, observed_at, checked_at)
+            for symbol, category in (
+                ("SPY", "Large Blend"),
+                ("VTI", "Large Blend"),
+                ("QQQ", "Large Growth"),
+                ("VEA", "Foreign Large Blend"),
+                ("BND", "Intermediate Core Bond"),
+            )
+        ],
+        query="balanced ETF research evidence",
+        checked_at=checked_at,
+        max_age=timedelta(hours=24),
+        limit=5,
+    )
+    screening = screen_candidate_evidence(evidence)
+    policy = calculate_policy(profile)
+    construction = construct_model_portfolio(
+        PortfolioConstructionInput(
+            profile=profile,
+            policy_calculation=policy,
+            candidate_evidence=evidence,
+            candidate_screening=screening,
+        )
+    )
+    payload = {
+        "kind": "portfolio_policy_review",
+        "question": "Approve this illustrative portfolio?",
+        "allowed_actions": ["approve", "edit", "reject"],
+        "draft_policy": policy.model_dump(mode="json"),
+        "candidate_evidence": evidence.model_dump(mode="json"),
+        "candidate_screening": screening.model_dump(mode="json"),
+        "portfolio_construction": construction.model_dump(mode="json"),
+        "draft_explanation": paused_state_with_evidence_and_explanation()["__interrupt__"][0].value[
+            "draft_explanation"
+        ],
+    }
+    return {
+        "profile": profile.model_dump(mode="json"),
+        "draft_policy": policy.model_dump(mode="json"),
+        "candidate_evidence": evidence.model_dump(mode="json"),
+        "candidate_screening": screening.model_dump(mode="json"),
+        "portfolio_construction": construction.model_dump(mode="json"),
+        "status": "awaiting_human_review",
+        "__interrupt__": (SimpleNamespace(value=payload),),
+    }
+
+
+def _construction_source(
+    symbol: str,
+    category: str,
+    observed_at: datetime,
+    checked_at: datetime,
+) -> GraphEnrichedSource:
+    source_url = f"https://finance.yahoo.com/quote/{symbol}/"
+    values: dict[str, Any] = {
+        "market": "us_market",
+        "quote_type": "ETF",
+        "category": category,
+        "expense_ratio_pct": 0.1,
+        "average_daily_volume": 1_000_000,
+        "top_10_concentration_pct": 40.0,
+    }
+    units = {
+        "market": "classification",
+        "quote_type": "classification",
+        "category": "classification",
+        "expense_ratio_pct": "percent",
+        "average_daily_volume": "shares_per_day",
+        "top_10_concentration_pct": "percent",
+    }
+    metadata: dict[str, str | int | float | bool] = {
+        "symbol": symbol,
+        "name": f"{symbol} ETF",
+        "source": "yahoo_finance",
+        "source_url": source_url,
+        "observed_at": observed_at.isoformat(),
+    }
+    provenance: dict[str, dict[str, Any]] = {}
+    for field_name, value in values.items():
+        field = ResearchField[Any](
+            value=value,
+            unit=units[field_name],
+            provider="yahoo_finance",
+            source_url=source_url,
+            observed_at=observed_at,
+            ingested_at=checked_at,
+            snapshot_version="dashboard-construction-v1",
+        )
+        provenance[field_name] = field.model_dump(mode="json")
+        metadata[field_name] = value
+        metadata[f"{field_name}_status"] = "available"
+    metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return GraphEnrichedSource(
+        document_id=f"doc-{symbol.lower()}",
+        content=f"{symbol} source facts",
+        metadata=metadata,
+    )
+
+
 def test_dashboard_options_require_evidence_for_explanation() -> None:
     with pytest.raises(ValueError, match="require source evidence"):
         DashboardOptions(with_explanation=True)
@@ -270,6 +387,7 @@ def test_review_payload_rejects_missing_or_unsupported_interrupts() -> None:
         ("draft_policy", {"target_allocation": {}}),
         ("candidate_evidence", {"status": "ready"}),
         ("candidate_screening", {"status": "ready"}),
+        ("portfolio_construction", {"status": "ready"}),
         ("draft_explanation", {"status": "ready"}),
     ],
 )
@@ -416,7 +534,7 @@ def test_screening_renderer_shows_comparison_reasons_and_source_links() -> None:
 
 
 def test_review_payload_requires_evidence_to_match_policy_constraints() -> None:
-    state = paused_state_with_evidence_and_explanation()
+    state = paused_state_with_portfolio_and_explanation()
     state["__interrupt__"][0].value["candidate_evidence"]["objective"] = "growth"
 
     with pytest.raises(ValueError, match="failed contract validation"):
@@ -424,16 +542,16 @@ def test_review_payload_requires_evidence_to_match_policy_constraints() -> None:
 
 
 def test_review_payload_recomputes_screening_from_evidence() -> None:
-    state = paused_state_with_evidence_and_explanation()
+    state = paused_state_with_portfolio_and_explanation()
     screening = state["__interrupt__"][0].value["candidate_screening"]
-    screening["candidates"][0]["rules"][3]["reason_code"] = "expense_ratio_within_limit"
+    screening["candidates"][0]["rules"][3]["message"] = "Tampered persisted screening result."
 
     with pytest.raises(ValueError, match="failed contract validation"):
         review_payload(state)
 
 
 def test_review_payload_requires_explanation_to_have_evidence() -> None:
-    state = paused_state_with_evidence_and_explanation()
+    state = paused_state_with_portfolio_and_explanation()
     state["__interrupt__"][0].value.pop("candidate_evidence")
 
     with pytest.raises(ValueError, match="failed contract validation"):
@@ -441,12 +559,154 @@ def test_review_payload_requires_explanation_to_have_evidence() -> None:
 
 
 def test_review_payload_rejects_explanation_citation_not_matching_evidence() -> None:
-    state = paused_state_with_evidence_and_explanation()
+    state = paused_state_with_portfolio_and_explanation()
     citation = state["__interrupt__"][0].value["draft_explanation"]["citations"][0]
     citation["source_url"] = "https://example.com/different-source"
 
     with pytest.raises(ValueError, match="failed contract validation"):
         review_payload(state)
+
+
+def test_review_payload_recomputes_persisted_portfolio_before_rendering() -> None:
+    state = paused_state_with_portfolio_and_explanation()
+
+    payload = review_payload(state)
+
+    assert payload["portfolio_construction"]["status"] == "ready"
+    assert payload["portfolio_construction"]["draft"]["total_weight_bps"] == 10_000
+
+
+def test_review_payload_blocks_tampered_persisted_portfolio() -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    construction = state["__interrupt__"][0].value["portfolio_construction"]
+    construction["draft"]["positions"][0]["weight_bps"] += 1
+    state["portfolio_construction"] = deepcopy(construction)
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "draft_policy",
+        "candidate_evidence",
+        "candidate_screening",
+        "portfolio_construction",
+    ],
+)
+def test_review_payload_blocks_checkpointed_upstream_mismatch(field: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    if field == "draft_policy":
+        state[field]["notes"][0] = "Tampered checkpointed policy note."
+    elif field == "candidate_evidence":
+        state[field]["query"] = "tampered checkpointed evidence query"
+    elif field == "candidate_screening":
+        state[field]["policy"]["max_expense_ratio_pct"] = 0.9
+    else:
+        state[field]["draft"]["positions"][0]["name"] = "Tampered checkpointed position"
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+def test_review_payload_requires_portfolio_with_source_evidence() -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    state["__interrupt__"][0].value.pop("portfolio_construction")
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+def test_portfolio_renderer_shows_allocations_constraints_validation_and_sources() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.metrics: list[tuple[str, str]] = []
+            self.frames: list[list[dict[str, str]]] = []
+            self.links: list[str] = []
+            self.captions: list[str] = []
+
+        def subheader(self, message: str) -> None:
+            pass
+
+        def caption(self, message: str) -> None:
+            self.captions.append(message)
+
+        def columns(self, count: int) -> tuple[Any, ...]:
+            return tuple(self for _ in range(count))
+
+        def metric(self, label: str, value: str) -> None:
+            self.metrics.append((label, value))
+
+        def dataframe(self, rows: list[dict[str, str]], **kwargs: object) -> None:
+            self.frames.append(rows)
+
+        def expander(self, label: str) -> Any:
+            return nullcontext()
+
+        def write(self, message: str) -> None:
+            pass
+
+        def link_button(self, label: str, url: str) -> None:
+            self.links.append(url)
+
+    construction = paused_state_with_portfolio_and_explanation()["__interrupt__"][0].value[
+        "portfolio_construction"
+    ]
+    st = FakeStreamlit()
+
+    _render_portfolio(st, construction)
+
+    assert ("Total weight", "100.00%") in st.metrics
+    assert ("Positions", "5") in st.metrics
+    assert st.frames[0][0] == {
+        "Symbol": "SPY",
+        "Sleeve": "growth",
+        "Source category": "Large Blend",
+        "Weight": "14.38%",
+        "Initial": "$3,595.00",
+        "Monthly": "$71.90",
+        "Deterministic reason": "supports_growth_target",
+    }
+    assert any(row["Constraint"] == "Maximum one source category" for row in st.frames[1])
+    assert all(row["Outcome"] == "pass" for row in st.frames[2])
+    assert set(st.links) == {
+        f"https://finance.yahoo.com/quote/{symbol}/"
+        for symbol in ("SPY", "VTI", "QQQ", "VEA", "BND")
+    }
+    assert any("not a recommendation" in caption for caption in st.captions)
+
+
+def test_renderer_shows_construction_failure_without_review_controls() -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.errors: list[str] = []
+            self.payloads: list[object] = []
+
+        def error(self, message: str) -> None:
+            self.errors.append(message)
+
+        def json(self, payload: object) -> None:
+            self.payloads.append(payload)
+
+    error = {
+        "type": "construction_guardrail",
+        "code": "persisted_construction_mismatch",
+        "message": "Persisted construction differs from deterministic recomputation.",
+    }
+    st = FakeStreamlit()
+
+    _render_run(
+        st,
+        DashboardRun(
+            graph=FakeGraph(),
+            config={},
+            state={"status": "construction_blocked", "construction_errors": [error]},
+        ),
+    )
+
+    assert st.errors == ["The workflow stopped before human review."]
+    assert st.payloads == [[error]]
 
 
 def test_dashboard_run_resumes_exact_thread_after_approval() -> None:

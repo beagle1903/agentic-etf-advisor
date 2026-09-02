@@ -6,6 +6,7 @@ import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
 
+from etf_advisor.dashboard import review_payload
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.explanation import (
     ExplanationGenerationError,
@@ -127,7 +128,15 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     assert paused["portfolio_construction"]["draft"]["total_weight_bps"] == 10_000
     assert paused["__interrupt__"][0].value["candidate_evidence"] == paused["candidate_evidence"]
     assert paused["__interrupt__"][0].value["candidate_screening"] == paused["candidate_screening"]
+    assert (
+        paused["__interrupt__"][0].value["portfolio_construction"]
+        == paused["portfolio_construction"]
+    )
+    assert "illustrative portfolio" in paused["__interrupt__"][0].value["question"].lower()
     assert "source evidence" in paused["__interrupt__"][0].value["question"].lower()
+    presented = review_payload(dict(paused))
+    assert presented["portfolio_construction"]["status"] == "ready"
+    assert presented["portfolio_construction"]["draft"] == paused["portfolio_construction"]["draft"]
     json.dumps(paused["candidate_evidence"])
     json.dumps(paused["candidate_screening"])
     json.dumps(paused["portfolio_construction"])
