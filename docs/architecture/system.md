@@ -106,10 +106,10 @@ field exactly. Every result carries a stable reason code, observed value, thresh
 and observation timestamp. The dashboard recomputes the bundle from evidence before rendering,
 which prevents persisted or replacement data from silently relabeling a result.
 
-## Accepted model-portfolio contract (implementation pending)
+## Deterministic model-portfolio construction
 
-ADR 0014 defines the next deterministic stage between candidate screening and optional explanation
-generation. It will revalidate the profile, policy calculation, ready evidence, recomputed
+ADR 0014 defines the deterministic stage between candidate screening and optional explanation
+generation. It revalidates the profile, policy calculation, ready evidence, recomputed
 screening, and checkpointed construction policy without a model or side effect. Only candidates
 with a complete `pass` screening verdict and consistent, supported category provenance can enter
 feasibility search.
@@ -121,6 +121,13 @@ fund-family/provider value, or model output. The initial policy requires three t
 weight precision. These values are illustrative research controls rather than suitability or
 optimization claims.
 
+The implementation also checkpoints a maximum candidate-pool size of ten. Larger pools fail with
+`candidate_pool_limit_exceeded` before subset enumeration, bounding exhaustive deterministic
+tie-breaking to at most 1,024 subsets under the initial contract. Category provenance receives its
+own freshness check against the evidence bundle's check time, maximum age, and future tolerance;
+a stale or future category blocks construction even when the candidate-level observation is
+current.
+
 Construction chooses the feasible subset with the most positions and uses upstream retrieval order
 only for deterministic tie-breaking. It divides each exact policy sleeve equally in integer basis
 points, reconciles initial and recurring cash independently in integer cents, and uses stable
@@ -129,12 +136,20 @@ exclude that candidate; stale evidence, contradictory provenance, cross-contract
 tampered screening, or an infeasible complete constraint set block the stage before explanation or
 human review.
 
-The planned graph payload is one JSON-mode `portfolio_construction` bundle containing the
+The graph payload is one JSON-mode `portfolio_construction` bundle containing the
 checkpointed construction policy, optional draft, validation checks, excluded-candidate audit
 records, and stable errors. The dashboard must recompute the bundle from its upstream state before
 rendering it, just as it currently recomputes candidate screening. An explanation provider may
 describe only a validated draft and cannot select candidates, change weights, repair a blocker, or
 decide suitability.
+
+The implemented pure constructor chooses the largest feasible subset, retains upstream order as
+its only tie-breaker, and allocates the exact growth and defensive sleeve targets in integer basis
+points. It reconciles initial and recurring cash independently in integer cents with stable
+largest-remainder ordering, then runs an independent validation pass over eligibility, sleeve and
+position constraints, category concentration, exact totals, and source attribution. A blocked
+bundle stops the workflow before optional explanation generation or human review. Presentation of
+the ready bundle remains the separate Iteration 016 dashboard work item.
 
 ## Retrieval evaluation
 
@@ -227,8 +242,7 @@ blocked generation-error state with no review-ready draft.
 4. Calculate deterministic portfolio constraints and illustrative policy ranges.
 5. Retrieve and validate source-grounded ETF evidence.
 6. Apply deterministic candidate screening and retain pass, fail, and unknown reasons.
-7. Construct and validate an illustrative model portfolio (accepted in ADR 0014; pending
-   implementation).
+7. Construct and validate an illustrative model portfolio.
 8. Draft a source-grounded explanation of the validated result.
 9. Run rule-based and evaluation guardrails.
 10. Pause for human review.
@@ -250,6 +264,10 @@ from timestamps and the declared freshness window, and the workflow revalidates 
 bundle so a replaceable retriever cannot bypass those invariants with an unvalidated model.
 Each new run clears downstream review artifacts, and routing uses the current node status so a
 reused durable thread cannot carry previously ready evidence across a new retrieval failure.
+
+The construction node is pure and requires the current ready evidence plus recomputed screening.
+Each profile-validation run clears its bundle and errors. A ready result is checkpointed only as a
+JSON-mode model dump; a stable blocker ends routing before explanation or review.
 
 The explanation node is also optional and requires ready evidence. Its generated bundle and
 errors are cleared during every profile-validation run, preventing a reused durable thread

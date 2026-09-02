@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
@@ -24,6 +25,7 @@ from etf_advisor.rag.evidence import (
     select_candidate_evidence,
 )
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, SectorExposure
+from etf_advisor.research.models import ResearchField
 
 
 def valid_profile() -> dict[str, object]:
@@ -34,7 +36,7 @@ def valid_profile() -> dict[str, object]:
         "max_drawdown_pct": 30,
         "initial_investment_usd": 50_000,
         "recurring_monthly_usd": 1_000,
-        "excluded_sectors": ["tobacco"],
+        "excluded_sectors": [],
     }
 
 
@@ -104,29 +106,11 @@ def test_rejection_routes_to_revision() -> None:
 
 
 def test_injected_evidence_is_attached_to_review_interrupt() -> None:
-    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
-    result = GraphEnrichedSource(
-        document_id="doc-spy",
-        content="SPY source facts",
-        metadata={
-            "symbol": "SPY",
-            "name": "SPDR S&P 500 ETF Trust",
-            "source": "yahoo_finance",
-            "source_url": "https://finance.yahoo.com/quote/SPY/",
-            "observed_at": "2026-08-28T11:00:00Z",
-            "quote_type": "ETF",
-            "market": "us_market",
-        },
-    )
-    retriever = HybridCandidateEvidenceRetriever(
-        _FixedSearch([result]),
-        clock=lambda: checked_at,
-        max_age=timedelta(hours=24),
-    )
+    retriever = _current_evidence_retriever()
     graph = build_graph(
         checkpointer=InMemorySaver(),
         candidate_retriever=retriever,
-        candidate_limit=2,
+        candidate_limit=5,
     )
 
     paused = graph.invoke(
@@ -138,12 +122,15 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     assert paused["candidate_evidence"]["status"] == "ready"
     assert paused["candidate_evidence"]["candidates"][0]["symbol"] == "SPY"
     assert paused["candidate_screening"]["status"] == "ready"
-    assert paused["candidate_screening"]["candidates"][0]["verdict"] == "unknown"
+    assert paused["candidate_screening"]["candidates"][0]["verdict"] == "pass"
+    assert paused["portfolio_construction"]["status"] == "ready"
+    assert paused["portfolio_construction"]["draft"]["total_weight_bps"] == 10_000
     assert paused["__interrupt__"][0].value["candidate_evidence"] == paused["candidate_evidence"]
     assert paused["__interrupt__"][0].value["candidate_screening"] == paused["candidate_screening"]
     assert "source evidence" in paused["__interrupt__"][0].value["question"].lower()
     json.dumps(paused["candidate_evidence"])
     json.dumps(paused["candidate_screening"])
+    json.dumps(paused["portfolio_construction"])
 
     completed = graph.invoke(
         Command(resume={"action": "approve"}),
@@ -151,8 +138,34 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     )
 
     assert completed["status"] == "approved"
+    assert completed["portfolio_construction"]["status"] == "ready"
     assert completed["final_message"].startswith("Candidate screening")
     assert "No ETF recommendation or trade" in completed["final_message"]
+
+
+def test_infeasible_construction_stops_before_human_review() -> None:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    retriever = HybridCandidateEvidenceRetriever(
+        _FixedSearch(_construction_sources(checked_at)[:1]),
+        clock=lambda: checked_at,
+        max_age=timedelta(hours=24),
+    )
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=retriever,
+        candidate_limit=1,
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "construction-blocked"}},
+    )
+
+    assert result["status"] == "construction_blocked"
+    assert result["portfolio_construction"]["status"] == "blocked"
+    assert result["portfolio_construction"]["draft"] is None
+    assert result["construction_errors"][0]["code"] == "insufficient_eligible_candidates"
+    assert "__interrupt__" not in result
 
 
 def test_injected_explanation_is_grounded_before_review() -> None:
@@ -451,19 +464,7 @@ def test_retrieval_failure_stops_before_human_review() -> None:
 
 def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure() -> None:
     checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
-    current = GraphEnrichedSource(
-        document_id="doc-spy",
-        content="SPY source facts",
-        metadata={
-            "symbol": "SPY",
-            "source": "yahoo_finance",
-            "source_url": "https://finance.yahoo.com/quote/SPY/",
-            "observed_at": "2026-08-28T11:00:00Z",
-            "quote_type": "ETF",
-            "market": "us_market",
-        },
-    )
-    search = _SwitchableSearch([current])
+    search = _SwitchableSearch(_construction_sources(checked_at))
     retriever = HybridCandidateEvidenceRetriever(
         search,
         clock=lambda: checked_at,
@@ -484,6 +485,8 @@ def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure()
     assert second_result["candidate_evidence"] == {}
     assert second_result["candidate_screening"] == {}
     assert second_result["screening_errors"] == []
+    assert second_result["portfolio_construction"] == {}
+    assert second_result["construction_errors"] == []
     assert second_result["evidence_errors"] == [
         {"type": "retrieval_error", "message": "Source evidence retrieval failed."}
     ]
@@ -673,22 +676,80 @@ class _SwitchableSearch(_FixedSearch):
 
 def _current_evidence_retriever() -> HybridCandidateEvidenceRetriever:
     checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
-    result = GraphEnrichedSource(
-        document_id="doc-spy",
-        content="SPY source facts",
-        metadata={
-            "symbol": "SPY",
-            "source": "yahoo_finance",
-            "source_url": "https://finance.yahoo.com/quote/SPY/",
-            "observed_at": "2026-08-28T11:00:00Z",
-            "quote_type": "ETF",
-            "market": "us_market",
-        },
-    )
     return HybridCandidateEvidenceRetriever(
-        _FixedSearch([result]),
+        _FixedSearch(_construction_sources(checked_at)),
         clock=lambda: checked_at,
         max_age=timedelta(hours=24),
+    )
+
+
+def _construction_sources(checked_at: datetime) -> list[GraphEnrichedSource]:
+    observed_at = checked_at - timedelta(hours=1)
+    return [
+        _construction_source(symbol, category, observed_at, checked_at)
+        for symbol, category in [
+            ("SPY", "Large Blend"),
+            ("VTI", "Large Blend"),
+            ("QQQ", "Large Growth"),
+            ("VEA", "Foreign Large Blend"),
+            ("BND", "Intermediate Core Bond"),
+        ]
+    ]
+
+
+def _construction_source(
+    symbol: str,
+    category: str,
+    observed_at: datetime,
+    checked_at: datetime,
+) -> GraphEnrichedSource:
+    source_url = f"https://finance.yahoo.com/quote/{symbol}/"
+    values: dict[str, Any] = {
+        "market": "us_market",
+        "quote_type": "ETF",
+        "category": category,
+        "expense_ratio_pct": 0.1,
+        "average_daily_volume": 1_000_000,
+        "top_10_concentration_pct": 40.0,
+    }
+    units = {
+        "market": "classification",
+        "quote_type": "classification",
+        "category": "classification",
+        "expense_ratio_pct": "percent",
+        "average_daily_volume": "shares_per_day",
+        "top_10_concentration_pct": "percent",
+    }
+    provenance: dict[str, dict[str, Any]] = {}
+    metadata: dict[str, str | int | float | bool] = {
+        "symbol": symbol,
+        "name": f"{symbol} ETF",
+        "source": "yahoo_finance",
+        "source_url": source_url,
+        "observed_at": observed_at.isoformat(),
+    }
+    for field_name, value in values.items():
+        field = ResearchField[Any](
+            value=value,
+            unit=units[field_name],
+            provider="yahoo_finance",
+            source_url=source_url,
+            observed_at=observed_at,
+            ingested_at=checked_at,
+            snapshot_version="workflow-construction-v1",
+        )
+        provenance[field_name] = field.model_dump(mode="json")
+        metadata[field_name] = value
+        metadata[f"{field_name}_status"] = "available"
+    metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return GraphEnrichedSource(
+        document_id=f"doc-{symbol.lower()}",
+        content=f"{symbol} source facts",
+        metadata=metadata,
     )
 
 

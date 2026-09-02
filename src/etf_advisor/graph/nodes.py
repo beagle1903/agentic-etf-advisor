@@ -5,7 +5,14 @@ from typing import Any
 from langgraph.types import interrupt
 from pydantic import ValidationError
 
-from etf_advisor.domain.policy import calculate_policy
+from etf_advisor.domain.construction import (
+    ConstructionReason,
+    PortfolioConstructionInput,
+    PortfolioConstructionPolicy,
+    blocked_model_portfolio,
+    construct_model_portfolio,
+)
+from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import (
     CandidateScreeningBundle,
@@ -44,6 +51,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
             "evidence_errors": [],
             "candidate_screening": {},
             "screening_errors": [],
+            "portfolio_construction": {},
+            "construction_errors": [],
             "draft_explanation": {},
             "explanation_errors": [],
             "review_decision": {},
@@ -59,6 +68,8 @@ def validate_profile(state: AdvisorState) -> AdvisorState:
         "evidence_errors": [],
         "candidate_screening": {},
         "screening_errors": [],
+        "portfolio_construction": {},
+        "construction_errors": [],
         "draft_explanation": {},
         "explanation_errors": [],
         "review_decision": {},
@@ -162,6 +173,51 @@ def screen_candidates(
     return {
         "candidate_screening": validated.model_dump(mode="json"),
         "screening_errors": [],
+        "status": "awaiting_human_review",
+    }
+
+
+def construct_portfolio(
+    state: AdvisorState,
+    *,
+    policy: PortfolioConstructionPolicy,
+) -> AdvisorState:
+    """Construct and independently validate a model portfolio before review."""
+
+    try:
+        construction_input = PortfolioConstructionInput(
+            profile=InvestorProfile.model_validate(state["profile"]),
+            policy_calculation=PolicyCalculation.model_validate(state["draft_policy"]),
+            candidate_evidence=CandidateEvidenceBundle.model_validate(state["candidate_evidence"]),
+            candidate_screening=CandidateScreeningBundle.model_validate(
+                state["candidate_screening"]
+            ),
+            construction_policy=policy,
+        )
+        bundle = construct_model_portfolio(construction_input)
+    except (KeyError, AttributeError, TypeError, ValueError, ValidationError):
+        bundle = blocked_model_portfolio(
+            policy,
+            ConstructionReason.UPSTREAM_CONTRACT_MISMATCH,
+        )
+
+    payload = bundle.model_dump(mode="json")
+    if bundle.status == "blocked":
+        return {
+            "portfolio_construction": payload,
+            "construction_errors": [
+                {
+                    "type": "construction_guardrail",
+                    "code": error.code.value,
+                    "message": error.message,
+                }
+                for error in bundle.errors
+            ],
+            "status": "construction_blocked",
+        }
+    return {
+        "portfolio_construction": payload,
+        "construction_errors": [],
         "status": "awaiting_human_review",
     }
 

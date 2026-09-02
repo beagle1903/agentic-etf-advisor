@@ -4,9 +4,14 @@ from typing import Any, Literal
 
 from langgraph.graph import END, START, StateGraph
 
+from etf_advisor.domain.construction import (
+    DEFAULT_CONSTRUCTION_POLICY,
+    PortfolioConstructionPolicy,
+)
 from etf_advisor.domain.screening import DEFAULT_SCREENING_POLICY, CandidateScreeningPolicy
 from etf_advisor.explanation import ExplanationGenerator
 from etf_advisor.graph.nodes import (
+    construct_portfolio,
     draft_explanation,
     draft_policy,
     finalize_review,
@@ -30,6 +35,7 @@ def build_graph(
     candidate_limit: int = 5,
     explanation_generator: ExplanationGenerator | None = None,
     screening_policy: CandidateScreeningPolicy = DEFAULT_SCREENING_POLICY,
+    construction_policy: PortfolioConstructionPolicy = DEFAULT_CONSTRUCTION_POLICY,
 ) -> Any:
     """Build the workflow with optional, explicitly injected source evidence."""
 
@@ -39,6 +45,9 @@ def build_graph(
         raise ValueError("An explanation generator requires a candidate evidence retriever.")
     validated_screening_policy = CandidateScreeningPolicy.model_validate(
         screening_policy.model_dump(mode="python")
+    )
+    validated_construction_policy = PortfolioConstructionPolicy.model_validate(
+        construction_policy.model_dump(mode="python")
     )
 
     builder = StateGraph(AdvisorState)
@@ -56,6 +65,10 @@ def build_graph(
         builder.add_node(
             "screen_candidates",
             lambda state: screen_candidates(state, policy=validated_screening_policy),
+        )
+        builder.add_node(
+            "construct_portfolio",
+            lambda state: construct_portfolio(state, policy=validated_construction_policy),
         )
     if explanation_generator is not None:
         builder.add_node(
@@ -87,6 +100,14 @@ def build_graph(
             "screen_candidates",
             route_after_screening,
             {
+                "next": "construct_portfolio",
+                "end": END,
+            },
+        )
+        builder.add_conditional_edges(
+            "construct_portfolio",
+            route_after_construction,
+            {
                 "next": (
                     "draft_explanation" if explanation_generator is not None else "human_review"
                 ),
@@ -114,6 +135,10 @@ def route_after_explanation(state: AdvisorState) -> Literal["human_review", "end
 
 
 def route_after_screening(state: AdvisorState) -> Literal["next", "end"]:
+    return "next" if state.get("status") == "awaiting_human_review" else "end"
+
+
+def route_after_construction(state: AdvisorState) -> Literal["next", "end"]:
     return "next" if state.get("status") == "awaiting_human_review" else "end"
 
 
