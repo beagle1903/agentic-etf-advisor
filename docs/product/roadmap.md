@@ -35,9 +35,11 @@ The repository already proves the following vertical slices:
 - Capability-aware Ollama Cloud explanation generation with strict local validation, request-scoped
   reference allowlists, one-request behavior, and redacted provider and contract diagnostics.
 
-This is a strong research and review foundation, but it is not yet a complete portfolio
-advisor. It does not build an ETF portfolio, validate all portfolio constraints, authenticate
-users, use production-licensed market data, or execute trades.
+This is a strong research and review foundation, and Iteration 016 now has a pure deterministic
+core that can build and validate checkpointed illustrative portfolio state. It is not yet a
+complete portfolio advisor: the new draft is not yet presented at human review, the full iteration
+evaluation is incomplete, and the system does not authenticate users, use production-licensed
+market data, or execute trades.
 
 ## Next: prove advisory quality
 

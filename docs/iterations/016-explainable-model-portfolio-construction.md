@@ -51,7 +51,7 @@ model to make eligibility, allocation, or suitability decisions.
 ## Planned work items
 
 - [x] Define the deterministic construction contract and policy defaults in ADR 0014 (#28).
-- [ ] Implement portfolio construction and validation (#29).
+- [x] Implement portfolio construction and validation (#29).
 - [ ] Present the draft and its evidence at human review (#30).
 - [ ] Add allocation, safety, persistence, and presentation evaluation coverage (#31).
 - [ ] Run the end-to-end acceptance verification and record durable evidence here (#32).
@@ -197,14 +197,28 @@ These examples are acceptance fixtures for #29; ties refer to the shown upstream
   below the default `min_positions` value of three. The algorithm assigns no weights, produces no
   draft, and permits no review interrupt.
 
-The model has no role in any example. Once #29 implements these contracts, focused tests will load
-the same values and assert byte-stable JSON-mode results across repeated calls and checkpoint
-round-trips.
+The model has no role in any example. The #29 implementation loads these values in focused tests
+and asserts stable JSON-mode results across repeated calls and checkpointed graph state.
 
 ## Verification
 
-Pending implementation. Record durable results here with the tested commit, commands, redacted
-environment details for any external verification, acceptance outcome, and remaining limitations.
+The #29 implementation is covered by deterministic unit and workflow tests for the accepted
+balanced, conservative-boundary, and infeasible-aggressive examples; configurable limits;
+category and screening exclusions; provenance and screening tampering; basis-point and cent
+reconciliation; persisted-bundle recomputation; JSON serialization; state clearing; and fail-closed
+routing before explanation or human review. Repository-wide gate results are recorded in the pull
+request for the tested head.
+
+- `uv run pytest -o addopts=` passes 234 tests; two optional Streamlit tests are skipped.
+- `uv run ruff check .` passes.
+- `uv run ruff format --check .` reports all 102 files formatted.
+- `uv run mypy` passes in strict mode across 41 source files.
+- `uv build` produces the source and wheel artifacts.
+- `docker compose config --quiet` passes.
+- `git diff --check` passes.
+
+Dashboard presentation, portfolio-aware explanation changes, broader evaluation coverage, and the
+end-to-end Iteration 016 acceptance record remain assigned to #30, #31, and #32.
 
 ## Open design decisions
 

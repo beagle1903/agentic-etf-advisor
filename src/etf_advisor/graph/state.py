@@ -11,6 +11,8 @@ class AdvisorState(TypedDict, total=False):
     evidence_errors: list[dict[str, Any]]
     candidate_screening: dict[str, Any]
     screening_errors: list[dict[str, Any]]
+    portfolio_construction: dict[str, Any]
+    construction_errors: list[dict[str, Any]]
     draft_explanation: dict[str, Any]
     explanation_errors: list[dict[str, Any]]
     review_decision: dict[str, Any]
