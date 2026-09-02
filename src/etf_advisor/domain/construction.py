@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from itertools import combinations
@@ -27,6 +27,7 @@ from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle,
 from etf_advisor.research.models import ResearchField
 
 TOTAL_WEIGHT_BPS: Final[int] = 10_000
+MAX_CONSTRUCTION_CANDIDATES: Final[int] = 10
 
 
 def _normalize_category(value: str) -> str:
@@ -60,6 +61,7 @@ class ConstructionReason(StrEnum):
     WEIGHT_RECONCILIATION_FAILED = "weight_reconciliation_failed"
     CASH_RECONCILIATION_FAILED = "cash_reconciliation_failed"
     PERSISTED_CONSTRUCTION_MISMATCH = "persisted_construction_mismatch"
+    CANDIDATE_POOL_LIMIT_EXCEEDED = "candidate_pool_limit_exceeded"
 
 
 class ConstructionCheckName(StrEnum):
@@ -97,6 +99,11 @@ class PortfolioConstructionPolicy(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    max_candidate_pool_size: int = Field(
+        default=MAX_CONSTRUCTION_CANDIDATES,
+        ge=1,
+        le=MAX_CONSTRUCTION_CANDIDATES,
+    )
     min_positions: int = Field(default=3, ge=1, le=50)
     max_positions: int = Field(default=5, ge=1, le=50)
     min_position_weight_bps: int = Field(default=500, ge=0, le=TOTAL_WEIGHT_BPS)
@@ -109,6 +116,8 @@ class PortfolioConstructionPolicy(BaseModel):
 
     @model_validator(mode="after")
     def validate_bounds_and_categories(self) -> PortfolioConstructionPolicy:
+        if self.max_positions > self.max_candidate_pool_size:
+            raise ValueError("Maximum positions cannot exceed the candidate-pool limit.")
         if self.min_positions > self.max_positions:
             raise ValueError("Minimum positions cannot exceed maximum positions.")
         if self.min_position_weight_bps > self.max_position_weight_bps:
@@ -411,7 +420,10 @@ def validate_portfolio_draft(
     target_or_error = _target_basis_points(inputs.policy_calculation, policy)
     targets = target_or_error if isinstance(target_or_error, dict) else None
     upstream_ok = _validate_upstream(inputs) is None
-    eligible, _, category_error = _classify_candidates(inputs, policy)
+    if upstream_ok:
+        eligible, _, category_error = _classify_candidates(inputs, policy)
+    else:
+        eligible, category_error = [], None
     eligible_by_id = {item.candidate.document_id: item for item in eligible}
 
     identities_unique = len(
@@ -522,11 +534,20 @@ def validate_persisted_construction(
 def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason | None:
     if inputs.candidate_evidence.status != EvidenceStatus.READY:
         return ConstructionReason.EVIDENCE_NOT_READY
+    if (
+        len(inputs.candidate_evidence.candidates)
+        > inputs.construction_policy.max_candidate_pool_size
+    ):
+        return ConstructionReason.CANDIDATE_POOL_LIMIT_EXCEEDED
     for candidate in inputs.candidate_evidence.candidates:
         try:
-            _category_provenance(candidate)
+            category_result = _category_provenance(candidate)
         except _CategoryConflict:
             return ConstructionReason.CATEGORY_PROVENANCE_CONFLICT
+        if category_result is not None and not _category_is_current(
+            category_result[1], inputs.candidate_evidence
+        ):
+            return ConstructionReason.EVIDENCE_NOT_READY
     profile = inputs.profile
     policy = inputs.policy_calculation
     if policy != calculate_policy(profile):
@@ -683,6 +704,17 @@ def _category_provenance(
     ):
         raise _CategoryConflict
     return value, provenance
+
+
+def _category_is_current(
+    provenance: ResearchField[Any],
+    evidence: CandidateEvidenceBundle,
+) -> bool:
+    checked_at = evidence.checked_at
+    observed_at = provenance.observed_at
+    max_age = timedelta(hours=evidence.health.max_age_hours)
+    future_tolerance = timedelta(minutes=evidence.health.future_tolerance_minutes)
+    return observed_at <= checked_at + future_tolerance and checked_at - observed_at <= max_age
 
 
 def _select_subset(
@@ -979,6 +1011,9 @@ def _error_message(reason: ConstructionReason) -> str:
         ),
         ConstructionReason.PERSISTED_CONSTRUCTION_MISMATCH: (
             "Persisted construction differs from deterministic recomputation."
+        ),
+        ConstructionReason.CANDIDATE_POOL_LIMIT_EXCEEDED: (
+            "The candidate pool exceeds the bounded deterministic construction limit."
         ),
         ConstructionReason.CANDIDATE_SCREENING_FAILED: "Candidate screening failed.",
         ConstructionReason.CANDIDATE_SCREENING_UNKNOWN: "Candidate screening is unresolved.",

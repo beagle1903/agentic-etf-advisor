@@ -2,6 +2,8 @@ import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import pytest
+
 from etf_advisor.domain.construction import (
     ConstructionCheckName,
     ConstructionReason,
@@ -197,6 +199,50 @@ def test_category_provenance_conflict_blocks_complete_construction() -> None:
 
     assert result.status == "blocked"
     assert result.errors[0].code == ConstructionReason.CATEGORY_PROVENANCE_CONFLICT
+    assert result.draft is None
+
+
+@pytest.mark.parametrize(
+    "category_observed_at",
+    [CHECKED_AT - timedelta(hours=25), CHECKED_AT + timedelta(minutes=6)],
+)
+def test_category_provenance_must_be_current_at_the_evidence_check_time(
+    category_observed_at: datetime,
+) -> None:
+    inputs = _construction_input(_profile())
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance["category"]["observed_at"] = category_observed_at.isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+    result = construct_model_portfolio(inputs)
+
+    assert result.status == "blocked"
+    assert result.errors[0].code == ConstructionReason.EVIDENCE_NOT_READY
+    assert result.draft is None
+
+
+def test_candidate_pool_is_bounded_before_subset_enumeration() -> None:
+    candidates = [
+        *CANDIDATES,
+        ("IVV", "Large Blend"),
+        ("SCHB", "Large Blend"),
+        ("IWF", "Large Growth"),
+        ("SCHF", "Foreign Large Blend"),
+        ("VWO", "Diversified Emerging Mkts"),
+        ("AGG", "Intermediate Core Bond"),
+    ]
+    inputs = _construction_input(_profile(), candidates=candidates)
+
+    result = construct_model_portfolio(inputs)
+
+    assert result.status == "blocked"
+    assert result.errors[0].code == ConstructionReason.CANDIDATE_POOL_LIMIT_EXCEEDED
+    assert result.policy.max_candidate_pool_size == 10
     assert result.draft is None
 
 

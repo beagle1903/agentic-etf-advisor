@@ -80,6 +80,7 @@ clears it together with downstream explanation and review state.
 
 | Field | Default | Deterministic meaning |
 | --- | ---: | --- |
+| `max_candidate_pool_size` | 10 | A larger pool is blocked before subset enumeration. |
 | `min_positions` | 3 | A smaller subset is infeasible. |
 | `max_positions` | 5 | No more than five ETFs enter the draft. |
 | `min_position_weight_bps` | 500 | Every position is at least 5.00%. |
@@ -124,6 +125,8 @@ uses stable codes including `candidate_screening_failed`, `candidate_screening_u
 `position_constraints_infeasible`, `category_limit_infeasible`,
 `allocation_band_mismatch`, `allocation_precision_unsupported`, `weight_reconciliation_failed`,
 `cash_reconciliation_failed`, and `persisted_construction_mismatch`.
+The bounded implementation also emits `candidate_pool_limit_exceeded` before search when the
+checkpointed pool limit is exceeded.
 
 ### Selection and allocation algorithm
 
@@ -205,11 +208,11 @@ and asserts stable JSON-mode results across repeated calls and checkpointed grap
 The #29 implementation is covered by deterministic unit and workflow tests for the accepted
 balanced, conservative-boundary, and infeasible-aggressive examples; configurable limits;
 category and screening exclusions; provenance and screening tampering; basis-point and cent
-reconciliation; persisted-bundle recomputation; JSON serialization; state clearing; and fail-closed
-routing before explanation or human review. Repository-wide gate results are recorded in the pull
-request for the tested head.
+reconciliation; category-field freshness; bounded candidate-pool search; persisted-bundle
+recomputation; JSON serialization; state clearing; and fail-closed routing before explanation or
+human review. Repository-wide gate results are recorded in the pull request for the tested head.
 
-- `uv run pytest -o addopts=` passes 234 tests; two optional Streamlit tests are skipped.
+- `uv run pytest -o addopts=` passes 237 tests; two optional Streamlit tests are skipped.
 - `uv run ruff check .` passes.
 - `uv run ruff format --check .` reports all 102 files formatted.
 - `uv run mypy` passes in strict mode across 41 source files.

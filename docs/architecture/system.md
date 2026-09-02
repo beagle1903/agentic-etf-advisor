@@ -121,6 +121,13 @@ fund-family/provider value, or model output. The initial policy requires three t
 weight precision. These values are illustrative research controls rather than suitability or
 optimization claims.
 
+The implementation also checkpoints a maximum candidate-pool size of ten. Larger pools fail with
+`candidate_pool_limit_exceeded` before subset enumeration, bounding exhaustive deterministic
+tie-breaking to at most 1,024 subsets under the initial contract. Category provenance receives its
+own freshness check against the evidence bundle's check time, maximum age, and future tolerance;
+a stale or future category blocks construction even when the candidate-level observation is
+current.
+
 Construction chooses the feasible subset with the most positions and uses upstream retrieval order
 only for deterministic tie-breaking. It divides each exact policy sleeve equally in integer basis
 points, reconciles initial and recurring cash independently in integer cents, and uses stable
