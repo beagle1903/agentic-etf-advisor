@@ -38,7 +38,7 @@ The repository already proves the following vertical slices:
   category and position constraints, source-attributable reasons, fail-closed dashboard
   recomputation, and durable human-review restoration.
 
-This is a strong research and review foundation. Iteration 016 now builds, validates, presents, and
+This is a strong research and review foundation. Iteration 016 builds, validates, presents, and
 restores a checkpointed illustrative portfolio at human review with deterministic safety gates. It
 is not a complete portfolio advisor: the system does not authenticate users, use
 production-licensed market data, optimize for expected performance, or execute trades.
@@ -131,11 +131,14 @@ Acceptance gate:
 - Remain educational: no forecast, guaranteed return, suitability claim, trade instruction, or
   brokerage action.
 
-## Next: make review operationally complete
+## Active: make review operationally complete
 
-### Iteration 017: revision loop and audit trail
+### Iteration 017: revision loop and audit trail (active)
 
 Make edit and reject decisions useful inputs to a controlled rerun instead of terminal labels.
+
+Canonical contract:
+`docs/iterations/017-revision-loop-and-audit-trail.md`.
 
 Acceptance gate:
 

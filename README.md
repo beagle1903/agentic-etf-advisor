@@ -250,7 +250,7 @@ licensing decision.
 - `CONTRIBUTING.md`: issue, pull-request, verification-evidence, and closure workflow.
 
 The directional roadmap is in `docs/product/roadmap.md`. The current delivery contract is in
-`docs/iterations/016-explainable-model-portfolio-construction.md`.
+`docs/iterations/017-revision-loop-and-audit-trail.md`.
 
 ## License
 
