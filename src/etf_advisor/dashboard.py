@@ -353,6 +353,8 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
                     profile=state.get("profile", {}),
                     draft_policy=state.get("draft_policy", {}),
                     candidate_evidence=state.get("candidate_evidence", {}),
+                    candidate_screening=state.get("candidate_screening", {}),
+                    portfolio_construction=state.get("portfolio_construction", {}),
                 )
                 recomputed_explanation = validate_and_bundle_explanation(
                     explanation_request,

@@ -177,17 +177,21 @@ result is converted with `model_dump(mode="json")` before entering graph state, 
 calculation does not add a top-level state field or introduce a clock, network, database,
 provider, forecast, or trade side effect.
 
-The optional explanation stage receives a provider-agnostic `ExplanationGenerator`. It sends
-an allowlisted policy-reference index and a bounded set of source records to a structured
-Ollama or OpenRouter adapter. Every returned statement declares a policy or source-evidence
-basis. Deterministic validation rejects unknown keys, unknown document IDs, and ETF subjects
-that do not match their cited records. A rule-based safety gate also rejects explicit return
+The optional explanation stage receives a provider-agnostic `ExplanationGenerator`. Before the
+provider call, its request independently recomputes the persisted portfolio from the validated
+profile, policy, evidence, screening, and construction policy. The adapter sends allowlisted policy
+and portfolio-construction reference indexes plus a bounded set of source records for selected
+positions only. Every returned statement declares a policy, portfolio-construction, or
+source-evidence basis. Deterministic validation rejects unknown keys, unknown references, and ETF
+subjects that do not match their cited source or construction records. A rule-based safety gate
+also rejects explicit return
 guarantees, trade or recommendation instructions, suitability claims, forecasts, and risk-free
 outcomes. Citation URLs and timestamps are copied from validated evidence, not model output.
 Source text is treated as untrusted quoted data, every ordinary provider SDK exception is
 sanitized at the adapter boundary, and fixed safety limitations are appended after generation.
 Every numeric value in a generated statement must also be present in that statement's exact
-cited policy fields or source records. This deterministic check blocks fabricated fees,
+cited policy fields, revalidated construction fields, or selected-position source records. This
+deterministic check blocks fabricated fees,
 percentages, amounts, and other numbers without claiming to solve general semantic entailment.
 
 Provider output steering follows the configured endpoint's capability rather than a model-name
@@ -198,12 +202,12 @@ object and applies the same Pydantic and deterministic validators locally; raw C
 rendered. OpenRouter continues to use strict function calling. None of these paths automatically
 retry with a second output method.
 
-Every explanation prompt carries separate request-scoped allowlists for policy references and
-source-document references. References must be copied exactly from the list matching each
-statement's grounding basis. The schema embedded for plain Ollama Cloud output further enumerates
-the union of allowed reference strings and source symbols. The adapter does not guess, normalize,
-or remap unknown model references; deterministic basis, reference, and subject validation remains
-authoritative.
+Every explanation prompt carries separate request-scoped allowlists for policy,
+portfolio-construction, and selected-position source-document references. References must be
+copied exactly from the list matching each statement's grounding basis. The schema embedded for
+plain Ollama Cloud output further enumerates the union of allowed reference strings and selected
+source symbols. The adapter does not guess, normalize, or remap unknown model references;
+deterministic basis, reference, and subject validation remains authoritative.
 
 Provider exceptions are categorized into stable redacted diagnostics: authentication, rate limit,
 unsupported capability, invalid response, unavailability, or other provider error. Graph state may
@@ -212,19 +216,21 @@ content, and raw model responses remain outside checkpoints and presentation. Th
 labels these fields as redacted before rendering them.
 
 Provider output that passes the Pydantic schema but fails deterministic local validation receives a
-separate stable contract category: prohibited claim, unknown policy reference, unknown source
-reference, subject mismatch, unsupported numeric claim, or an unexpected contract-validation
-failure. The graph retains only that category and the generic fail-closed message. It does not
+separate stable contract category: prohibited claim, unknown policy reference, unknown
+construction reference, unknown source reference, subject mismatch, unsupported numeric claim, or
+an unexpected contract-validation failure. The graph retains only that category and the generic
+fail-closed message. It does not
 retain the rejected generated text, model-supplied references, or unsupported numeric values.
 
 ## Explanation evaluation
 
-The first explanation baseline replays one versioned request and eight curated provider outputs
+The explanation baseline replays one versioned request and eight curated provider outputs
 through the same `validate_and_bundle_explanation` function used before human review. It covers
 valid and invalid citations, supported and unsupported numeric claims, matching and mismatched ETF
-subjects, provider refusal, unsafe financial language, and both resisted and followed prompt
-injection. Per-dimension accuracy and the overall gate are deterministic and require no provider,
-network, database, credential, or wall-clock access.
+subjects, revalidated portfolio-construction grounding, provider refusal, unsafe financial
+language, and both resisted and followed prompt injection. Per-dimension accuracy and the overall
+gate are deterministic and require no provider, network, database, credential, or wall-clock
+access.
 
 The gate passes only when every actual accept/reject decision matches its curated expectation. The
 packaged cases are a small regression baseline, not proof of general semantic entailment or broad
@@ -292,8 +298,9 @@ URL, and timestamp of explanation citations against the validated evidence recor
 candidate screening from the evidence and checkpointed screening policy, then recomputes portfolio
 construction from the validated profile, policy calculation, evidence, screening, and checkpointed
 construction policy. A restored explanation must also match its checkpointed interrupt copy and
-pass the same deterministic grounding, numeric-support, and prohibited-claim validation used before
-the original interrupt. Either persisted mismatch produces a controlled error without review controls.
+rebuild the explanation request from that revalidated construction before passing the same
+grounding, selected-position, numeric-support, and prohibited-claim validation used before the
+original interrupt. Either persisted mismatch produces a controlled error without review controls.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.

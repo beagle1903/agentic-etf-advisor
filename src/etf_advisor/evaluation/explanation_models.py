@@ -14,6 +14,7 @@ class ExplanationEvaluationDimension(StrEnum):
 
     CITATION_VALIDITY = "citation_validity"
     CLAIM_SUPPORT = "claim_support"
+    PORTFOLIO_CONSTRUCTION_GROUNDING = "portfolio_construction_grounding"
     SUBJECT_SOURCE_AGREEMENT = "subject_source_agreement"
     REFUSAL_BEHAVIOR = "refusal_behavior"
     UNSAFE_LANGUAGE = "unsafe_language"
@@ -102,6 +103,7 @@ class ExplanationEvaluationMetrics(BaseModel):
     decision_accuracy: float
     citation_validity: ExplanationDimensionScore
     claim_support: ExplanationDimensionScore
+    portfolio_construction_grounding: ExplanationDimensionScore
     subject_source_agreement: ExplanationDimensionScore
     refusal_behavior: ExplanationDimensionScore
     unsafe_language: ExplanationDimensionScore

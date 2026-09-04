@@ -21,6 +21,7 @@ from etf_advisor.explanation.models import (
     ProviderFailureDiagnostic,
     exposed_candidates,
     policy_reference_index,
+    portfolio_reference_index,
 )
 
 MAX_SOURCE_CONTENT_CHARS = 4000
@@ -179,6 +180,7 @@ def _build_messages(
     structured_method: StructuredOutputMethod,
 ) -> list[tuple[str, str]]:
     policy_references = policy_reference_index(request)
+    portfolio_references = portfolio_reference_index(request)
     candidates = exposed_candidates(request)
     sources = [
         {
@@ -210,17 +212,23 @@ def _build_messages(
     source_reference_ids = [candidate.document_id for candidate in candidates]
     reference_contract = {
         GroundingBasis.POLICY.value: list(policy_references),
+        GroundingBasis.CONSTRUCTION.value: list(portfolio_references),
         GroundingBasis.SOURCE.value: source_reference_ids,
     }
     input_payload = {
         "policy_reference_index": policy_references,
+        "portfolio_reference_index": portfolio_references,
         "source_reference_index": sources,
         "reference_contract": reference_contract,
         "evidence_warnings": request.candidate_evidence.warnings,
     }
     if structured_method == "prompt_json":
         input_payload["output_schema"] = _prompt_json_schema(
-            allowed_references=[*policy_references, *source_reference_ids],
+            allowed_references=[
+                *policy_references,
+                *portfolio_references,
+                *source_reference_ids,
+            ],
             allowed_symbols=[candidate.symbol for candidate in candidates],
         )
         output_instruction = (
@@ -240,7 +248,10 @@ def _build_messages(
         "references item MUST be copied character-for-character from the reference_contract list "
         "matching that statement's basis. Never invent, rename, abbreviate, prefix, or suffix a "
         "reference. Policy statements use policy_calculation references and no ETF subjects. "
+        "Portfolio statements use portfolio_construction references and exact matching ETF "
+        "subjects for position-specific claims; aggregate portfolio claims use no ETF subjects. "
         "Evidence statements use source_evidence references and exact matching symbol subjects. "
+        "Only candidates selected by the validated portfolio are included as source evidence. "
         "Do not recommend ETFs, claim "
         "suitability, forecast returns or drawdowns, promise outcomes, execute trades, or claim "
         "inside the generated explanation that sector exclusions were applied or verified; "

@@ -234,6 +234,8 @@ def draft_explanation(
             profile=state["profile"],
             draft_policy=state["draft_policy"],
             candidate_evidence=state["candidate_evidence"],
+            candidate_screening=state["candidate_screening"],
+            portfolio_construction=state["portfolio_construction"],
         )
         generated_result = generator.generate(request)
         result = ExplanationResult.model_validate(generated_result.model_dump(mode="python"))
