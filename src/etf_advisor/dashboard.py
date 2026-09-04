@@ -320,10 +320,17 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
                 (checkpointed_screening, screening),
                 (checkpointed_construction, construction),
             )
+            checkpointed_explanation_payload = state.get("draft_explanation", {})
+            checkpoint_has_explanation = checkpointed_explanation_payload not in ({}, None)
+            interrupt_has_explanation = payload.draft_explanation is not None
+            if checkpoint_has_explanation != interrupt_has_explanation:
+                raise ValueError(
+                    "Review explanation presence must match checkpointed workflow state."
+                )
             checkpointed_explanation: ExplanationBundle | None = None
             if payload.draft_explanation is not None:
                 checkpointed_explanation = ExplanationBundle.model_validate(
-                    state.get("draft_explanation", {})
+                    checkpointed_explanation_payload
                 )
                 checkpoint_pairs = (
                     *checkpoint_pairs,

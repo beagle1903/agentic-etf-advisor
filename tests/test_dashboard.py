@@ -608,6 +608,18 @@ def test_review_payload_replays_explanation_safety_after_checkpoint_restore(text
         review_payload(state)
 
 
+@pytest.mark.parametrize("missing_from", ["checkpoint", "interrupt"])
+def test_review_payload_rejects_asymmetric_explanation_presence(missing_from: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    if missing_from == "checkpoint":
+        state["draft_explanation"] = {}
+    else:
+        state["__interrupt__"][0].value.pop("draft_explanation")
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
 def test_review_payload_recomputes_persisted_portfolio_before_rendering() -> None:
     state = paused_state_with_portfolio_and_explanation()
 

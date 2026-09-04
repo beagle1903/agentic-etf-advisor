@@ -246,7 +246,7 @@ portfolio weight is rejected without review controls even when its citation iden
 
 Focused #31 verification on the branch reports:
 
-- `uv run pytest` passes 262 tests; two optional Streamlit tests are skipped.
+- `uv run pytest` passes 264 tests; two optional Streamlit tests are skipped.
 - `uv run etf-advisor evaluate-explanations` passes all eight curated safety decisions and all six
   dimensions at `1.0` accuracy without credentials or services.
 - `uv run etf-advisor evaluate-retrieval` reproduces the version-3 offline baseline without
