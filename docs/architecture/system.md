@@ -291,7 +291,9 @@ presentation contract revalidates every nested field, policy/evidence consistenc
 URL, and timestamp of explanation citations against the validated evidence records. It recomputes
 candidate screening from the evidence and checkpointed screening policy, then recomputes portfolio
 construction from the validated profile, policy calculation, evidence, screening, and checkpointed
-construction policy. Either persisted mismatch produces a controlled error without review controls.
+construction policy. A restored explanation must also match its checkpointed interrupt copy and
+pass the same deterministic grounding, numeric-support, and prohibited-claim validation used before
+the original interrupt. Either persisted mismatch produces a controlled error without review controls.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.

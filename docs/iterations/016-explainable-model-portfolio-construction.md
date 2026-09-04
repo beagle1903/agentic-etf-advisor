@@ -53,7 +53,7 @@ model to make eligibility, allocation, or suitability decisions.
 - [x] Define the deterministic construction contract and policy defaults in ADR 0014 (#28).
 - [x] Implement portfolio construction and validation (#29).
 - [x] Present the draft and its evidence at human review (#30).
-- [ ] Add allocation, safety, persistence, and presentation evaluation coverage (#31).
+- [x] Add allocation, safety, persistence, and presentation evaluation coverage (#31).
 - [ ] Run the end-to-end acceptance verification and record durable evidence here (#32).
 
 The GitHub tracking issue owns progress and sub-issue relationships. This file remains the
@@ -229,8 +229,33 @@ produces a controlled failure without review controls. Focused tests cover prese
 recomputation and tampering, portfolio rendering, blocked-state rendering, workflow payloads, and
 the existing approve, edit, reject, restore, and malformed-payload paths.
 
-Portfolio-aware explanation changes, broader evaluation coverage, and the end-to-end Iteration 016
-acceptance record remain assigned to #31 and #32.
+The #31 regression slice adds production-path cases for exact position and category boundaries,
+stable basis-point and cent remainders, earliest-feasible subset selection, category diversity,
+infeasible constraints, missing or unsupported categories, stale or contradictory category
+provenance, failed and unknown screening, persisted-result tampering, and JSON round trips. A full
+portfolio is restored through a newly compiled graph and revalidated before review and resume.
+Optional explanation generation receives no construction input and cannot change checkpointed
+candidates, screening, policy, weights, constraints, cash, or validation outcomes.
+
+The #31 presentation cases mutate both the checkpoint and interrupt copies of portfolio fields so
+simple equality checks cannot hide a forged category, source, reason, total, constraint, or
+validation result. They also exposed and closed a restored-explanation gap: the dashboard now
+requires the checkpointed explanation to match the interrupt and replays the production grounding,
+numeric-support, and prohibited-claim validator. A restored guarantee or invented `14.38%`
+portfolio weight is rejected without review controls even when its citation identity remains valid.
+
+Focused #31 verification on the branch reports:
+
+- `uv run pytest` passes 264 tests; two optional Streamlit tests are skipped.
+- `uv run etf-advisor evaluate-explanations` passes all eight curated safety decisions and all six
+  dimensions at `1.0` accuracy without credentials or services.
+- `uv run etf-advisor evaluate-retrieval` reproduces the version-3 offline baseline without
+  credentials or services.
+- `uv run ruff check .`, `uv run ruff format --check .`, and strict `uv run mypy` pass.
+- `uv build`, `docker compose config --quiet`, and `git diff --check` pass.
+
+Issue #32 remains responsible for end-to-end Iteration 016 acceptance verification and the final
+durable acceptance record. This #31 slice does not close the parent iteration.
 
 ## Open design decisions
 

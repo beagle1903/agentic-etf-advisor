@@ -28,12 +28,19 @@ from etf_advisor.dashboard_app import (
     _render_screening,
 )
 from etf_advisor.domain.construction import (
+    PortfolioConstructionBundle,
     PortfolioConstructionInput,
     construct_model_portfolio,
 )
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import screen_candidate_evidence
+from etf_advisor.explanation import (
+    ExplanationResult,
+    build_explanation_request,
+    validate_and_bundle_explanation,
+)
+from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import select_candidate_evidence
 from etf_advisor.rag.models import GraphEnrichedSource
 from etf_advisor.research.models import ResearchField
@@ -199,6 +206,22 @@ def paused_state_with_portfolio_and_explanation() -> dict[str, Any]:
             candidate_screening=screening,
         )
     )
+    explanation_request = build_explanation_request(
+        profile=profile.model_dump(mode="json"),
+        draft_policy=policy.model_dump(mode="json"),
+        candidate_evidence=evidence.model_dump(mode="json"),
+    )
+    explanation_payload = paused_state_with_evidence_and_explanation()["__interrupt__"][0].value[
+        "draft_explanation"
+    ]
+    explanation = validate_and_bundle_explanation(
+        explanation_request,
+        ExplanationResult(
+            provider=explanation_payload["provider"],
+            model=explanation_payload["model"],
+            explanation=explanation_payload["explanation"],
+        ),
+    )
     payload = {
         "kind": "portfolio_policy_review",
         "question": "Approve this illustrative portfolio?",
@@ -207,9 +230,7 @@ def paused_state_with_portfolio_and_explanation() -> dict[str, Any]:
         "candidate_evidence": evidence.model_dump(mode="json"),
         "candidate_screening": screening.model_dump(mode="json"),
         "portfolio_construction": construction.model_dump(mode="json"),
-        "draft_explanation": paused_state_with_evidence_and_explanation()["__interrupt__"][0].value[
-            "draft_explanation"
-        ],
+        "draft_explanation": explanation.model_dump(mode="json"),
     }
     return {
         "profile": profile.model_dump(mode="json"),
@@ -217,6 +238,7 @@ def paused_state_with_portfolio_and_explanation() -> dict[str, Any]:
         "candidate_evidence": evidence.model_dump(mode="json"),
         "candidate_screening": screening.model_dump(mode="json"),
         "portfolio_construction": construction.model_dump(mode="json"),
+        "draft_explanation": explanation.model_dump(mode="json"),
         "status": "awaiting_human_review",
         "__interrupt__": (SimpleNamespace(value=payload),),
     }
@@ -567,6 +589,37 @@ def test_review_payload_rejects_explanation_citation_not_matching_evidence() -> 
         review_payload(state)
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "SPY guarantees positive returns.",
+        "SPY has a 14.38% portfolio weight.",
+    ],
+)
+def test_review_payload_replays_explanation_safety_after_checkpoint_restore(text: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    for explanation in (
+        state["draft_explanation"],
+        state["__interrupt__"][0].value["draft_explanation"],
+    ):
+        explanation["explanation"]["evidence_points"][0]["text"] = text
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+@pytest.mark.parametrize("missing_from", ["checkpoint", "interrupt"])
+def test_review_payload_rejects_asymmetric_explanation_presence(missing_from: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    if missing_from == "checkpoint":
+        state["draft_explanation"] = {}
+    else:
+        state["__interrupt__"][0].value.pop("draft_explanation")
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
 def test_review_payload_recomputes_persisted_portfolio_before_rendering() -> None:
     state = paused_state_with_portfolio_and_explanation()
 
@@ -587,12 +640,42 @@ def test_review_payload_blocks_tampered_persisted_portfolio() -> None:
 
 
 @pytest.mark.parametrize(
+    ("path", "value"),
+    [
+        (("draft", "positions", 0, "source_category"), "Large Growth"),
+        (("draft", "positions", 0, "source_url"), "https://example.com/tampered"),
+        (("draft", "positions", 0, "reason_code"), "supports_defensive_target"),
+        (("draft", "total_weight_bps"), 9_999),
+        (("draft", "sleeve_weight_bps", "growth"), 5_749),
+        (("policy", "max_category_weight_bps"), 4_249),
+        (("validation", "checks", 0, "message"), "Tampered validation result."),
+    ],
+)
+def test_review_payload_rejects_internally_consistent_but_forged_portfolio_fields(
+    path: tuple[str | int, ...],
+    value: object,
+) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    interrupted = state["__interrupt__"][0].value["portfolio_construction"]
+    checkpointed = state["portfolio_construction"]
+    for payload in (interrupted, checkpointed):
+        target: Any = payload
+        for key in path[:-1]:
+            target = target[key]
+        target[path[-1]] = value
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+@pytest.mark.parametrize(
     "field",
     [
         "draft_policy",
         "candidate_evidence",
         "candidate_screening",
         "portfolio_construction",
+        "draft_explanation",
     ],
 )
 def test_review_payload_blocks_checkpointed_upstream_mismatch(field: str) -> None:
@@ -603,6 +686,8 @@ def test_review_payload_blocks_checkpointed_upstream_mismatch(field: str) -> Non
         state[field]["query"] = "tampered checkpointed evidence query"
     elif field == "candidate_screening":
         state[field]["policy"]["max_expense_ratio_pct"] = 0.9
+    elif field == "draft_explanation":
+        state[field]["model"] = "tampered-checkpoint-model"
     else:
         state[field]["draft"]["positions"][0]["name"] = "Tampered checkpointed position"
 
@@ -809,6 +894,66 @@ def test_durable_dashboard_run_restores_and_resumes_with_a_new_graph(
     assert load_dashboard_run(token, checkpoint_store=store).state["status"] == "approved"
     assert store.setup_calls == 3
     assert store.open_calls == 4
+
+
+def test_durable_restore_preserves_full_json_portfolio_and_revalidates_before_resume() -> None:
+    store = DurableMemoryCheckpointStore()
+    token = str(uuid4())
+    profile = valid_profile()
+    observed_at = datetime(2026, 8, 28, 11, tzinfo=UTC)
+    checked_at = datetime(2026, 8, 28, 12, tzinfo=UTC)
+    evidence = select_candidate_evidence(
+        profile,
+        [
+            _construction_source(symbol, category, observed_at, checked_at)
+            for symbol, category in (
+                ("SPY", "Large Blend"),
+                ("VTI", "Large Blend"),
+                ("QQQ", "Large Growth"),
+                ("VEA", "Foreign Large Blend"),
+                ("BND", "Intermediate Core Bond"),
+            )
+        ],
+        query="durable portfolio regression evidence",
+        checked_at=checked_at,
+        max_age=timedelta(hours=24),
+        limit=5,
+    )
+
+    class FixedRetriever:
+        def retrieve(self, requested_profile: InvestorProfile, *, limit: int = 5) -> Any:
+            assert requested_profile == profile
+            assert limit == 5
+            return evidence.model_copy(deep=True)
+
+    graph = build_graph(checkpointer=store.saver, candidate_retriever=FixedRetriever())
+    config = {"configurable": {"thread_id": token}}
+    paused = dict(graph.invoke({"profile": profile.model_dump(mode="json")}, config=config))
+    expected = json.loads(
+        json.dumps(review_payload(paused)["portfolio_construction"], sort_keys=True)
+    )
+
+    restored = load_dashboard_run(token, checkpoint_store=store)
+    payload = review_payload(restored.state)
+
+    assert payload["portfolio_construction"] == expected
+    assert payload["portfolio_construction"]["draft"]["total_weight_bps"] == 10_000
+    assert (
+        sum(
+            position["initial_usd_cents"]
+            for position in payload["portfolio_construction"]["draft"]["positions"]
+        )
+        == payload["portfolio_construction"]["draft"]["initial_total_cents"]
+    )
+
+    completed = restored.resume("approve")
+    assert completed["status"] == "approved"
+    assert (
+        PortfolioConstructionBundle.model_validate(completed["portfolio_construction"]).model_dump(
+            mode="json", exclude_none=True
+        )
+        == expected
+    )
 
 
 @pytest.mark.parametrize("token", ["", "not-a-token", "00000000-0000-1000-8000-000000000000"])
