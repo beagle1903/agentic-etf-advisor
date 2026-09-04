@@ -1,7 +1,8 @@
 # Iteration 016: Explainable model-portfolio construction
 
-- Status: In progress
+- Status: Complete
 - Created: 2026-09-01
+- Completed: 2026-09-04
 - Tracking issue: https://github.com/beagle1903/agentic-etf-advisor/issues/21
 
 ## Goal
@@ -54,7 +55,7 @@ model to make eligibility, allocation, or suitability decisions.
 - [x] Implement portfolio construction and validation (#29).
 - [x] Present the draft and its evidence at human review (#30).
 - [x] Add allocation, safety, persistence, and presentation evaluation coverage (#31).
-- [ ] Run the end-to-end acceptance verification and record durable evidence here (#32).
+- [x] Run the end-to-end acceptance verification and record durable evidence here (#32).
 
 The GitHub tracking issue owns progress and sub-issue relationships. This file remains the
 canonical execution contract and will retain the final acceptance and verification evidence.
@@ -256,6 +257,86 @@ Focused #31 verification on the branch reports:
 
 Issue #32 remains responsible for end-to-end Iteration 016 acceptance verification and the final
 durable acceptance record. This #31 slice does not close the parent iteration.
+
+## Final acceptance verification
+
+Iteration 016 was accepted on 2026-09-04 after end-to-end verification of the merged implementation
+baseline. Verification changed no eligibility, category-mapping, allocation, tie-breaking,
+rounding, safety, or fail-closed business rule.
+
+### Tested baseline and environment
+
+- Tested commit: `0c0947f52bc8239ca0ab5a1ee7f5ccccd958b31d`, the `main` merge commit for
+  pull request #37.
+- Merged implementation: [pull request #37](https://github.com/beagle1903/agentic-etf-advisor/pull/37);
+  [CI run 33850037796](https://github.com/beagle1903/agentic-etf-advisor/actions/runs/33850037796)
+  completed successfully.
+- Verification completed at `2026-09-04T07:58:45Z`.
+- Redacted environment: local Windows worktree, Python 3.13.14, uv 0.9.7, Docker 29.7.2,
+  Docker Compose 5.5.0, and the locked repository dependencies including the declared dashboard
+  extra.
+- Method: deterministic offline tests, in-memory LangGraph checkpoints, a durable-memory
+  checkpoint-store test double, Streamlit's local application test harness, offline evaluation
+  datasets, package build, and static Compose validation.
+- No provider, market-data, Chroma, Neo4j, PostgreSQL, credential, brokerage, trade, or other
+  external financial-system request was made. No environment values, source content, provider
+  response, private data, or review token was retained in this record.
+
+Pull request #37's CI run passed its lint, formatting, and test job before merge. Local verification
+then exercised the exact merge commit above rather than relying only on the pre-merge CI head.
+
+### Automated and representative results
+
+| Verification | Result |
+| --- | --- |
+| `uv run ruff check .` | Pass. |
+| `uv run ruff format --check .` | Pass; all 102 files were already formatted. |
+| `uv run mypy` | Pass in strict mode across 41 source files. |
+| `uv run pytest` with the dashboard extra | Pass; 266 tests passed with no skips. |
+| Focused construction, workflow, tamper, restore, and dashboard matrix | Pass; 12 representative tests passed. |
+| `uv run etf-advisor evaluate-explanations` | Pass; all 8 decisions and all 6 safety dimensions achieved 1.0 accuracy. |
+| `uv run etf-advisor evaluate-retrieval` | Pass; version-3 results reproduced, including 1.0 graph-context and sector-constraint metrics. |
+| `uv build` | Pass; source and wheel artifacts were built. |
+| `docker compose config --quiet` | Pass. |
+| `git diff --check` | Pass. |
+
+Representative production-boundary scenarios produced these outcomes:
+
+- Valid: five current, passing, source-attributable candidates produced the accepted deterministic
+  weights and exact initial and recurring cash totals, reached one human-review interrupt, exposed
+  approve/edit/reject actions, and completed approval without recommendation or trade language.
+- Invalid: an infeasible candidate set returned `construction_blocked` with
+  `insufficient_eligible_candidates`, no draft, and no human-review interrupt.
+- Tampered: forged weights, categories, source data, reasons, totals, constraints, validation
+  results, upstream payloads, and restored unsafe explanations were rejected by deterministic
+  dashboard recomputation; review controls were not exposed.
+- Restored: a full JSON portfolio was loaded through a newly compiled graph from the durable-store
+  interface, matched its checkpoint and interrupt payloads, passed screening, construction, and
+  explanation revalidation, and resumed the exact thread successfully.
+
+### Acceptance outcomes
+
+| Acceptance criterion | Outcome and evidence |
+| --- | --- |
+| Deterministic eligibility only | Pass. Only complete screening passes with supported category provenance enter construction; model output has no construction input or override path. |
+| Exact percentage and cash reconciliation | Pass. Accepted and boundary fixtures total 10,000 basis points and exact policy cents with stable remainder ordering. |
+| Position, allocation-band, diversification, and exclusion rules | Pass. Boundary, category-diversity, exclusion, and infeasibility cases all passed their expected outcomes. |
+| Stable reasons and attributable sources | Pass. Every included position retained its reason, policy reference, document ID, URL, provider, and UTC observation time. |
+| Fail closed before review | Pass. Missing, stale, contradictory, unresolved, infeasible, mismatched, and tampered inputs produced stable blockers and no review controls. |
+| Optional explanation has no allocation authority | Pass. The provider request excludes portfolio construction, and generated output can only describe validated policy and evidence after local safety validation. |
+| Educational dashboard safety | Pass. Presentation and restored-state checks rejected forecast, guarantee, recommendation, suitability, numeric invention, and trade language. |
+| Serializable state and replaceable side effects | Pass. JSON round trips were stable; retrieval, provider, clock, checkpoint, and presentation boundaries remained explicit and replaceable. |
+| Required regression coverage | Pass. Boundary values, infeasibility, rounding, missing evidence, persisted tampering, human review, Streamlit interaction, and durable restoration ran deterministically. |
+| Repository and approved verification gates | Pass. All local gates and offline representative checks completed; no external live request was required or approved. |
+
+### Remaining limitations
+
+Acceptance proves the deterministic local prototype contract, not suitability, optimization,
+forecasting, broad market coverage, or production readiness. The live Chroma, Neo4j, PostgreSQL,
+market-data, and provider adapters were intentionally not exercised in this verification. Yahoo
+data remains development-only; authentication, multi-user authorization, licensed production data,
+revision lineage, and brokerage connectivity remain outside Iteration 016. Iterations 017 and 018
+retain the operational revision/audit and authenticated multi-user work.
 
 ## Open design decisions
 
