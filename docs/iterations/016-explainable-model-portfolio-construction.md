@@ -235,8 +235,12 @@ stable basis-point and cent remainders, earliest-feasible subset selection, cate
 infeasible constraints, missing or unsupported categories, stale or contradictory category
 provenance, failed and unknown screening, persisted-result tampering, and JSON round trips. A full
 portfolio is restored through a newly compiled graph and revalidated before review and resume.
-Optional explanation generation receives no construction input and cannot change checkpointed
-candidates, screening, policy, weights, constraints, cash, or validation outcomes.
+The #31 slice originally withheld construction from the optional explanation request, which proved
+that a provider could not change checkpointed candidates, screening, policy, weights, constraints,
+cash, or validation outcomes. Review of the final acceptance PR correctly identified that this also
+prevented the provider from describing the validated draft as required by ADR 0014. The #32
+remediation now supplies a detached, deterministically revalidated construction bundle while
+preserving the same no-mutation authority.
 
 The #31 presentation cases mutate both the checkpoint and interrupt copies of portfolio fields so
 simple equality checks cannot hide a forged category, source, reason, total, constraint, or
@@ -261,17 +265,19 @@ durable acceptance record. This #31 slice does not close the parent iteration.
 ## Final acceptance verification
 
 Iteration 016 was accepted on 2026-09-04 after end-to-end verification of the merged implementation
-baseline. Verification changed no eligibility, category-mapping, allocation, tie-breaking,
-rounding, safety, or fail-closed business rule.
+baseline and the final explanation-grounding review correction. The correction changed no
+eligibility, category-mapping, allocation, tie-breaking, or rounding rule; it strengthened the
+fail-closed explanation boundary to match ADR 0014.
 
 ### Tested baseline and environment
 
 - Tested commit: `0c0947f52bc8239ca0ab5a1ee7f5ccccd958b31d`, the `main` merge commit for
   pull request #37.
+- Review-remediation commit: `36dbcf094fd62ce6d94feaee3e61481ad4ff1d67` on pull request #38.
 - Merged implementation: [pull request #37](https://github.com/beagle1903/agentic-etf-advisor/pull/37);
   [CI run 33850037796](https://github.com/beagle1903/agentic-etf-advisor/actions/runs/33850037796)
   completed successfully.
-- Verification completed at `2026-09-04T07:58:45Z`.
+- Verification completed at `2026-09-04T13:35:05Z`.
 - Redacted environment: local Windows worktree, Python 3.13.14, uv 0.9.7, Docker 29.7.2,
   Docker Compose 5.5.0, and the locked repository dependencies including the declared dashboard
   extra.
@@ -292,9 +298,9 @@ then exercised the exact merge commit above rather than relying only on the pre-
 | `uv run ruff check .` | Pass. |
 | `uv run ruff format --check .` | Pass; all 102 files were already formatted. |
 | `uv run mypy` | Pass in strict mode across 41 source files. |
-| `uv run pytest` with the dashboard extra | Pass; 266 tests passed with no skips. |
-| Focused construction, workflow, tamper, restore, and dashboard matrix | Pass; 12 representative tests passed. |
-| `uv run etf-advisor evaluate-explanations` | Pass; all 8 decisions and all 6 safety dimensions achieved 1.0 accuracy. |
+| `uv run pytest` with the dashboard extra | Pass; 271 tests passed with no skips. |
+| Focused construction, workflow, explanation, tamper, restore, and dashboard matrix | Pass, including selected-position filtering and revalidated portfolio grounding. |
+| `uv run etf-advisor evaluate-explanations` | Pass; baseline v2 matched all 8 decisions and all 7 dimensions achieved 1.0 accuracy. |
 | `uv run etf-advisor evaluate-retrieval` | Pass; version-3 results reproduced, including 1.0 graph-context and sector-constraint metrics. |
 | `uv build` | Pass; source and wheel artifacts were built. |
 | `docker compose config --quiet` | Pass. |
@@ -308,22 +314,26 @@ Representative production-boundary scenarios produced these outcomes:
 - Invalid: an infeasible candidate set returned `construction_blocked` with
   `insufficient_eligible_candidates`, no draft, and no human-review interrupt.
 - Tampered: forged weights, categories, source data, reasons, totals, constraints, validation
-  results, upstream payloads, and restored unsafe explanations were rejected by deterministic
-  dashboard recomputation; review controls were not exposed.
+  results, upstream payloads, explanation construction references, and restored unsafe explanations
+  were rejected by deterministic recomputation; review controls were not exposed.
 - Restored: a full JSON portfolio was loaded through a newly compiled graph from the durable-store
   interface, matched its checkpoint and interrupt payloads, passed screening, construction, and
   explanation revalidation, and resumed the exact thread successfully.
+- Explained: the provider request received revalidated totals, constraints, selected positions,
+  weights, cash, reasons, and policy references. Only selected-position source records were exposed;
+  an excluded ETF reference, a mismatched construction subject, an unknown construction reference,
+  an unsupported number, or a tampered construction stopped before human review.
 
 ### Acceptance outcomes
 
 | Acceptance criterion | Outcome and evidence |
 | --- | --- |
-| Deterministic eligibility only | Pass. Only complete screening passes with supported category provenance enter construction; model output has no construction input or override path. |
+| Deterministic eligibility only | Pass. Only complete screening passes with supported category provenance enter construction; the model receives a detached revalidated result and has no override path. |
 | Exact percentage and cash reconciliation | Pass. Accepted and boundary fixtures total 10,000 basis points and exact policy cents with stable remainder ordering. |
 | Position, allocation-band, diversification, and exclusion rules | Pass. Boundary, category-diversity, exclusion, and infeasibility cases all passed their expected outcomes. |
 | Stable reasons and attributable sources | Pass. Every included position retained its reason, policy reference, document ID, URL, provider, and UTC observation time. |
 | Fail closed before review | Pass. Missing, stale, contradictory, unresolved, infeasible, mismatched, and tampered inputs produced stable blockers and no review controls. |
-| Optional explanation has no allocation authority | Pass. The provider request excludes portfolio construction, and generated output can only describe validated policy and evidence after local safety validation. |
+| Optional explanation has no allocation authority | Pass. The provider receives the revalidated portfolio and selected-position evidence, but construction references, subjects, and numbers are locally allowlisted and provider output cannot mutate or repair the draft. |
 | Educational dashboard safety | Pass. Presentation and restored-state checks rejected forecast, guarantee, recommendation, suitability, numeric invention, and trade language. |
 | Serializable state and replaceable side effects | Pass. JSON round trips were stable; retrieval, provider, clock, checkpoint, and presentation boundaries remained explicit and replaceable. |
 | Required regression coverage | Pass. Boundary values, infeasibility, rounding, missing evidence, persisted tampering, human review, Streamlit interaction, and durable restoration ran deterministically. |
