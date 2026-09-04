@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-015
+## Proven baseline: iterations 000-016
 
 The repository already proves the following vertical slices:
 
@@ -34,14 +34,16 @@ The repository already proves the following vertical slices:
   supported sector exclusions.
 - Capability-aware Ollama Cloud explanation generation with strict local validation, request-scoped
   reference allowlists, one-request behavior, and redacted provider and contract diagnostics.
+- Deterministic model-portfolio construction with exact weight and cash reconciliation, explicit
+  category and position constraints, source-attributable reasons, fail-closed dashboard
+  recomputation, and durable human-review restoration.
 
-This is a strong research and review foundation, and Iteration 016 now has a pure deterministic
-core that can build and validate checkpointed illustrative portfolio state. It is not yet a
-complete portfolio advisor: the new draft is not yet presented at human review, the full iteration
-evaluation is incomplete, and the system does not authenticate users, use production-licensed
-market data, or execute trades.
+This is a strong research and review foundation. Iteration 016 now builds, validates, presents, and
+restores a checkpointed illustrative portfolio at human review with deterministic safety gates. It
+is not a complete portfolio advisor: the system does not authenticate users, use
+production-licensed market data, optimize for expected performance, or execute trades.
 
-## Next: prove advisory quality
+## Completed advisory-quality iterations
 
 ### Iteration 011: explanation and safety evaluation baseline (complete)
 
@@ -111,7 +113,7 @@ Acceptance gate:
 - Make one provider request per review attempt, with no automatic fallback retry.
 - Complete offline quality gates and one explicitly approved successful Cloud verification.
 
-### Iteration 016: explainable model-portfolio construction
+### Iteration 016: explainable model-portfolio construction (complete)
 
 Combine the policy ranges and eligible candidates into an illustrative portfolio draft that a
 human can inspect and change.
@@ -129,7 +131,7 @@ Acceptance gate:
 - Remain educational: no forecast, guaranteed return, suitability claim, trade instruction, or
   brokerage action.
 
-## Then: make review operationally complete
+## Next: make review operationally complete
 
 ### Iteration 017: revision loop and audit trail
 

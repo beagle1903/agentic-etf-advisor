@@ -22,12 +22,13 @@ def test_offline_explanation_evaluation_is_deterministic_and_passes_all_dimensio
 
     assert first == second
     assert first.dataset_id == "explanation-safety-baseline"
-    assert first.version == 1
+    assert first.version == 2
     assert first.metrics.case_count == 8
     assert first.metrics.correct_count == 8
     assert first.metrics.decision_accuracy == 1.0
     assert first.metrics.citation_validity.accuracy == 1.0
     assert first.metrics.claim_support.accuracy == 1.0
+    assert first.metrics.portfolio_construction_grounding.accuracy == 1.0
     assert first.metrics.subject_source_agreement.accuracy == 1.0
     assert first.metrics.refusal_behavior.accuracy == 1.0
     assert first.metrics.unsafe_language.accuracy == 1.0

@@ -213,7 +213,7 @@ def test_injected_explanation_is_grounded_before_review() -> None:
     assert calls == ["growth"]
 
 
-def test_optional_explanation_has_no_portfolio_construction_authority() -> None:
+def test_optional_explanation_sees_validated_portfolio_without_mutation_authority() -> None:
     profile = valid_profile()
     baseline = build_graph(
         checkpointer=InMemorySaver(),
@@ -225,9 +225,12 @@ def test_optional_explanation_has_no_portfolio_construction_authority() -> None:
 
     class MutatingGenerator:
         def generate(self, request: ExplanationRequest) -> ExplanationResult:
-            assert "portfolio_construction" not in type(request).model_fields
+            assert request.portfolio_construction.status == "ready"
+            assert request.portfolio_construction.draft is not None
+            assert request.portfolio_construction.draft.total_weight_bps == 10_000
             request.candidate_evidence.candidates.reverse()
             request.draft_policy.notes.append("Model-authored text is not a construction input.")
+            request.portfolio_construction.draft.positions[0].weight_bps += 1
             return ExplanationResult(
                 provider="test",
                 model="mutating-copy",

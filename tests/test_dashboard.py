@@ -210,6 +210,8 @@ def paused_state_with_portfolio_and_explanation() -> dict[str, Any]:
         profile=profile.model_dump(mode="json"),
         draft_policy=policy.model_dump(mode="json"),
         candidate_evidence=evidence.model_dump(mode="json"),
+        candidate_screening=screening.model_dump(mode="json"),
+        portfolio_construction=construction.model_dump(mode="json"),
     )
     explanation_payload = paused_state_with_evidence_and_explanation()["__interrupt__"][0].value[
         "draft_explanation"

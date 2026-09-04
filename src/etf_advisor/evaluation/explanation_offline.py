@@ -73,6 +73,9 @@ def run_offline_explanation_evaluation(
             decision_accuracy=_ratio(correct_count, len(results)),
             citation_validity=dimension_scores[ExplanationEvaluationDimension.CITATION_VALIDITY],
             claim_support=dimension_scores[ExplanationEvaluationDimension.CLAIM_SUPPORT],
+            portfolio_construction_grounding=dimension_scores[
+                ExplanationEvaluationDimension.PORTFOLIO_CONSTRUCTION_GROUNDING
+            ],
             subject_source_agreement=dimension_scores[
                 ExplanationEvaluationDimension.SUBJECT_SOURCE_AGREEMENT
             ],
@@ -98,6 +101,10 @@ def _evaluate_case(
                 profile=dataset.request.profile.model_dump(mode="json"),
                 draft_policy=dataset.request.draft_policy.model_dump(mode="json"),
                 candidate_evidence=dataset.request.candidate_evidence.model_dump(mode="json"),
+                candidate_screening=dataset.request.candidate_screening.model_dump(mode="json"),
+                portfolio_construction=dataset.request.portfolio_construction.model_dump(
+                    mode="json"
+                ),
             ),
             generator=_ProviderRefusalGenerator(),
         )
@@ -151,7 +158,11 @@ def _score_dimension(
 
 def _sanitized_reason(error: ValueError) -> str:
     message = str(error).casefold()
-    if "unknown source reference" in message or "unknown grounding reference" in message:
+    if (
+        "unknown source reference" in message
+        or "unknown grounding reference" in message
+        or "unknown construction reference" in message
+    ):
         return "invalid_grounding_reference"
     if "subjects do not match" in message:
         return "subject_source_mismatch"

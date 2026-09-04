@@ -11,8 +11,14 @@ from typing import Final, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from etf_advisor.domain.construction import (
+    PortfolioConstructionBundle,
+    PortfolioConstructionInput,
+    validate_persisted_construction,
+)
 from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.screening import CandidateScreeningBundle
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 
 MAX_EXPLANATION_CANDIDATES = 10
@@ -93,6 +99,7 @@ class ExplanationContractFailureCode(StrEnum):
 
     PROHIBITED_CLAIM = "prohibited_claim"
     UNKNOWN_POLICY_REFERENCE = "unknown_policy_reference"
+    UNKNOWN_CONSTRUCTION_REFERENCE = "unknown_construction_reference"
     UNKNOWN_SOURCE_REFERENCE = "unknown_source_reference"
     SUBJECT_MISMATCH = "subject_mismatch"
     UNSUPPORTED_NUMERIC_CLAIM = "unsupported_numeric_claim"
@@ -134,6 +141,7 @@ class ExplanationGenerationError(RuntimeError):
 
 class GroundingBasis(StrEnum):
     POLICY = "policy_calculation"
+    CONSTRUCTION = "portfolio_construction"
     SOURCE = "source_evidence"
 
 
@@ -193,6 +201,8 @@ class ExplanationRequest(BaseModel):
     profile: InvestorProfile
     draft_policy: PolicyCalculation
     candidate_evidence: CandidateEvidenceBundle
+    candidate_screening: CandidateScreeningBundle
+    portfolio_construction: PortfolioConstructionBundle
 
     @model_validator(mode="after")
     def validate_consistency(self) -> ExplanationRequest:
@@ -212,6 +222,22 @@ class ExplanationRequest(BaseModel):
             raise ValueError("Evidence risk tolerance does not match the validated profile.")
         if self.profile.excluded_sectors != self.candidate_evidence.excluded_sectors:
             raise ValueError("Evidence exclusions do not match the validated profile.")
+        recomputed = validate_persisted_construction(
+            PortfolioConstructionInput(
+                profile=self.profile,
+                policy_calculation=self.draft_policy,
+                candidate_evidence=self.candidate_evidence,
+                candidate_screening=self.candidate_screening,
+                construction_policy=self.portfolio_construction.policy,
+            ),
+            self.portfolio_construction,
+        )
+        if recomputed.status != "ready":
+            raise ValueError(
+                "Explanation generation requires deterministically revalidated portfolio "
+                "construction."
+            )
+        self.portfolio_construction = recomputed
         return self
 
 
@@ -276,6 +302,8 @@ def build_explanation_request(
     profile: dict[str, object],
     draft_policy: dict[str, object],
     candidate_evidence: dict[str, object],
+    candidate_screening: dict[str, object],
+    portfolio_construction: dict[str, object],
 ) -> ExplanationRequest:
     """Revalidate graph state before exposing it to a model provider."""
 
@@ -283,6 +311,8 @@ def build_explanation_request(
         profile=InvestorProfile.model_validate(profile),
         draft_policy=PolicyCalculation.model_validate(draft_policy),
         candidate_evidence=CandidateEvidenceBundle.model_validate(candidate_evidence),
+        candidate_screening=CandidateScreeningBundle.model_validate(candidate_screening),
+        portfolio_construction=PortfolioConstructionBundle.model_validate(portfolio_construction),
     )
 
 
@@ -306,9 +336,60 @@ def policy_reference_index(request: ExplanationRequest) -> dict[str, object]:
 
 
 def exposed_candidates(request: ExplanationRequest) -> list[CandidateEvidence]:
-    """Bound the number of source records exposed to a provider call."""
+    """Expose only candidates selected by the revalidated portfolio, in draft order."""
 
-    return list(request.candidate_evidence.candidates[:MAX_EXPLANATION_CANDIDATES])
+    draft = request.portfolio_construction.draft
+    if draft is None:  # Defensive after request validation.
+        return []
+    candidates = {
+        candidate.document_id: candidate for candidate in request.candidate_evidence.candidates
+    }
+    return [
+        candidates[position.document_id]
+        for position in draft.positions[:MAX_EXPLANATION_CANDIDATES]
+    ]
+
+
+def portfolio_reference_index(request: ExplanationRequest) -> dict[str, object]:
+    """Return the only revalidated construction fields generated text may cite."""
+
+    construction = request.portfolio_construction
+    draft = construction.draft
+    if draft is None:  # Defensive after request validation.
+        return {}
+    position_refs = {
+        f"portfolio.positions.{index}": {
+            "document_id": position.document_id,
+            "symbol": position.symbol,
+            "sleeve": position.sleeve.value,
+            "source_category": position.source_category,
+            "weight_bps": position.weight_bps,
+            "weight_pct": str(Decimal(position.weight_bps) / Decimal(100)),
+            "initial_usd_cents": position.initial_usd_cents,
+            "initial_usd": str(Decimal(position.initial_usd_cents) / Decimal(100)),
+            "recurring_usd_cents": position.recurring_usd_cents,
+            "recurring_usd": str(Decimal(position.recurring_usd_cents) / Decimal(100)),
+            "reason_code": position.reason_code,
+            "policy_reference": position.policy_reference,
+            "screening_reason_codes": list(position.screening_reason_codes),
+        }
+        for index, position in enumerate(draft.positions)
+    }
+    return {
+        "portfolio.totals": {
+            "total_weight_bps": draft.total_weight_bps,
+            "total_weight_pct": str(Decimal(draft.total_weight_bps) / Decimal(100)),
+            "sleeve_weight_bps": {
+                sleeve.value: value for sleeve, value in draft.sleeve_weight_bps.items()
+            },
+            "initial_total_cents": draft.initial_total_cents,
+            "initial_total_usd": str(Decimal(draft.initial_total_cents) / Decimal(100)),
+            "recurring_total_cents": draft.recurring_total_cents,
+            "recurring_total_usd": str(Decimal(draft.recurring_total_cents) / Decimal(100)),
+        },
+        "portfolio.constraints": construction.policy.model_dump(mode="json"),
+        **position_refs,
+    }
 
 
 def validate_and_bundle_explanation(
@@ -320,6 +401,7 @@ def validate_and_bundle_explanation(
     validated = ExplanationResult.model_validate(result.model_dump(mode="python"))
     _validate_prohibited_claims(validated.explanation)
     policy_refs = set(policy_reference_index(request))
+    construction_refs = portfolio_reference_index(request)
     source_by_id = {candidate.document_id: candidate for candidate in exposed_candidates(request)}
 
     for statement in _all_statements(validated.explanation):
@@ -329,6 +411,25 @@ def validate_and_bundle_explanation(
                 raise ExplanationContractError(
                     ExplanationContractFailureCode.UNKNOWN_POLICY_REFERENCE,
                     "Policy statement contains an unknown grounding reference.",
+                )
+            continue
+
+        if statement.basis == GroundingBasis.CONSTRUCTION:
+            unknown = set(statement.references) - set(construction_refs)
+            if unknown:
+                raise ExplanationContractError(
+                    ExplanationContractFailureCode.UNKNOWN_CONSTRUCTION_REFERENCE,
+                    "Portfolio statement contains an unknown construction reference.",
+                )
+            expected_symbols = {
+                symbol
+                for reference in statement.references
+                for symbol in _construction_reference_symbols(construction_refs[reference])
+            }
+            if set(statement.subject_symbols) != expected_symbols:
+                raise ExplanationContractError(
+                    ExplanationContractFailureCode.SUBJECT_MISMATCH,
+                    "Portfolio statement subjects do not match its construction references.",
                 )
             continue
 
@@ -416,6 +517,7 @@ def _validate_numeric_claim_support(
     source_by_id: dict[str, CandidateEvidence],
 ) -> None:
     policy_refs = policy_reference_index(request)
+    construction_refs = portfolio_reference_index(request)
     for statement in _all_statements(explanation):
         claimed_numbers = _numeric_tokens(statement.text)
         if not claimed_numbers:
@@ -423,6 +525,11 @@ def _validate_numeric_claim_support(
         if statement.basis == GroundingBasis.POLICY:
             support_text = " ".join(
                 json.dumps(policy_refs[reference], sort_keys=True)
+                for reference in statement.references
+            )
+        elif statement.basis == GroundingBasis.CONSTRUCTION:
+            support_text = " ".join(
+                json.dumps(construction_refs[reference], sort_keys=True)
                 for reference in statement.references
             )
         else:
@@ -436,6 +543,13 @@ def _validate_numeric_claim_support(
                 ExplanationContractFailureCode.UNSUPPORTED_NUMERIC_CLAIM,
                 "Generated explanation contains a numeric claim absent from its cited support.",
             )
+
+
+def _construction_reference_symbols(value: object) -> set[str]:
+    if not isinstance(value, dict):
+        return set()
+    symbol = value.get("symbol")
+    return {symbol} if isinstance(symbol, str) and symbol else set()
 
 
 def _candidate_support_text(candidate: CandidateEvidence) -> str:
