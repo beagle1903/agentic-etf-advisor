@@ -99,6 +99,54 @@ def test_conservative_profile_passes_exact_position_and_category_boundaries() ->
     assert result.draft.sleeve_weight_bps == {"growth": 2_000, "defensive": 8_000}
 
 
+def test_category_diversification_uses_earliest_feasible_subset_and_stable_remainders() -> None:
+    candidates = [
+        ("SPY", "Large Blend"),
+        ("VTI", "Large Blend"),
+        ("IVV", "Large Blend"),
+        ("QQQ", "Large Growth"),
+        ("VEA", "Foreign Large Blend"),
+        ("BND", "Intermediate Core Bond"),
+    ]
+    inputs = _construction_input(
+        _profile(),
+        candidates=candidates,
+        construction_policy=PortfolioConstructionPolicy(max_category_weight_bps=4_250),
+    )
+
+    first = construct_model_portfolio(inputs)
+    second = construct_model_portfolio(inputs)
+
+    assert first == second
+    assert first.status == "ready"
+    assert first.draft is not None
+    assert [position.symbol for position in first.draft.positions] == [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND",
+    ]
+    assert [position.weight_bps for position in first.draft.positions] == [
+        1_438,
+        1_438,
+        1_437,
+        1_437,
+        4_250,
+    ]
+    category_totals: dict[str, int] = {}
+    for position in first.draft.positions:
+        category_totals[position.source_category] = (
+            category_totals.get(position.source_category, 0) + position.weight_bps
+        )
+    assert category_totals == {
+        "Large Blend": 2_876,
+        "Large Growth": 1_437,
+        "Foreign Large Blend": 1_437,
+        "Intermediate Core Bond": 4_250,
+    }
+
+
 def test_aggressive_two_candidate_input_blocks_before_assigning_weights() -> None:
     profile = _profile(risk_tolerance="aggressive", objective="growth")
     inputs = _construction_input(profile, candidates=CANDIDATES[2::2])
@@ -166,6 +214,30 @@ def test_failed_screening_candidate_is_audited_and_never_weighted() -> None:
     excluded = result.excluded_candidates[0]
     assert excluded.reason_code == ConstructionReason.CANDIDATE_SCREENING_FAILED
     assert excluded.screening_reason_codes == ["expense_ratio_above_limit"]
+
+
+def test_unknown_screening_candidate_is_audited_and_never_weighted() -> None:
+    inputs = _construction_input(_profile())
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance.pop("expense_ratio_pct")
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    candidate.metadata.pop("expense_ratio_pct")
+    candidate.metadata.pop("expense_ratio_pct_status")
+    inputs.candidate_screening = screen_candidate_evidence(inputs.candidate_evidence)
+
+    result = construct_model_portfolio(inputs)
+
+    assert result.status == "ready"
+    assert result.draft is not None
+    assert "SPY" not in {position.symbol for position in result.draft.positions}
+    excluded = result.excluded_candidates[0]
+    assert excluded.reason_code == ConstructionReason.CANDIDATE_SCREENING_UNKNOWN
+    assert excluded.screening_reason_codes == ["expense_ratio_unknown"]
 
 
 def test_missing_category_is_audited_without_guessing_a_sleeve() -> None:
@@ -343,6 +415,20 @@ def test_persisted_bundle_must_equal_deterministic_recomputation() -> None:
         if check.name == ConstructionCheckName.PERSISTED_RECOMPUTATION
     )
     assert not persisted_check.passed
+
+
+def test_ready_bundle_survives_json_round_trip_without_semantic_drift() -> None:
+    inputs = _construction_input(_profile())
+    expected = construct_model_portfolio(inputs)
+
+    restored_inputs = PortfolioConstructionInput.model_validate_json(inputs.model_dump_json())
+    restored_bundle = type(expected).model_validate_json(expected.model_dump_json())
+    checked = validate_persisted_construction(restored_inputs, restored_bundle)
+
+    assert restored_inputs == inputs
+    assert restored_bundle == expected
+    assert checked == expected
+    assert checked.status == "ready"
 
 
 def test_nonzero_weights_may_receive_zero_cents_without_losing_cash() -> None:

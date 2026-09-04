@@ -213,6 +213,44 @@ def test_injected_explanation_is_grounded_before_review() -> None:
     assert calls == ["growth"]
 
 
+def test_optional_explanation_has_no_portfolio_construction_authority() -> None:
+    profile = valid_profile()
+    baseline = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+    ).invoke(
+        {"profile": profile},
+        config={"configurable": {"thread_id": "construction-authority-baseline"}},
+    )
+
+    class MutatingGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            assert "portfolio_construction" not in type(request).model_fields
+            request.candidate_evidence.candidates.reverse()
+            request.draft_policy.notes.append("Model-authored text is not a construction input.")
+            return ExplanationResult(
+                provider="test",
+                model="mutating-copy",
+                explanation=_valid_generated_explanation(),
+            )
+
+    explained = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+        explanation_generator=MutatingGenerator(),
+    ).invoke(
+        {"profile": profile},
+        config={"configurable": {"thread_id": "construction-authority-explained"}},
+    )
+
+    assert baseline["status"] == "awaiting_human_review"
+    assert explained["status"] == "awaiting_human_review"
+    assert explained["portfolio_construction"] == baseline["portfolio_construction"]
+    assert explained["candidate_screening"] == baseline["candidate_screening"]
+    assert explained["draft_policy"] == baseline["draft_policy"]
+    assert explained["draft_explanation"]["status"] == "ready"
+
+
 def test_explanation_failure_stops_before_human_review() -> None:
     class FailingGenerator:
         def generate(self, request: ExplanationRequest) -> ExplanationResult:

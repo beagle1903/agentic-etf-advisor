@@ -25,7 +25,12 @@ from etf_advisor.domain.construction import (
 from etf_advisor.domain.policy import PolicyCalculation
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
-from etf_advisor.explanation import ExplanationBundle
+from etf_advisor.explanation import (
+    ExplanationBundle,
+    ExplanationResult,
+    build_explanation_request,
+    validate_and_bundle_explanation,
+)
 from etf_advisor.explanation.provider import create_explanation_generator
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
@@ -309,12 +314,21 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
             checkpointed_construction = PortfolioConstructionBundle.model_validate(
                 state.get("portfolio_construction", {})
             )
-            checkpoint_pairs = (
+            checkpoint_pairs: tuple[tuple[BaseModel, BaseModel], ...] = (
                 (checkpointed_policy, payload.draft_policy),
                 (checkpointed_evidence, evidence),
                 (checkpointed_screening, screening),
                 (checkpointed_construction, construction),
             )
+            checkpointed_explanation: ExplanationBundle | None = None
+            if payload.draft_explanation is not None:
+                checkpointed_explanation = ExplanationBundle.model_validate(
+                    state.get("draft_explanation", {})
+                )
+                checkpoint_pairs = (
+                    *checkpoint_pairs,
+                    (checkpointed_explanation, payload.draft_explanation),
+                )
             if any(checkpointed != interrupted for checkpointed, interrupted in checkpoint_pairs):
                 raise ValueError("Review payload must match checkpointed workflow state.")
             inputs = PortfolioConstructionInput(
@@ -327,6 +341,24 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
             recomputed = validate_persisted_construction(inputs, checkpointed_construction)
             if recomputed.status != "ready":
                 raise ValueError("Review construction failed deterministic recomputation.")
+            if checkpointed_explanation is not None:
+                explanation_request = build_explanation_request(
+                    profile=state.get("profile", {}),
+                    draft_policy=state.get("draft_policy", {}),
+                    candidate_evidence=state.get("candidate_evidence", {}),
+                )
+                recomputed_explanation = validate_and_bundle_explanation(
+                    explanation_request,
+                    ExplanationResult(
+                        provider=checkpointed_explanation.provider,
+                        model=checkpointed_explanation.model,
+                        explanation=checkpointed_explanation.explanation,
+                    ),
+                )
+                if recomputed_explanation != checkpointed_explanation:
+                    raise ValueError(
+                        "Review explanation failed deterministic safety recomputation."
+                    )
     except (TypeError, ValidationError) as exc:
         raise ValueError("Workflow review payload failed contract validation.") from exc
     except ValueError as exc:
