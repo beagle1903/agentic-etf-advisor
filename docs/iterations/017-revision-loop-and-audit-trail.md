@@ -47,9 +47,10 @@ explicit lifecycle for durable checkpoints.
   only when its revision, stage, attempt, canonical input digest, and validated output all match.
 - A missing, malformed, contradictory, stale, tampered, or ambiguous operation receipt stops before
   adapter invocation. A retry requires an explicit human action and a new attempt identity.
-- Every retained revision links its parent, profile version, evidence snapshot and bundle, drafts,
-  review decision, operation receipts, and outcome through JSON-serializable identifiers and
-  canonical digests.
+- Every retained revision links its profile version and outcome. A non-root revision also links the
+  parent revision and the parent decision that triggered it. Evidence, draft, operation-receipt,
+  and review-decision references are required only when their stages were enabled and reached or
+  the decision was actually submitted.
 - Local durable checkpoints expire 30 days after the last meaningful write unless configured
   otherwise. Read-only restore does not extend retention.
 - Expiry cleanup is explicit, previewable, and scoped to expired threads. Exact-thread deletion
@@ -89,6 +90,10 @@ disposition, bounded reviewer note, one or more typed feedback items when revisi
 and one injected UTC submission time. A free-text note is explanatory evidence only. It cannot be
 parsed by a model or heuristic to infer a financial patch, feedback class, or restart stage.
 
+A decision that creates a child revision remains the review decision of its reviewed parent. The
+child stores that ID separately as `triggering_decision_id`. Its own `review_decision_id` remains
+absent while the child is awaiting review and is populated only when that child is reviewed.
+
 ### Feedback classes and restart boundaries
 
 | Feedback class | Required typed payload | Restart stage | Invalidated state |
@@ -127,17 +132,23 @@ not personalized suitability decisions.
 
 One durable thread contains an ordered lineage. Each revision record includes:
 
-- `revision_id`, optional `parent_revision_id`, sequence number, status, created time, and completed
-  time;
-- `profile_version_id` plus the canonical profile digest and the decision that created it;
+- `revision_id`, sequence number, status, created time, and optional completed time;
+- for a non-root revision, `parent_revision_id` and `triggering_decision_id`; both are absent on the
+  root revision;
+- `profile_version_id` plus the canonical profile digest;
 - the restart stage, ordered invalidation set, typed feedback classes, and planning digest;
 - source research `snapshot_version` and `snapshot_digest`, plus a separate evidence-bundle ID and
-  digest for the query-specific candidate set;
-- IDs and canonical digests for policy, screening, construction, and explanation drafts that exist
-  in that revision;
-- review-decision ID, action, disposition, bounded note, typed payload digest, and submission time;
-- side-effect operation receipts and the final approved, rejected, blocked, or awaiting-review
-  outcome.
+  digest, only when retrieval was enabled and produced query-specific candidate evidence;
+- IDs and canonical digests only for policy, screening, construction, and explanation artifacts
+  whose stages were enabled and reached in that revision;
+- an optional `review_decision_id`; once submitted, the linked decision carries its action,
+  disposition, bounded note, typed payload digest, and submission time;
+- operation receipts only for side-effect stages attempted in that revision; and
+- the current awaiting-review, approved, rejected, or blocked outcome.
+
+Absence is therefore stage-aware, not represented by invented placeholder identities. The
+policy-only default remains a valid auditable revision with a profile version and policy draft but
+without evidence, screening, construction, explanation, or side-effect-operation references.
 
 Identifiers are opaque and unique within their record type. Digests use canonical JSON with stable
 key ordering and exclude secrets, raw provider output, prompts, and transient connection data.

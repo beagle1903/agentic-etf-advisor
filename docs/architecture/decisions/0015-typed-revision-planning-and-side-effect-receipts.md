@@ -37,10 +37,13 @@ before creating a revision, then clear all state at or after that boundary. Unch
 artifacts are referenced through immutable identity and canonical digest. Policy calculation has no
 separate feedback class because it remains a pure result of the validated profile.
 
-Give each revision an ID, parent ID, sequence, plan, and immutable input identities. Represent each
-retrieval or explanation call with an operation receipt containing revision, stage, attempt,
-operation ID, canonical input digest, status, optional output identity/digest, and injected UTC
-times.
+Give each revision an ID, sequence, plan, and immutable identities for the stages enabled and
+reached. A non-root revision links its parent and stores the parent's decision separately as its
+`triggering_decision_id`. Its own `review_decision_id` is absent until that revision is reviewed.
+Policy-only revisions do not invent evidence, screening, construction, explanation, or operation
+identities. Represent each retrieval or explanation call that is actually attempted with an
+operation receipt containing revision, stage, attempt, operation ID, canonical input digest,
+status, optional output identity/digest, and injected UTC times.
 
 A succeeded receipt is reusable only when its input matches and the referenced output passes local
 validation with the same digest. Failed and ambiguous attempts never retry automatically. A
