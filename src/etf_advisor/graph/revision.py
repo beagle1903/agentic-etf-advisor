@@ -5,7 +5,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from copy import deepcopy
 from typing import Any, cast
-from uuid import uuid4
 
 from langchain_core.runnables import RunnableConfig
 
@@ -38,11 +37,8 @@ from etf_advisor.explanation import (
 )
 from etf_advisor.graph import nodes
 from etf_advisor.graph.state import AdvisorState
+from etf_advisor.identifiers import IdentifierFactory
 from etf_advisor.rag.evidence import CandidateEvidenceBundle, EvidenceStatus
-
-
-def _id() -> str:
-    return str(uuid4())
 
 
 def _sealed_values(state: AdvisorState) -> dict[str, Any]:
@@ -237,12 +233,6 @@ def operation_digest(ledger: RevisionLedger, revision: Revision, stage: Operatio
     )
 
 
-def _record(ledger: RevisionLedger, value: dict[str, Any]) -> str:
-    artifact = Artifact(artifact_id=_id(), digest=digest(value), value=value)
-    ledger.artifacts[artifact.artifact_id] = artifact
-    return artifact.artifact_id
-
-
 def _block(state: AdvisorState) -> AdvisorState:
     # Preserve the original ledger/digest as diagnostic evidence; never repair tampering.
     result: AdvisorState = {
@@ -270,10 +260,22 @@ class RevisionRuntime:
     that permit. Only explicit retry may prepare another attempt.
     """
 
-    def __init__(self, *, clock: Clock, inputs: dict[str, Any]) -> None:
+    def __init__(
+        self, *, clock: Clock, identifier_factory: IdentifierFactory, inputs: dict[str, Any]
+    ) -> None:
         self.clock = clock
+        self.identifier_factory = identifier_factory
         self.inputs = inputs
         self._permits: set[str] = set()
+
+    def _record(self, ledger: RevisionLedger, value: dict[str, Any]) -> str:
+        artifact = Artifact(
+            artifact_id=self.identifier_factory(), digest=digest(value), value=value
+        )
+        if artifact.artifact_id in ledger.artifacts:
+            raise ValueError("Identifier factory reused an artifact identity.")
+        ledger.artifacts[artifact.artifact_id] = artifact
+        return artifact.artifact_id
 
     def begin(self, state: AdvisorState, config: RunnableConfig) -> AdvisorState:
         try:
@@ -324,7 +326,7 @@ class RevisionRuntime:
                 thread_id=str(config["configurable"]["thread_id"]),
                 revisions=[
                     Revision(
-                        revision_id=_id(),
+                        revision_id=self.identifier_factory(),
                         sequence=1,
                         created_at=now,
                         status="running",
@@ -334,7 +336,7 @@ class RevisionRuntime:
                     )
                 ],
             )
-            ledger.revisions[0].profile_version_id = _record(ledger, inputs["profile"])
+            ledger.revisions[0].profile_version_id = self._record(ledger, inputs["profile"])
             result["next_stage"] = "validate_profile"
             result["revision_errors"] = []
             result["retry_operation_id"] = ""
@@ -361,7 +363,7 @@ class RevisionRuntime:
                 if previous and ledger.artifacts[previous].value != value:
                     raise ValueError("A reached artifact cannot be silently overwritten.")
                 if not previous:
-                    revision.artifacts[name] = _record(ledger, value)
+                    revision.artifacts[name] = self._record(ledger, value)
         revision.status = result["status"]
         return _seal(result, ledger)
 
@@ -384,7 +386,7 @@ class RevisionRuntime:
                 revision_id=revision.revision_id,
                 stage=stage,
                 attempt=len(prior) + 1,
-                operation_id=_id(),
+                operation_id=self.identifier_factory(),
                 input_digest=operation_digest(ledger, revision, stage),
                 status="started",
                 started_at=self.clock(),
@@ -422,7 +424,7 @@ class RevisionRuntime:
                 self.validate_output(result, stage)
                 name = "candidate_evidence" if stage == "retrieve_candidate_evidence" else stage
                 value = result[name]
-                receipt.output_id = _record(ledger, value)
+                receipt.output_id = self._record(ledger, value)
                 receipt.output_digest = digest(value)
                 revision.artifacts[name] = receipt.output_id
                 receipt.status = "succeeded"
@@ -547,7 +549,7 @@ class RevisionRuntime:
             else:
                 revision.status = "rejected" if decision.action == "reject" else "revised"
                 child = Revision(
-                    revision_id=_id(),
+                    revision_id=self.identifier_factory(),
                     sequence=revision.sequence + 1,
                     parent_revision_id=revision.revision_id,
                     triggering_decision_id=decision.decision_id,
@@ -559,7 +561,7 @@ class RevisionRuntime:
                     profile_version_id=(
                         revision.profile_version_id
                         if plan.inputs["profile"] == revision.inputs["profile"]
-                        else _record(ledger, plan.inputs["profile"])
+                        else self._record(ledger, plan.inputs["profile"])
                     ),
                     artifacts={
                         name: artifact_id

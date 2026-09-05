@@ -312,7 +312,11 @@ quantization or the human-review interrupt.
 ## Deterministic revisions and operation replay
 
 ADR 0015 is implemented by the pure `domain.revision` contracts and the adapter-neutral
-`graph.revision` runtime. A review decision identifies the exact reviewed revision and carries an
+`graph.revision` runtime. `build_graph` injects both a clock and an `IdentifierFactory` into the
+runtime. The default factory creates UUIDs; deterministic replacements can reproduce revision,
+profile/artifact, and operation identities, including explicit retry attempts. Restore and successful
+receipt reuse retain existing IDs without calling the factory. Artifact collisions fail closed.
+A review decision identifies the exact reviewed revision and carries an
 opaque decision ID, UTC submission time, explicit action/disposition, bounded note, and typed
 feedback. Approval finalizes; edit and reject-with-revise create a child; reject-with-close is
 terminal. Free text never selects a route or mutates financial inputs. Profile, evidence,

@@ -276,3 +276,18 @@ free-text edit/reject responses fail closed. Pre-revision saved checkpoints are 
 migrated, and supplying a new profile on an existing thread is rejected rather than resetting its
 lineage. A new unrelated run needs a new thread. The local audit digest detects inconsistency; it
 is not a signature or protection against a database administrator.
+
+
+### PR #45 review follow-up: injectable audit identifiers
+
+The review identified direct `uuid4()` calls inside revision orchestration. `build_graph` now
+accepts an `IdentifierFactory` and passes it to `RevisionRuntime`, which uses it for all revision,
+profile/artifact, and operation IDs. UUID generation remains the default adapter. Injected artifact
+ID collisions stop before overwriting a retained artifact.
+
+Four regressions verify identical audit state across root/retry/child flows with fixed clock and
+identifier sequences, reproduction of a failed prepare transition from its prior state and factory
+cursor, zero identifier allocation during successful receipt reuse/approval, and collision handling.
+This does not bypass ambiguous-operation guards or promise deterministic IDs from the default random
+factory after process loss. Full suite: **360 passed**. Ruff, formatting, strict mypy (44 source
+files), packaging, Docker Compose validation, and diff checks passed.

@@ -19,6 +19,7 @@ from etf_advisor.graph.revision import (
     validate_revision_state,
 )
 from etf_advisor.graph.state import AdvisorState
+from etf_advisor.identifiers import IdentifierFactory, random_identifier
 from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, CandidateEvidenceRetriever
 
 
@@ -35,6 +36,7 @@ def build_graph(
     screening_policy: CandidateScreeningPolicy = DEFAULT_SCREENING_POLICY,
     construction_policy: PortfolioConstructionPolicy = DEFAULT_CONSTRUCTION_POLICY,
     clock: Clock = system_utc_now,
+    identifier_factory: IdentifierFactory = random_identifier,
 ) -> Any:
     """Build pure revision routes with explicitly injected adapters and clock."""
     if candidate_limit < 1 or candidate_limit > MAX_CANDIDATE_LIMIT:
@@ -43,6 +45,7 @@ def build_graph(
         raise ValueError("An explanation generator requires a candidate evidence retriever.")
     runtime = RevisionRuntime(
         clock=clock,
+        identifier_factory=identifier_factory,
         inputs={
             "with_evidence": candidate_retriever is not None,
             "with_explanation": explanation_generator is not None,
