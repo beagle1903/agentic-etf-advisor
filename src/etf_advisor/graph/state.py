@@ -4,6 +4,12 @@ from typing import Any, TypedDict
 
 
 class AdvisorState(TypedDict, total=False):
+    revision_ledger: dict[str, Any]
+    revision_digest: str
+    revision_errors: list[dict[str, Any]]
+    retry_request: dict[str, Any]
+    retry_operation_id: str
+    next_stage: str
     profile: dict[str, Any]
     validation_errors: list[dict[str, Any]]
     draft_policy: dict[str, Any]

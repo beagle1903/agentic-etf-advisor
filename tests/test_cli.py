@@ -434,3 +434,15 @@ def test_publish_retry_fails_when_active_chroma_documents_are_missing(
     assert result.exit_code == 1
     assert "Chroma is missing 1 active snapshot document" in result.output
     assert '"already_active": true' not in result.output
+
+
+def test_demo_output_omits_checkpoint_capability_and_retained_ledger(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    cli._print_state(
+        "Review", {"status": "approved", "revision_ledger": {"thread_id": "private-review-token"}}
+    )
+    output = capsys.readouterr().out
+    assert "approved" in output
+    assert "private-review-token" not in output
+    assert "revision_ledger" not in output

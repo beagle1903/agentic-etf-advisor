@@ -174,6 +174,8 @@ def test_graph_sector_weight_must_match_canonical_field_provenance() -> None:
         sector_exposures=[SectorExposure(name="Technology", weight_pct=24)],
     )
 
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
     with pytest.raises(ScreeningContractError, match="graph sector weights conflict"):
         screen_candidate_evidence(evidence)
 
@@ -182,6 +184,8 @@ def test_scalar_metadata_status_must_match_field_provenance() -> None:
     evidence = _evidence()
     evidence.candidates[0].metadata["expense_ratio_pct_status"] = "source_error"
 
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
     with pytest.raises(ScreeningContractError, match="status conflicts"):
         screen_candidate_evidence(evidence)
 
@@ -192,13 +196,14 @@ def test_wrong_scalar_unit_blocks_screening_before_review() -> None:
     provenance["expense_ratio_pct"]["unit"] = "fraction"
     evidence.candidates[0].metadata["field_provenance_json"] = json.dumps(provenance)
 
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
     with pytest.raises(ScreeningContractError, match="must use percent units"):
         screen_candidate_evidence(evidence)
 
 
 def test_out_of_range_percentage_blocks_screening_before_review() -> None:
     evidence = _evidence(expense_ratio_pct=101)
-
     with pytest.raises(ScreeningContractError, match="cannot exceed 100"):
         screen_candidate_evidence(evidence)
 

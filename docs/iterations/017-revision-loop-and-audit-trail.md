@@ -68,9 +68,9 @@ explicit lifecycle for durable checkpoints.
 
 ## Planned work items
 
-- [ ] Define revision planning, audit lineage, and checkpoint lifecycle contracts in ADRs 0015 and
+- [x] Define revision planning, audit lineage, and checkpoint lifecycle contracts in ADRs 0015 and
   0016 (#39).
-- [ ] Implement deterministic revision routing and replay guards (#40).
+- [x] Implement deterministic revision routing and replay guards (#40).
 - [ ] Implement audit lineage and the local checkpoint lifecycle (#41).
 - [ ] Present revisions, rerun controls, and checkpoint deletion in the dashboard (#42).
 - [ ] Run end-to-end revision-loop and audit-trail acceptance verification (#43).
@@ -225,6 +225,69 @@ required for this iteration's deterministic acceptance unless separately approve
 
 ## Current slice
 
-Issue #39 is contract-only. It creates this canonical record, ADRs 0015 and 0016, the Iteration 017
-milestone, and the parent/sub-issue structure. It changes no graph, checkpoint, dashboard, provider,
-retrieval, market-data, or financial behavior.
+Issue #39 closed through PR #44, merged into the verified default branch `main` at
+`a876384a05475550689e01ffd2c5bdc3484fdac0`. Issue #40 implements the typed planner, graph revision
+routes, minimal retained lineage required for replay checks, and retrieval/provider operation
+receipts. Lifecycle work (#41), interactive revision controls (#42), and iteration-wide acceptance
+(#43) remain separate.
+
+### Issue #40 slice evidence (2026-09-05 UTC)
+
+- Branch: `codex/iteration-017-revision-routing`, based on the PR #44 merge above.
+- Environment: local Windows, Python 3.13, locked dependencies, in-memory checkpointers and injected
+  retrieval/provider/clock fakes. Dashboard and PostgreSQL checkpoint extras were installed;
+  automated persistence-failure tests use replaceable in-memory saver implementations.
+- Typed approve, edit, reject-and-revise, and reject-and-close outcomes pass. Each feedback class,
+  mixed-feedback precedence, complete-patch rejection, exact streamed restart nodes, downstream
+  clearing, profile/artifact identity reuse, and parent/child decision separation are covered.
+- Replay tests cover successful reuse with zero additional calls, explicit second attempts after
+  failures and ambiguous interruptions, checkpoint commit failures before adapter execution,
+  asynchronous durability override rejection, missing/duplicate/out-of-order/cross-thread or
+  cross-revision receipts, input/output digest mismatch, local output safety validation, malformed
+  responses, and restored checkpoint/lineage tampering.
+- Policy-only revisions retain only real profile/policy identities. Evidence carries one validated
+  source snapshot identity or an explicit local synthetic identity. JSON round trips and the
+  immutable upstream references are verified.
+- `uv run pytest`: **356 passed**, including the installed Streamlit tests. One initial cold-start
+  Streamlit timeout did not recur in the complete successful runs.
+- `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy` (43 source files), `uv build`,
+  `docker compose config --quiet`, and `git diff --check`: passed.
+- No live market/provider calls, credentials, trades, external financial writes, retention, expiry,
+  prune, or deletion were needed or introduced.
+
+### Calling the revision boundary
+
+Submit a `ReviewDecision` JSON payload through the current `Command(resume=...)`. Required identity
+fields are `decision_id`, `revision_id`, and aware UTC `submitted_at`; `action` is `approve`, `edit`,
+or `reject`. An edit uses `disposition="revise"`, a nonempty `note`, and a `feedback` list such as
+`[{"kind": "profile", "patch": {"initial_investment_usd": 60000}}]`. Reject requires an explicit
+`revise` or `close` disposition. Close has no mutation feedback. Notes are bounded audit context.
+
+For a failed or ambiguous operation, invoke the same thread with
+`{"retry_request": {"action": "retry", "revision_id": "<current revision>", "operation_id": "<last attempt>"}}`.
+A retry cannot replay a successful attempt or repair malformed/mismatched receipts. Recompile with
+the required adapters before retrying external stages. Restoration and approval themselves do not
+call those adapters. Durability must remain synchronous so started receipts are committed before
+execution; the compiled graph defaults to this mode and rejects unsafe overrides.
+
+The existing Streamlit form still lacks the typed feedback/reject-disposition/retry controls owned
+by #42. Its adapter accepts the typed values, and its approval path remains compatible. Legacy
+free-text edit/reject responses fail closed. Pre-revision saved checkpoints are not silently
+migrated, and supplying a new profile on an existing thread is rejected rather than resetting its
+lineage. A new unrelated run needs a new thread. The local audit digest detects inconsistency; it
+is not a signature or protection against a database administrator.
+
+
+### PR #45 review follow-up: injectable audit identifiers
+
+The review identified direct `uuid4()` calls inside revision orchestration. `build_graph` now
+accepts an `IdentifierFactory` and passes it to `RevisionRuntime`, which uses it for all revision,
+profile/artifact, and operation IDs. UUID generation remains the default adapter. Injected artifact
+ID collisions stop before overwriting a retained artifact.
+
+Four regressions verify identical audit state across root/retry/child flows with fixed clock and
+identifier sequences, reproduction of a failed prepare transition from its prior state and factory
+cursor, zero identifier allocation during successful receipt reuse/approval, and collision handling.
+This does not bypass ambiguous-operation guards or promise deterministic IDs from the default random
+factory after process loss. Full suite: **360 passed**. Ruff, formatting, strict mypy (44 source
+files), packaging, Docker Compose validation, and diff checks passed.

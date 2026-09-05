@@ -203,6 +203,7 @@ class ExplanationRequest(BaseModel):
     candidate_evidence: CandidateEvidenceBundle
     candidate_screening: CandidateScreeningBundle
     portfolio_construction: PortfolioConstructionBundle
+    revision_instruction: str = Field(default="", max_length=2000)
 
     @model_validator(mode="after")
     def validate_consistency(self) -> ExplanationRequest:

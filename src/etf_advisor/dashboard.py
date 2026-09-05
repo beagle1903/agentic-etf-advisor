@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
 from langgraph.types import Command
@@ -24,6 +24,7 @@ from etf_advisor.domain.construction import (
 )
 from etf_advisor.domain.policy import PolicyCalculation
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.revision import ReviewDecision
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
 from etf_advisor.explanation import (
     ExplanationBundle,
@@ -32,6 +33,8 @@ from etf_advisor.explanation import (
     validate_and_bundle_explanation,
 )
 from etf_advisor.explanation.provider import create_explanation_generator
+from etf_advisor.graph.revision import validate_revision_state
+from etf_advisor.graph.state import AdvisorState
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
 from etf_advisor.rag.evidence import (
@@ -77,6 +80,7 @@ class ReviewPayload(BaseModel):
     candidate_screening: CandidateScreeningBundle | None = None
     portfolio_construction: PortfolioConstructionBundle | None = None
     draft_explanation: ExplanationBundle | None = None
+    revision_id: str | None = None
 
     @field_validator("question")
     @classmethod
@@ -157,7 +161,14 @@ class DashboardRun:
     def durable(self) -> bool:
         return self.checkpoint_store is not None and self.checkpoint_store.durable
 
-    def resume(self, action: str, feedback: str = "") -> dict[str, Any]:
+    def resume(
+        self,
+        action: str,
+        feedback: str = "",
+        *,
+        disposition: str | None = None,
+        feedback_items: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """Resume the exact paused thread with a validated human decision."""
 
         payload = review_payload(self.state)
@@ -170,9 +181,21 @@ class DashboardRun:
         if normalized_action in {"edit", "reject"} and not normalized_feedback:
             raise ValueError("Edit and reject decisions require reviewer feedback.")
 
-        decision: dict[str, str] = {"action": normalized_action}
+        decision: dict[str, Any] = {"action": normalized_action}
         if normalized_feedback:
             decision["feedback"] = normalized_feedback
+        if payload.get("revision_id"):
+            decision = ReviewDecision.model_validate(
+                {
+                    "decision_id": str(uuid4()),
+                    "revision_id": payload["revision_id"],
+                    "action": normalized_action,
+                    "disposition": disposition,
+                    "note": normalized_feedback,
+                    "feedback": feedback_items or [],
+                    "submitted_at": system_utc_now(),
+                }
+            ).model_dump(mode="json")
         command: Command[Any] = Command(resume=decision)
         if self.checkpoint_store is None:
             if self.graph is None:
@@ -267,6 +290,10 @@ def load_dashboard_run(
     if not snapshot.values:
         raise ValueError("No saved review was found for that token.")
     state = dict(snapshot.values)
+    try:
+        validate_revision_state(cast(AdvisorState, state), token)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("Saved review failed revision contract validation.") from exc
     if snapshot.interrupts:
         state["__interrupt__"] = snapshot.interrupts
     if state.get("status") == "awaiting_human_review":
@@ -298,6 +325,10 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Workflow exposed an unsupported review interrupt.")
     try:
         payload = ReviewPayload.model_validate(value)
+        if payload.revision_id is not None or state.get("revision_ledger"):
+            ledger = validate_revision_state(cast(AdvisorState, state))
+            if payload.revision_id != ledger.revisions[-1].revision_id:
+                raise ValueError("Review interrupt revision must match checkpointed state.")
         construction = payload.portfolio_construction
         if construction is not None:
             evidence = payload.candidate_evidence

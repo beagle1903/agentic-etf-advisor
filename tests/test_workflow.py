@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
@@ -85,14 +86,16 @@ def test_valid_profile_pauses_and_resumes_after_approval() -> None:
     assert paused["draft_policy"]["initial_investment_usd"]["growth_assets_usd"] == 35_000.0
     json.dumps(paused["draft_policy"])
 
-    completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
+    completed = graph.invoke(
+        Command(resume=review_decision(graph.get_state(config).values)), config=config
+    )
 
     assert completed["status"] == "approved"
     assert completed["final_message"].startswith("Policy draft approved")
     assert "No ETF recommendation or trade" in completed["final_message"]
 
 
-def test_rejection_routes_to_revision() -> None:
+def test_untyped_rejection_fails_closed() -> None:
     graph = build_graph(checkpointer=InMemorySaver())
     config = {"configurable": {"thread_id": "rejection-flow"}}
     graph.invoke({"profile": valid_profile()}, config=config)
@@ -102,8 +105,8 @@ def test_rejection_routes_to_revision() -> None:
         config=config,
     )
 
-    assert completed["status"] == "needs_revision"
-    assert completed["final_message"] == "Reduce the growth range."
+    assert completed["status"] == "revision_blocked"
+    assert len(completed["revision_ledger"]["revisions"]) == 1
 
 
 def test_injected_evidence_is_attached_to_review_interrupt() -> None:
@@ -142,7 +145,7 @@ def test_injected_evidence_is_attached_to_review_interrupt() -> None:
     json.dumps(paused["portfolio_construction"])
 
     completed = graph.invoke(
-        Command(resume={"action": "approve"}),
+        Command(resume=review_decision(paused)),
         config={"configurable": {"thread_id": "evidence-review"}},
     )
 
@@ -207,7 +210,9 @@ def test_injected_explanation_is_grounded_before_review() -> None:
     assert "grounded explanation" in paused["__interrupt__"][0].value["question"].lower()
     json.dumps(paused["draft_explanation"])
 
-    completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
+    completed = graph.invoke(
+        Command(resume=review_decision(graph.get_state(config).values)), config=config
+    )
     assert completed["status"] == "approved"
     assert completed["final_message"].startswith("Grounded explanation")
     assert calls == ["growth"]
@@ -323,6 +328,8 @@ def test_screening_contract_failure_stops_before_explanation_or_review() -> None
         def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
             bundle = _current_evidence_retriever().retrieve(profile, limit=limit)
             bundle.candidates[0].metadata["field_provenance_json"] = "{not-json"
+            bundle.snapshot_version = None
+            bundle.snapshot_digest = None
             return bundle
 
     graph = build_graph(
@@ -433,10 +440,17 @@ def test_reused_thread_clears_prior_explanation_before_provider_failure() -> Non
 
     first_paused = graph.invoke({"profile": valid_profile()}, config=config)
     assert first_paused["draft_explanation"]["status"] == "ready"
-    graph.invoke(Command(resume={"action": "approve"}), config=config)
-
     generator.fail = True
-    second_result = graph.invoke({"profile": valid_profile()}, config=config)
+    second_result = graph.invoke(
+        Command(
+            resume=review_decision(
+                first_paused,
+                "edit",
+                [{"kind": "explanation", "instruction": "Explain more briefly."}],
+            )
+        ),
+        config=config,
+    )
 
     assert second_result["status"] == "explanation_blocked"
     assert second_result["draft_explanation"] == {}
@@ -525,11 +539,15 @@ def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure()
 
     first_paused = graph.invoke({"profile": valid_profile()}, config=config)
     assert first_paused["candidate_evidence"]["status"] == "ready"
-    first_completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
-    assert first_completed["status"] == "approved"
-
     search.fail = True
-    second_result = graph.invoke({"profile": valid_profile()}, config=config)
+    second_result = graph.invoke(
+        Command(
+            resume=review_decision(
+                first_paused, "edit", [{"kind": "evidence", "refresh": True, "candidate_limit": 5}]
+            )
+        ),
+        config=config,
+    )
 
     assert second_result["status"] == "evidence_blocked"
     assert second_result["candidate_evidence"] == {}
@@ -833,3 +851,17 @@ def _valid_generated_explanation() -> GeneratedExplanation:
             )
         ],
     )
+
+
+def review_decision(
+    state: dict[str, Any], action: str = "approve", feedback: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
+    return {
+        "action": action,
+        "decision_id": str(uuid4()),
+        "revision_id": state["revision_ledger"]["revisions"][-1]["revision_id"],
+        "submitted_at": datetime.now(UTC).isoformat(),
+        "disposition": "revise" if feedback else ("close" if action == "reject" else None),
+        "feedback": feedback or [],
+        "note": "Explicit reviewer feedback." if action != "approve" else "",
+    }
