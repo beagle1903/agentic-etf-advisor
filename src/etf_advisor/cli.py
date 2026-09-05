@@ -74,7 +74,10 @@ def main() -> None:
 
 def _print_state(label: str, state: dict[str, Any]) -> None:
     typer.echo(label)
-    typer.echo(json.dumps(state, indent=2, default=str))
+    # The audit ledger contains the exact checkpoint capability and retained history.
+    # Keep it out of demo console output; presentation consumes current artifacts only.
+    visible = {key: value for key, value in state.items() if key != "revision_ledger"}
+    typer.echo(json.dumps(visible, indent=2, default=str))
 
 
 def _yahoo_adapter() -> YahooFinanceAdapter:
@@ -224,7 +227,17 @@ def demo(
             raise typer.Exit(code=1)
         _print_state("Paused for human review:", paused)
 
-        completed = graph.invoke(Command(resume={"action": "approve"}), config=config)
+        completed = graph.invoke(
+            Command(
+                resume={
+                    "action": "approve",
+                    "decision_id": str(uuid4()),
+                    "revision_id": paused["revision_ledger"]["revisions"][-1]["revision_id"],
+                    "submitted_at": system_utc_now().isoformat(),
+                }
+            ),
+            config=config,
+        )
         _print_state("Resumed after approval:", completed)
     except typer.Exit:
         raise

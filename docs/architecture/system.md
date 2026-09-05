@@ -269,15 +269,15 @@ or too far in the future. A live store failure is translated into an evidence er
 of producing an ungrounded review payload. The evidence model recomputes health classifications
 from timestamps and the declared freshness window, and the workflow revalidates the serialized
 bundle so a replaceable retriever cannot bypass those invariants with an unvalidated model.
-Each new run clears downstream review artifacts, and routing uses the current node status so a
-reused durable thread cannot carry previously ready evidence across a new retrieval failure.
+Each planned revision clears its contracted downstream artifacts, and routing uses the current
+node status so retained parent evidence cannot bypass a new retrieval failure.
 
 The construction node is pure and requires the current ready evidence plus recomputed screening.
 Each profile-validation run clears its bundle and errors. A ready result is checkpointed only as a
 JSON-mode model dump; a stable blocker ends routing before explanation or review.
 
 The explanation node is also optional and requires ready evidence. Its generated bundle and
-errors are cleared during every profile-validation run, preventing a reused durable thread
+errors are cleared whenever a revision invalidates explanation, preventing a child revision
 from retaining a prior provider result. Policy-only and evidence-only flows remain available
 for deterministic and local-store testing.
 
@@ -308,6 +308,50 @@ authorization; this remains a local development workflow.
 Investor-profile validation accepts only finite initial and recurring cash amounts from
 zero through one trillion USD. Unsupported values therefore fail before decimal cent
 quantization or the human-review interrupt.
+
+## Deterministic revisions and operation replay
+
+ADR 0015 is implemented by the pure `domain.revision` contracts and the adapter-neutral
+`graph.revision` runtime. A review decision identifies the exact reviewed revision and carries an
+opaque decision ID, UTC submission time, explicit action/disposition, bounded note, and typed
+feedback. Approval finalizes; edit and reject-with-revise create a child; reject-with-close is
+terminal. Free text never selects a route or mutates financial inputs. Profile, evidence,
+screening-policy, construction-policy, and explanation feedback restart respectively at profile
+validation, retrieval, screening, construction, and explanation. Mixed feedback selects the earliest
+stage after every patch has passed complete-input validation.
+
+The checkpoint contains a JSON revision ledger, canonical integrity digest, immutable artifact
+records, validated decisions, and ordered operation receipts. Unchanged upstream artifacts retain
+their original ID and digest. The child's `triggering_decision_id` links the reviewed parent's
+decision; its own `review_decision_id` is absent until it is reviewed. A policy-only revision has a
+profile version and policy artifact without evidence, downstream drafts, or invented operations.
+Ready evidence carries a single published research-snapshot identity or an explicitly labeled
+`local-synthetic-v1` identity for local/legacy evidence. Mixed or partial source identities fail
+closed; the query-specific evidence artifact has its own independent ID and digest.
+
+Retrieval and provider operations each use separate prepare and execute supersteps. Preparation
+commits a `started` receipt synchronously before execution; async/exit durability overrides are
+rejected before adapters. Execution consumes a one-use runtime permit before the call. A restored
+runtime cannot regenerate that permit implicitly. A succeeded receipt is reused only when thread,
+revision, stage, attempt manifest, canonical input digest, output reference, output digest, and
+local output validation match. Failed or ambiguous operations need an explicit `retry_request`
+identifying the current revision and last operation ID; retry records the next attempt and a new
+operation ID while retaining the prior receipt. OpenRouter SDK retries are disabled. This mechanism
+does not promise exactly-once external execution after a lost response.
+
+Every node verifies its configured thread against the checkpoint lineage. Review independently
+recomputes policy, screening, construction, and explanation safety before accepting a decision.
+Malformed, missing, stale, contradictory, cross-thread/revision, or mismatched state stops without
+an adapter call or review controls. Starting a fresh profile on an existing thread cannot discard
+its audit history: use typed revision feedback, or create a new thread for a separate run. Existing
+pre-revision durable checkpoints have no automatic migration or inferred lineage.
+
+The dashboard adapter and demo CLI submit revision-bound approvals. The adapter also accepts typed
+feedback and explicit reject disposition; the richer interactive revision/retry forms remain Issue
+#42. Revisions that need external operations require the appropriate injected adapters when the
+graph is recompiled. Current-artifact rendering remains intact, while the CLI omits the retained
+ledger so it does not print the checkpoint capability. Retention, expiry, prune, and deletion are
+still Issue #41; no checkpoint lifecycle or external financial-write behavior is introduced here.
 
 ## Data-source boundary
 

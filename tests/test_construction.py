@@ -204,6 +204,8 @@ def test_failed_screening_candidate_is_audited_and_never_weighted() -> None:
         sort_keys=True,
         separators=(",", ":"),
     )
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
     inputs.candidate_screening = screen_candidate_evidence(inputs.candidate_evidence)
 
     result = construct_model_portfolio(inputs)
@@ -228,6 +230,8 @@ def test_unknown_screening_candidate_is_audited_and_never_weighted() -> None:
     )
     candidate.metadata.pop("expense_ratio_pct")
     candidate.metadata.pop("expense_ratio_pct_status")
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
     inputs.candidate_screening = screen_candidate_evidence(inputs.candidate_evidence)
 
     result = construct_model_portfolio(inputs)
@@ -253,6 +257,8 @@ def test_missing_category_is_audited_without_guessing_a_sleeve() -> None:
         separators=(",", ":"),
     )
     candidate.category = None
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
     inputs.candidate_screening = screen_candidate_evidence(inputs.candidate_evidence)
 
     result = construct_model_portfolio(inputs)
@@ -267,6 +273,8 @@ def test_category_provenance_conflict_blocks_complete_construction() -> None:
     inputs = _construction_input(_profile())
     inputs.candidate_evidence.candidates[0].category = "Large Growth"
 
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
     result = construct_model_portfolio(inputs)
 
     assert result.status == "blocked"
@@ -291,6 +299,8 @@ def test_category_provenance_must_be_current_at_the_evidence_check_time(
         separators=(",", ":"),
     )
 
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
     result = construct_model_portfolio(inputs)
 
     assert result.status == "blocked"

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
@@ -153,6 +155,8 @@ class CandidateEvidenceBundle(BaseModel):
     health: MarketDataHealthReport
     errors: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
+    snapshot_version: str | None = None
+    snapshot_digest: str | None = None
 
     @field_validator("checked_at")
     @classmethod
@@ -214,6 +218,47 @@ class CandidateEvidenceBundle(BaseModel):
                     raise ValueError(
                         "Every ready candidate must have a matching current health observation."
                     )
+        return self
+
+    @model_validator(mode="after")
+    def validate_snapshot_identity(self) -> CandidateEvidenceBundle:
+        if self.status != EvidenceStatus.READY:
+            return self
+        identities = {
+            (candidate.metadata.get("snapshot_version"), candidate.metadata.get("snapshot_digest"))
+            for candidate in self.candidates
+        }
+        if identities == {(None, None)}:
+            # Legacy/local adapters have no published catalog. Label their query-specific
+            # evidence explicitly; do not manufacture a published research-snapshot identity.
+            expected_version = "local-synthetic-v1"
+            expected_digest = hashlib.sha256(
+                json.dumps(
+                    [candidate.model_dump(mode="json") for candidate in self.candidates],
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                    allow_nan=False,
+                ).encode("utf-8")
+            ).hexdigest()
+        elif len(identities) == 1:
+            version, snapshot_digest = next(iter(identities))
+            if (
+                not isinstance(version, str)
+                or not version.strip()
+                or not isinstance(snapshot_digest, str)
+                or len(snapshot_digest) != 64
+                or any(c not in "0123456789abcdef" for c in snapshot_digest)
+            ):
+                raise ValueError("Incomplete research snapshot identity.")
+            expected_version, expected_digest = version, snapshot_digest
+        else:
+            raise ValueError("Mixed research snapshot identities.")
+        if (self.snapshot_version is not None or self.snapshot_digest is not None) and (
+            self.snapshot_version != expected_version or self.snapshot_digest != expected_digest
+        ):
+            raise ValueError("Evidence snapshot identity mismatch.")
+        self.snapshot_version, self.snapshot_digest = expected_version, expected_digest
         return self
 
 

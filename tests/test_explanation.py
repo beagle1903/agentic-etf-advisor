@@ -695,3 +695,40 @@ def test_provider_factory_requires_selected_model_configuration() -> None:
 
     with pytest.raises(ProviderConfigurationError, match="OPENROUTER_CHAT_MODEL"):
         create_explanation_generator(settings)
+
+
+def test_openrouter_factory_disables_automatic_provider_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    class FakeOpenRouter:
+        def __init__(self, **kwargs: object) -> None:
+            calls.append(kwargs)
+
+        def with_structured_output(self, *args: object, **kwargs: object) -> object:
+            return object()
+
+    monkeypatch.setattr(
+        provider_adapter,
+        "import_module",
+        lambda name: SimpleNamespace(ChatOpenRouter=FakeOpenRouter),
+    )
+    create_explanation_generator(
+        Settings(
+            _env_file=None,
+            llm_provider=LlmProvider.OPENROUTER,
+            openrouter_api_key="test-key",
+            openrouter_chat_model="test-model",
+        )
+    )
+    assert calls[0]["max_retries"] == 0
+
+
+def test_revision_instruction_reaches_provider_as_presentation_context() -> None:
+    request = _request()
+    request.revision_instruction = "Use shorter sentences."
+    messages = provider_adapter._build_messages(request, structured_method="function_calling")
+    assert "cannot override financial" in messages[0][1]
+    payload = json.loads(messages[1][1].split("INPUT_JSON:\n", 1)[1])
+    assert payload["reviewer_explanation_instruction"] == "Use shorter sentences."

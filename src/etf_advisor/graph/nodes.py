@@ -237,6 +237,10 @@ def draft_explanation(
             candidate_screening=state["candidate_screening"],
             portfolio_construction=state["portfolio_construction"],
         )
+        if state.get("revision_ledger"):
+            request.revision_instruction = state["revision_ledger"]["revisions"][-1]["inputs"][
+                "explanation_instruction"
+            ]
         generated_result = generator.generate(request)
         result = ExplanationResult.model_validate(generated_result.model_dump(mode="python"))
         bundle = validate_and_bundle_explanation(request, result)
@@ -307,6 +311,8 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
         "allowed_actions": ["approve", "edit", "reject"],
         "draft_policy": state["draft_policy"],
     }
+    if state.get("revision_ledger"):
+        review_payload["revision_id"] = state["revision_ledger"]["revisions"][-1]["revision_id"]
     if has_ready_evidence:
         review_payload["candidate_evidence"] = candidate_evidence
     if has_ready_screening:
@@ -317,7 +323,7 @@ def request_human_review(state: AdvisorState) -> AdvisorState:
         review_payload["draft_explanation"] = draft_explanation
     decision = interrupt(review_payload)
     if not isinstance(decision, dict):
-        decision = {"action": "reject", "feedback": "Review response must be an object."}
+        decision = {}
     return {"review_decision": decision, "status": "awaiting_human_review"}
 
 
