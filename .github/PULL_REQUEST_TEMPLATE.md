@@ -8,6 +8,15 @@
 - Completed work item: Closes #
 - Canonical iteration document: `docs/iterations/NNN-*.md`
 
+## Design and model routing
+
+- Design handoff: `docs/iterations/<design-document>.md` or issue comment/link
+- Design agent: `design_architect` (`gpt-6-astra`, `high`)
+- Implementation agent: `implementation_worker` (`gpt-6-astra`, `medium`)
+- [ ] Design was marked `DESIGN_READY` before implementation began
+- [ ] Implementation followed the approved design without an undocumented contract change
+- [ ] Any architectural escalation or one-off workflow exception is recorded
+
 ## Acceptance criteria covered
 
 - [ ]

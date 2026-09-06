@@ -20,6 +20,8 @@ jobs:
         run: uv python install 3.13
       - name: Install locked dependencies
         run: uv sync --frozen
+      - name: Validate Codex ticket workflow
+        run: uv run python scripts/validate_codex_workflow.py
       - name: Lint
         run: uv run ruff check .
       - name: Check formatting

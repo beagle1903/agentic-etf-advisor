@@ -14,6 +14,22 @@ architecture, execution, and verification knowledge.
 - Accepted ADRs preserve consequential decisions and are not rewritten.
 - GitHub issues coordinate work; they do not replace these documents.
 
+## Codex ticket routing
+
+All issue-backed work starts with the project-scoped `design_architect` agent. It uses
+`gpt-6-astra` with `high` reasoning effort and produces a read-only, reviewable design handoff.
+The handoff must be recorded in the issue, canonical iteration document, or a dedicated design
+document under `docs/iterations/` before implementation begins.
+
+Implementation then runs in a separate session using `implementation_worker`, pinned to
+`gpt-6-astra` with `medium` reasoning effort. The worker must follow the approved handoff, add
+focused tests, and escalate architectural ambiguity rather than redesigning silently. The
+project defaults unspecified subagents to Astra at medium effort through `.codex/config.toml`.
+
+The PR must link the design handoff and state the design and implementation roles. A one-off
+exception requires explicit issue and PR documentation. The pinned role configuration is checked
+by `scripts/validate_codex_workflow.py` in CI.
+
 Every iteration parent issue must link its canonical iteration file. The issue may summarize the
 goal and acceptance gate, but detailed scope and durable evidence belong in the repository. At
 closure, link to the document at the merge commit so the accepted evidence has an immutable view.

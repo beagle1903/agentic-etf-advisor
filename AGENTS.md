@@ -10,6 +10,36 @@ Before changing the project, read these files in order:
 4. Relevant records under `docs/architecture/decisions/`.
 5. The active file under `docs/iterations/`.
 
+## Ticket design and implementation workflow
+
+Every issue-backed work item, including bug fixes, documentation changes, evaluations, and
+verification tasks, follows two sequential agent phases. Use the project-scoped agents in
+`.codex/agents/`; do not leave the model or reasoning effort implicit.
+
+1. **Design phase:** invoke `design_architect` with `gpt-6-astra` and `high` reasoning effort.
+   It is read-only and must inspect the issue plus the required repository records. It returns a
+   compact handoff with scope, non-goals, invariants, affected interfaces, JSON/state impact,
+   acceptance criteria, focused tests, documentation needs, and risks. It must not edit source,
+   tests, CI, configuration, or runtime files.
+2. **Design gate:** the coordinator records the handoff in the issue, canonical iteration
+   document, or a dedicated `docs/iterations/` design document. The handoff must be marked
+   `DESIGN_READY` or `DESIGN_BLOCKED`. Implementation cannot start without a recorded,
+   approved `DESIGN_READY` handoff.
+3. **Implementation phase:** invoke `implementation_worker` with `gpt-6-astra` and `medium`
+   reasoning effort in a separate agent session. It implements only the approved handoff, adds
+   or updates tests, runs the required gates, and records verification and remaining scope.
+4. **Escalation:** return architectural ambiguity to `design_architect`. The implementation
+   worker must not silently redesign the contract or switch to a higher reasoning effort.
+
+The primary coordinator must not mix the phases or continue implementation in the high-effort
+design session. Use one design agent followed by one implementation agent; parallel subagents are
+not appropriate for this dependent workflow. The project default for unspecified subagents is
+Astra at medium effort, while the custom role files pin the design role to high effort.
+
+The bootstrap change that introduces this workflow establishes the policy. All subsequent
+issue-backed work must follow it unless an explicit, documented one-off exception is approved in
+the issue and pull request.
+
 ## Delivery rules
 
 - Work in short vertical slices with explicit acceptance criteria.
