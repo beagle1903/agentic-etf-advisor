@@ -1,0 +1,5 @@
+{
+  "command": "uv sync --all-extras --frozen",
+  "exit_code": 0,
+  "environment": "C:\\Users\\burha\\AppData\\Local\\Temp\\agents-lab-audit-20260906-071454Z-venv"
+}

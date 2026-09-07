@@ -1,0 +1,112 @@
+{
+  "checked_utc": "2026-09-06T17:47:44.0269129Z",
+  "initial_file_count": 131,
+  "hash_mismatches": [],
+  "head": "c25865f84207ae9c7c89b4af1d339407a5d4b614",
+  "branch": "DETACHED HEAD",
+  "upstream": "none",
+  "origin_main": "c25865f84207ae9c7c89b4af1d339407a5d4b614",
+  "tracked_diff": [],
+  "staged_diff": [],
+  "diff_check_exit_code": 0,
+  "reports": [
+    {
+      "file": "security-reviewer.md",
+      "exists": true,
+      "bytes": 12190
+    },
+    {
+      "file": "architecture-reviewer.md",
+      "exists": true,
+      "bytes": 13624
+    },
+    {
+      "file": "test-coverage-reviewer.md",
+      "exists": true,
+      "bytes": 18002
+    },
+    {
+      "file": "performance-reviewer.md",
+      "exists": true,
+      "bytes": 15717
+    },
+    {
+      "file": "business-logic-reviewer.md",
+      "exists": true,
+      "bytes": 14636
+    },
+    {
+      "file": "code-quality-reviewer.md",
+      "exists": true,
+      "bytes": 11280
+    },
+    {
+      "file": "dependency-reviewer.md",
+      "exists": true,
+      "bytes": 14473
+    },
+    {
+      "file": "SUMMARY.md",
+      "exists": true,
+      "bytes": 18501
+    }
+  ],
+  "broken_summary_links": [],
+  "nonignored_untracked": [
+    "reviews/code-health/20260906-071454Z/00-uv-sync-result.json",
+    "reviews/code-health/20260906-071454Z/00-uv-sync.log",
+    "reviews/code-health/20260906-071454Z/01-format.log",
+    "reviews/code-health/20260906-071454Z/02-ruff.log",
+    "reviews/code-health/20260906-071454Z/03-mypy.log",
+    "reviews/code-health/20260906-071454Z/04-pytest.log",
+    "reviews/code-health/20260906-071454Z/05-retrieval.log",
+    "reviews/code-health/20260906-071454Z/06-explanations.log",
+    "reviews/code-health/20260906-071454Z/07-build.log",
+    "reviews/code-health/20260906-071454Z/08-compose.log",
+    "reviews/code-health/20260906-071454Z/PREPARATION-FAILURE.md",
+    "reviews/code-health/20260906-071454Z/PREPARATION.md",
+    "reviews/code-health/20260906-071454Z/SUMMARY.md",
+    "reviews/code-health/20260906-071454Z/TARGETED-VERIFICATION.md",
+    "reviews/code-health/20260906-071454Z/architecture-reviewer.md",
+    "reviews/code-health/20260906-071454Z/baseline-results.json",
+    "reviews/code-health/20260906-071454Z/business-logic-reviewer.md",
+    "reviews/code-health/20260906-071454Z/code-quality-reviewer.md",
+    "reviews/code-health/20260906-071454Z/dependency-reviewer.md",
+    "reviews/code-health/20260906-071454Z/performance-reviewer.md",
+    "reviews/code-health/20260906-071454Z/security-reviewer.md",
+    "reviews/code-health/20260906-071454Z/starting-files.json",
+    "reviews/code-health/20260906-071454Z/starting-state.json",
+    "reviews/code-health/20260906-071454Z/test-coverage-reviewer.md",
+    "reviews/code-health/20260906-071454Z/workspace-verification.json"
+  ],
+  "nonignored_new_files_outside_run": [],
+  "ignored_outputs": [
+    ".venv/.gitignore",
+    ".venv/CACHEDIR.TAG",
+    ".venv/Lib/site-packages/__pycache__/_virtualenv.cpython-313.pyc",
+    ".venv/Lib/site-packages/_virtualenv.pth",
+    ".venv/Lib/site-packages/_virtualenv.py",
+    ".venv/Scripts/activate",
+    ".venv/Scripts/activate.bat",
+    ".venv/Scripts/activate.csh",
+    ".venv/Scripts/activate.fish",
+    ".venv/Scripts/activate.nu",
+    ".venv/Scripts/activate.ps1",
+    ".venv/Scripts/activate_this.py",
+    ".venv/Scripts/deactivate.bat",
+    ".venv/Scripts/pydoc.bat",
+    ".venv/Scripts/python.exe",
+    ".venv/Scripts/pythonw.exe",
+    ".venv/pyvenv.cfg",
+    "UsersburhaAppDataLocalTempagents-lab-audit-20260906-071454Z-pytest/.gitignore",
+    "UsersburhaAppDataLocalTempagents-lab-audit-20260906-071454Z-pytest/CACHEDIR.TAG",
+    "UsersburhaAppDataLocalTempagents-lab-audit-20260906-071454Z-pytest/README.md",
+    "UsersburhaAppDataLocalTempagents-lab-audit-20260906-071454Z-pytest/v/cache/nodeids"
+  ],
+  "strict_reports_only_compliance": false,
+  "status": [
+    "?? reviews/",
+    "!! .venv/",
+    "!! UsersburhaAppDataLocalTempagents-lab-audit-20260906-071454Z-pytest/"
+  ]
+}
