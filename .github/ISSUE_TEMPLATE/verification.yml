@@ -64,3 +64,12 @@ body:
           required: true
         - label: Credentials, private data, prompts, source content, raw provider responses, and review tokens will not be published.
           required: true
+  - type: checkboxes
+    id: execution-workflow
+    attributes:
+      label: Codex execution workflow
+      options:
+        - label: Design will be completed first by `design_architect` using `gpt-6-astra` at high reasoning effort.
+          required: true
+        - label: Verification will start only after a recorded `DESIGN_READY` handoff and will use `implementation_worker` with `gpt-6-astra` at medium reasoning effort.
+          required: true

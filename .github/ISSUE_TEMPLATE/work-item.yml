@@ -64,3 +64,12 @@ body:
           required: true
         - label: No credentials, private data, trade execution, or guaranteed-return claims are introduced.
           required: true
+  - type: checkboxes
+    id: execution-workflow
+    attributes:
+      label: Codex execution workflow
+      options:
+        - label: Design will be completed first by `design_architect` using `gpt-6-astra` at high reasoning effort.
+          required: true
+        - label: Implementation will start only after a recorded `DESIGN_READY` handoff and will use `implementation_worker` with `gpt-6-astra` at medium reasoning effort.
+          required: true

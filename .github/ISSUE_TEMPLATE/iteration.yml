@@ -74,3 +74,12 @@ body:
           required: true
         - label: The work remains educational and does not execute trades or promise returns.
           required: true
+  - type: checkboxes
+    id: execution-workflow
+    attributes:
+      label: Codex execution workflow
+      options:
+        - label: Design work will use `design_architect` with `gpt-6-astra` at high reasoning effort.
+          required: true
+        - label: Each implementation sub-issue will require a recorded `DESIGN_READY` handoff before using `implementation_worker` with `gpt-6-astra` at medium reasoning effort.
+          required: true
