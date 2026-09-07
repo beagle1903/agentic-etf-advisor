@@ -24,7 +24,10 @@ document under `docs/iterations/` before implementation begins.
 Implementation then runs in a separate session using `implementation_worker`, pinned to
 `gpt-6-astra` with `medium` reasoning effort. The worker must follow the approved handoff, add
 focused tests, and escalate architectural ambiguity rather than redesigning silently. The
-project defaults unspecified subagents to Astra at medium effort through `.codex/config.toml`.
+project registers both named roles explicitly through descriptions and relative `config_file`
+references in `.codex/config.toml`. Coordinators must route to these named roles and run design
+then implementation sequentially. Generic-agent defaults and a two-thread concurrency cap are
+not configured by this repository; sequencing is coordinator policy (ADR 0018).
 
 The PR must link the design handoff and state the design and implementation roles. A one-off
 exception requires explicit issue and PR documentation. The pinned role configuration is checked

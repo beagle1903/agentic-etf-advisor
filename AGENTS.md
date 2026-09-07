@@ -33,8 +33,10 @@ verification tasks, follows two sequential agent phases. Use the project-scoped 
 
 The primary coordinator must not mix the phases or continue implementation in the high-effort
 design session. Use one design agent followed by one implementation agent; parallel subagents are
-not appropriate for this dependent workflow. The project default for unspecified subagents is
-Astra at medium effort, while the custom role files pin the design role to high effort.
+not appropriate for this dependent workflow. `.codex/config.toml` explicitly registers both named
+roles with descriptions and relative `config_file` paths. The coordinator must select these roles;
+the repository does not configure generic-agent defaults or a two-thread concurrency cap.
+Sequential execution is coordinator policy. ADR 0018 records this compatibility correction.
 
 The bootstrap change that introduces this workflow establishes the policy. All subsequent
 issue-backed work must follow it unless an explicit, documented one-off exception is approved in

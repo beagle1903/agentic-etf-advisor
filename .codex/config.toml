@@ -1,5 +1,7 @@
-[agents]
-enabled = true
-default_subagent_model = "gpt-6-astra"
-default_subagent_reasoning_effort = "medium"
-max_concurrent_threads_per_session = 2
+[agents.design_architect]
+description = "Read-only high-effort design agent used before every ticket implementation."
+config_file = "agents/design-architect.toml"
+
+[agents.implementation_worker]
+description = "Medium-effort implementation agent that executes an approved ticket design."
+config_file = "agents/implementation-worker.toml"
