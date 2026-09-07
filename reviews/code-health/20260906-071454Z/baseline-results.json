@@ -1,0 +1,58 @@
+[
+  {
+    "name": "01-format",
+    "command": "uv run ruff format --check .",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:16:39.0263341Z",
+    "elapsed_seconds": 1.0586688
+  },
+  {
+    "name": "02-ruff",
+    "command": "uv run ruff check .",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:16:40.1153908Z",
+    "elapsed_seconds": 0.1254795
+  },
+  {
+    "name": "03-mypy",
+    "command": "uv run mypy",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:16:40.2441830Z",
+    "elapsed_seconds": 51.5299385
+  },
+  {
+    "name": "04-pytest",
+    "command": "uv run pytest",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:17:31.7763682Z",
+    "elapsed_seconds": 31.6340808
+  },
+  {
+    "name": "05-retrieval",
+    "command": "uv run etf-advisor evaluate-retrieval",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:18:03.4128455Z",
+    "elapsed_seconds": 2.8883562
+  },
+  {
+    "name": "06-explanations",
+    "command": "uv run etf-advisor evaluate-explanations",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:18:06.3034078Z",
+    "elapsed_seconds": 2.7542355
+  },
+  {
+    "name": "07-build",
+    "command": "uv build --out-dir C:\\Users\\burha\\AppData\\Local\\Temp\\agents-lab-audit-20260906-071454Z-dist",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:18:09.0605231Z",
+    "elapsed_seconds": 3.4557856
+  },
+  {
+    "name": "08-compose",
+    "command": "docker compose config --quiet",
+    "exit_code": 0,
+    "started_utc": "2026-09-06T07:18:12.5245024Z",
+    "elapsed_seconds": 0.4418315
+  }
+]
