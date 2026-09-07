@@ -65,6 +65,10 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["B", "E", "F", "I", "RUF", "SIM", "UP"]
 
+[tool.ruff.format]
+# Preserve archived audit evidence exactly as recorded.
+exclude = ["reviews/code-health/20260906-071454Z/*.md"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true
