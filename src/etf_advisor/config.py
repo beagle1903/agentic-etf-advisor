@@ -2,7 +2,7 @@
 
 from enum import StrEnum
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,9 +33,17 @@ class Settings(BaseSettings):
         "postgresql://etf_advisor:local-dev-password@127.0.0.1:5432/etf_advisor?connect_timeout=5"
     )
     market_data_max_age_hours: int = Field(default=120, ge=1, le=336)
+    checkpoint_retention_days: int = Field(default=30, ge=1, le=365)
     market_data_future_tolerance_minutes: int = Field(default=5, ge=0, le=60)
     yahoo_max_attempts: int = Field(default=3, ge=1, le=5)
     yahoo_retry_backoff_seconds: float = Field(default=0.25, ge=0, le=10)
+
+    @field_validator("checkpoint_retention_days", mode="before")
+    @classmethod
+    def integer_retention(cls, value: object) -> object:
+        if isinstance(value, (bool, float)):
+            raise ValueError("Checkpoint retention requires an integer number of days.")
+        return value
 
     def neo4j_credentials(self) -> tuple[str, str]:
         """Return Neo4j credentials without exposing them in logs or CLI output."""

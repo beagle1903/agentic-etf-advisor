@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Any, Literal, cast
 from uuid import UUID, uuid4
@@ -10,6 +10,7 @@ from uuid import UUID, uuid4
 from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from etf_advisor.audit import reconstruct_audit
 from etf_advisor.checkpoint import (
     DashboardCheckpointStore,
     MemoryCheckpointStore,
@@ -28,6 +29,7 @@ from etf_advisor.domain.revision import ReviewDecision
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
 from etf_advisor.explanation import (
     ExplanationBundle,
+    ExplanationGenerator,
     ExplanationResult,
     build_explanation_request,
     validate_and_bundle_explanation,
@@ -40,6 +42,7 @@ from etf_advisor.rag.chroma_store import ChromaDocumentStore
 from etf_advisor.rag.evidence import (
     MAX_CANDIDATE_LIMIT,
     CandidateEvidenceBundle,
+    CandidateEvidenceRetriever,
     EvidenceStatus,
     HybridCandidateEvidenceRetriever,
 )
@@ -147,6 +150,10 @@ class DashboardRun:
     config: dict[str, Any]
     state: dict[str, Any]
     checkpoint_store: DashboardCheckpointStore | None = None
+    # Transient process-local dependencies; never part of checkpoint state.
+    candidate_retriever: CandidateEvidenceRetriever | None = field(default=None, repr=False)
+    explanation_generator: ExplanationGenerator | None = field(default=None, repr=False)
+    candidate_limit: int = field(default=5, repr=False)
 
     @property
     def thread_id(self) -> str:
@@ -202,11 +209,40 @@ class DashboardRun:
                 raise RuntimeError("Dashboard run has no workflow runtime.")
             result = self.graph.invoke(command, config=self.config)
         else:
-            with self.checkpoint_store.open() as saver:
-                graph = build_graph(checkpointer=saver)
+            with self.checkpoint_store.managed(self.thread_id) as saver:
+                graph = (
+                    build_graph(checkpointer=saver)
+                    if self.durable
+                    else build_graph(
+                        checkpointer=saver,
+                        candidate_retriever=self.candidate_retriever,
+                        explanation_generator=self.explanation_generator,
+                        candidate_limit=self.candidate_limit,
+                    )
+                )
                 result = graph.invoke(command, config=self.config)
         self.state = dict(result)
         return self.state
+
+    def discard(self) -> None:
+        """Discard process-local state and invalidate this cached runtime handle."""
+        if not isinstance(self.checkpoint_store, MemoryCheckpointStore) or self.durable:
+            raise ValueError("Discard requires a process-local checkpoint store.")
+        self.checkpoint_store.discard(self.thread_id)
+        self.graph = None
+        self.state = {}
+        self.candidate_retriever = None
+        self.explanation_generator = None
+
+    def lifecycle(self) -> dict[str, Any]:
+        """Inspect this exact run's lifecycle without extending its retention."""
+        if self.checkpoint_store is None:
+            raise RuntimeError("Dashboard run has no checkpoint store.")
+        return self.checkpoint_store.inspect(self.thread_id)
+
+    def audit(self) -> dict[str, Any]:
+        """Return detached, validated JSON audit history for this exact run."""
+        return reconstruct_audit(self.state, self.thread_id)
 
 
 def start_dashboard_run(
@@ -242,7 +278,9 @@ def start_dashboard_run(
             create_explanation_generator(settings) if validated_options.with_explanation else None
         )
         checkpoint_store: DashboardCheckpointStore = (
-            PostgresCheckpointStore(settings.postgres_uri)
+            PostgresCheckpointStore(
+                settings.postgres_uri, retention_days=settings.checkpoint_retention_days
+            )
             if validated_options.durable_checkpoint
             else MemoryCheckpointStore()
         )
@@ -251,7 +289,7 @@ def start_dashboard_run(
         if checkpoint_store.durable:
             selected_thread_id = _validated_review_token(selected_thread_id)
         config = {"configurable": {"thread_id": selected_thread_id}}
-        with checkpoint_store.open() as saver:
+        with checkpoint_store.managed(selected_thread_id, create=True) as saver:
             graph = build_graph(
                 checkpointer=saver,
                 candidate_retriever=candidate_retriever,
@@ -260,10 +298,15 @@ def start_dashboard_run(
             )
             state = dict(graph.invoke({"profile": profile}, config=config))
         return DashboardRun(
-            graph=None if checkpoint_store.durable else graph,
+            graph=None,
             config=config,
             state=state,
-            checkpoint_store=checkpoint_store if checkpoint_store.durable else None,
+            checkpoint_store=checkpoint_store,
+            candidate_retriever=candidate_retriever if not checkpoint_store.durable else None,
+            explanation_generator=explanation_generator if not checkpoint_store.durable else None,
+            candidate_limit=validated_options.candidate_limit
+            if not checkpoint_store.durable
+            else 5,
         )
     finally:
         if graph_store is not None:
@@ -283,7 +326,7 @@ def load_dashboard_run(
         raise ValueError("Saved reviews require a durable checkpoint store.")
     store.setup()
     config = {"configurable": {"thread_id": token}}
-    with store.open() as saver:
+    with store.managed(token) as saver:
         graph = build_graph(checkpointer=saver)
         snapshot = graph.get_state(config)
 

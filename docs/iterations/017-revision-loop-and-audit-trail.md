@@ -291,3 +291,53 @@ cursor, zero identifier allocation during successful receipt reuse/approval, and
 This does not bypass ambiguous-operation guards or promise deterministic IDs from the default random
 factory after process loss. Full suite: **360 passed**. Ruff, formatting, strict mypy (44 source
 files), packaging, Docker Compose validation, and diff checks passed.
+
+### Issue #41 implementation handoff and evidence
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/41#issuecomment-5573395329.
+This implementation is limited to audit reconstruction and managed checkpoint lifecycle; Issue
+#42 UI controls/rendering and Issue #43 acceptance remain separate.
+
+`reconstruct_audit` validates retained identities/digests and evidence snapshot consistency before
+returning detached JSON history. Managed stores enforce per-thread exclusion, atomic independent
+checkpoint/lifecycle commits, persisted bounded retention, meaningful-event deduplication,
+expiry/legacy fail-closed access, exact preview/prune, complete confirmed deletion, and memory
+discard. ADR 0019 records transaction and operational metadata choices without changing accepted
+ADR history. The architecture and local runbook document usage and limitations.
+
+Local verification on 2026-09-08 passed: **171 focused tests** covering lifecycle, PostgreSQL
+connection/store doubles, dashboard regressions, revision replay, and identifiers; **456 tests** in
+the full offline suite; the Codex workflow validator; Ruff lint and format check; strict mypy
+(46 source files); `uv build`; `docker compose config --quiet`; and `git diff --check`. One earlier
+focused run hit the existing three-second Streamlit cold-start timeout; that same focused set and
+the full suite subsequently passed without a code change for the timeout.
+
+All lifecycle/store verification uses deterministic memory/connection doubles; live PostgreSQL,
+providers, market data, trades, and external financial writes were not invoked. Live PostgreSQL
+transaction and advisory-lock behavior remains the material unverified integration risk and needs
+separate approval. Issue #42 still owns UI controls/rendering and Issue #43 owns iteration-wide
+acceptance. Coordinator review passed; delivery evidence is recorded in the pull request.
+
+### PR #55 review remediation
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/pull/55#issuecomment-5588465386,
+addressing https://github.com/beagle1903/agentic-etf-advisor/pull/55#discussion_r3955098338.
+Process-local runs retain repr-hidden transient retriever/generator dependencies and candidate
+limit, reinject them into fresh managed graphs, and clear adapter references on discard.
+Checkpoint JSON, lifecycle exclusion, replay guards, and durable restore behavior are unchanged.
+Real-graph regressions use deterministic fake adapters for explanation-only and evidence-refresh
+revisions, upstream identities, lineage/receipts, fresh saver handles, discard/deletion safety,
+and durable dependency omission. Startup still closes Neo4j after drafting: retaining a retriever
+does not repair its closed live resources. Resource ownership redesign, durable adapter
+reattachment, Issue #42 controls/rendering, and live-service verification remain outside scope.
+
+Local remediation verification on 2026-09-08: five new real-graph regressions passed;
+the focused dashboard, lifecycle, PostgreSQL-double, revision, and identifier suites passed
+**176 tests**; `uv run pytest` passed **461 tests**. The Codex workflow validator, Ruff lint,
+format check (119 files), strict mypy (46 source files), `uv build`,
+`docker compose config --quiet`, and `git diff --check` passed. An initial focused command named
+a nonexistent `tests/test_checkpoint.py` and collected no tests; the corrected suites above passed.
+No live services or external financial writes were used. Coordinator review and the complete
+remediation gate set passed before delivery to PR #55.

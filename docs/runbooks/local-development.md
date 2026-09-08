@@ -47,6 +47,50 @@ The token is not a login, the dashboard does not list other threads, and this sl
 multi-user review system. If PostgreSQL is unavailable while submitting a decision, restore the
 same token and inspect its current state before retrying.
 
+### Checkpoint lifetime and operator lifecycle API
+
+New durable threads use `CHECKPOINT_RETENTION_DAYS` (integer 1–365, default 30). The effective
+interval is saved per thread; changing configuration does not retroactively change existing
+threads. Loading/rendering never renews expiry. At the exact expiry boundary, restoration/resume
+is blocked. Legacy checkpoints without lifecycle metadata also fail closed and are not migrated.
+Lifecycle controls and expiry rendering are reserved for Issue #42.
+
+The backend lifecycle API is available for explicit local operations after normal store setup:
+
+```python
+status = store.inspect(review_token)
+preview = store.preview_expired()  # one cutoff, no writes
+results = store.prune(preview)  # only unchanged candidates in that preview
+result = store.delete(review_token, confirmed=True)  # separate explicit confirmation
+```
+
+Deletion permanently removes every namespace, checkpoint, blob, pending write, draft, decision,
+receipt, lineage, and lifecycle record for that exact UUID-v4 token. It returns `deleted`,
+`not_found`, or sanitized `failure`; no backup or recovery is promised. Prune additionally reports
+`skipped` for changed candidates. Missing/malformed metadata is never automatically pruned but can
+be deleted with the exact token and confirmation. There is no automatic background cleanup.
+
+Application code must use `with store.managed(token, create=True) as saver` for a new thread,
+and `with store.managed(token) as saver` for existing state. Build the graph inside that context;
+complete the invocation there. Do not retain its compiled graph for subsequent operations.
+Process-local `DashboardRun` retains repr-hidden adapter dependencies and the candidate limit,
+reinjecting them into each fresh managed graph. These fields stay outside checkpoint JSON, and
+discard clears adapter references. Startup still closes the Neo4j resource after drafting;
+retention alone does not make a closed live retriever reusable. Live resource ownership changes
+and durable adapter reattachment are deferred; durable restore/approval remains unchanged.
+Each synchronous checkpoint commits separately while per-thread exclusion blocks prune/deletion.
+To retry a failed/ambiguous operation, pass the existing typed `retry_request` to a graph compiled
+inside managed access with the required replaceable adapters attached. Never retry implicitly.
+
+Use `reconstruct_audit(state, token)` from `etf_advisor.audit` to validate and reconstruct retained
+history without clocks, ID allocation, or external calls. The result contains private local
+profile/evidence/audit data: do not log, commit, or publish it. For process-local sessions,
+`run.discard()` invalidates the run and deletes its memory checkpoint; browser/process loss also
+has no recovery promise. Tokens remain capability references rather than authentication.
+
+Lifecycle verification uses deterministic store and connection doubles. This slice did not run
+live PostgreSQL, provider, or market integrations. Live PostgreSQL checks require separate approval.
+
 ## Exercise hybrid retrieval
 
 With Chroma and Neo4j healthy, index one shared source bundle and query it:

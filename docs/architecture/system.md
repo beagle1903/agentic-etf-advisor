@@ -286,8 +286,14 @@ interrupt. It is an arithmetic policy illustration rather than ETF selection or 
 source-grounded evidence remains research context rather than a recommendation.
 
 The local Streamlit dashboard is an optional presentation adapter over this same interrupt. The
-default path retains one compiled graph, in-memory checkpointer, thread ID, and latest state inside
-the browser session. Durable mode instead opens short-lived connections to the local PostgreSQL
+default path retains an in-memory checkpoint store, thread ID, latest state, and repr-hidden
+transient retriever, explanation generator, and candidate limit inside the browser session.
+Each managed invocation compiles a fresh graph with those dependencies; no compiled graph or
+managed saver is retained on the run. Dependencies are never checkpointed and adapter references
+are cleared on memory discard. Startup still closes its Neo4j resource after drafting, so retaining
+the retriever does not guarantee later live-resource usability. Resource ownership redesign and
+durable adapter reattachment remain outside this slice.
+Durable mode instead opens short-lived connections to the local PostgreSQL
 checkpoint store for create, restore, and resume operations. A random UUID review token restores
 only that exact thread from a newly compiled graph; the UI does not enumerate saved threads.
 
@@ -354,8 +360,27 @@ The dashboard adapter and demo CLI submit revision-bound approvals. The adapter 
 feedback and explicit reject disposition; the richer interactive revision/retry forms remain Issue
 #42. Revisions that need external operations require the appropriate injected adapters when the
 graph is recompiled. Current-artifact rendering remains intact, while the CLI omits the retained
-ledger so it does not print the checkpoint capability. Retention, expiry, prune, and deletion are
-still Issue #41; no checkpoint lifecycle or external financial-write behavior is introduced here.
+ledger so it does not print the checkpoint capability.
+
+Issue #41 adds pure `reconstruct_audit` validation and detached JSON reconstruction of retained
+profiles, reached artifacts and source snapshot identities, decisions, receipts, child links,
+and outcomes. Operational lifecycle metadata stays outside graph state and has its own version
+and canonical integrity digest. Durable threads retain their configured 1–365 day interval
+(30 days by default) from creation. Only new semantic creation/decision/child/retry/terminal
+events renew expiry. Reads, rejected inputs, ordinary intermediate writes, and receipt reuse do
+not renew it.
+
+The dashboard backend now opens an invocation-scoped managed saver for creation, load, and
+resume. Per-thread exclusion spans invocation; individual checkpoint and metadata commits remain
+atomic and independent so started receipts are visible before side effects. Expired and legacy
+threads fail closed for managed restoration/resume. Lifecycle inspection reports expiry without
+renewal. PostgreSQL bounds advisory-lock acquisition to five seconds. Explicit preview/prune
+checks one captured candidate/version set; exact confirmed UUID-v4
+deletion atomically removes all namespaces and lifecycle data. Cached managed runtimes expire on
+context exit, and explicit memory discard removes local state without a recovery promise.
+ADR 0019 records the adapter transaction choices. Live PostgreSQL remains unverified; deterministic
+store doubles cover this slice. Issue #42 retains ownership of lifecycle UI controls/rendering,
+and Issue #43 retains iteration-wide acceptance. No external financial-write behavior is added.
 
 ## Data-source boundary
 

@@ -10,8 +10,11 @@ from uuid import uuid4
 
 import pytest
 from langgraph.checkpoint.memory import InMemorySaver
+from test_revision import Adapters
+from test_workflow import valid_profile as workflow_profile
 
 import etf_advisor.dashboard as dashboard
+from etf_advisor.checkpoint import MemoryCheckpointStore
 from etf_advisor.dashboard import (
     DashboardOptions,
     DashboardRun,
@@ -40,6 +43,7 @@ from etf_advisor.explanation import (
     build_explanation_request,
     validate_and_bundle_explanation,
 )
+from etf_advisor.graph.revision import validate_revision_state
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import select_candidate_evidence
 from etf_advisor.rag.models import GraphEnrichedSource
@@ -55,11 +59,12 @@ class FakeGraph:
         return {"status": "approved", "final_message": "Approved safely."}
 
 
-class DurableMemoryCheckpointStore:
+class DurableMemoryCheckpointStore(MemoryCheckpointStore):
     durable = True
 
     def __init__(self) -> None:
-        self.saver = InMemorySaver()
+        super().__init__()
+        self.saver = self._saver
         self.setup_calls = 0
         self.open_calls = 0
 
@@ -869,12 +874,141 @@ def test_policy_only_dashboard_run_needs_no_live_services(
     assert run.config == {"configurable": {"thread_id": "offline-dashboard"}}
 
 
+@pytest.fixture
+def adapter_dashboard(monkeypatch: pytest.MonkeyPatch) -> tuple[Any, Any, Any, Any]:
+    adapters = Adapters()
+    builds: list[dict[str, Any]] = []
+    graphs: list[Any] = []
+    closed: list[bool] = []
+
+    def recording_build(**kwargs: Any) -> Any:
+        builds.append(kwargs)
+        graph = build_graph(**kwargs)
+        graphs.append(graph)
+        return graph
+
+    monkeypatch.setattr(dashboard, "ChromaDocumentStore", lambda **kw: object())
+    monkeypatch.setattr(
+        dashboard,
+        "Neo4jGraphStore",
+        lambda **kw: SimpleNamespace(close=lambda: closed.append(True)),
+    )
+    monkeypatch.setattr(dashboard, "HybridRetriever", lambda *args: object())
+    monkeypatch.setattr(dashboard, "HybridCandidateEvidenceRetriever", lambda *args, **kw: adapters)
+    monkeypatch.setattr(dashboard, "create_explanation_generator", lambda settings: adapters)
+    monkeypatch.setattr(dashboard, "build_graph", recording_build)
+    return adapters, builds, graphs, closed
+
+
+@pytest.mark.parametrize("kind", ["explanation", "evidence"])
+def test_memory_revision_reuses_adapters_with_fresh_managed_graph(
+    adapter_dashboard: tuple[Any, Any, Any, Any], kind: str
+) -> None:
+    adapters, builds, graphs, closed = adapter_dashboard
+    run = dashboard.start_dashboard_run(
+        workflow_profile(),
+        DashboardOptions(with_evidence=True, with_explanation=True, candidate_limit=6),
+    )
+    assert closed == [True]
+    assert run.graph is None
+    assert run.candidate_retriever is run.explanation_generator is adapters
+    assert "candidate_retriever=" not in repr(run)
+    assert "explanation_generator=" not in repr(run)
+    assert "candidate_limit=" not in repr(run)
+    parent = deepcopy(run.state)
+    feedback = (
+        {"kind": "explanation", "instruction": "Use shorter sentences."}
+        if kind == "explanation"
+        else {"kind": "evidence", "refresh": True, "candidate_limit": 6}
+    )
+    child = run.resume("edit", "Revise the draft.", disposition="revise", feedback_items=[feedback])
+    assert child["status"] == "awaiting_human_review"
+    assert run.graph is None
+    assert adapters.retrieval_calls == (1 if kind == "explanation" else 2)
+    assert adapters.provider_calls == 2
+    ledger = validate_revision_state(child)
+    previous, current = ledger.revisions
+    assert current.parent_revision_id == previous.revision_id
+    assert current.triggering_decision_id == previous.review_decision_id
+    assert current.triggering_decision_id in ledger.decisions
+    assert current.review_decision_id is None
+    assert current.profile_version_id == previous.profile_version_id
+    unchanged = ["draft_policy"]
+    if kind == "explanation":
+        unchanged += ["candidate_evidence", "candidate_screening", "portfolio_construction"]
+        assert adapters.instructions[-1] == "Use shorter sentences."
+    for name in unchanged:
+        assert current.artifacts[name] == previous.artifacts[name]
+        assert child[name] == parent[name]
+    assert previous.receipts == validate_revision_state(parent).revisions[0].receipts
+    assert len(current.receipts) == (1 if kind == "explanation" else 2)
+    assert all(receipt.status == "succeeded" for receipt in current.receipts)
+    assert all(receipt.revision_id == current.revision_id for receipt in current.receipts)
+    assert current.artifacts["draft_explanation"] != previous.artifacts["draft_explanation"]
+    assert len(builds) == 2
+    assert builds[0]["checkpointer"] is not builds[1]["checkpointer"]
+    for build, graph in zip(builds, graphs, strict=True):
+        assert build["candidate_retriever"] is build["explanation_generator"] is adapters
+        assert build["candidate_limit"] == 6
+        with pytest.raises(ValueError, match="no longer valid"):
+            graph.get_state(run.config)
+    with run.checkpoint_store.managed(run.thread_id) as saver:
+        persisted = dict(build_graph(checkpointer=saver).get_state(run.config).values)
+    json.dumps(persisted)
+    assert "candidate_retriever" not in persisted
+    assert "explanation_generator" not in persisted
+    assert run.resume("approve")["status"] == "approved"
+    assert adapters.retrieval_calls == (1 if kind == "explanation" else 2)
+    assert adapters.provider_calls == 2
+
+
+@pytest.mark.parametrize("delete", [False, True], ids=["discard", "delete"])
+def test_memory_adapter_run_cannot_recreate_deleted_thread(
+    adapter_dashboard: tuple[Any, Any, Any, Any], delete: bool
+) -> None:
+    adapters, _, graphs, _ = adapter_dashboard
+    run = dashboard.start_dashboard_run(
+        workflow_profile(), DashboardOptions(with_evidence=True, with_explanation=True)
+    )
+    store = run.checkpoint_store
+    if delete:
+        assert store.delete(run.thread_id, confirmed=True) == "deleted"
+    else:
+        run.discard()
+        assert run.state == {} and run.graph is None
+        assert run.candidate_retriever is run.explanation_generator is None
+    with pytest.raises(ValueError):
+        run.resume("approve")
+    with pytest.raises(ValueError, match="no longer valid"):
+        graphs[0].invoke(None, run.config)
+    assert store.inspect(run.thread_id) == {"status": "not_found"}
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+
+
+def test_durable_adapter_dependencies_are_not_retained(
+    monkeypatch: pytest.MonkeyPatch, adapter_dashboard: tuple[Any, Any, Any, Any]
+) -> None:
+    adapters, builds, _, _ = adapter_dashboard
+    store = DurableMemoryCheckpointStore()
+    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda *args, **kw: store)
+    run = dashboard.start_dashboard_run(
+        workflow_profile(),
+        DashboardOptions(with_evidence=True, with_explanation=True, durable_checkpoint=True),
+    )
+    assert run.candidate_retriever is run.explanation_generator is None
+    restored = load_dashboard_run(run.thread_id, checkpoint_store=store)
+    assert restored.candidate_retriever is restored.explanation_generator is None
+    assert restored.resume("approve")["status"] == "approved"
+    assert set(builds[-1]) == {"checkpointer"}
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+
+
 def test_durable_dashboard_run_restores_and_resumes_with_a_new_graph(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     store = DurableMemoryCheckpointStore()
     token = str(uuid4())
-    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda connection_uri: store)
+    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda connection_uri, **kw: store)
 
     started = dashboard.start_dashboard_run(
         valid_profile().model_dump(mode="json"),
@@ -928,9 +1062,10 @@ def test_durable_restore_preserves_full_json_portfolio_and_revalidates_before_re
             assert limit == 5
             return evidence.model_copy(deep=True)
 
-    graph = build_graph(checkpointer=store.saver, candidate_retriever=FixedRetriever())
     config = {"configurable": {"thread_id": token}}
-    paused = dict(graph.invoke({"profile": profile.model_dump(mode="json")}, config=config))
+    with store.managed(token, create=True) as saver:
+        graph = build_graph(checkpointer=saver, candidate_retriever=FixedRetriever())
+        paused = dict(graph.invoke({"profile": profile.model_dump(mode="json")}, config=config))
     expected = json.loads(
         json.dumps(review_payload(paused)["portfolio_construction"], sort_keys=True)
     )
