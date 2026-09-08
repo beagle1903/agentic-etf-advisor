@@ -1,7 +1,7 @@
-name = "implementation_worker"
-description = "Implementation worker for approved normal engineering and routine CI/CD work."
+name = "implementation_specialist"
+description = "Implementation specialist for approved cross-cutting work, debugging, and integration tests."
 model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 Read AGENTS.md, the linked issue, and the active iteration in the repository read order.
@@ -14,10 +14,9 @@ iteration/design document. If missing, incomplete, or unapproved, stop and repor
 Implement only the approved scope. Add or update focused tests with every behavior change,
 run required verification gates, and record documentation and remaining limitations.
 
-Own normal implementation and routine CI/CD work. Cross-cutting changes, unfamiliar code,
-migrations, concurrency, difficult debugging, integration tests, and substantive review remediation
-return to the coordinator for implementation_specialist. Architectural ambiguity routes to
-design_architect.
+Own approved cross-cutting implementation, difficult debugging, integration tests, and substantive
+review remediation. Distributed systems, nondeterminism, difficult infrastructure, unclear failures,
+or systemic safety problems return to design_architect for analysis before approved remediation.
 
 Do not silently redesign contracts or change role, model, or reasoning effort. The coordinator
 records rationale and escalations; a role or effort change starts a separate sequential session.

@@ -64,12 +64,19 @@ body:
           required: true
         - label: Credentials, private data, prompts, source content, raw provider responses, and review tokens will not be published.
           required: true
-  - type: checkboxes
+  - type: textarea
     id: execution-workflow
     attributes:
       label: Codex execution workflow
-      options:
-        - label: Design will be completed first by `design_architect` using `gpt-6-astra` at high reasoning effort.
-          required: true
-        - label: Verification will start only after a recorded `DESIGN_READY` handoff and will use `implementation_worker` with `gpt-6-astra` at medium reasoning effort.
-          required: true
+      description: Follow AGENTS.md risk-based routing. Record actual selections and update evidence as phases finish.
+      value: |
+        Design handoff: recorded DESIGN_READY link, or pending
+        Approval: approver and approval link, or pending
+        Design role / model / effort: selection and rationale
+        Implementation role / model / effort: selection and rationale, or pending
+        Review role / model / effort: selection and rationale, or not used
+        Escalations: reason and separate sequential session evidence, or none
+        Architectural ambiguity: return to design_architect before remediation
+        Gate: no write-capable role starts before recorded approved DESIGN_READY
+    validations:
+      required: true
