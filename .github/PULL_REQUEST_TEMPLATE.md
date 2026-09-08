@@ -10,12 +10,16 @@
 
 ## Design and model routing
 
-- Design handoff: `docs/iterations/<design-document>.md` or issue comment/link
-- Design agent: `design_architect` (`gpt-6-astra`, `high`)
-- Implementation agent: `implementation_worker` (`gpt-6-astra`, `medium`)
-- [ ] Design was marked `DESIGN_READY` before implementation began
-- [ ] Implementation followed the approved design without an undocumented contract change
-- [ ] Any architectural escalation or one-off workflow exception is recorded
+- Design handoff: document or issue link, with recorded `DESIGN_READY`
+- Approval: approver and recorded approval link
+- Design role / model / effort: actual selection and rationale (AGENTS.md task matrix)
+- Implementation role / model / effort: actual selection and rationale
+- Review role / model / effort: actual selection, or not used
+- Escalations: reason, findings, approval, and separate sequential session evidence, or none
+- Bootstrap or one-off exception: recorded authorization, or none
+- [ ] Approved design was recorded before any write-capable role started
+- [ ] Implementation followed the approved scope
+- [ ] Architectural ambiguity returned to `design_architect`; reviews did not authorize changes
 
 ## Acceptance criteria covered
 

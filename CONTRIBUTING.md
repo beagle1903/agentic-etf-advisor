@@ -16,22 +16,23 @@ architecture, execution, and verification knowledge.
 
 ## Codex ticket routing
 
-All issue-backed work starts with the project-scoped `design_architect` agent. It uses
-`gpt-6-astra` with `high` reasoning effort and produces a read-only, reviewable design handoff.
-The handoff must be recorded in the issue, canonical iteration document, or a dedicated design
-document under `docs/iterations/` before implementation begins.
+Use the authoritative risk-based task matrix in `AGENTS.md` and ADR 0020. Select actual role,
+model, effort, and rationale for each separate sequential session. Low-risk architecture-determined
+design may use `planning_analyst`; consequential contracts require `design_architect`.
+Unclear dependencies or acceptance criteria route to `code_reviewer`; architectural ambiguity
+returns to `design_architect`. Reviews return findings and cannot authorize implementation.
 
-Implementation then runs in a separate session using `implementation_worker`, pinned to
-`gpt-6-astra` with `medium` reasoning effort. The worker must follow the approved handoff, add
-focused tests, and escalate architectural ambiguity rather than redesigning silently. The
-project registers both named roles explicitly through descriptions and relative `config_file`
-references in `.codex/config.toml`. Coordinators must route to these named roles and run design
-then implementation sequentially. Generic-agent defaults and a two-thread concurrency cap are
-not configured by this repository; sequencing is coordinator policy (ADR 0018).
+A recorded, approved `DESIGN_READY` handoff is required before any write-capable role starts.
+Normal implementation uses `implementation_worker`; mechanical work uses `bounded_worker`;
+complex implementation, integration tests, and substantive remediation use
+`implementation_specialist`. Record escalations and start a separate sequential session for
+role or effort changes. The PR links the handoff, approval, actual routing evidence, and any
+explicitly approved one-off exception.
 
-The PR must link the design handoff and state the design and implementation roles. A one-off
-exception requires explicit issue and PR documentation. The pinned role configuration is checked
-by `scripts/validate_codex_workflow.py` in CI.
+The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
+no-project-model-override, and no-concurrency-scalar compatibility policy still applies.
+`scripts/validate_codex_workflow.py` checks static contracts in CI; it cannot prove live-session
+role, model, effort, or sandbox provenance.
 
 Every iteration parent issue must link its canonical iteration file. The issue may summarize the
 goal and acceptance gate, but detailed scope and durable evidence belong in the repository. At

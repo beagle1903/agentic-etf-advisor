@@ -1,7 +1,23 @@
+[agents.planning_analyst]
+description = "Read-only analyst for discovery, planning, and architecture-determined low-risk designs."
+config_file = "agents/planning-analyst.toml"
+
 [agents.design_architect]
-description = "Read-only high-effort design agent used before every ticket implementation."
+description = "Read-only architect for consequential contracts, architecture, and difficult unresolved problems."
 config_file = "agents/design-architect.toml"
 
+[agents.bounded_worker]
+description = "Bounded worker for approved mechanical changes, unit tests, and straightforward review fixes."
+config_file = "agents/bounded-worker.toml"
+
 [agents.implementation_worker]
-description = "Medium-effort implementation agent that executes an approved ticket design."
+description = "Implementation worker for approved normal engineering and routine CI/CD work."
 config_file = "agents/implementation-worker.toml"
+
+[agents.code_reviewer]
+description = "Read-only reviewer for substantive correctness, dependencies, and test-gap analysis."
+config_file = "agents/code-reviewer.toml"
+
+[agents.implementation_specialist]
+description = "Implementation specialist for approved cross-cutting work, debugging, and integration tests."
+config_file = "agents/implementation-specialist.toml"

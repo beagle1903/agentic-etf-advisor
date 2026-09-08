@@ -8,7 +8,14 @@ from pathlib import Path
 import pytest
 
 SOURCE = Path(__file__).resolve().parents[1]
-ROLES = ("design-architect", "implementation-worker")
+ROLES = (
+    "planning-analyst",
+    "design-architect",
+    "bounded-worker",
+    "implementation-worker",
+    "code-reviewer",
+    "implementation-specialist",
+)
 
 
 @pytest.fixture
@@ -17,6 +24,7 @@ def repository(tmp_path: Path) -> Path:
     for relative in (".codex", ".github"):
         shutil.copytree(SOURCE / relative, root / relative)
     shutil.copyfile(SOURCE / "AGENTS.md", root / "AGENTS.md")
+    shutil.copyfile(SOURCE / "CONTRIBUTING.md", root / "CONTRIBUTING.md")
     (root / "scripts").mkdir()
     shutil.copyfile(
         SOURCE / "scripts/validate_codex_workflow.py",
@@ -125,6 +133,8 @@ def test_role_file_load(repository: Path, role: str, damage: str) -> None:
         'default_subagent_model = "gpt-6-astra"',
         'default_subagent_reasoning_effort = "medium"',
         "max_concurrent_threads_per_session = 2",
+        "max_threads = 2",
+        'default_role = "implementation_worker"',
     ],
 )
 def test_removed_scalar_rejected(repository: Path, scalar: str) -> None:
@@ -175,3 +185,104 @@ def test_registration_checked_before_role_file(repository: Path) -> None:
     (repository / ".codex/agents/design-architect.toml").unlink()
     replace(repository / ".codex/config.toml", "agents/implementation-worker.toml", "wrong.toml")
     reject(repository, "config_file must be")
+
+
+@pytest.mark.parametrize("role", ROLES)
+@pytest.mark.parametrize("damage", ["empty", "missing", "scalar", "gate", "session"])
+def test_instruction_boundaries(repository: Path, role: str, damage: str) -> None:
+    path = repository / f".codex/agents/{role}.toml"
+    if damage in {"empty", "missing", "scalar"}:
+        text = path.read_text(encoding="utf-8").split("developer_instructions")[0]
+        if damage != "missing":
+            text += "developer_instructions = " + ('""' if damage == "empty" else "42")
+        path.write_text(text, encoding="utf-8")
+        reject(repository, "role fields" if damage == "missing" else "nonempty text")
+    else:
+        marker = (
+            "separate sequential session"
+            if damage == "session"
+            else (
+                "Do not edit source"
+                if role in {"planning-analyst", "design-architect", "code-reviewer"}
+                else "recorded approved DESIGN_READY"
+            )
+        )
+        replace(path, marker, "removed")
+        reject(repository, "missing instruction boundaries")
+
+
+@pytest.mark.parametrize("damage", ["registration", "file", "role-field", "registration-field"])
+def test_extra_inventory(repository: Path, damage: str) -> None:
+    config = repository / ".codex/config.toml"
+    if damage == "file":
+        (repository / ".codex/agents/extra.toml").write_text("", encoding="utf-8")
+        reject(repository, "unexpected role files")
+    elif damage == "role-field":
+        path = repository / ".codex/agents/design-architect.toml"
+        path.write_text("extra = true\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
+        reject(repository, "unexpected or missing role fields")
+    else:
+        text = config.read_text(encoding="utf-8")
+        text += (
+            '\n[agents.extra]\ndescription = "extra"\nconfig_file = "extra.toml"\n'
+            if damage == "registration"
+            else '\nmodel = "gpt-6-astra"\n'
+        )
+        config.write_text(text, encoding="utf-8")
+        reject(
+            repository,
+            "unexpected role registrations"
+            if damage == "registration"
+            else "unexpected registration fields",
+        )
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        'model = "gpt-6-astra"',
+        'model_reasoning_effort = "high"',
+    ],
+)
+def test_project_overrides(repository: Path, override: str) -> None:
+    path = repository / ".codex/config.toml"
+    path.write_text(override + "\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
+    reject(repository, "project-level overrides are prohibited")
+
+
+def test_unrelated_project_settings_allowed(repository: Path) -> None:
+    path = repository / ".codex/config.toml"
+    path.write_text(
+        "[history]\nmax_bytes = 100000\n" + path.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    result = run_validator(repository)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "Codex ticket workflow configuration is valid.\n"
+    assert not result.stderr
+
+
+@pytest.mark.parametrize("damage", ["missing", "encoding"])
+def test_unreadable_document(repository: Path, damage: str) -> None:
+    path = repository / "CONTRIBUTING.md"
+    if damage == "missing":
+        path.unlink()
+    else:
+        path.write_bytes(b"\xff")
+    reject(repository, "unreadable workflow document")
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "CONTRIBUTING.md",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        *[
+            f".github/ISSUE_TEMPLATE/{name}.yml"
+            for name in ("work-item", "bug", "verification", "iteration")
+        ],
+    ],
+)
+def test_routing_evidence_marker(repository: Path, relative: str) -> None:
+    replace(repository / relative, "separate sequential session", "removed")
+    reject(repository, "missing required workflow markers")
