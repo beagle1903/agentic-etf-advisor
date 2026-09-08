@@ -125,10 +125,17 @@ Static validation passed; local CLI loading, model availability, and actual runt
 provenance are separate claims and are not established by these tests. Marker checks protect
 critical text boundaries but cannot prove semantic compliance with instructions. No live services,
 provider requests, product/runtime behavior, or external financial writes were involved.
-Coordinator review, commit/PR/CI links, and delivery remain to be recorded by the coordinator.
+Coordinator review and pull-request delivery are recorded below; final CI remains pending.
 
 Coordinator review narrowed project-level validation to the prohibited `model` and
 `model_reasoning_effort` keys. Unrelated top-level settings remain allowed; a history-table
 fixture verifies this boundary alongside explicit override-rejection fixtures.
 After this correction, all 207 focused tests, the standalone validator, Ruff lint and format,
 and the diff check passed. The full-suite result above predates this narrow validator correction.
+
+## Delivery
+
+- Branch: `codex/refine-subagent-routing`
+- Bootstrap implementation commit: `8ed38e764794e6cda2956ae449c1c377ea4555f8`
+- Pull request: https://github.com/beagle1903/agentic-etf-advisor/pull/56
+- CI: pending on the pull request at the time this evidence was recorded
