@@ -354,8 +354,27 @@ The dashboard adapter and demo CLI submit revision-bound approvals. The adapter 
 feedback and explicit reject disposition; the richer interactive revision/retry forms remain Issue
 #42. Revisions that need external operations require the appropriate injected adapters when the
 graph is recompiled. Current-artifact rendering remains intact, while the CLI omits the retained
-ledger so it does not print the checkpoint capability. Retention, expiry, prune, and deletion are
-still Issue #41; no checkpoint lifecycle or external financial-write behavior is introduced here.
+ledger so it does not print the checkpoint capability.
+
+Issue #41 adds pure `reconstruct_audit` validation and detached JSON reconstruction of retained
+profiles, reached artifacts and source snapshot identities, decisions, receipts, child links,
+and outcomes. Operational lifecycle metadata stays outside graph state and has its own version
+and canonical integrity digest. Durable threads retain their configured 1–365 day interval
+(30 days by default) from creation. Only new semantic creation/decision/child/retry/terminal
+events renew expiry. Reads, rejected inputs, ordinary intermediate writes, and receipt reuse do
+not renew it.
+
+The dashboard backend now opens an invocation-scoped managed saver for creation, load, and
+resume. Per-thread exclusion spans invocation; individual checkpoint and metadata commits remain
+atomic and independent so started receipts are visible before side effects. Expired and legacy
+threads fail closed for managed restoration/resume. Lifecycle inspection reports expiry without
+renewal. PostgreSQL bounds advisory-lock acquisition to five seconds. Explicit preview/prune
+checks one captured candidate/version set; exact confirmed UUID-v4
+deletion atomically removes all namespaces and lifecycle data. Cached managed runtimes expire on
+context exit, and explicit memory discard removes local state without a recovery promise.
+ADR 0019 records the adapter transaction choices. Live PostgreSQL remains unverified; deterministic
+store doubles cover this slice. Issue #42 retains ownership of lifecycle UI controls/rendering,
+and Issue #43 retains iteration-wide acceptance. No external financial-write behavior is added.
 
 ## Data-source boundary
 

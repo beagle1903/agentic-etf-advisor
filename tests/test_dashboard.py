@@ -12,6 +12,7 @@ import pytest
 from langgraph.checkpoint.memory import InMemorySaver
 
 import etf_advisor.dashboard as dashboard
+from etf_advisor.checkpoint import MemoryCheckpointStore
 from etf_advisor.dashboard import (
     DashboardOptions,
     DashboardRun,
@@ -55,11 +56,12 @@ class FakeGraph:
         return {"status": "approved", "final_message": "Approved safely."}
 
 
-class DurableMemoryCheckpointStore:
+class DurableMemoryCheckpointStore(MemoryCheckpointStore):
     durable = True
 
     def __init__(self) -> None:
-        self.saver = InMemorySaver()
+        super().__init__()
+        self.saver = self._saver
         self.setup_calls = 0
         self.open_calls = 0
 
@@ -874,7 +876,7 @@ def test_durable_dashboard_run_restores_and_resumes_with_a_new_graph(
 ) -> None:
     store = DurableMemoryCheckpointStore()
     token = str(uuid4())
-    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda connection_uri: store)
+    monkeypatch.setattr(dashboard, "PostgresCheckpointStore", lambda connection_uri, **kw: store)
 
     started = dashboard.start_dashboard_run(
         valid_profile().model_dump(mode="json"),
@@ -928,9 +930,10 @@ def test_durable_restore_preserves_full_json_portfolio_and_revalidates_before_re
             assert limit == 5
             return evidence.model_copy(deep=True)
 
-    graph = build_graph(checkpointer=store.saver, candidate_retriever=FixedRetriever())
     config = {"configurable": {"thread_id": token}}
-    paused = dict(graph.invoke({"profile": profile.model_dump(mode="json")}, config=config))
+    with store.managed(token, create=True) as saver:
+        graph = build_graph(checkpointer=saver, candidate_retriever=FixedRetriever())
+        paused = dict(graph.invoke({"profile": profile.model_dump(mode="json")}, config=config))
     expected = json.loads(
         json.dumps(review_payload(paused)["portfolio_construction"], sort_keys=True)
     )
