@@ -138,4 +138,5 @@ and the diff check passed. The full-suite result above predates this narrow vali
 - Branch: `codex/refine-subagent-routing`
 - Bootstrap implementation commit: `8ed38e764794e6cda2956ae449c1c377ea4555f8`
 - Pull request: https://github.com/beagle1903/agentic-etf-advisor/pull/56
-- CI: pending on the pull request at the time this evidence was recorded
+- CI: passed in 33 seconds for commit `76fb5a1`:
+  https://github.com/beagle1903/agentic-etf-advisor/actions/runs/34256443788
