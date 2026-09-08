@@ -286,8 +286,14 @@ interrupt. It is an arithmetic policy illustration rather than ETF selection or 
 source-grounded evidence remains research context rather than a recommendation.
 
 The local Streamlit dashboard is an optional presentation adapter over this same interrupt. The
-default path retains one compiled graph, in-memory checkpointer, thread ID, and latest state inside
-the browser session. Durable mode instead opens short-lived connections to the local PostgreSQL
+default path retains an in-memory checkpoint store, thread ID, latest state, and repr-hidden
+transient retriever, explanation generator, and candidate limit inside the browser session.
+Each managed invocation compiles a fresh graph with those dependencies; no compiled graph or
+managed saver is retained on the run. Dependencies are never checkpointed and adapter references
+are cleared on memory discard. Startup still closes its Neo4j resource after drafting, so retaining
+the retriever does not guarantee later live-resource usability. Resource ownership redesign and
+durable adapter reattachment remain outside this slice.
+Durable mode instead opens short-lived connections to the local PostgreSQL
 checkpoint store for create, restore, and resume operations. A random UUID review token restores
 only that exact thread from a newly compiled graph; the UI does not enumerate saved threads.
 

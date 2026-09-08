@@ -73,6 +73,11 @@ be deleted with the exact token and confirmation. There is no automatic backgrou
 Application code must use `with store.managed(token, create=True) as saver` for a new thread,
 and `with store.managed(token) as saver` for existing state. Build the graph inside that context;
 complete the invocation there. Do not retain its compiled graph for subsequent operations.
+Process-local `DashboardRun` retains repr-hidden adapter dependencies and the candidate limit,
+reinjecting them into each fresh managed graph. These fields stay outside checkpoint JSON, and
+discard clears adapter references. Startup still closes the Neo4j resource after drafting;
+retention alone does not make a closed live retriever reusable. Live resource ownership changes
+and durable adapter reattachment are deferred; durable restore/approval remains unchanged.
 Each synchronous checkpoint commits separately while per-thread exclusion blocks prune/deletion.
 To retry a failed/ambiguous operation, pass the existing typed `retry_request` to a graph compiled
 inside managed access with the required replaceable adapters attached. Never retry implicitly.

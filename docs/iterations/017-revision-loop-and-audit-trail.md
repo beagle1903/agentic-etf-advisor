@@ -318,3 +318,26 @@ providers, market data, trades, and external financial writes were not invoked. 
 transaction and advisory-lock behavior remains the material unverified integration risk and needs
 separate approval. Issue #42 still owns UI controls/rendering and Issue #43 owns iteration-wide
 acceptance. Coordinator review passed; delivery evidence is recorded in the pull request.
+
+### PR #55 review remediation
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/pull/55#issuecomment-5588465386,
+addressing https://github.com/beagle1903/agentic-etf-advisor/pull/55#discussion_r3955098338.
+Process-local runs retain repr-hidden transient retriever/generator dependencies and candidate
+limit, reinject them into fresh managed graphs, and clear adapter references on discard.
+Checkpoint JSON, lifecycle exclusion, replay guards, and durable restore behavior are unchanged.
+Real-graph regressions use deterministic fake adapters for explanation-only and evidence-refresh
+revisions, upstream identities, lineage/receipts, fresh saver handles, discard/deletion safety,
+and durable dependency omission. Startup still closes Neo4j after drafting: retaining a retriever
+does not repair its closed live resources. Resource ownership redesign, durable adapter
+reattachment, Issue #42 controls/rendering, and live-service verification remain outside scope.
+
+Local remediation verification on 2026-09-08: five new real-graph regressions passed;
+the focused dashboard, lifecycle, PostgreSQL-double, revision, and identifier suites passed
+**176 tests**; `uv run pytest` passed **461 tests**. The Codex workflow validator, Ruff lint,
+format check (119 files), strict mypy (46 source files), `uv build`,
+`docker compose config --quiet`, and `git diff --check` passed. An initial focused command named
+a nonexistent `tests/test_checkpoint.py` and collected no tests; the corrected suites above passed.
+No live services or external financial writes were used. Coordinator review and the complete
+remediation gate set passed before delivery to PR #55.
