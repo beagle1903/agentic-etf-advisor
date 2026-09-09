@@ -272,6 +272,62 @@ def test_neo4j_snapshot_publish_preserves_explicit_missing_sector_status() -> No
 
 
 @pytest.mark.parametrize(
+    ("status", "provenance", "expected_exposures"),
+    [
+        (
+            "source_error",
+            '{"sector_exposures":{"missing_reason":"source_error","value":null}}',
+            [],
+        ),
+        (
+            "available",
+            '{"sector_exposures":{"missing_reason":null,"value":['
+            '{"name":"energy","symbol":null,"weight_pct":0.0}]}}',
+            [{"name": "energy", "weight_pct": 0.0}],
+        ),
+    ],
+)
+def test_neo4j_snapshot_publish_distinguishes_source_error_from_explicit_zero(
+    status: str,
+    provenance: str,
+    expected_exposures: list[dict[str, object]],
+) -> None:
+    driver = FakeDriver()
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="research:snapshot-v1:abc123:spy",
+        symbol="SPY",
+        title="SPY research snapshot",
+        content="Source content",
+        source="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/SPY/",
+        observed_at=datetime(2026, 8, 29, 12, 0, tzinfo=UTC),
+        metadata={
+            "snapshot_version": "snapshot-v1",
+            "snapshot_digest": "abc123",
+            "field_provenance_schema_version": 1,
+            "field_provenance_json": provenance,
+            "sector_exposures_status": status,
+        },
+    )
+
+    assert (
+        store.publish_snapshot(
+            [document],
+            snapshot_version="snapshot-v1",
+            universe_id="core",
+            universe_version="1.0.0",
+            snapshot_digest="abc123",
+        )
+        == 1
+    )
+
+    row = driver.snapshot_parameters[0]["documents"][0]
+    assert row["sector_exposures_status"] == status
+    assert row["sector_exposures"] == expected_exposures
+
+
+@pytest.mark.parametrize(
     ("sector_provenance", "error_match"),
     [
         (

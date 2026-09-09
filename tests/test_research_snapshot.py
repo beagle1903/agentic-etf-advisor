@@ -122,6 +122,43 @@ def test_same_version_different_content_has_distinct_document_identity() -> None
     assert first_document.document_id != second_document.document_id
 
 
+def test_source_error_exposures_round_trip_without_partial_values_or_digest_drift() -> None:
+    snapshot = research_snapshot()
+    record = snapshot.records[0]
+    record.top_holdings = research_field(
+        None,
+        missing_reason=MissingReason.SOURCE_ERROR,
+    )
+    record.sector_exposures = research_field(
+        None,
+        missing_reason=MissingReason.SOURCE_ERROR,
+    )
+    record.top_10_concentration_pct = research_field(
+        None,
+        missing_reason=MissingReason.SOURCE_ERROR,
+        provider="yahoo_finance_derived",
+    )
+
+    restored = ETFResearchSnapshot.model_validate_json(snapshot.model_dump_json())
+    first_document = restored.to_source_documents()[0]
+    second_document = restored.to_source_documents()[0]
+    provenance = json.loads(str(first_document.metadata["field_provenance_json"]))
+
+    assert restored == snapshot
+    assert restored.content_digest() == snapshot.content_digest()
+    assert first_document.document_id == second_document.document_id
+    assert first_document.metadata["top_holdings_status"] == "source_error"
+    assert first_document.metadata["sector_exposures_status"] == "source_error"
+    assert first_document.metadata["top_10_concentration_pct_status"] == "source_error"
+    assert "top_10_concentration_pct" not in first_document.metadata
+    assert provenance["top_holdings"]["value"] is None
+    assert provenance["top_holdings"]["missing_reason"] == "source_error"
+    assert provenance["sector_exposures"]["value"] is None
+    assert provenance["top_10_concentration_pct"]["value"] is None
+    assert provenance["top_10_concentration_pct"]["provider"] == "yahoo_finance_derived"
+    assert provenance["top_10_concentration_pct"]["observed_at"] == ("2026-08-29T12:00:00Z")
+
+
 def test_research_field_requires_value_xor_missing_reason() -> None:
     with pytest.raises(ValidationError, match="exactly one"):
         research_field(None)

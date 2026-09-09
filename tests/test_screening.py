@@ -154,6 +154,28 @@ def test_missing_sector_evidence_is_unknown() -> None:
     assert rule.unresolved_exclusions == ["energy"]
 
 
+def test_source_error_exposures_remain_unknown_after_real_evidence_selection() -> None:
+    evidence = _evidence(
+        excluded_sectors=["energy"],
+        missing_fields={"top_10_concentration_pct", "sector_exposures"},
+    )
+
+    candidate = screen_candidate_evidence(evidence).candidates[0]
+    concentration_rule = candidate.rules[5]
+    sector_rule = candidate.rules[6]
+
+    assert candidate.verdict == ScreeningVerdict.UNKNOWN
+    assert concentration_rule.reason_code == ScreeningReason.CONCENTRATION_UNKNOWN
+    assert concentration_rule.observed_value == MissingReason.SOURCE_ERROR
+    assert concentration_rule.citation is not None
+    assert concentration_rule.citation.source_url == SOURCE_URL
+    assert sector_rule.reason_code == ScreeningReason.SECTOR_EXPOSURE_UNKNOWN
+    assert sector_rule.observed_value == MissingReason.SOURCE_ERROR
+    assert sector_rule.unresolved_exclusions == ["energy"]
+    assert sector_rule.citation is not None
+    assert sector_rule.citation.source_url == SOURCE_URL
+
+
 def test_configurable_policy_changes_only_deterministic_threshold_judgments() -> None:
     evidence = _evidence(expense_ratio_pct=1.5)
     policy = CandidateScreeningPolicy(max_expense_ratio_pct=2.0)

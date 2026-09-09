@@ -390,7 +390,22 @@ product, replace or license the market-data source and review redistribution ter
 
 Yahoo price-history and metadata requests use bounded retries with configurable exponential
 backoff. A metadata exception exhausts those retries and fails the symbol; a successful
-metadata object may still contain legitimately absent individual fields. After collection,
+metadata object may still contain legitimately absent individual fields. A returned Yahoo
+holdings or sector collection is parsed atomically. An unsupported container,
+conversion failure, non-record row, unusable required label or weight, invalid numeric value, or
+collection total above 100 percentage points makes the complete affected field `source_error`;
+valid survivors are never published as complete evidence. A holdings error also makes the derived
+top-ten concentration `source_error`, while ordinary absence makes both fields `not_reported`.
+Exposure-specific numeric strings are classified and checked with exact decimal arithmetic before
+conversion into the existing float model. Python and NumPy boolean scalars are rejected, and a
+converted exposure never understates its exact parsed value at a screening boundary.
+Concentration is derived only after every returned holding has passed validation, including rows
+after the first ten, and is never clamped. A valid one-to-nine-row holdings collection remains a
+complete reported list, and valid sparse sector maps preserve explicit zero weights. The adapter
+can validate only what Yahoo returns: it cannot detect rows omitted upstream, and the existing
+ambiguous fraction-versus-percentage-point convention remains unchanged.
+
+After collection,
 a deterministic quality boundary compares every field's source timestamp with one UTC check time
 captured through an injected clock interface. One current field cannot mask stale data elsewhere
 in the same ETF record. Stale observations or timestamps too far in the future block ingestion

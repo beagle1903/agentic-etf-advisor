@@ -1,12 +1,42 @@
-from datetime import UTC, datetime
+import importlib
+from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 from typing import ClassVar
 
 import pytest
 
 from etf_advisor.data.yahoo import MarketDataError
 from etf_advisor.data.yahoo_research import YahooResearchAdapter
-from etf_advisor.research.models import MissingReason
+from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.screening import (
+    ScreeningReason,
+    ScreeningVerdict,
+    screen_candidate_evidence,
+)
+from etf_advisor.rag.evidence import select_candidate_evidence
+from etf_advisor.rag.models import GraphEnrichedSource
+from etf_advisor.research.models import ETFResearchRecord, ETFResearchSnapshot, MissingReason
 from etf_advisor.research.universe import ResearchUniverse, UniverseMember
+
+
+def _numpy_boolean_scalars() -> tuple[object, object]:
+    try:
+        numpy = importlib.import_module("numpy")
+    except ModuleNotFoundError:
+        numpy_bool = type(
+            "bool",
+            (),
+            {
+                "__module__": "numpy",
+                "__init__": lambda self, value: setattr(self, "value", value),
+                "__str__": lambda self: "1" if self.value else "0",
+            },
+        )
+        return numpy_bool(False), numpy_bool(True)
+    return numpy.bool_(False), numpy.bool_(True)
+
+
+NUMPY_FALSE, NUMPY_TRUE = _numpy_boolean_scalars()
 
 
 class FakeFundsData:
@@ -45,6 +75,23 @@ def one_member_universe() -> ResearchUniverse:
         universe_version="1.0.0",
         members=[UniverseMember(symbol="spy", role="test role")],
     )
+
+
+def snapshot_with_funds_data(funds_data: object) -> ETFResearchSnapshot:
+    class ConfiguredTicker:
+        info: ClassVar[dict[str, object]] = FakeTicker.info
+
+        def __init__(self) -> None:
+            self.funds_data: object = funds_data
+
+    return YahooResearchAdapter(
+        clock=lambda: datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
+        ticker_factory=lambda symbol: ConfiguredTicker(),
+    ).fetch_snapshot(one_member_universe(), snapshot_version="snapshot-v1")
+
+
+def record_with_funds_data(funds_data: object) -> ETFResearchRecord:
+    return snapshot_with_funds_data(funds_data).records[0]
 
 
 def test_yahoo_research_adapter_builds_rich_field_level_provenance() -> None:
@@ -113,6 +160,300 @@ def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
     assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
     assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
     assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+@pytest.mark.parametrize(
+    "bad_row",
+    [
+        None,
+        {},
+        {"Name": "", "Holding Percent": 0.1},
+        {"Name": 123, "Holding Percent": 0.1},
+        {"Name": "Broken", "Holding Percent": None},
+        {"Name": "Broken", "Holding Percent": True},
+        {"Name": "Broken", "Holding Percent": NUMPY_FALSE},
+        {"Name": "Broken", "Holding Percent": NUMPY_TRUE},
+        {"Name": "Broken", "Holding Percent": "unavailable"},
+        {"Name": "Broken", "Holding Percent": float("nan")},
+        {"Name": "Broken", "Holding Percent": float("inf")},
+        {"Name": "Broken", "Holding Percent": -0.01},
+        {"Name": "Broken", "Holding Percent": 101},
+    ],
+)
+def test_malformed_holding_row_invalidates_holdings_and_concentration(bad_row: object) -> None:
+    funds_data = SimpleNamespace(
+        fund_overview=FakeFundsData.fund_overview,
+        top_holdings=[FakeFundsData.top_holdings[0], bad_row],
+        sector_weightings=FakeFundsData.sector_weightings,
+    )
+
+    record = record_with_funds_data(funds_data)
+
+    assert record.top_holdings.value is None
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.value is None
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.sector_exposures.value is not None
+
+
+@pytest.mark.parametrize("top_holdings", [(), "not-a-collection", {"Name": "Broken"}])
+def test_unsupported_holdings_container_is_source_error(top_holdings: object) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=top_holdings,
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_malformed_eleventh_holding_invalidates_instead_of_understating_concentration() -> None:
+    rows = [
+        {"Symbol": f"H{index}", "Name": f"Holding {index}", "Holding Percent": 0.05}
+        for index in range(10)
+    ]
+    rows.append({"Symbol": "BAD", "Name": "Broken"})
+
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=rows,
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_holdings_conversion_failure_is_source_error() -> None:
+    class BrokenFrame:
+        def reset_index(self) -> object:
+            return self
+
+        def to_dict(self, *, orient: str) -> object:
+            assert orient == "records"
+            raise TypeError("raw provider detail must not escape")
+
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=BrokenFrame(),
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+@pytest.mark.parametrize(
+    "sector_weightings",
+    [
+        [("technology", 0.2)],
+        {None: 0.2},
+        {"": 0.2},
+        {"technology": None},
+        {"technology": True},
+        {"technology": NUMPY_FALSE},
+        {"technology": NUMPY_TRUE},
+        {"technology": "unavailable"},
+        {"technology": float("nan")},
+        {"technology": float("inf")},
+        {"technology": -0.01},
+        {"technology": 101},
+        {"technology": 0.2, "energy": "unavailable"},
+    ],
+)
+def test_malformed_sector_collection_is_atomic_source_error(
+    sector_weightings: object,
+) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=FakeFundsData.top_holdings,
+            sector_weightings=sector_weightings,
+        )
+    )
+
+    assert record.sector_exposures.value is None
+    assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_holdings.value is not None
+
+
+@pytest.mark.parametrize(
+    ("top_holdings", "sector_weightings"),
+    [
+        (
+            [
+                {"Name": "Alpha", "Holding Percent": 60},
+                {"Name": "Beta", "Holding Percent": 40.00000000000001},
+            ],
+            {"technology": 0.6, "energy": 0.4000000000000001},
+        ),
+        (
+            [
+                {"Name": "Alpha", "Holding Percent": 0.7},
+                {"Name": "Beta", "Holding Percent": 0.31},
+            ],
+            {"technology": 70, "energy": 31},
+        ),
+    ],
+)
+def test_over_100_exposure_totals_are_source_error(
+    top_holdings: object,
+    sector_weightings: object,
+) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=top_holdings,
+            sector_weightings=sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_lossless_exposure_boundaries_classify_and_validate_before_float_conversion() -> None:
+    just_over_one = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[{"Name": "Alpha", "Holding Percent": "1.0000000000000001"}],
+            sector_weightings={"technology": "1.0000000000000001"},
+        )
+    )
+
+    assert just_over_one.top_holdings.value is not None
+    assert 1 < just_over_one.top_holdings.value[0].weight_pct < 2
+    assert just_over_one.top_10_concentration_pct.value is not None
+    assert 1 < just_over_one.top_10_concentration_pct.value < 2
+    assert just_over_one.sector_exposures.value is not None
+    assert 1 < just_over_one.sector_exposures.value[0].weight_pct < 2
+
+    just_over_individual_maximum = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[{"Name": "Alpha", "Holding Percent": "100.000000000000001"}],
+            sector_weightings={"technology": "100.000000000000001"},
+        )
+    )
+    assert just_over_individual_maximum.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert (
+        just_over_individual_maximum.top_10_concentration_pct.missing_reason
+        == MissingReason.SOURCE_ERROR
+    )
+    assert (
+        just_over_individual_maximum.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+    )
+
+    just_over_aggregate_maximum = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[
+                {"Name": "Alpha", "Holding Percent": "50.000000000000001"},
+                {"Name": "Beta", "Holding Percent": "50.000000000000001"},
+            ],
+            sector_weightings={
+                "technology": "50.000000000000001",
+                "energy": "50.000000000000001",
+            },
+        )
+    )
+    assert just_over_aggregate_maximum.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert (
+        just_over_aggregate_maximum.top_10_concentration_pct.missing_reason
+        == MissingReason.SOURCE_ERROR
+    )
+    assert just_over_aggregate_maximum.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_just_over_concentration_limit_stays_above_limit_through_screening() -> None:
+    snapshot = snapshot_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[{"Name": "Alpha", "Holding Percent": "60.000000000000001"}],
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+    document = snapshot.to_source_documents()[0]
+    profile = InvestorProfile(
+        horizon_years=15,
+        risk_tolerance="moderate",
+        objective="growth",
+        max_drawdown_pct=30,
+        initial_investment_usd=50_000,
+        recurring_monthly_usd=1_000,
+    )
+    evidence = select_candidate_evidence(
+        profile,
+        [
+            GraphEnrichedSource(
+                document_id=document.document_id,
+                content=document.content,
+                metadata=document.chroma_metadata(),
+            )
+        ],
+        query="lossless concentration boundary",
+        checked_at=datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
+        max_age=timedelta(hours=24),
+    )
+
+    candidate = screen_candidate_evidence(evidence).candidates[0]
+    concentration_rule = candidate.rules[5]
+
+    assert candidate.verdict == ScreeningVerdict.FAIL
+    assert concentration_rule.verdict == ScreeningVerdict.FAIL
+    assert concentration_rule.reason_code == ScreeningReason.CONCENTRATION_ABOVE_LIMIT
+    assert concentration_rule.observed_value is not None
+    assert concentration_rule.observed_value > 60
+    assert concentration_rule.citation is not None
+    assert concentration_rule.citation.field_name == "top_10_concentration_pct"
+
+
+def test_valid_exposure_boundaries_preserve_order_zero_units_and_sparse_maps() -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[
+                {"Symbol": "ZERO", "Name": "Zero", "Holding Percent": 0},
+                {"Symbol": "FRACTION", "Name": "Fraction", "Holding Percent": "0.25"},
+                {"Symbol": "POINTS", "Name": "Points", "Holding Percent": "75"},
+            ],
+            sector_weightings={"technology": 0.2, "energy": 0},
+        )
+    )
+
+    assert record.top_holdings.missing_reason is None
+    assert record.top_holdings.value is not None
+    assert [item.symbol for item in record.top_holdings.value] == ["ZERO", "FRACTION", "POINTS"]
+    assert [item.weight_pct for item in record.top_holdings.value] == [0, 25, 75]
+    assert record.top_10_concentration_pct.value == 100
+    assert record.sector_exposures.value is not None
+    assert [(item.name, item.weight_pct) for item in record.sector_exposures.value] == [
+        ("energy", 0),
+        ("technology", 20),
+    ]
+
+
+@pytest.mark.parametrize("empty_value", [None, []])
+def test_absent_or_empty_holdings_are_not_reported(empty_value: object) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=empty_value,
+            sector_weightings={},
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.NOT_REPORTED
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.NOT_REPORTED
+    assert record.sector_exposures.missing_reason == MissingReason.NOT_REPORTED
 
 
 def test_yahoo_research_adapter_rejects_missing_source_observation_timestamp() -> None:
