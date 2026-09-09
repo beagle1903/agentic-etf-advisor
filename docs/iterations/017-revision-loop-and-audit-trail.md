@@ -359,9 +359,17 @@ above 100 percentage points fail closed, and concentration is not clamped. Valid
 lists, sparse sector maps, explicit zeros, fractions, percentage points, numeric strings, and
 provider holding order remain supported.
 
+PR #57 review found that converting exposure strings to binary floats before unit classification,
+range checks, and aggregation could erase a just-over-boundary value. Exposure parsing now retains
+exact decimal weights through those decisions and top-ten derivation, rejects Python and NumPy
+boolean scalars, and converts accepted values without understating them in the existing float
+model. Adapter-to-source-document-to-evidence-to-screening coverage proves that a holding reported
+as `60.000000000000001` cannot pass the unchanged 60% concentration limit. Boundary regressions
+also cover just-over-one unit classification and individual and aggregate just-over-100 rejection.
+
 Local verification on 2026-09-09 uses only fixed clocks, deterministic identifiers, in-memory
 checkpointers, fake drivers, and provider fixtures. The focused Yahoo, snapshot, screening, Neo4j,
-construction, and workflow suite passed **117 tests**. The complete offline suite passed **643
+construction, and workflow suite passed **123 tests**. The complete offline suite passed **649
 tests**. `uv sync --all-extras --frozen`, the Codex workflow validator, Ruff format and lint, strict
 mypy (46 source files), retrieval evaluation, explanation evaluation, `uv build`,
 `docker compose config --quiet`, and `git diff --check` all passed. Retrieval retained perfect

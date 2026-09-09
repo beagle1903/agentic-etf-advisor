@@ -5,10 +5,10 @@ from __future__ import annotations
 import importlib
 import math
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
@@ -31,11 +31,17 @@ class _RawResearch:
     info: dict[str, Any]
     fund_overview: dict[str, Any] | None
     fund_overview_error: bool
-    top_holdings: list[WeightedExposure] | None
+    top_holdings: _ExposureCollection | None
     top_holdings_error: bool
-    sector_exposures: list[WeightedExposure] | None
+    sector_exposures: _ExposureCollection | None
     sector_exposures_error: bool
     observed_at: datetime
+
+
+@dataclass(frozen=True)
+class _ExposureCollection:
+    values: list[WeightedExposure]
+    exact_weights: tuple[Decimal, ...]
 
 
 class YahooResearchAdapter:
@@ -213,9 +219,13 @@ class YahooResearchAdapter:
         overview_reason = (
             MissingReason.SOURCE_ERROR if raw.fund_overview_error else MissingReason.NOT_REPORTED
         )
-        holdings = raw.top_holdings or None
-        sector_exposures = raw.sector_exposures or None
-        concentration = float(_exposure_total(holdings[:10])) if holdings else None
+        holdings = raw.top_holdings.values if raw.top_holdings else None
+        sector_exposures = raw.sector_exposures.values if raw.sector_exposures else None
+        concentration = (
+            _nonunderstating_float(_exact_decimal_sum(raw.top_holdings.exact_weights[:10]))
+            if raw.top_holdings
+            else None
+        )
         return ETFResearchRecord(
             symbol=raw.symbol,
             name=field(_first_text(info.get("longName"), info.get("shortName")), "text"),
@@ -315,7 +325,7 @@ def _as_mapping(value: Any) -> dict[str, Any] | None:
     return dict(value) or None
 
 
-def _holding_exposures(value: Any) -> list[WeightedExposure] | None:
+def _holding_exposures(value: Any) -> _ExposureCollection | None:
     if value is None:
         return None
     if isinstance(value, list):
@@ -330,45 +340,78 @@ def _holding_exposures(value: Any) -> list[WeightedExposure] | None:
     if not rows:
         return None
 
-    exposures: list[WeightedExposure] = []
+    parsed_rows: list[tuple[str, str | None, Decimal]] = []
     for row in rows:
         if not isinstance(row, dict):
             raise ValueError("invalid holdings row")
         name = _first_exposure_label(row.get("Name"), row.get("holdingName"))
         symbol = _first_text(row.get("Symbol"), row.get("symbol"))
-        weight = _percentage(row.get("Holding Percent", row.get("holdingPercent")))
+        weight = _exposure_percentage(row.get("Holding Percent", row.get("holdingPercent")))
         if name is None or weight is None:
             raise ValueError("invalid holdings row")
-        exposures.append(WeightedExposure(name=name, symbol=symbol, weight_pct=weight))
-    _validate_exposure_total(exposures)
-    return exposures
+        parsed_rows.append((name, symbol, weight))
+    exact_weights = [weight for _, _, weight in parsed_rows]
+    _validate_exposure_total(exact_weights)
+    exposures = [
+        WeightedExposure(
+            name=name,
+            symbol=symbol,
+            weight_pct=_nonunderstating_float(weight),
+        )
+        for name, symbol, weight in parsed_rows
+    ]
+    return _ExposureCollection(values=exposures, exact_weights=tuple(exact_weights))
 
 
-def _sector_exposures(value: Any) -> list[WeightedExposure] | None:
+def _sector_exposures(value: Any) -> _ExposureCollection | None:
     if value is None:
         return None
     if not isinstance(value, dict):
         raise ValueError("unsupported sector collection")
     if not value:
         return None
-    exposures: list[WeightedExposure] = []
+    parsed_rows: list[tuple[str, Decimal]] = []
     for name, raw_weight in sorted(value.items(), key=lambda item: str(item[0])):
-        weight = _percentage(raw_weight)
+        weight = _exposure_percentage(raw_weight)
         normalized_name = _exposure_label(name)
         if normalized_name is None or weight is None:
             raise ValueError("invalid sector row")
-        exposures.append(WeightedExposure(name=normalized_name, weight_pct=weight))
-    _validate_exposure_total(exposures)
-    return exposures
+        parsed_rows.append((normalized_name, weight))
+    exact_weights = [weight for _, weight in parsed_rows]
+    _validate_exposure_total(exact_weights)
+    exposures = [
+        WeightedExposure(
+            name=name,
+            weight_pct=_nonunderstating_float(weight),
+        )
+        for name, weight in parsed_rows
+    ]
+    return _ExposureCollection(values=exposures, exact_weights=tuple(exact_weights))
 
 
-def _validate_exposure_total(exposures: list[WeightedExposure]) -> None:
-    if _exposure_total(exposures) > Decimal(100):
+def _validate_exposure_total(exact_weights: list[Decimal]) -> None:
+    if _exact_decimal_sum(exact_weights) > Decimal(100):
         raise ValueError("exposure total exceeds 100 percentage points")
 
 
-def _exposure_total(exposures: list[WeightedExposure]) -> Decimal:
-    return sum((Decimal(str(item.weight_pct)) for item in exposures), start=Decimal(0))
+def _exact_decimal_sum(values: Sequence[Decimal]) -> Decimal:
+    if not values:
+        return Decimal(0)
+    minimum_exponent = min(cast(int, value.as_tuple().exponent) for value in values)
+    maximum_adjusted = max(value.adjusted() for value in values)
+    with localcontext() as context:
+        context.prec = max(
+            28,
+            maximum_adjusted - minimum_exponent + len(str(len(values))) + 2,
+        )
+        return sum(values, start=Decimal(0))
+
+
+def _nonunderstating_float(value: Decimal) -> float:
+    converted = float(value)
+    if Decimal.from_float(converted) < value:
+        return math.nextafter(converted, math.inf)
+    return converted
 
 
 def _first_exposure_label(*values: Any) -> str | None:
@@ -386,12 +429,34 @@ def _exposure_label(value: Any) -> str | None:
     return normalized or None
 
 
-def _percentage(value: Any) -> float | None:
-    parsed = _number(value)
-    if parsed is None or parsed < 0:
+def _exposure_percentage(value: Any) -> Decimal | None:
+    if _is_boolean_scalar(value):
         return None
-    percentage = parsed * 100 if parsed <= 1 else parsed
+    try:
+        parsed = Decimal(str(value))
+    except (ArithmeticError, TypeError, ValueError):
+        return None
+    if not parsed.is_finite() or parsed < 0:
+        return None
+    if parsed <= 1:
+        decimal_tuple = parsed.as_tuple()
+        percentage = Decimal(
+            (
+                decimal_tuple.sign,
+                decimal_tuple.digits,
+                cast(int, decimal_tuple.exponent) + 2,
+            )
+        )
+    else:
+        percentage = parsed
     return percentage if percentage <= 100 else None
+
+
+def _is_boolean_scalar(value: Any) -> bool:
+    value_type = type(value)
+    return isinstance(value, bool) or (
+        value_type.__module__ == "numpy" and value_type.__name__ == "bool"
+    )
 
 
 def _expense_ratio_percentage(info: dict[str, Any]) -> float | None:

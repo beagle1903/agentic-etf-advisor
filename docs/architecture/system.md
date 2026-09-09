@@ -396,6 +396,9 @@ conversion failure, non-record row, unusable required label or weight, invalid n
 collection total above 100 percentage points makes the complete affected field `source_error`;
 valid survivors are never published as complete evidence. A holdings error also makes the derived
 top-ten concentration `source_error`, while ordinary absence makes both fields `not_reported`.
+Exposure-specific numeric strings are classified and checked with exact decimal arithmetic before
+conversion into the existing float model. Python and NumPy boolean scalars are rejected, and a
+converted exposure never understates its exact parsed value at a screening boundary.
 Concentration is derived only after every returned holding has passed validation, including rows
 after the first ten, and is never clamped. A valid one-to-nine-row holdings collection remains a
 complete reported list, and valid sparse sector maps preserve explicit zero weights. The adapter
