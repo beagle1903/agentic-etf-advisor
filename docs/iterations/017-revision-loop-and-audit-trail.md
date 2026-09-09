@@ -341,3 +341,34 @@ format check (119 files), strict mypy (46 source files), `uv build`,
 a nonexistent `tests/test_checkpoint.py` and collected no tests; the corrected suites above passed.
 No live services or external financial writes were used. Coordinator review and the complete
 remediation gate set passed before delivery to PR #55.
+
+### Issue #48 Yahoo exposure completeness hardening
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/48#issuecomment-5601233304.
+The design was produced read-only by `design_architect` with GPT-6 Astra/high and approved for a
+fresh sequential `implementation_specialist` session with GPT-5.6 Sol/high. The implementation is
+limited to atomic Yahoo holdings and sector parsing plus fixture-only adapter-to-workflow
+regressions; Issue #47 field freshness, policy thresholds, graph schemas, provider support, and
+repair of existing snapshots remain separate.
+
+Malformed returned collections now make the complete affected field `source_error` without
+retaining partial rows. A holdings error also makes derived top-ten concentration unavailable.
+Every returned row is validated before concentration is calculated, complete collection totals
+above 100 percentage points fail closed, and concentration is not clamped. Valid short holdings
+lists, sparse sector maps, explicit zeros, fractions, percentage points, numeric strings, and
+provider holding order remain supported.
+
+Local verification on 2026-09-09 uses only fixed clocks, deterministic identifiers, in-memory
+checkpointers, fake drivers, and provider fixtures. The focused Yahoo, snapshot, screening, Neo4j,
+construction, and workflow suite passed **117 tests**. The complete offline suite passed **643
+tests**. `uv sync --all-extras --frozen`, the Codex workflow validator, Ruff format and lint, strict
+mypy (46 source files), retrieval evaluation, explanation evaluation, `uv build`,
+`docker compose config --quiet`, and `git diff --check` all passed. Retrieval retained perfect
+source attribution and exact graph-sector constraint matching without changing semantic ranking;
+all eight explanation/safety decisions matched their expected fail-closed result.
+
+Residual limitations remain explicit: Yahoo's ambiguous numeric unit convention is unchanged;
+the adapter cannot detect rows omitted upstream; previously published lossy snapshots are not
+repaired automatically; and no live Yahoo, database, model, trade, or external financial-write
+operation is part of this slice.

@@ -8,6 +8,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
@@ -214,9 +215,7 @@ class YahooResearchAdapter:
         )
         holdings = raw.top_holdings or None
         sector_exposures = raw.sector_exposures or None
-        concentration = (
-            min(100.0, sum(item.weight_pct for item in holdings[:10])) if holdings else None
-        )
+        concentration = float(_exposure_total(holdings[:10])) if holdings else None
         return ETFResearchRecord(
             symbol=raw.symbol,
             name=field(_first_text(info.get("longName"), info.get("shortName")), "text"),
@@ -324,31 +323,67 @@ def _holding_exposures(value: Any) -> list[WeightedExposure] | None:
     elif hasattr(value, "reset_index"):
         rows = value.reset_index().to_dict(orient="records")
     else:
+        raise ValueError("unsupported holdings collection")
+
+    if not isinstance(rows, list):
+        raise ValueError("invalid holdings collection")
+    if not rows:
         return None
 
     exposures: list[WeightedExposure] = []
     for row in rows:
         if not isinstance(row, dict):
-            continue
-        name = _first_text(row.get("Name"), row.get("holdingName"))
+            raise ValueError("invalid holdings row")
+        name = _first_exposure_label(row.get("Name"), row.get("holdingName"))
         symbol = _first_text(row.get("Symbol"), row.get("symbol"))
         weight = _percentage(row.get("Holding Percent", row.get("holdingPercent")))
         if name is None or weight is None:
-            continue
+            raise ValueError("invalid holdings row")
         exposures.append(WeightedExposure(name=name, symbol=symbol, weight_pct=weight))
-    return exposures or None
+    _validate_exposure_total(exposures)
+    return exposures
 
 
 def _sector_exposures(value: Any) -> list[WeightedExposure] | None:
+    if value is None:
+        return None
     if not isinstance(value, dict):
+        raise ValueError("unsupported sector collection")
+    if not value:
         return None
     exposures: list[WeightedExposure] = []
     for name, raw_weight in sorted(value.items(), key=lambda item: str(item[0])):
         weight = _percentage(raw_weight)
-        normalized_name = _optional_text(name)
-        if normalized_name is not None and weight is not None:
-            exposures.append(WeightedExposure(name=normalized_name, weight_pct=weight))
-    return exposures or None
+        normalized_name = _exposure_label(name)
+        if normalized_name is None or weight is None:
+            raise ValueError("invalid sector row")
+        exposures.append(WeightedExposure(name=normalized_name, weight_pct=weight))
+    _validate_exposure_total(exposures)
+    return exposures
+
+
+def _validate_exposure_total(exposures: list[WeightedExposure]) -> None:
+    if _exposure_total(exposures) > Decimal(100):
+        raise ValueError("exposure total exceeds 100 percentage points")
+
+
+def _exposure_total(exposures: list[WeightedExposure]) -> Decimal:
+    return sum((Decimal(str(item.weight_pct)) for item in exposures), start=Decimal(0))
+
+
+def _first_exposure_label(*values: Any) -> str | None:
+    for value in values:
+        label = _exposure_label(value)
+        if label is not None:
+            return label
+    return None
+
+
+def _exposure_label(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized or None
 
 
 def _percentage(value: Any) -> float | None:

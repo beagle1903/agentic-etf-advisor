@@ -244,6 +244,51 @@ def test_unknown_screening_candidate_is_audited_and_never_weighted() -> None:
     assert excluded.screening_reason_codes == ["expense_ratio_unknown"]
 
 
+@pytest.mark.parametrize(
+    ("candidates", "expected_status"),
+    [
+        (CANDIDATES, "ready"),
+        ([CANDIDATES[0], CANDIDATES[1], CANDIDATES[4]], "blocked"),
+    ],
+)
+def test_source_error_concentration_excludes_candidate_with_feasible_or_blocked_remainder(
+    candidates: list[tuple[str, str]],
+    expected_status: str,
+) -> None:
+    inputs = _construction_input(_profile(), candidates=candidates)
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    concentration = provenance["top_10_concentration_pct"]
+    concentration["value"] = None
+    concentration["missing_reason"] = "source_error"
+    candidate.metadata.pop("top_10_concentration_pct")
+    candidate.metadata["top_10_concentration_pct_status"] = "source_error"
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
+    inputs.candidate_screening = screen_candidate_evidence(inputs.candidate_evidence)
+
+    result = construct_model_portfolio(inputs)
+
+    assert result.status == expected_status
+    excluded = result.excluded_candidates[0]
+    assert excluded.symbol == "SPY"
+    assert excluded.reason_code == ConstructionReason.CANDIDATE_SCREENING_UNKNOWN
+    assert excluded.screening_reason_codes == ["concentration_unknown"]
+    assert inputs.candidate_evidence.snapshot_version is None
+    assert inputs.candidate_evidence.snapshot_digest is None
+    if expected_status == "ready":
+        assert result.draft is not None
+        assert "SPY" not in {position.symbol for position in result.draft.positions}
+    else:
+        assert result.draft is None
+        assert result.errors[0].code == ConstructionReason.INSUFFICIENT_ELIGIBLE_CANDIDATES
+
+
 def test_missing_category_is_audited_without_guessing_a_sleeve() -> None:
     inputs = _construction_input(_profile())
     candidate = inputs.candidate_evidence.candidates[0]

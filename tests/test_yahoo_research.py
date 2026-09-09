@@ -1,11 +1,12 @@
 from datetime import UTC, datetime
+from types import SimpleNamespace
 from typing import ClassVar
 
 import pytest
 
 from etf_advisor.data.yahoo import MarketDataError
 from etf_advisor.data.yahoo_research import YahooResearchAdapter
-from etf_advisor.research.models import MissingReason
+from etf_advisor.research.models import ETFResearchRecord, MissingReason
 from etf_advisor.research.universe import ResearchUniverse, UniverseMember
 
 
@@ -44,6 +45,23 @@ def one_member_universe() -> ResearchUniverse:
         universe_id="test-universe",
         universe_version="1.0.0",
         members=[UniverseMember(symbol="spy", role="test role")],
+    )
+
+
+def record_with_funds_data(funds_data: object) -> ETFResearchRecord:
+    class ConfiguredTicker:
+        info: ClassVar[dict[str, object]] = FakeTicker.info
+
+        def __init__(self) -> None:
+            self.funds_data: object = funds_data
+
+    return (
+        YahooResearchAdapter(
+            clock=lambda: datetime(2026, 8, 29, 12, 1, tzinfo=UTC),
+            ticker_factory=lambda symbol: ConfiguredTicker(),
+        )
+        .fetch_snapshot(one_member_universe(), snapshot_version="snapshot-v1")
+        .records[0]
     )
 
 
@@ -113,6 +131,200 @@ def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
     assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
     assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
     assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+@pytest.mark.parametrize(
+    "bad_row",
+    [
+        None,
+        {},
+        {"Name": "", "Holding Percent": 0.1},
+        {"Name": 123, "Holding Percent": 0.1},
+        {"Name": "Broken", "Holding Percent": None},
+        {"Name": "Broken", "Holding Percent": True},
+        {"Name": "Broken", "Holding Percent": "unavailable"},
+        {"Name": "Broken", "Holding Percent": float("nan")},
+        {"Name": "Broken", "Holding Percent": float("inf")},
+        {"Name": "Broken", "Holding Percent": -0.01},
+        {"Name": "Broken", "Holding Percent": 101},
+    ],
+)
+def test_malformed_holding_row_invalidates_holdings_and_concentration(bad_row: object) -> None:
+    funds_data = SimpleNamespace(
+        fund_overview=FakeFundsData.fund_overview,
+        top_holdings=[FakeFundsData.top_holdings[0], bad_row],
+        sector_weightings=FakeFundsData.sector_weightings,
+    )
+
+    record = record_with_funds_data(funds_data)
+
+    assert record.top_holdings.value is None
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.value is None
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.sector_exposures.value is not None
+
+
+@pytest.mark.parametrize("top_holdings", [(), "not-a-collection", {"Name": "Broken"}])
+def test_unsupported_holdings_container_is_source_error(top_holdings: object) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=top_holdings,
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_malformed_eleventh_holding_invalidates_instead_of_understating_concentration() -> None:
+    rows = [
+        {"Symbol": f"H{index}", "Name": f"Holding {index}", "Holding Percent": 0.05}
+        for index in range(10)
+    ]
+    rows.append({"Symbol": "BAD", "Name": "Broken"})
+
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=rows,
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_holdings_conversion_failure_is_source_error() -> None:
+    class BrokenFrame:
+        def reset_index(self) -> object:
+            return self
+
+        def to_dict(self, *, orient: str) -> object:
+            assert orient == "records"
+            raise TypeError("raw provider detail must not escape")
+
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=BrokenFrame(),
+            sector_weightings=FakeFundsData.sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+
+
+@pytest.mark.parametrize(
+    "sector_weightings",
+    [
+        [("technology", 0.2)],
+        {None: 0.2},
+        {"": 0.2},
+        {"technology": None},
+        {"technology": True},
+        {"technology": "unavailable"},
+        {"technology": float("nan")},
+        {"technology": float("inf")},
+        {"technology": -0.01},
+        {"technology": 101},
+        {"technology": 0.2, "energy": "unavailable"},
+    ],
+)
+def test_malformed_sector_collection_is_atomic_source_error(
+    sector_weightings: object,
+) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=FakeFundsData.top_holdings,
+            sector_weightings=sector_weightings,
+        )
+    )
+
+    assert record.sector_exposures.value is None
+    assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_holdings.value is not None
+
+
+@pytest.mark.parametrize(
+    ("top_holdings", "sector_weightings"),
+    [
+        (
+            [
+                {"Name": "Alpha", "Holding Percent": 60},
+                {"Name": "Beta", "Holding Percent": 40.00000000000001},
+            ],
+            {"technology": 0.6, "energy": 0.4000000000000001},
+        ),
+        (
+            [
+                {"Name": "Alpha", "Holding Percent": 0.7},
+                {"Name": "Beta", "Holding Percent": 0.31},
+            ],
+            {"technology": 70, "energy": 31},
+        ),
+    ],
+)
+def test_over_100_exposure_totals_are_source_error(
+    top_holdings: object,
+    sector_weightings: object,
+) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=top_holdings,
+            sector_weightings=sector_weightings,
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.SOURCE_ERROR
+    assert record.sector_exposures.missing_reason == MissingReason.SOURCE_ERROR
+
+
+def test_valid_exposure_boundaries_preserve_order_zero_units_and_sparse_maps() -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=[
+                {"Symbol": "ZERO", "Name": "Zero", "Holding Percent": 0},
+                {"Symbol": "FRACTION", "Name": "Fraction", "Holding Percent": "0.25"},
+                {"Symbol": "POINTS", "Name": "Points", "Holding Percent": "75"},
+            ],
+            sector_weightings={"technology": 0.2, "energy": 0},
+        )
+    )
+
+    assert record.top_holdings.missing_reason is None
+    assert record.top_holdings.value is not None
+    assert [item.symbol for item in record.top_holdings.value] == ["ZERO", "FRACTION", "POINTS"]
+    assert [item.weight_pct for item in record.top_holdings.value] == [0, 25, 75]
+    assert record.top_10_concentration_pct.value == 100
+    assert record.sector_exposures.value is not None
+    assert [(item.name, item.weight_pct) for item in record.sector_exposures.value] == [
+        ("energy", 0),
+        ("technology", 20),
+    ]
+
+
+@pytest.mark.parametrize("empty_value", [None, []])
+def test_absent_or_empty_holdings_are_not_reported(empty_value: object) -> None:
+    record = record_with_funds_data(
+        SimpleNamespace(
+            fund_overview=FakeFundsData.fund_overview,
+            top_holdings=empty_value,
+            sector_weightings={},
+        )
+    )
+
+    assert record.top_holdings.missing_reason == MissingReason.NOT_REPORTED
+    assert record.top_10_concentration_pct.missing_reason == MissingReason.NOT_REPORTED
+    assert record.sector_exposures.missing_reason == MissingReason.NOT_REPORTED
 
 
 def test_yahoo_research_adapter_rejects_missing_source_observation_timestamp() -> None:

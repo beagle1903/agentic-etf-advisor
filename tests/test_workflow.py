@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime, timedelta
+from itertools import count
 from typing import Any
 from uuid import uuid4
 
@@ -178,6 +179,82 @@ def test_infeasible_construction_stops_before_human_review() -> None:
     assert result["portfolio_construction"]["draft"] is None
     assert result["construction_errors"][0]["code"] == "insufficient_eligible_candidates"
     assert "__interrupt__" not in result
+
+
+def test_malformed_concentration_blocks_infeasible_workflow_before_explanation_or_review() -> None:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    sources = _construction_sources(checked_at)
+    valid_sources = [sources[0].model_copy(deep=True), sources[1], sources[4]]
+    malformed_sources = [sources[0], sources[1], sources[4]]
+    _mark_source_field_error(malformed_sources[0], "top_10_concentration_pct")
+    explanation_calls: list[str] = []
+
+    class CountingGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            explanation_calls.append(request.profile.objective.value)
+            return ExplanationResult(
+                provider="test",
+                model="fixed",
+                explanation=_valid_generated_explanation(),
+            )
+
+    malformed_ids = count(1)
+    malformed_graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=HybridCandidateEvidenceRetriever(
+            _FixedSearch(malformed_sources),
+            clock=lambda: checked_at,
+            max_age=timedelta(hours=24),
+        ),
+        candidate_limit=3,
+        explanation_generator=CountingGenerator(),
+        clock=lambda: checked_at,
+        identifier_factory=lambda: f"malformed-{next(malformed_ids)}",
+    )
+
+    blocked = malformed_graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "malformed-concentration"}},
+    )
+
+    assert blocked["status"] == "construction_blocked"
+    assert blocked["candidate_screening"]["candidates"][0]["verdict"] == "unknown"
+    assert blocked["candidate_screening"]["candidates"][0]["rules"][5]["reason_code"] == (
+        "concentration_unknown"
+    )
+    assert blocked["portfolio_construction"]["status"] == "blocked"
+    assert blocked["portfolio_construction"]["draft"] is None
+    assert blocked["construction_errors"][0]["code"] == "insufficient_eligible_candidates"
+    assert explanation_calls == []
+    assert "__interrupt__" not in blocked
+    json.dumps(blocked["revision_ledger"])
+    json.dumps(blocked["candidate_evidence"])
+    json.dumps(blocked["candidate_screening"])
+    json.dumps(blocked["portfolio_construction"])
+
+    valid_ids = count(1)
+    valid_graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=HybridCandidateEvidenceRetriever(
+            _FixedSearch(valid_sources),
+            clock=lambda: checked_at,
+            max_age=timedelta(hours=24),
+        ),
+        candidate_limit=3,
+        explanation_generator=CountingGenerator(),
+        clock=lambda: checked_at,
+        identifier_factory=lambda: f"valid-{next(valid_ids)}",
+    )
+
+    reviewed = valid_graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": "valid-concentration-control"}},
+    )
+
+    assert reviewed["status"] == "awaiting_human_review"
+    assert reviewed["portfolio_construction"]["status"] == "ready"
+    assert reviewed["__interrupt__"]
+    assert explanation_calls == ["growth"]
 
 
 def test_injected_explanation_is_grounded_before_review() -> None:
@@ -818,6 +895,19 @@ def _construction_source(
         document_id=f"doc-{symbol.lower()}",
         content=f"{symbol} source facts",
         metadata=metadata,
+    )
+
+
+def _mark_source_field_error(source: GraphEnrichedSource, field_name: str) -> None:
+    provenance = json.loads(str(source.metadata["field_provenance_json"]))
+    provenance[field_name]["value"] = None
+    provenance[field_name]["missing_reason"] = "source_error"
+    source.metadata.pop(field_name)
+    source.metadata[f"{field_name}_status"] = "source_error"
+    source.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
     )
 
 
