@@ -1,8 +1,8 @@
+import importlib
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from typing import ClassVar
 
-import numpy as np
 import pytest
 
 from etf_advisor.data.yahoo import MarketDataError
@@ -17,6 +17,26 @@ from etf_advisor.rag.evidence import select_candidate_evidence
 from etf_advisor.rag.models import GraphEnrichedSource
 from etf_advisor.research.models import ETFResearchRecord, ETFResearchSnapshot, MissingReason
 from etf_advisor.research.universe import ResearchUniverse, UniverseMember
+
+
+def _numpy_boolean_scalars() -> tuple[object, object]:
+    try:
+        numpy = importlib.import_module("numpy")
+    except ModuleNotFoundError:
+        numpy_bool = type(
+            "bool",
+            (),
+            {
+                "__module__": "numpy",
+                "__init__": lambda self, value: setattr(self, "value", value),
+                "__str__": lambda self: "1" if self.value else "0",
+            },
+        )
+        return numpy_bool(False), numpy_bool(True)
+    return numpy.bool_(False), numpy.bool_(True)
+
+
+NUMPY_FALSE, NUMPY_TRUE = _numpy_boolean_scalars()
 
 
 class FakeFundsData:
@@ -151,8 +171,8 @@ def test_yahoo_research_adapter_marks_optional_fund_endpoint_failures() -> None:
         {"Name": 123, "Holding Percent": 0.1},
         {"Name": "Broken", "Holding Percent": None},
         {"Name": "Broken", "Holding Percent": True},
-        {"Name": "Broken", "Holding Percent": np.bool_(False)},
-        {"Name": "Broken", "Holding Percent": np.bool_(True)},
+        {"Name": "Broken", "Holding Percent": NUMPY_FALSE},
+        {"Name": "Broken", "Holding Percent": NUMPY_TRUE},
         {"Name": "Broken", "Holding Percent": "unavailable"},
         {"Name": "Broken", "Holding Percent": float("nan")},
         {"Name": "Broken", "Holding Percent": float("inf")},
@@ -238,8 +258,8 @@ def test_holdings_conversion_failure_is_source_error() -> None:
         {"": 0.2},
         {"technology": None},
         {"technology": True},
-        {"technology": np.bool_(False)},
-        {"technology": np.bool_(True)},
+        {"technology": NUMPY_FALSE},
+        {"technology": NUMPY_TRUE},
         {"technology": "unavailable"},
         {"technology": float("nan")},
         {"technology": float("inf")},
