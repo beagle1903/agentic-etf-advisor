@@ -25,7 +25,7 @@ from etf_advisor.domain.construction import (
 )
 from etf_advisor.domain.policy import PolicyCalculation
 from etf_advisor.domain.profile import InvestorProfile
-from etf_advisor.domain.revision import ReviewDecision
+from etf_advisor.domain.revision import RetryRequest, ReviewDecision, plan_revision
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
 from etf_advisor.explanation import (
     ExplanationBundle,
@@ -154,6 +154,9 @@ class DashboardRun:
     candidate_retriever: CandidateEvidenceRetriever | None = field(default=None, repr=False)
     explanation_generator: ExplanationGenerator | None = field(default=None, repr=False)
     candidate_limit: int = field(default=5, repr=False)
+    candidate_retriever_usable: bool | None = field(default=None, repr=False)
+    explanation_generator_usable: bool | None = field(default=None, repr=False)
+    submission_outcome_unknown: bool = field(default=False, repr=False)
 
     @property
     def thread_id(self) -> str:
@@ -175,8 +178,11 @@ class DashboardRun:
         *,
         disposition: str | None = None,
         feedback_items: list[dict[str, Any]] | None = None,
+        expected_revision_id: str | None = None,
     ) -> dict[str, Any]:
         """Resume the exact paused thread with a validated human decision."""
+        if self.submission_outcome_unknown:
+            raise ValueError("Refresh this exact thread before submitting another action.")
 
         payload = review_payload(self.state)
         normalized_action = action.strip().lower()
@@ -188,14 +194,16 @@ class DashboardRun:
         if normalized_action in {"edit", "reject"} and not normalized_feedback:
             raise ValueError("Edit and reject decisions require reviewer feedback.")
 
+        rendered_revision_id = payload.get("revision_id")
+        expected_revision_id = expected_revision_id or rendered_revision_id
         decision: dict[str, Any] = {"action": normalized_action}
         if normalized_feedback:
             decision["feedback"] = normalized_feedback
-        if payload.get("revision_id"):
+        if rendered_revision_id:
             decision = ReviewDecision.model_validate(
                 {
                     "decision_id": str(uuid4()),
-                    "revision_id": payload["revision_id"],
+                    "revision_id": rendered_revision_id,
                     "action": normalized_action,
                     "disposition": disposition,
                     "note": normalized_feedback,
@@ -207,22 +215,151 @@ class DashboardRun:
         if self.checkpoint_store is None:
             if self.graph is None:
                 raise RuntimeError("Dashboard run has no workflow runtime.")
-            result = self.graph.invoke(command, config=self.config)
+            try:
+                result = self.graph.invoke(command, config=self.config)
+            except Exception:
+                self.submission_outcome_unknown = True
+                raise
         else:
             with self.checkpoint_store.managed(self.thread_id) as saver:
-                graph = (
-                    build_graph(checkpointer=saver)
-                    if self.durable
-                    else build_graph(
-                        checkpointer=saver,
-                        candidate_retriever=self.candidate_retriever,
-                        explanation_generator=self.explanation_generator,
-                        candidate_limit=self.candidate_limit,
-                    )
-                )
-                result = graph.invoke(command, config=self.config)
+                graph = self._build_managed_graph(saver)
+                current = self._snapshot(graph)
+                current_payload = review_payload(current)
+                if expected_revision_id != current_payload.get("revision_id"):
+                    self.state = current
+                    raise ValueError("The rendered revision is stale; refresh before acting.")
+                if rendered_revision_id and normalized_action != "approve":
+                    validated_decision = ReviewDecision.model_validate(decision)
+                    if validated_decision.disposition == "revise":
+                        ledger = validate_revision_state(
+                            cast(AdvisorState, current), self.thread_id
+                        )
+                        plan = plan_revision(validated_decision, ledger.revisions[-1].inputs)
+                        self._require_plan_adapters(plan.restart_stage, ledger.revisions[-1].inputs)
+                try:
+                    result = graph.invoke(command, config=self.config)
+                except Exception:
+                    self.submission_outcome_unknown = True
+                    raise
         self.state = dict(result)
         return self.state
+
+    def retry(self, operation_id: str, *, expected_revision_id: str) -> dict[str, Any]:
+        """Explicitly retry the exact current failed or ambiguous operation."""
+        if self.submission_outcome_unknown:
+            raise ValueError("Refresh this exact thread before submitting another action.")
+        if self.checkpoint_store is None:
+            raise ValueError("Retry requires a managed checkpoint store.")
+        request = RetryRequest.model_validate(
+            {
+                "action": "retry",
+                "revision_id": expected_revision_id,
+                "operation_id": operation_id,
+            }
+        )
+        with self.checkpoint_store.managed(self.thread_id) as saver:
+            graph = self._build_managed_graph(saver)
+            current = self._snapshot(graph)
+            ledger = validate_revision_state(cast(AdvisorState, current), self.thread_id)
+            revision = ledger.revisions[-1]
+            matches = [
+                receipt for receipt in revision.receipts if receipt.operation_id == operation_id
+            ]
+            if (
+                revision.revision_id != expected_revision_id
+                or revision.review_decision_id is not None
+                or len(matches) != 1
+            ):
+                self.state = current
+                raise ValueError("Retry does not target the current failed or ambiguous attempt.")
+            receipt = matches[0]
+            latest = [item for item in revision.receipts if item.stage == receipt.stage][-1]
+            if latest != receipt or receipt.status == "succeeded":
+                self.state = current
+                raise ValueError("Retry does not target the current failed or ambiguous attempt.")
+            self._require_operation_adapter(receipt.stage)
+            try:
+                result = graph.invoke(
+                    {"retry_request": request.model_dump(mode="json")}, config=self.config
+                )
+            except Exception:
+                self.submission_outcome_unknown = True
+                raise
+        self.state = dict(result)
+        return self.state
+
+    def refresh(self) -> dict[str, Any]:
+        """Reload the exact checkpoint without invoking workflow or external adapters."""
+        if self.checkpoint_store is None:
+            if self.graph is None or not hasattr(self.graph, "get_state"):
+                raise ValueError("This dashboard run cannot be refreshed.")
+            self.state = self._snapshot(self.graph)
+        else:
+            with self.checkpoint_store.managed(self.thread_id) as saver:
+                self.state = self._snapshot(self._build_managed_graph(saver))
+        self.submission_outcome_unknown = False
+        return self.state
+
+    def _build_managed_graph(self, saver: Any) -> Any:
+        if self.durable:
+            return build_graph(checkpointer=saver)
+        retriever = (
+            self.candidate_retriever
+            if self.candidate_retriever is not None and self.candidate_retriever_usable is not False
+            else None
+        )
+        generator = (
+            self.explanation_generator
+            if retriever is not None
+            and self.explanation_generator is not None
+            and self.explanation_generator_usable is not False
+            else None
+        )
+        return build_graph(
+            checkpointer=saver,
+            candidate_retriever=retriever,
+            explanation_generator=generator,
+            candidate_limit=self.candidate_limit,
+        )
+
+    def _snapshot(self, graph: Any) -> dict[str, Any]:
+        snapshot = graph.get_state(self.config)
+        if not snapshot.values:
+            raise ValueError("No saved review was found for this exact thread.")
+        state = dict(snapshot.values)
+        validate_revision_state(cast(AdvisorState, state), self.thread_id)
+        if snapshot.interrupts:
+            state["__interrupt__"] = snapshot.interrupts
+        if state.get("status") == "awaiting_human_review":
+            review_payload(state)
+        return state
+
+    def _require_plan_adapters(self, restart_stage: str, inputs: dict[str, Any]) -> None:
+        stages = {
+            "validate_profile": 0,
+            "retrieve_candidate_evidence": 1,
+            "screen_candidates": 2,
+            "construct_portfolio": 3,
+            "draft_explanation": 4,
+        }
+        index = stages[restart_stage]
+        if inputs.get("with_evidence") and index <= 1:
+            self._require_operation_adapter("retrieve_candidate_evidence")
+        if inputs.get("with_explanation") and index <= 4:
+            self._require_operation_adapter("draft_explanation")
+
+    def _require_operation_adapter(self, stage: str) -> None:
+        retriever_usable = (
+            self.candidate_retriever is not None and self.candidate_retriever_usable is not False
+        )
+        generator_usable = (
+            self.explanation_generator is not None
+            and self.explanation_generator_usable is not False
+        )
+        if stage == "retrieve_candidate_evidence" and not retriever_usable:
+            raise ValueError("The retrieval adapter is unavailable for this revision or retry.")
+        if stage == "draft_explanation" and not (retriever_usable and generator_usable):
+            raise ValueError("The explanation adapter is unavailable for this revision or retry.")
 
     def discard(self) -> None:
         """Discard process-local state and invalidate this cached runtime handle."""
@@ -233,6 +370,9 @@ class DashboardRun:
         self.state = {}
         self.candidate_retriever = None
         self.explanation_generator = None
+        self.candidate_retriever_usable = False
+        self.explanation_generator_usable = False
+        self.submission_outcome_unknown = False
 
     def lifecycle(self) -> dict[str, Any]:
         """Inspect this exact run's lifecycle without extending its retention."""
@@ -241,8 +381,8 @@ class DashboardRun:
         return self.checkpoint_store.inspect(self.thread_id)
 
     def audit(self) -> dict[str, Any]:
-        """Return detached, validated JSON audit history for this exact run."""
-        return reconstruct_audit(self.state, self.thread_id)
+        """Return an allowlisted detached audit projection for this exact run."""
+        return dashboard_audit(self.state, self.thread_id)
 
 
 def start_dashboard_run(
@@ -307,6 +447,16 @@ def start_dashboard_run(
             candidate_limit=validated_options.candidate_limit
             if not checkpoint_store.durable
             else 5,
+            candidate_retriever_usable=(
+                False
+                if candidate_retriever is not None
+                and type(candidate_retriever).__name__ == "HybridCandidateEvidenceRetriever"
+                and type(candidate_retriever).__module__.startswith("etf_advisor.")
+                else None
+            ),
+            explanation_generator_usable=(
+                explanation_generator is not None if not checkpoint_store.durable else False
+            ),
         )
     finally:
         if graph_store is not None:
@@ -353,6 +503,122 @@ def _validated_review_token(value: str) -> str:
     if parsed.version != 4:
         raise ValueError("Review token must be a version-4 UUID.")
     return str(parsed)
+
+
+def inspect_saved_review_lifecycle(
+    review_token: str, *, checkpoint_store: DashboardCheckpointStore | None = None
+) -> dict[str, Any]:
+    """Inspect one exact durable token without restoring graph state or renewing retention."""
+    try:
+        token = _validated_review_token(review_token)
+        store = checkpoint_store or PostgresCheckpointStore(settings.postgres_uri)
+        if not store.durable:
+            raise ValueError("Saved lifecycle inspection requires a durable checkpoint store.")
+        store.setup()
+        return store.inspect(token)
+    except Exception:
+        return {"status": "failure"}
+
+
+def delete_saved_review(
+    review_token: str,
+    confirmation_token: str,
+    *,
+    confirmed: bool,
+    checkpoint_store: DashboardCheckpointStore | None = None,
+) -> str:
+    """Permanently delete one exact durable thread after token re-entry and confirmation."""
+    try:
+        token = _validated_review_token(review_token)
+        confirmation = _validated_review_token(confirmation_token)
+        if token != confirmation or confirmed is not True:
+            return "failure"
+        store = checkpoint_store or PostgresCheckpointStore(settings.postgres_uri)
+        if not store.durable:
+            return "failure"
+        store.setup()
+        return store.delete(token, confirmed=True)
+    except Exception:
+        return "failure"
+
+
+def dashboard_audit(state: dict[str, Any], thread_id: str) -> dict[str, Any]:
+    """Project validated audit history without private artifact or provider content."""
+    history = reconstruct_audit(state, thread_id)
+    revisions: list[dict[str, Any]] = []
+    for source in history["revisions"]:
+        item = {
+            key: source[key]
+            for key in (
+                "revision_id",
+                "sequence",
+                "parent_revision_id",
+                "triggering_decision_id",
+                "review_decision_id",
+                "created_at",
+                "completed_at",
+                "status",
+                "child_revision_ids",
+            )
+            if key in source
+        }
+        profile = source["profile_version"]
+        item["profile_version"] = {
+            "artifact_id": profile["artifact_id"],
+            "digest": profile["digest"],
+        }
+        item["artifacts"] = {
+            name: {"artifact_id": artifact["artifact_id"], "digest": artifact["digest"]}
+            for name, artifact in source["artifacts"].items()
+        }
+        if "snapshot" in source:
+            item["snapshot"] = dict(source["snapshot"])
+        if source.get("plan"):
+            plan = source["plan"]
+            item["plan"] = {
+                "restart_stage": plan["restart_stage"],
+                "invalidated": list(plan["invalidated"]),
+                "feedback_classes": list(plan["feedback_classes"]),
+                "planning_digest": plan["planning_digest"],
+            }
+        if source.get("decision"):
+            decision = source["decision"]
+            item["decision"] = {
+                key: decision[key]
+                for key in (
+                    "decision_id",
+                    "revision_id",
+                    "action",
+                    "disposition",
+                    "note",
+                    "submitted_at",
+                )
+                if key in decision
+            }
+            item["decision"]["feedback_classes"] = [
+                feedback["kind"] for feedback in decision.get("feedback", [])
+            ]
+        item["receipts"] = [
+            {
+                key: receipt[key]
+                for key in (
+                    "revision_id",
+                    "stage",
+                    "attempt",
+                    "operation_id",
+                    "input_digest",
+                    "status",
+                    "output_id",
+                    "output_digest",
+                    "started_at",
+                    "completed_at",
+                )
+                if key in receipt
+            }
+            for receipt in source.get("receipts", [])
+        ]
+        revisions.append(item)
+    return {"schema_version": history["schema_version"], "revisions": revisions}
 
 
 def review_payload(state: dict[str, Any]) -> dict[str, Any]:

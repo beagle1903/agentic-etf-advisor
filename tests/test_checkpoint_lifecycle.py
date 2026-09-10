@@ -361,7 +361,8 @@ def test_memory_discard_invalidates_run_and_cached_runtime() -> None:
     store = run.checkpoint_store
     token = run.thread_id
     assert run.lifecycle()["status"] == "active"
-    assert run.audit()["thread_id"] == token
+    assert "thread_id" not in run.audit()
+    assert run.audit()["revisions"]
     run.discard()
     assert run.graph is None and run.state == {}
     with pytest.raises(ValueError):
