@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -11,6 +13,7 @@ import pytest
 from test_checkpoint_lifecycle import Store as DurableStore
 from test_revision import Adapters, valid_profile
 
+import etf_advisor.dashboard_app as dashboard_app
 from etf_advisor.checkpoint import MemoryCheckpointStore
 from etf_advisor.dashboard import (
     DashboardRun,
@@ -18,7 +21,12 @@ from etf_advisor.dashboard import (
     delete_saved_review,
     inspect_saved_review_lifecycle,
 )
-from etf_advisor.dashboard_app import _build_feedback_items, _retry_target
+from etf_advisor.dashboard_app import (
+    _SELECTED_REVIEW_KEY,
+    _build_feedback_items,
+    _restore_saved_run,
+    _retry_target,
+)
 from etf_advisor.graph.revision import validate_revision_state
 from etf_advisor.graph.workflow import build_graph
 
@@ -34,14 +42,31 @@ class Time:
         return self.now
 
 
+class ExitFailingStore(MemoryCheckpointStore):
+    """Raise once after a managed invocation has already committed its writes."""
+
+    def __init__(self) -> None:
+        super().__init__(clock=Time())
+        self.fail_next_exit = False
+
+    @contextmanager
+    def managed(self, thread_id: str, *, create: bool = False) -> Iterator[Any]:
+        with super().managed(thread_id, create=create) as saver:
+            yield saver
+        if self.fail_next_exit:
+            self.fail_next_exit = False
+            raise RuntimeError("managed exit failed after committed mutation")
+
+
 def _run(
     *,
     token: str = TOKEN,
     adapters: Adapters | None = None,
     durable: bool = False,
     clock: Any | None = None,
+    checkpoint_store: MemoryCheckpointStore | None = None,
 ) -> DashboardRun:
-    store = (
+    store = checkpoint_store or (
         DurableStore(clock=clock or Time())
         if durable
         else MemoryCheckpointStore(clock=clock or Time())
@@ -60,8 +85,8 @@ def _run(
         config={"configurable": {"thread_id": token}},
         state=state,
         checkpoint_store=store,
-        candidate_retriever=None if durable else adapters,
-        explanation_generator=None if durable else adapters,
+        candidate_retriever=None if store.durable else adapters,
+        explanation_generator=None if store.durable else adapters,
     )
 
 
@@ -233,6 +258,42 @@ def test_unavailable_adapter_preflight_does_not_mutate_ledger_or_lifecycle() -> 
     assert (adapters.retrieval_calls, adapters.provider_calls) == (1, 1)
 
 
+@pytest.mark.parametrize(
+    ("feedback", "restart"),
+    [
+        (
+            {"kind": "screening_policy", "patch": {"max_expense_ratio_pct": 2.0}},
+            "screen_candidates",
+        ),
+        (
+            {"kind": "construction_policy", "patch": {"max_category_weight_bps": 9000}},
+            "construct_portfolio",
+        ),
+        ({"kind": "explanation", "instruction": "Use shorter sentences."}, "draft_explanation"),
+    ],
+)
+def test_downstream_explanation_reruns_keep_generator_when_retriever_is_closed(
+    feedback: dict[str, Any], restart: str
+) -> None:
+    adapters = Adapters()
+    run = _run(adapters=adapters)
+    run.candidate_retriever_usable = False
+    run.explanation_generator_usable = True
+    parent = _revision_id(run)
+
+    result = run.resume(
+        "edit",
+        "Apply the downstream-only change.",
+        disposition="revise",
+        feedback_items=[feedback],
+        expected_revision_id=parent,
+    )
+
+    child = validate_revision_state(result, TOKEN).revisions[-1]
+    assert child.plan is not None and child.plan.restart_stage == restart
+    assert (adapters.retrieval_calls, adapters.provider_calls) == (1, 2)
+
+
 def test_failed_retry_is_exact_and_ineligible_success_has_zero_calls() -> None:
     adapters = Adapters()
     adapters.fail_retrieval = True
@@ -282,6 +343,89 @@ def test_unknown_submission_requires_no_call_refresh_before_retry() -> None:
         run.retry(retry["operation_id"], expected_revision_id=retry["revision_id"])["status"]
         == "awaiting_human_review"
     )
+
+
+def test_decision_context_exit_failure_requires_refresh_after_committed_mutation() -> None:
+    store = ExitFailingStore()
+    run = _run(checkpoint_store=store)
+    parent = _revision_id(run)
+    store.fail_next_exit = True
+
+    with pytest.raises(RuntimeError, match="managed exit failed"):
+        run.resume(
+            "edit",
+            "Extend the horizon.",
+            disposition="revise",
+            feedback_items=[{"kind": "profile", "patch": {"horizon_years": 19}}],
+            expected_revision_id=parent,
+        )
+
+    assert run.submission_outcome_unknown is True
+    with pytest.raises(ValueError, match="Refresh this exact thread"):
+        run.resume("approve")
+    refreshed = run.refresh()
+    child = validate_revision_state(refreshed, TOKEN).revisions[-1]
+    assert run.submission_outcome_unknown is False
+    assert child.parent_revision_id == parent
+
+
+def test_retry_context_exit_failure_requires_refresh_after_committed_mutation() -> None:
+    adapters = Adapters()
+    adapters.fail_retrieval = True
+    store = ExitFailingStore()
+    run = _run(adapters=adapters, checkpoint_store=store)
+    failed = validate_revision_state(run.state, TOKEN).revisions[-1].receipts[-1]
+    adapters.fail_retrieval = False
+    store.fail_next_exit = True
+
+    with pytest.raises(RuntimeError, match="managed exit failed"):
+        run.retry(failed.operation_id, expected_revision_id=failed.revision_id)
+
+    assert run.submission_outcome_unknown is True
+    assert (adapters.retrieval_calls, adapters.provider_calls) == (2, 1)
+    with pytest.raises(ValueError, match="Refresh this exact thread"):
+        run.retry(failed.operation_id, expected_revision_id=failed.revision_id)
+    refreshed = run.refresh()
+    assert run.submission_outcome_unknown is False
+    assert refreshed["status"] == "awaiting_human_review"
+    assert (adapters.retrieval_calls, adapters.provider_calls) == (2, 1)
+
+
+def test_failed_restore_replaces_stale_query_token_for_next_rerun(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeStreamlit:
+        def __init__(self) -> None:
+            self.session_state: dict[str, Any] = {"dashboard_run": object()}
+            self.query_params: dict[str, str] = {"review": OTHER}
+            self.errors: list[str] = []
+
+        def error(self, message: str) -> None:
+            self.errors.append(message)
+
+    def fail_restore(token: str) -> None:
+        assert token == TOKEN
+        raise ValueError("damaged exact token")
+
+    monkeypatch.setattr(dashboard_app, "load_dashboard_run", fail_restore)
+    st = FakeStreamlit()
+
+    _restore_saved_run(st, TOKEN)
+
+    assert "dashboard_run" not in st.session_state
+    assert st.session_state["restore_attempted_token"] == TOKEN
+    assert st.session_state[_SELECTED_REVIEW_KEY] == TOKEN
+    assert st.query_params["review"] == TOKEN
+    assert st.errors == [
+        "The saved review could not be restored. Check the token, checkpoint dependency, "
+        "and local PostgreSQL service."
+    ]
+    should_auto_restore = (
+        "dashboard_run" not in st.session_state
+        and st.query_params["review"]
+        and st.session_state.get("restore_attempted_token") != st.query_params["review"]
+    )
+    assert should_auto_restore is False
 
 
 def test_allowlisted_audit_omits_values_profiles_tokens_and_raw_content() -> None:

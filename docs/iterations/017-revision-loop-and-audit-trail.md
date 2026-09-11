@@ -378,6 +378,26 @@ typed-feedback selection, reviewer note, and process-local discard controls. It 
 form-refresh issue; moving the decision/disposition/class selectors outside the atomic submit form
 fixed it, and the focused AppTest plus full suite passed afterward.
 
+### PR #58 review remediation
+
+Three review findings were remediated within the approved Issue #42 adapter/UI scope. A retained
+process-local explanation generator now remains available for explanation, screening-policy, and
+construction-policy revisions that start after retrieval, while plan-derived preflight still blocks
+any route that would call the known-closed retriever. Decision and explicit-retry submissions treat
+managed-context exit or cleanup failures after invocation begins as unknown outcomes and require an
+exact-thread refresh before another mutation. A failed restore also replaces the prior URL token
+with the newly selected exact token, preserving lifecycle/deletion controls across Streamlit reruns.
+
+Local verification at `2026-09-11T10:11:57Z` passed **202 focused tests** across dashboard,
+revision/retry, lifecycle, PostgreSQL-double, and identifier suites and **675 tests** in the complete
+offline suite. The new regressions prove zero retrieval calls for all three downstream explanation
+routes, committed decision and retry state after a simulated managed-context exit failure, and a
+failed token B selection surviving a stale token A query parameter and rerun. The Codex workflow
+validator, Ruff lint and format check (122 files), strict mypy (46 source files), retrieval
+evaluation, explanation evaluation (8/8 expected decisions), package build, Docker Compose
+validation, and `git diff --check` passed. No live database, provider, market-data, trade, or
+external financial-write operation was invoked; the existing live-resource limitations remain.
+
 ### Issue #48 Yahoo exposure completeness hardening
 
 The coordinator-approved `DESIGN_READY` handoff is recorded at

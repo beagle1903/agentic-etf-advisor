@@ -180,6 +180,10 @@ def _restore_saved_run(st: Any, review_token: str) -> None:
     token = review_token.strip()
     st.session_state["restore_attempted_token"] = token
     st.session_state[_SELECTED_REVIEW_KEY] = token
+    if token:
+        st.query_params["review"] = token
+    else:
+        st.query_params.pop("review", None)
     try:
         run = load_dashboard_run(token)
     except Exception:

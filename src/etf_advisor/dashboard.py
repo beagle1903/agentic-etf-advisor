@@ -221,26 +221,33 @@ class DashboardRun:
                 self.submission_outcome_unknown = True
                 raise
         else:
-            with self.checkpoint_store.managed(self.thread_id) as saver:
-                graph = self._build_managed_graph(saver)
-                current = self._snapshot(graph)
-                current_payload = review_payload(current)
-                if expected_revision_id != current_payload.get("revision_id"):
-                    self.state = current
-                    raise ValueError("The rendered revision is stale; refresh before acting.")
-                if rendered_revision_id and normalized_action != "approve":
-                    validated_decision = ReviewDecision.model_validate(decision)
-                    if validated_decision.disposition == "revise":
-                        ledger = validate_revision_state(
-                            cast(AdvisorState, current), self.thread_id
-                        )
-                        plan = plan_revision(validated_decision, ledger.revisions[-1].inputs)
-                        self._require_plan_adapters(plan.restart_stage, ledger.revisions[-1].inputs)
-                try:
+            submission_started = False
+            try:
+                with self.checkpoint_store.managed(self.thread_id) as saver:
+                    graph = self._build_managed_graph(saver)
+                    current = self._snapshot(graph)
+                    current_payload = review_payload(current)
+                    if expected_revision_id != current_payload.get("revision_id"):
+                        self.state = current
+                        raise ValueError("The rendered revision is stale; refresh before acting.")
+                    if rendered_revision_id and normalized_action != "approve":
+                        validated_decision = ReviewDecision.model_validate(decision)
+                        if validated_decision.disposition == "revise":
+                            ledger = validate_revision_state(
+                                cast(AdvisorState, current), self.thread_id
+                            )
+                            plan = plan_revision(validated_decision, ledger.revisions[-1].inputs)
+                            self._require_plan_adapters(
+                                plan.restart_stage, ledger.revisions[-1].inputs
+                            )
+                    submission_started = True
                     result = graph.invoke(command, config=self.config)
-                except Exception:
+                self.state = dict(result)
+            except Exception:
+                if submission_started:
                     self.submission_outcome_unknown = True
-                    raise
+                raise
+            return self.state
         self.state = dict(result)
         return self.state
 
@@ -257,35 +264,42 @@ class DashboardRun:
                 "operation_id": operation_id,
             }
         )
-        with self.checkpoint_store.managed(self.thread_id) as saver:
-            graph = self._build_managed_graph(saver)
-            current = self._snapshot(graph)
-            ledger = validate_revision_state(cast(AdvisorState, current), self.thread_id)
-            revision = ledger.revisions[-1]
-            matches = [
-                receipt for receipt in revision.receipts if receipt.operation_id == operation_id
-            ]
-            if (
-                revision.revision_id != expected_revision_id
-                or revision.review_decision_id is not None
-                or len(matches) != 1
-            ):
-                self.state = current
-                raise ValueError("Retry does not target the current failed or ambiguous attempt.")
-            receipt = matches[0]
-            latest = [item for item in revision.receipts if item.stage == receipt.stage][-1]
-            if latest != receipt or receipt.status == "succeeded":
-                self.state = current
-                raise ValueError("Retry does not target the current failed or ambiguous attempt.")
-            self._require_operation_adapter(receipt.stage)
-            try:
+        submission_started = False
+        try:
+            with self.checkpoint_store.managed(self.thread_id) as saver:
+                graph = self._build_managed_graph(saver)
+                current = self._snapshot(graph)
+                ledger = validate_revision_state(cast(AdvisorState, current), self.thread_id)
+                revision = ledger.revisions[-1]
+                matches = [
+                    receipt for receipt in revision.receipts if receipt.operation_id == operation_id
+                ]
+                if (
+                    revision.revision_id != expected_revision_id
+                    or revision.review_decision_id is not None
+                    or len(matches) != 1
+                ):
+                    self.state = current
+                    raise ValueError(
+                        "Retry does not target the current failed or ambiguous attempt."
+                    )
+                receipt = matches[0]
+                latest = [item for item in revision.receipts if item.stage == receipt.stage][-1]
+                if latest != receipt or receipt.status == "succeeded":
+                    self.state = current
+                    raise ValueError(
+                        "Retry does not target the current failed or ambiguous attempt."
+                    )
+                self._require_operation_adapter(receipt.stage)
+                submission_started = True
                 result = graph.invoke(
                     {"retry_request": request.model_dump(mode="json")}, config=self.config
                 )
-            except Exception:
+            self.state = dict(result)
+        except Exception:
+            if submission_started:
                 self.submission_outcome_unknown = True
-                raise
-        self.state = dict(result)
+            raise
         return self.state
 
     def refresh(self) -> dict[str, Any]:
@@ -303,16 +317,12 @@ class DashboardRun:
     def _build_managed_graph(self, saver: Any) -> Any:
         if self.durable:
             return build_graph(checkpointer=saver)
-        retriever = (
-            self.candidate_retriever
-            if self.candidate_retriever is not None and self.candidate_retriever_usable is not False
-            else None
-        )
+        # Graph construction preserves the workflow's evidence/explanation shape. Plan-derived
+        # preflight below decides whether a route may actually call either retained adapter.
+        retriever = self.candidate_retriever
         generator = (
             self.explanation_generator
-            if retriever is not None
-            and self.explanation_generator is not None
-            and self.explanation_generator_usable is not False
+            if retriever is not None and self.explanation_generator is not None
             else None
         )
         return build_graph(
@@ -358,7 +368,7 @@ class DashboardRun:
         )
         if stage == "retrieve_candidate_evidence" and not retriever_usable:
             raise ValueError("The retrieval adapter is unavailable for this revision or retry.")
-        if stage == "draft_explanation" and not (retriever_usable and generator_usable):
+        if stage == "draft_explanation" and not generator_usable:
             raise ValueError("The explanation adapter is unavailable for this revision or retry.")
 
     def discard(self) -> None:
