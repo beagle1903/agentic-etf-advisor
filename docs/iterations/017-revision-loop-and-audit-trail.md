@@ -71,8 +71,8 @@ explicit lifecycle for durable checkpoints.
 - [x] Define revision planning, audit lineage, and checkpoint lifecycle contracts in ADRs 0015 and
   0016 (#39).
 - [x] Implement deterministic revision routing and replay guards (#40).
-- [ ] Implement audit lineage and the local checkpoint lifecycle (#41).
-- [ ] Present revisions, rerun controls, and checkpoint deletion in the dashboard (#42).
+- [x] Implement audit lineage and the local checkpoint lifecycle (#41).
+- [x] Present revisions, rerun controls, and checkpoint deletion in the dashboard (#42).
 - [ ] Run end-to-end revision-loop and audit-trail acceptance verification (#43).
 
 The GitHub tracking issue owns progress, parent/sub-issue relationships, blocked-by relationships,
@@ -270,12 +270,12 @@ the required adapters before retrying external stages. Restoration and approval 
 call those adapters. Durability must remain synchronous so started receipts are committed before
 execution; the compiled graph defaults to this mode and rejects unsafe overrides.
 
-The existing Streamlit form still lacks the typed feedback/reject-disposition/retry controls owned
-by #42. Its adapter accepts the typed values, and its approval path remains compatible. Legacy
-free-text edit/reject responses fail closed. Pre-revision saved checkpoints are not silently
-migrated, and supplying a new profile on an existing thread is rejected rather than resetting its
-lineage. A new unrelated run needs a new thread. The local audit digest detects inconsistency; it
-is not a signature or protection against a database administrator.
+Issue #42 replaces the original Streamlit form with typed feedback, reject-disposition, exact retry,
+allowlisted history, lifecycle, deletion, discard, and exact-refresh controls. Legacy free-text
+edit/reject responses still fail closed. Pre-revision saved checkpoints are not silently migrated,
+and supplying a new profile on an existing thread is rejected rather than resetting its lineage. A
+new unrelated run needs a new thread. The local audit digest detects inconsistency; it is not a
+signature or protection against a database administrator.
 
 
 ### PR #45 review follow-up: injectable audit identifiers
@@ -341,6 +341,62 @@ format check (119 files), strict mypy (46 source files), `uv build`,
 a nonexistent `tests/test_checkpoint.py` and collected no tests; the corrected suites above passed.
 No live services or external financial writes were used. Coordinator review and the complete
 remediation gate set passed before delivery to PR #55.
+
+### Issue #42 dashboard revision and lifecycle controls
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/42#issuecomment-5622301023. The dashboard
+now constructs all five existing typed feedback classes, supports mixed feedback and explicit
+reject-revise/reject-close, and delegates complete-input validation plus restart/invalidation to the
+authoritative graph planner. Every decision and retry rechecks the exact saved revision inside its
+managed invocation. Missing or known-closed adapters block before mutation, unknown submission
+outcomes require a no-call exact refresh, and revision-specific widget keys prevent stale forms from
+carrying into a child.
+
+The rendered audit view is an allowlist of lineage, decision, reached-artifact digest,
+source-snapshot, plan, and operation-attempt metadata. Artifact values, full profiles, source
+bodies, prompts, credentials, connection details, raw provider output, and capability tokens are
+omitted. Exact-token lifecycle status and permanent whole-thread deletion remain available even
+when graph restore fails. Deletion requires masked exact-token re-entry plus separate confirmation;
+process-local discard clears the checkpoint and transient adapters without a recovery promise. The
+dashboard does not enumerate tokens, expose preview/prune, or run automatic cleanup.
+
+Verification is deterministic and offline: real graphs use in-memory managed stores and fixed
+retrieval/provider doubles; PostgreSQL behavior uses the existing connection/store doubles. No live
+PostgreSQL, provider, market-data, trade, or external financial-write operation is part of this
+slice. Live PostgreSQL transaction behavior, durable adapter reattachment, and startup Neo4j
+resource ownership remain explicitly unverified or unsupported. Issue #43 retains iteration-wide
+acceptance.
+
+Local verification at `2026-09-10T17:30:19Z` passed **196 focused tests** across dashboard,
+revision/retry, lifecycle, PostgreSQL-double, and identifier suites and **669 tests** in the complete
+offline suite. The Codex workflow validator, Ruff lint and format check (122 files), strict mypy (46
+source files), retrieval evaluation, explanation evaluation (8/8 expected decisions), package
+build, Docker Compose validation, and `git diff --check` passed. A headed Playwright policy-only
+smoke created a review and confirmed visible exact refresh, allowlisted history, Edit selection,
+typed-feedback selection, reviewer note, and process-local discard controls. It caught an initial
+form-refresh issue; moving the decision/disposition/class selectors outside the atomic submit form
+fixed it, and the focused AppTest plus full suite passed afterward.
+
+### PR #58 review remediation
+
+Three review findings were remediated within the approved Issue #42 adapter/UI scope. A retained
+process-local explanation generator now remains available for explanation, screening-policy, and
+construction-policy revisions that start after retrieval, while plan-derived preflight still blocks
+any route that would call the known-closed retriever. Decision and explicit-retry submissions treat
+managed-context exit or cleanup failures after invocation begins as unknown outcomes and require an
+exact-thread refresh before another mutation. A failed restore also replaces the prior URL token
+with the newly selected exact token, preserving lifecycle/deletion controls across Streamlit reruns.
+
+Local verification at `2026-09-11T10:11:57Z` passed **202 focused tests** across dashboard,
+revision/retry, lifecycle, PostgreSQL-double, and identifier suites and **675 tests** in the complete
+offline suite. The new regressions prove zero retrieval calls for all three downstream explanation
+routes, committed decision and retry state after a simulated managed-context exit failure, and a
+failed token B selection surviving a stale token A query parameter and rerun. The Codex workflow
+validator, Ruff lint and format check (122 files), strict mypy (46 source files), retrieval
+evaluation, explanation evaluation (8/8 expected decisions), package build, Docker Compose
+validation, and `git diff --check` passed. No live database, provider, market-data, trade, or
+external financial-write operation was invoked; the existing live-resource limitations remain.
 
 ### Issue #48 Yahoo exposure completeness hardening
 

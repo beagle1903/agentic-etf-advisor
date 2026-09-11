@@ -356,11 +356,21 @@ an adapter call or review controls. Starting a fresh profile on an existing thre
 its audit history: use typed revision feedback, or create a new thread for a separate run. Existing
 pre-revision durable checkpoints have no automatic migration or inferred lineage.
 
-The dashboard adapter and demo CLI submit revision-bound approvals. The adapter also accepts typed
-feedback and explicit reject disposition; the richer interactive revision/retry forms remain Issue
-#42. Revisions that need external operations require the appropriate injected adapters when the
-graph is recompiled. Current-artifact rendering remains intact, while the CLI omits the retained
-ledger so it does not print the checkpoint capability.
+The dashboard adapter and demo CLI submit revision-bound approvals. The dashboard exposes all five
+typed feedback classes, mixed feedback, explicit reject-revise/reject-close disposition, and exact
+failed-or-ambiguous operation retry. It refreshes and revalidates the exact saved revision inside
+the same managed invocation before every mutation. Revision-specific widget identities prevent a
+stale form or confirmation from carrying into a child. An unknown submission outcome disables
+further mutation until an explicit exact-thread refresh; refresh reads checkpoint state without a
+provider or retrieval call. The UI calls the authoritative revision planner for complete-input
+validation and routing rather than interpreting notes or duplicating invalidation policy.
+
+External-stage revisions and retries preflight the adapters required by the validated plan. A
+missing durable adapter or a process-local retriever whose Neo4j resource is known to have closed
+blocks before the decision, child, retry, adapter call, or lifecycle renewal. Approval,
+reject-close, and durable policy-only profile revisions remain available without an external
+adapter. Current-artifact rendering remains intact, while the CLI omits the retained ledger so it
+does not print the checkpoint capability.
 
 Issue #41 adds pure `reconstruct_audit` validation and detached JSON reconstruction of retained
 profiles, reached artifacts and source snapshot identities, decisions, receipts, child links,
@@ -379,8 +389,19 @@ checks one captured candidate/version set; exact confirmed UUID-v4
 deletion atomically removes all namespaces and lifecycle data. Cached managed runtimes expire on
 context exit, and explicit memory discard removes local state without a recovery promise.
 ADR 0019 records the adapter transaction choices. Live PostgreSQL remains unverified; deterministic
-store doubles cover this slice. Issue #42 retains ownership of lifecycle UI controls/rendering,
-and Issue #43 retains iteration-wide acceptance. No external financial-write behavior is added.
+store doubles cover lifecycle behavior. Issue #43 retains iteration-wide acceptance. No external
+financial-write behavior is added.
+
+The dashboard presents only an allowlisted audit projection: revision/parent/child and decision
+identities, reached artifact digests, source-snapshot identity, restart/invalidation classes, and
+operation attempt status. It omits artifact values, full profiles, source bodies, prompts,
+credentials, connection details, raw provider output, and the review token. User-authored notes are
+rendered as plain text. Durable lifecycle selection is independent of successful graph restoration,
+so an expired, legacy, damaged, or missing exact token can still receive sanitized inspection and
+permanent-deletion handling. The UI never enumerates tokens and does not expose preview/prune or
+background cleanup. Deletion requires exact UUID-v4 re-entry plus a separate confirmation and calls
+only the atomic whole-thread lifecycle operation. Process-local discard clears checkpoint state and
+transient adapters with no recovery promise.
 
 ## Data-source boundary
 

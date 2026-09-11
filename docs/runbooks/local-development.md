@@ -43,6 +43,26 @@ version-4 UUID identify the exact saved graph thread. Keep that review token pri
 development machine. Opening the URL in a new browser session or pasting the token into **Saved
 review** restores the paused or completed state and revalidates its review contract.
 
+At human review, **Approve** finalizes without mutation feedback. **Edit** always revises.
+**Reject** requires an explicit **Revise** or **Close** disposition; close retains a bounded note
+and does not accept mutation feedback. A revision selects one or more typed classes: profile,
+evidence refresh, screening policy, construction policy, or explanation. The UI builds those typed
+payloads, while the graph validates the complete merged input and chooses the earliest restart
+stage. The construction editor intentionally preserves the existing source-category sleeve mapping.
+Free-text notes are audit context only and never select routing or mutate financial inputs.
+
+**Revision and operation history** shows only identities, digests, source-snapshot identity,
+restart/invalidation classes, decisions, and operation status. It does not dump profile values,
+artifact bodies, source text, prompts, credentials, connection details, raw provider output, or the
+review token. User-authored notes render as plain text. **Refresh exact thread** reloads saved state
+without invoking retrieval or a provider. If a submission outcome cannot be confirmed, all mutation
+controls remain disabled until that refresh succeeds.
+
+A current failed or ambiguous retrieval/provider attempt may expose **Retry exact operation**.
+Retry is never automatic, targets only the latest attempt on the rendered revision, and may repeat
+cost when an earlier call completed but its result was not durably observed. Successful, stale,
+foreign, malformed, or already reviewed attempts are ineligible.
+
 The token is not a login, the dashboard does not list other threads, and this slice is not a
 multi-user review system. If PostgreSQL is unavailable while submitting a decision, restore the
 same token and inspect its current state before retrying.
@@ -53,7 +73,10 @@ New durable threads use `CHECKPOINT_RETENTION_DAYS` (integer 1–365, default 30
 interval is saved per thread; changing configuration does not retroactively change existing
 threads. Loading/rendering never renews expiry. At the exact expiry boundary, restoration/resume
 is blocked. Legacy checkpoints without lifecycle metadata also fail closed and are not migrated.
-Lifecycle controls and expiry rendering are reserved for Issue #42.
+The dashboard shows the exact durable thread's effective interval and expiry without renewing it.
+Lifecycle selection is independent of graph restoration: expired, legacy, damaged, or missing exact
+tokens can still receive sanitized inspection and deletion handling. It never enumerates other
+tokens and does not expose preview/prune or run hidden cleanup.
 
 The backend lifecycle API is available for explicit local operations after normal store setup:
 
@@ -70,6 +93,12 @@ receipt, lineage, and lifecycle record for that exact UUID-v4 token. It returns 
 `skipped` for changed candidates. Missing/malformed metadata is never automatically pruned but can
 be deleted with the exact token and confirmation. There is no automatic background cleanup.
 
+In the dashboard, permanent deletion requires re-entering the exact UUID-v4 token in a masked field
+and selecting a separate confirmation. The action calls only the lifecycle store's atomic
+whole-thread deletion; partial revision/event deletion is unavailable. For an in-memory review,
+**Discard process-local state** clears the checkpoint and retained transient adapters after a
+separate acknowledgement. Browser-session or process loss has the same no-recovery boundary.
+
 Application code must use `with store.managed(token, create=True) as saver` for a new thread,
 and `with store.managed(token) as saver` for existing state. Build the graph inside that context;
 complete the invocation there. Do not retain its compiled graph for subsequent operations.
@@ -78,6 +107,9 @@ reinjecting them into each fresh managed graph. These fields stay outside checkp
 discard clears adapter references. Startup still closes the Neo4j resource after drafting;
 retention alone does not make a closed live retriever reusable. Live resource ownership changes
 and durable adapter reattachment are deferred; durable restore/approval remains unchanged.
+The dashboard preflights the adapters required by the graph-validated revision plan before mutation.
+Known-closed or unavailable external-stage adapters block the action. Approval, reject-close, and
+durable policy-only profile revisions do not require them.
 Each synchronous checkpoint commits separately while per-thread exclusion blocks prune/deletion.
 To retry a failed/ambiguous operation, pass the existing typed `retry_request` to a graph compiled
 inside managed access with the required replaceable adapters attached. Never retry implicitly.
