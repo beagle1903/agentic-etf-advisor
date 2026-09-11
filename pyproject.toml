@@ -34,7 +34,6 @@ providers = [
 ]
 rag = [
   "chromadb",
-  "langchain-chroma",
   "neo4j",
   "neo4j-graphrag",
   "yfinance",
