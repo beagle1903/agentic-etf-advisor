@@ -741,6 +741,75 @@ def test_workflow_revalidates_freshness_from_replaceable_retrievers() -> None:
     assert "__interrupt__" not in result
 
 
+@pytest.mark.parametrize("unvalidated", [False, True])
+def test_replacement_retriever_field_freshness_blocks_before_explanation_and_review(
+    unvalidated: bool,
+) -> None:
+    checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
+    sources = _construction_sources(checked_at)
+    _set_source_field_observed_at(
+        sources[0],
+        "expense_ratio_pct",
+        checked_at - timedelta(hours=24, microseconds=1),
+    )
+    ready = HybridCandidateEvidenceRetriever(
+        _FixedSearch(sources),
+        clock=lambda: checked_at,
+        max_age=timedelta(hours=24),
+    ).retrieve(InvestorProfile.model_validate(valid_profile()), limit=5)
+    if unvalidated:
+        ready = CandidateEvidenceBundle.model_construct(**ready.__dict__)
+    explanation_calls: list[str] = []
+
+    class ReplacementRetriever:
+        def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+            return ready
+
+    class CountingGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            explanation_calls.append(request.profile.objective.value)
+            return ExplanationResult(
+                provider="test",
+                model="must-not-run",
+                explanation=_valid_generated_explanation(),
+            )
+
+    graph = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=ReplacementRetriever(),
+        candidate_limit=5,
+        explanation_generator=CountingGenerator(),
+        clock=lambda: checked_at,
+    )
+
+    result = graph.invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": f"field-freshness-{unvalidated}"}},
+    )
+
+    assert result["status"] == "screening_blocked"
+    assert result["candidate_screening"] == {}
+    assert result["screening_errors"] == [
+        {
+            "type": "screening_contract",
+            "message": "Consumed screening field is stale.",
+            "code": "field_stale",
+            "citation": {
+                "document_id": "doc-spy",
+                "symbol": "SPY",
+                "field_name": "expense_ratio_pct",
+                "source": "yahoo_finance",
+                "source_url": "https://finance.yahoo.com/quote/SPY/",
+                "observed_at": "2026-08-27T11:59:59.999999Z",
+            },
+            "checked_at": "2026-08-28T12:00:00+00:00",
+        }
+    ]
+    assert explanation_calls == []
+    assert "__interrupt__" not in result
+    json.dumps(result["screening_errors"])
+
+
 def test_workflow_rejects_foreign_graph_context_from_replaceable_retriever() -> None:
     checked_at = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
     source_result = GraphEnrichedSource(
@@ -904,6 +973,20 @@ def _mark_source_field_error(source: GraphEnrichedSource, field_name: str) -> No
     provenance[field_name]["missing_reason"] = "source_error"
     source.metadata.pop(field_name)
     source.metadata[f"{field_name}_status"] = "source_error"
+    source.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _set_source_field_observed_at(
+    source: GraphEnrichedSource,
+    field_name: str,
+    observed_at: datetime,
+) -> None:
+    provenance = json.loads(str(source.metadata["field_provenance_json"]))
+    provenance[field_name]["observed_at"] = observed_at.isoformat()
     source.metadata["field_provenance_json"] = json.dumps(
         provenance,
         sort_keys=True,

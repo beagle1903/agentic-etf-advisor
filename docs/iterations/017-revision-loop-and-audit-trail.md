@@ -436,3 +436,34 @@ Residual limitations remain explicit: Yahoo's ambiguous numeric unit convention 
 the adapter cannot detect rows omitted upstream; previously published lossy snapshots are not
 repaired automatically; and no live Yahoo, database, model, trade, or external financial-write
 operation is part of this slice.
+
+### Issue #47 consumed-field freshness enforcement
+
+The user-approved `DESIGN_READY` handoff is recorded in
+[`017-issue-47-field-freshness-design.md`](017-issue-47-field-freshness-design.md). Screening now
+validates the persisted age and future-tolerance boundaries for every available canonical identity,
+fee, liquidity, concentration, and consumed sector field. A stale or future value blocks the whole
+operation with a stable field code, exact source citation, and persisted check time. Missing scalar
+or sector evidence remains unknown, while absent canonical identity provenance now produces
+explicit identity-unknown results. Construction maps the freshness blocker to
+`evidence_not_ready`; explanation, dashboard, review, and receipt-reuse paths reject coherent old
+artifacts through deterministic recomputation.
+
+Focused verification covers exact boundaries, mixed timestamps, zero tolerance, timezone-equivalent
+timestamps, unavailable fields, source-error and explicit-zero behavior, unsupported exclusions,
+replacement retrievers, direct construction/explanation, presentation restore, and fully resealed
+revision review/reuse. Valid-current receipt reuse preserves artifact and operation identities and
+makes no additional adapter call. Available sector shape is validated before freshness for requested
+exclusions even when graph context is absent or unavailable. A bounded former-behavior seam confirms
+that a coherently cited stale artifact was accepted before the correction and is rejected now for
+field freshness. Final command evidence is retained in the supporting Issue #47 design document.
+
+Final remediation verification at `2026-09-13T17:43:13Z` passed **731 tests** in the complete offline suite,
+the Codex workflow validator, Ruff lint and format check (124 files), strict mypy (46 source files),
+retrieval evaluation, explanation evaluation (8/8 expected decisions), package build, Docker
+Compose validation, and `git diff --check`. The focused seven-file suite passed **310 tests** in
+63.39 seconds.
+
+This slice uses deterministic local fixtures and in-memory checkpoints. It does not add a
+restore-time wall-clock check, repair existing snapshots, validate display-only fields, or exercise
+live providers and stores. Issue #43 still owns iteration-wide acceptance.

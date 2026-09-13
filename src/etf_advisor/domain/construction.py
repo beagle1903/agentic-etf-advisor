@@ -20,6 +20,7 @@ from etf_advisor.domain.screening import (
     CandidateScreeningBundle,
     CandidateScreeningResult,
     ScreeningContractError,
+    ScreeningFieldFreshnessError,
     ScreeningVerdict,
     screen_candidate_evidence,
 )
@@ -563,6 +564,8 @@ def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason
         return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
     try:
         recomputed = screen_candidate_evidence(evidence, inputs.candidate_screening.policy)
+    except ScreeningFieldFreshnessError:
+        return ConstructionReason.EVIDENCE_NOT_READY
     except (ScreeningContractError, TypeError, ValueError, ValidationError):
         return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
     if recomputed != inputs.candidate_screening:

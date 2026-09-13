@@ -102,9 +102,20 @@ ranking.
 
 Scalar judgments read canonical field provenance and require its flattened status and value to
 agree. Sector judgments require the source-linked Neo4j weights to match the canonical sector
-field exactly. Every result carries a stable reason code, observed value, threshold, source URL,
-and observation timestamp. The dashboard recomputes the bundle from evidence before rendering,
-which prevents persisted or replacement data from silently relabeling a result.
+field exactly when that graph context is available. When exclusions are requested, screening
+validates the available canonical sector field's shape before freshness even if graph context is
+absent or unavailable. Every result carries a stable reason code, observed value, threshold,
+source URL, and observation timestamp. The dashboard recomputes the bundle from evidence before
+rendering, which prevents persisted or replacement data from silently relabeling a result.
+
+ADR 0021 also checks each available canonical field at the point where screening consumes it,
+using only the evidence bundle's persisted check time, maximum age, and future tolerance. Market,
+instrument type, fee, volume, and concentration are always checked; available sector exposure is
+checked when exclusions are requested. Exact boundaries remain current, while the first stale or
+excessively future field blocks the complete screening operation with attributable JSON-safe
+diagnostics. Missing scalar or sector values retain their existing unknown results. Missing
+canonical market or instrument-type provenance now yields explicit identity-unknown results rather
+than borrowing the document timestamp as affirmative field evidence.
 
 ## Deterministic model-portfolio construction
 
@@ -127,6 +138,10 @@ tie-breaking to at most 1,024 subsets under the initial contract. Category prove
 own freshness check against the evidence bundle's check time, maximum age, and future tolerance;
 a stale or future category blocks construction even when the candidate-level observation is
 current.
+
+Construction also treats ADR 0021's screening-field freshness error as `evidence_not_ready` before
+subset selection. Other screening contract errors and persisted recomputation mismatches keep their
+existing mappings.
 
 Construction chooses the feasible subset with the most positions and uses upstream retrieval order
 only for deterministic tie-breaking. It divides each exact policy sleeve equally in integer basis

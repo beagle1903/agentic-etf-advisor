@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any, Final, Literal
 from urllib.parse import urlsplit
@@ -45,7 +45,9 @@ class ScreeningReason(StrEnum):
     """Stable reason codes suitable for UI tables and audit records."""
 
     US_LISTING_CONFIRMED = "us_listing_confirmed"
+    US_LISTING_UNKNOWN = "us_listing_unknown"
     ETF_TYPE_CONFIRMED = "etf_type_confirmed"
+    ETF_TYPE_UNKNOWN = "etf_type_unknown"
     SOURCE_CURRENT = "source_current"
     SOURCE_HEALTH_UNKNOWN = "source_health_unknown"
     EXPENSE_RATIO_WITHIN_LIMIT = "expense_ratio_within_limit"
@@ -107,6 +109,27 @@ class ScreeningCitation(BaseModel):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("Screening citation timestamps must be timezone-aware.")
         return value.astimezone(UTC)
+
+
+class ScreeningFieldFreshnessError(ScreeningContractError):
+    """Raised when an available field is stale or too far in the future."""
+
+    def __init__(
+        self,
+        *,
+        code: Literal["field_stale", "field_future"],
+        citation: ScreeningCitation,
+        checked_at: datetime,
+    ) -> None:
+        message = (
+            "Consumed screening field is stale."
+            if code == "field_stale"
+            else "Consumed screening field is too far in the future."
+        )
+        super().__init__(message)
+        self.code = code
+        self.citation = citation
+        self.checked_at = checked_at
 
 
 class ScreeningRuleResult(BaseModel):
@@ -269,7 +292,9 @@ def screen_candidate_evidence(
                     candidate.observed_at,
                 )
             ),
+            checked_at=validated_evidence.checked_at,
             max_age_hours=validated_evidence.health.max_age_hours,
+            future_tolerance_minutes=(validated_evidence.health.future_tolerance_minutes),
         )
         for candidate in validated_evidence.candidates
     ]
@@ -287,14 +312,40 @@ def _screen_candidate(
     excluded_sectors: list[str],
     policy: CandidateScreeningPolicy,
     health: ObservationHealth | None,
+    checked_at: datetime,
     max_age_hours: float,
+    future_tolerance_minutes: float,
 ) -> CandidateScreeningResult:
     provenance = _field_provenance(candidate)
+    _validate_consumed_field_contracts(
+        candidate,
+        provenance,
+        excluded_sectors=excluded_sectors,
+    )
+    freshness_fields = [
+        "market",
+        "quote_type",
+        "expense_ratio_pct",
+        "average_daily_volume",
+        "top_10_concentration_pct",
+    ]
+    if excluded_sectors:
+        freshness_fields.append("sector_exposures")
+    for field_name in freshness_fields:
+        _ensure_available_field_current(
+            candidate,
+            field_name,
+            provenance.get(field_name),
+            checked_at=checked_at,
+            max_age_hours=max_age_hours,
+            future_tolerance_minutes=future_tolerance_minutes,
+        )
     rules = [
         _confirmed_rule(
             candidate,
             criterion=ScreeningCriterion.US_LISTING,
             reason=ScreeningReason.US_LISTING_CONFIRMED,
+            unknown_reason=ScreeningReason.US_LISTING_UNKNOWN,
             message="Source metadata confirms a US-market listing.",
             observed_value=candidate.market,
             field_name="market",
@@ -304,6 +355,7 @@ def _screen_candidate(
             candidate,
             criterion=ScreeningCriterion.INSTRUMENT_TYPE,
             reason=ScreeningReason.ETF_TYPE_CONFIRMED,
+            unknown_reason=ScreeningReason.ETF_TYPE_UNKNOWN,
             message="Source metadata confirms the instrument is an ETF.",
             observed_value=candidate.quote_type,
             field_name="quote_type",
@@ -373,31 +425,118 @@ def _screen_candidate(
     )
 
 
+def _validate_consumed_field_contracts(
+    candidate: CandidateEvidence,
+    provenance: dict[str, ResearchField[Any]],
+    *,
+    excluded_sectors: list[str],
+) -> None:
+    for field_name, observed_value in (
+        ("market", candidate.market),
+        ("quote_type", candidate.quote_type),
+    ):
+        field = provenance.get(field_name)
+        if field is not None and (
+            field.missing_reason is not None or field.value != observed_value
+        ):
+            raise ScreeningContractError(
+                f"{candidate.document_id}: {field_name} provenance conflicts with evidence."
+            )
+
+    for field_name, expected_unit, maximum_value in (
+        ("expense_ratio_pct", "percent", 100.0),
+        ("average_daily_volume", "shares_per_day", None),
+        ("top_10_concentration_pct", "percent", 100.0),
+    ):
+        field = provenance.get(field_name)
+        if field is None:
+            continue
+        if field.unit != expected_unit:
+            raise ScreeningContractError(
+                f"{candidate.document_id}: {field_name} must use {expected_unit} units."
+            )
+        if field.missing_reason is None:
+            _finite_number(
+                candidate,
+                field_name,
+                field.value,
+                maximum=maximum_value,
+            )
+
+    sector_field = provenance.get("sector_exposures")
+    context = candidate.graph_context
+    if excluded_sectors and sector_field is not None and sector_field.missing_reason is None:
+        source_weights = {
+            _canonical_sector(item.name): item.weight_pct
+            for item in _weighted_exposures(candidate, sector_field.value)
+        }
+        if context is not None and context.sector_exposures_status == "available":
+            graph_weights = {
+                _canonical_sector(item.name): item.weight_pct for item in context.sector_exposures
+            }
+            if graph_weights != source_weights:
+                raise ScreeningContractError(
+                    f"{candidate.document_id}: graph sector weights conflict with field provenance."
+                )
+
+
 def _confirmed_rule(
     candidate: CandidateEvidence,
     *,
     criterion: ScreeningCriterion,
     reason: ScreeningReason,
+    unknown_reason: ScreeningReason,
     message: str,
     observed_value: str,
     field_name: str,
     provenance: ResearchField[Any] | None,
 ) -> ScreeningRuleResult:
-    citation = _candidate_citation(candidate, field_name)
-    if provenance is not None:
-        if provenance.missing_reason is not None or provenance.value != observed_value:
-            raise ScreeningContractError(
-                f"{candidate.document_id}: {field_name} provenance conflicts with evidence."
-            )
-        citation = _field_citation(candidate, field_name, provenance)
+    if provenance is None:
+        return ScreeningRuleResult(
+            criterion=criterion,
+            verdict=ScreeningVerdict.UNKNOWN,
+            reason_code=unknown_reason,
+            message=f"{field_name} has no field-level provenance.",
+            observed_value=observed_value,
+        )
+    if provenance.missing_reason is not None or provenance.value != observed_value:
+        raise ScreeningContractError(
+            f"{candidate.document_id}: {field_name} provenance conflicts with evidence."
+        )
     return ScreeningRuleResult(
         criterion=criterion,
         verdict=ScreeningVerdict.PASS,
         reason_code=reason,
         message=message,
         observed_value=observed_value,
-        citation=citation,
+        citation=_field_citation(candidate, field_name, provenance),
     )
+
+
+def _ensure_available_field_current(
+    candidate: CandidateEvidence,
+    field_name: str,
+    provenance: ResearchField[Any] | None,
+    *,
+    checked_at: datetime,
+    max_age_hours: float,
+    future_tolerance_minutes: float,
+) -> None:
+    if provenance is None or provenance.missing_reason is not None:
+        return
+    citation = _field_citation(candidate, field_name, provenance)
+    if provenance.observed_at > checked_at + timedelta(minutes=future_tolerance_minutes):
+        raise ScreeningFieldFreshnessError(
+            code="field_future",
+            citation=citation,
+            checked_at=checked_at,
+        )
+    if checked_at - provenance.observed_at > timedelta(hours=max_age_hours):
+        raise ScreeningFieldFreshnessError(
+            code="field_stale",
+            citation=citation,
+            checked_at=checked_at,
+        )
 
 
 def _freshness_rule(

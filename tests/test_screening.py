@@ -1,6 +1,6 @@
 import json
-from datetime import UTC, datetime, timedelta
-from typing import Any
+from datetime import UTC, datetime, timedelta, timezone
+from typing import Any, Literal
 
 import pytest
 
@@ -9,6 +9,7 @@ from etf_advisor.domain.screening import (
     CandidateScreeningPolicy,
     ScreeningContractError,
     ScreeningCriterion,
+    ScreeningFieldFreshnessError,
     ScreeningReason,
     ScreeningVerdict,
     screen_candidate_evidence,
@@ -49,6 +50,211 @@ def test_boundary_values_pass_with_stable_reason_codes_and_citations() -> None:
     assert expense_rule.citation.field_name == "expense_ratio_pct"
     assert expense_rule.citation.source_url == SOURCE_URL
     json.dumps(bundle.model_dump(mode="json"))
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "market",
+        "quote_type",
+        "expense_ratio_pct",
+        "average_daily_volume",
+        "top_10_concentration_pct",
+        "sector_exposures",
+    ],
+)
+@pytest.mark.parametrize(
+    ("offset", "expected_code"),
+    [
+        (-timedelta(hours=1), None),
+        (-timedelta(hours=24), None),
+        (-timedelta(hours=24, microseconds=1), "field_stale"),
+        (timedelta(minutes=5), None),
+        (timedelta(minutes=5, microseconds=1), "field_future"),
+    ],
+)
+def test_consumed_field_freshness_uses_exact_persisted_boundaries(
+    field_name: str,
+    offset: timedelta,
+    expected_code: str | None,
+) -> None:
+    evidence = _evidence(excluded_sectors=["tobacco"] if field_name == "sector_exposures" else None)
+    observed_at = CHECKED_AT + offset
+    _set_field_observed_at(evidence, field_name, observed_at)
+
+    if expected_code is None:
+        screening = screen_candidate_evidence(evidence)
+        citation = next(
+            rule.citation
+            for rule in screening.candidates[0].rules
+            if rule.citation is not None and rule.citation.field_name == field_name
+        )
+        assert citation.observed_at == observed_at
+        return
+
+    with pytest.raises(ScreeningFieldFreshnessError) as raised:
+        screen_candidate_evidence(evidence)
+    assert raised.value.code == expected_code
+    assert raised.value.checked_at == CHECKED_AT
+    assert raised.value.citation.document_id == "doc-spy"
+    assert raised.value.citation.symbol == "SPY"
+    assert raised.value.citation.field_name == field_name
+    assert raised.value.citation.source_url == SOURCE_URL
+    assert raised.value.citation.observed_at == observed_at
+
+
+def test_field_freshness_accepts_timezone_equivalent_boundary() -> None:
+    evidence = _evidence()
+    observed_at = (CHECKED_AT - timedelta(hours=23)).astimezone(timezone(timedelta(hours=-7)))
+    _set_field_observed_at(evidence, "expense_ratio_pct", observed_at)
+
+    rule = screen_candidate_evidence(evidence).candidates[0].rules[3]
+
+    assert rule.reason_code == ScreeningReason.EXPENSE_RATIO_WITHIN_LIMIT
+    assert rule.citation is not None
+    assert rule.citation.observed_at == CHECKED_AT - timedelta(hours=23)
+
+
+def test_field_freshness_honors_zero_future_tolerance() -> None:
+    evidence = _evidence(future_tolerance=timedelta(0))
+    _set_field_observed_at(
+        evidence,
+        "average_daily_volume",
+        CHECKED_AT + timedelta(microseconds=1),
+    )
+
+    with pytest.raises(ScreeningFieldFreshnessError) as raised:
+        screen_candidate_evidence(evidence)
+
+    assert raised.value.code == "field_future"
+    assert raised.value.citation.field_name == "average_daily_volume"
+
+
+def test_first_consumed_field_freshness_violation_blocks_in_stable_order() -> None:
+    evidence = _evidence(expense_ratio_pct=2.0, missing_fields={"average_daily_volume"})
+    _set_field_observed_at(
+        evidence,
+        "market",
+        CHECKED_AT - timedelta(hours=24, microseconds=1),
+    )
+    _set_field_observed_at(
+        evidence,
+        "expense_ratio_pct",
+        CHECKED_AT + timedelta(minutes=5, microseconds=1),
+    )
+
+    with pytest.raises(ScreeningFieldFreshnessError) as raised:
+        screen_candidate_evidence(evidence)
+
+    assert raised.value.code == "field_stale"
+    assert raised.value.citation.field_name == "market"
+
+
+def test_unavailable_field_age_does_not_override_unknown_result() -> None:
+    evidence = _evidence(missing_fields={"expense_ratio_pct"})
+    _set_field_observed_at(
+        evidence,
+        "expense_ratio_pct",
+        CHECKED_AT - timedelta(days=30),
+    )
+
+    rule = screen_candidate_evidence(evidence).candidates[0].rules[3]
+
+    assert rule.verdict == ScreeningVerdict.UNKNOWN
+    assert rule.reason_code == ScreeningReason.EXPENSE_RATIO_UNKNOWN
+
+
+def test_absent_canonical_identity_provenance_is_unknown_without_document_citation() -> None:
+    evidence = _evidence()
+    _remove_field_provenance(evidence, "market")
+    _remove_field_provenance(evidence, "quote_type")
+
+    candidate = screen_candidate_evidence(evidence).candidates[0]
+
+    assert candidate.verdict == ScreeningVerdict.UNKNOWN
+    assert candidate.rules[0].reason_code == ScreeningReason.US_LISTING_UNKNOWN
+    assert candidate.rules[0].citation is None
+    assert candidate.rules[1].reason_code == ScreeningReason.ETF_TYPE_UNKNOWN
+    assert candidate.rules[1].citation is None
+
+
+@pytest.mark.parametrize("field_name", ["market", "quote_type"])
+def test_explicitly_missing_canonical_identity_remains_a_contract_error(field_name: str) -> None:
+    evidence = _evidence(missing_fields={field_name})
+
+    with pytest.raises(ScreeningContractError, match=f"{field_name} provenance conflicts"):
+        screen_candidate_evidence(evidence)
+
+
+def test_no_exclusions_ignore_unused_stale_sector_field() -> None:
+    evidence = _evidence()
+    _set_field_observed_at(
+        evidence,
+        "sector_exposures",
+        CHECKED_AT - timedelta(days=30),
+    )
+
+    rule = screen_candidate_evidence(evidence).candidates[0].rules[-1]
+
+    assert rule.reason_code == ScreeningReason.NO_SECTOR_EXCLUSIONS
+
+
+def test_requested_unsupported_exclusion_enforces_available_sector_freshness() -> None:
+    evidence = _evidence(excluded_sectors=["tobacco"])
+    _set_field_observed_at(
+        evidence,
+        "sector_exposures",
+        CHECKED_AT - timedelta(days=30),
+    )
+
+    with pytest.raises(ScreeningFieldFreshnessError) as raised:
+        screen_candidate_evidence(evidence)
+
+    assert raised.value.code == "field_stale"
+    assert raised.value.citation.field_name == "sector_exposures"
+
+
+@pytest.mark.parametrize("stale", [False, True], ids=["current", "stale"])
+@pytest.mark.parametrize(
+    "graph_status", [None, "source_error"], ids=["absent-graph", "unavailable-graph"]
+)
+def test_requested_exclusion_validates_available_sector_shape_before_freshness(
+    stale: bool,
+    graph_status: Literal["source_error"] | None,
+) -> None:
+    evidence = _evidence(excluded_sectors=["energy"])
+    candidate = evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance["sector_exposures"]["value"] = [{"bad": 1}]
+    if stale:
+        provenance["sector_exposures"]["observed_at"] = (
+            CHECKED_AT - timedelta(days=30)
+        ).isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    candidate.graph_context = (
+        None
+        if graph_status is None
+        else GraphContext(
+            source_document_id="doc-spy",
+            symbol="SPY",
+            etf_name="SPDR S&P 500 ETF Trust",
+            sector_exposures_status=graph_status,
+            sector_exposures=[],
+        )
+    )
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
+
+    with pytest.raises(
+        ScreeningContractError, match="sector exposure provenance is malformed"
+    ) as raised:
+        screen_candidate_evidence(evidence)
+
+    assert not isinstance(raised.value, ScreeningFieldFreshnessError)
 
 
 def test_average_daily_volume_uses_canonical_shares_per_day_unit() -> None:
@@ -224,6 +430,42 @@ def test_wrong_scalar_unit_blocks_screening_before_review() -> None:
         screen_candidate_evidence(evidence)
 
 
+def test_scalar_contract_violation_precedes_field_freshness() -> None:
+    evidence = _evidence()
+    provenance = json.loads(evidence.candidates[0].metadata["field_provenance_json"])
+    provenance["expense_ratio_pct"]["unit"] = "fraction"
+    provenance["expense_ratio_pct"]["observed_at"] = (CHECKED_AT - timedelta(days=30)).isoformat()
+    evidence.candidates[0].metadata["field_provenance_json"] = json.dumps(provenance)
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
+
+    with pytest.raises(ScreeningContractError, match="must use percent units") as raised:
+        screen_candidate_evidence(evidence)
+
+    assert not isinstance(raised.value, ScreeningFieldFreshnessError)
+
+
+def test_sector_contract_violation_precedes_field_freshness() -> None:
+    evidence = _evidence(excluded_sectors=["technology"], technology_weight_pct=25)
+    evidence.candidates[0].graph_context = GraphContext(
+        source_document_id="doc-spy",
+        symbol="SPY",
+        etf_name="SPDR S&P 500 ETF Trust",
+        sector_exposures_status="available",
+        sector_exposures=[SectorExposure(name="Technology", weight_pct=24)],
+    )
+    _set_field_observed_at(
+        evidence,
+        "sector_exposures",
+        CHECKED_AT - timedelta(days=30),
+    )
+
+    with pytest.raises(ScreeningContractError, match="graph sector weights conflict") as raised:
+        screen_candidate_evidence(evidence)
+
+    assert not isinstance(raised.value, ScreeningFieldFreshnessError)
+
+
 def test_out_of_range_percentage_blocks_screening_before_review() -> None:
     evidence = _evidence(expense_ratio_pct=101)
     with pytest.raises(ScreeningContractError, match="cannot exceed 100"):
@@ -238,6 +480,7 @@ def _evidence(
     average_daily_volume: float = 100_000,
     top_10_concentration_pct: float = 60.0,
     technology_weight_pct: float = 0.0,
+    future_tolerance: timedelta = timedelta(minutes=5),
 ) -> CandidateEvidenceBundle:
     missing = missing_fields or set()
     values: dict[str, Any] = {
@@ -326,4 +569,36 @@ def _evidence(
         query="screening test evidence",
         checked_at=CHECKED_AT,
         max_age=timedelta(hours=24),
+        future_tolerance=future_tolerance,
     )
+
+
+def _set_field_observed_at(
+    evidence: CandidateEvidenceBundle,
+    field_name: str,
+    observed_at: datetime,
+) -> None:
+    candidate = evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance[field_name]["observed_at"] = observed_at.isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None
+
+
+def _remove_field_provenance(evidence: CandidateEvidenceBundle, field_name: str) -> None:
+    candidate = evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    del provenance[field_name]
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    candidate.metadata.pop(f"{field_name}_status")
+    evidence.snapshot_version = None
+    evidence.snapshot_digest = None

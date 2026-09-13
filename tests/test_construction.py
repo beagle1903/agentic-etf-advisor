@@ -4,6 +4,8 @@ from typing import Any
 
 import pytest
 
+import etf_advisor.domain.construction as construction_module
+import etf_advisor.domain.screening as screening_module
 from etf_advisor.domain.construction import (
     ConstructionCheckName,
     ConstructionReason,
@@ -351,6 +353,107 @@ def test_category_provenance_must_be_current_at_the_evidence_check_time(
     assert result.status == "blocked"
     assert result.errors[0].code == ConstructionReason.EVIDENCE_NOT_READY
     assert result.draft is None
+
+
+@pytest.mark.parametrize(
+    "field_observed_at",
+    [
+        CHECKED_AT - timedelta(hours=24, microseconds=1),
+        CHECKED_AT + timedelta(minutes=5, microseconds=1),
+    ],
+)
+def test_stale_or_future_screening_field_blocks_complete_construction(
+    field_observed_at: datetime,
+) -> None:
+    inputs = _construction_input(_profile())
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance["expense_ratio_pct"]["observed_at"] = field_observed_at.isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    citation = inputs.candidate_screening.candidates[0].rules[3].citation
+    assert citation is not None
+    citation.observed_at = field_observed_at
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
+
+    result = construct_model_portfolio(inputs)
+
+    assert result.status == "blocked"
+    assert result.draft is None
+    assert result.errors[0].code == ConstructionReason.EVIDENCE_NOT_READY
+    assert len(inputs.candidate_evidence.candidates) == 5
+
+
+def test_persisted_construction_rejects_coherent_artifacts_with_stale_field_evidence() -> None:
+    inputs = _construction_input(_profile())
+    persisted = construct_model_portfolio(inputs)
+    assert persisted.status == "ready"
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance["average_daily_volume"]["observed_at"] = (
+        CHECKED_AT - timedelta(days=30)
+    ).isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    citation = inputs.candidate_screening.candidates[0].rules[4].citation
+    assert citation is not None
+    citation.observed_at = CHECKED_AT - timedelta(days=30)
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
+
+    result = validate_persisted_construction(inputs, persisted)
+
+    assert result.status == "blocked"
+    assert result.draft is None
+    assert result.errors[0].code == ConstructionReason.PERSISTED_CONSTRUCTION_MISMATCH
+
+
+def test_coherent_pre_fix_screening_would_accept_stale_field(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    inputs = _construction_input(_profile())
+    stale_at = CHECKED_AT - timedelta(hours=24, microseconds=1)
+    candidate = inputs.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    provenance["expense_ratio_pct"]["observed_at"] = stale_at.isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    citation = inputs.candidate_screening.candidates[0].rules[3].citation
+    assert citation is not None
+    citation.observed_at = stale_at
+    inputs.candidate_evidence.snapshot_version = None
+    inputs.candidate_evidence.snapshot_digest = None
+
+    with monkeypatch.context() as legacy:
+        legacy.setattr(
+            screening_module,
+            "_ensure_available_field_current",
+            lambda *_args, **_kwargs: None,
+        )
+        legacy.setattr(
+            construction_module,
+            "screen_candidate_evidence",
+            screening_module.screen_candidate_evidence,
+        )
+        assert (
+            screening_module.screen_candidate_evidence(inputs.candidate_evidence)
+            == inputs.candidate_screening
+        )
+        assert construction_module.construct_model_portfolio(inputs).status == "ready"
+
+    blocked = construct_model_portfolio(inputs)
+    assert blocked.status == "blocked"
+    assert blocked.errors[0].code == ConstructionReason.EVIDENCE_NOT_READY
 
 
 def test_candidate_pool_is_bounded_before_subset_enumeration() -> None:
