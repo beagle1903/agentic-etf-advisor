@@ -1,7 +1,7 @@
 # Issue 47: Field-level screening freshness design
 
-- Status: DESIGN_READY; awaiting user approval.
-- Implementation authorization: Pending. This document does not authorize implementation.
+- Status: DESIGN_READY; approved by the user on 2026-09-13.
+- Implementation authorization: User approved this handoff with "ok approved" in the coordinating task.
 - Prepared: 2026-09-13.
 - Issue: https://github.com/beagle1903/agentic-etf-advisor/issues/47
 - Baseline: `b82bc9d8a9fefd8da10ed64f4c944fc0149f47d1`.
@@ -219,8 +219,9 @@ or source prose, or prove real provider/database behavior.
 
 - Design validation: `.venv/Scripts/python.exe -B scripts/validate_codex_workflow.py` passed;
   staged `git diff --cached --check` passed. Only this design document is included in delivery.
-- User approval: Pending.
-- Implementation session: Not started.
+- User approval: 2026-09-13, "ok approved", coordinating task `01a096c2-24f2-7601-95b7-43f88c18541a`.
+- Implementation session: Selected `implementation_specialist`, GPT-5.6 Sol/high, for the approved
+  cross-cutting scope; starts after this approval record. No escalation or exception.
 - Implementation tests and acceptance: Not run.
 
 DESIGN_READY
