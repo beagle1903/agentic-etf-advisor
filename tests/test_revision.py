@@ -2,7 +2,7 @@
 
 import json
 from copy import deepcopy
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
@@ -20,13 +20,14 @@ from etf_advisor.domain.revision import (
     CLASSES,
     STAGES,
     ReviewDecision,
+    RevisionLedger,
     digest,
     plan_revision,
 )
 from etf_advisor.explanation import ExplanationGenerationError, ExplanationResult
-from etf_advisor.graph.revision import _sealed_values, validate_revision_state
+from etf_advisor.graph.revision import _sealed_values, operation_digest, validate_revision_state
 from etf_advisor.graph.workflow import build_graph
-from etf_advisor.rag.evidence import EvidenceRetrievalError
+from etf_advisor.rag.evidence import CandidateEvidenceBundle, EvidenceRetrievalError
 
 FEEDBACK = [
     {"kind": "profile", "patch": {"initial_investment_usd": 60_000}},
@@ -65,6 +66,58 @@ class Adapters:
         return ExplanationResult(
             provider="test", model="fixed", explanation=_valid_generated_explanation()
         )
+
+
+def _replace_with_coherent_stale_field_state(state: dict[str, Any]) -> None:
+    evidence_payload = deepcopy(state["candidate_evidence"])
+    candidate = evidence_payload["candidates"][0]
+    provenance = json.loads(candidate["metadata"]["field_provenance_json"])
+    checked_at = datetime.fromisoformat(evidence_payload["checked_at"].replace("Z", "+00:00"))
+    stale_at = checked_at - timedelta(hours=24, microseconds=1)
+    provenance["expense_ratio_pct"]["observed_at"] = stale_at.isoformat()
+    candidate["metadata"]["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    evidence_payload["snapshot_version"] = None
+    evidence_payload["snapshot_digest"] = None
+    evidence_payload = CandidateEvidenceBundle.model_validate(evidence_payload).model_dump(
+        mode="json"
+    )
+    state["candidate_evidence"] = evidence_payload
+    screening_payload = deepcopy(state["candidate_screening"])
+    screening_payload["candidates"][0]["rules"][3]["citation"]["observed_at"] = stale_at.isoformat()
+    state["candidate_screening"] = screening_payload
+
+    raw_ledger = state["revision_ledger"]
+    revision = raw_ledger["revisions"][-1]
+    evidence_id = revision["artifacts"]["candidate_evidence"]
+    evidence_digest = digest(evidence_payload)
+    raw_ledger["artifacts"][evidence_id]["value"] = evidence_payload
+    raw_ledger["artifacts"][evidence_id]["digest"] = evidence_digest
+    screening_id = revision["artifacts"]["candidate_screening"]
+    raw_ledger["artifacts"][screening_id]["value"] = screening_payload
+    raw_ledger["artifacts"][screening_id]["digest"] = digest(screening_payload)
+    retrieval_receipt = next(
+        receipt
+        for receipt in revision["receipts"]
+        if receipt["stage"] == "retrieve_candidate_evidence"
+    )
+    retrieval_receipt["output_digest"] = evidence_digest
+
+    ledger = RevisionLedger.model_validate(raw_ledger)
+    current = ledger.revisions[-1]
+    explanation_receipt = next(
+        receipt for receipt in current.receipts if receipt.stage == "draft_explanation"
+    )
+    explanation_receipt.input_digest = operation_digest(
+        ledger,
+        current,
+        "draft_explanation",
+    )
+    state["revision_ledger"] = ledger.model_dump(mode="json", exclude_none=True)
+    state["revision_digest"] = digest(_sealed_values(state))
 
 
 def start(*, evidence: bool = True, explanation: bool = True) -> tuple[Any, Any, Any, Any, Any]:
@@ -211,7 +264,11 @@ def test_disabled_stage_feedback_is_rejected(index: int) -> None:
 
 @pytest.mark.parametrize("stage", ["retrieve_candidate_evidence", "draft_explanation"])
 def test_successful_receipt_reuse_after_new_runtime_has_zero_adapter_calls(stage: str) -> None:
-    _graph, config, _state, adapters, saver = start()
+    _graph, config, state, adapters, saver = start()
+    before = validate_revision_state(state)
+    before_revision = before.revisions[-1]
+    before_artifacts = dict(before_revision.artifacts)
+    before_operations = dict(before_revision.operations)
     restored = build_graph(
         checkpointer=saver, candidate_retriever=adapters, explanation_generator=adapters
     )
@@ -220,7 +277,40 @@ def test_successful_receipt_reuse_after_new_runtime_has_zero_adapter_calls(stage
     result = restored.invoke(None, config)
     assert result["status"] == "awaiting_human_review"
     assert adapters.retrieval_calls == adapters.provider_calls == 1
-    validate_revision_state(result)
+    after = validate_revision_state(result).revisions[-1]
+    assert after.artifacts == before_artifacts
+    assert after.operations == before_operations
+
+
+@pytest.mark.parametrize(
+    "as_node",
+    ["prepare_draft_explanation", "draft_explanation"],
+    ids=["explanation-output-reuse", "review"],
+)
+def test_coherent_stale_field_restore_blocks_semantically_without_adapter_calls(
+    as_node: str,
+) -> None:
+    graph, config, _state, adapters, saver = start()
+    altered = deepcopy(dict(graph.get_state(config).values))
+    _replace_with_coherent_stale_field_state(altered)
+    validate_revision_state(altered)
+    graph.update_state(config, altered, as_node=as_node)
+    restored = build_graph(
+        checkpointer=saver,
+        candidate_retriever=adapters,
+        explanation_generator=adapters,
+    )
+
+    result = restored.invoke(None, config)
+
+    assert result["status"] == "revision_blocked"
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+    provenance = json.loads(
+        altered["candidate_evidence"]["candidates"][0]["metadata"]["field_provenance_json"]
+    )
+    assert provenance["expense_ratio_pct"]["value"] == 0.1
+    assert altered["candidate_screening"]["status"] == "ready"
+    assert altered["portfolio_construction"]["status"] == "ready"
 
 
 @pytest.mark.parametrize("stage", ["retrieve_candidate_evidence", "draft_explanation"])

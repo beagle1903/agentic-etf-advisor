@@ -17,6 +17,7 @@ from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import (
     CandidateScreeningBundle,
     CandidateScreeningPolicy,
+    ScreeningFieldFreshnessError,
     screen_candidate_evidence,
 )
 from etf_advisor.explanation import (
@@ -163,6 +164,20 @@ def screen_candidates(
         evidence = CandidateEvidenceBundle.model_validate(state["candidate_evidence"])
         screening = screen_candidate_evidence(evidence, policy)
         validated = CandidateScreeningBundle.model_validate(screening.model_dump(mode="python"))
+    except ScreeningFieldFreshnessError as exc:
+        return {
+            "candidate_screening": {},
+            "screening_errors": [
+                {
+                    "type": "screening_contract",
+                    "message": str(exc),
+                    "code": exc.code,
+                    "citation": exc.citation.model_dump(mode="json"),
+                    "checked_at": exc.checked_at.isoformat(),
+                }
+            ],
+            "status": "screening_blocked",
+        }
     except (KeyError, AttributeError, TypeError, ValueError, ValidationError):
         message = "Candidate screening failed source or policy contract validation."
         return {

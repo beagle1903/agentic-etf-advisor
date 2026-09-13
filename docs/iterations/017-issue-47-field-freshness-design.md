@@ -158,24 +158,25 @@ reuse preserve identities and do not call adapters again.
 
 ## Acceptance criteria and focused verification
 
-- [ ] Parameterize market, quote type, fee, volume, concentration, and requested sector exposure
+- [x] Parameterize market, quote type, fee, volume, concentration, and requested sector exposure
   across current, exact-age, one microsecond stale, exact-future-tolerance, and one microsecond
   beyond-tolerance observations. Assert stable codes and exact field citations.
-- [ ] Cover zero future tolerance and timezone-equivalent observations.
-- [ ] Keep document, category, and other fields current while one consumed field is stale/future.
+- [x] Cover zero future tolerance and timezone-equivalent observations.
+- [x] Keep document, category, and other fields current while one consumed field is stale/future.
   Confirm whole-operation blocking even if another rule/candidate fails or is unknown.
-- [ ] Preserve threshold results, missing scalar/sector behavior, #48 source-error handling,
+- [x] Preserve threshold results, missing scalar/sector behavior, #48 source-error handling,
   explicit zero exposure, unsupported exclusions, and valid-current JSON round trips.
-- [ ] Absent canonical identity is unknown; canonical identity contradictions still block.
-- [ ] No-exclusion flows ignore unused sector age; requested exclusions enforce it.
-- [ ] Direct construction given formerly passing screening plus stale-field evidence returns
+- [x] Absent canonical identity is unknown; canonical identity contradictions still block.
+- [x] No-exclusion flows ignore unused sector age; requested exclusions validate available sector
+  shape before freshness and enforce freshness even with absent or unavailable graph context.
+- [x] Direct construction given formerly passing screening plus stale-field evidence returns
   blocked `evidence_not_ready`, even when unaffected candidates could form a portfolio.
-- [ ] Replacement retrievers with current document health and stale/future fields, including
+- [x] Replacement retrievers with current document health and stale/future fields, including
   unvalidated model construction, reach no explanation call and no human-review interrupt.
-- [ ] Direct explanation requests, persisted dashboard/interrupt validation, and revision
+- [x] Direct explanation requests, persisted dashboard/interrupt validation, and revision
   review/reuse reject internally coherent formerly accepted artifacts. Prove field validation,
   not merely a digest mismatch.
-- [ ] Valid-current restore/reuse preserves IDs and makes zero additional external calls.
+- [x] Valid-current restore/reuse preserves IDs and makes zero additional external calls.
 
 Expected focused files: `tests/test_screening.py`, `tests/test_construction.py`,
 `tests/test_workflow.py`, `tests/test_evidence.py`, `tests/test_explanation.py`,
@@ -222,6 +223,27 @@ or source prose, or prove real provider/database behavior.
 - User approval: 2026-09-13, "ok approved", coordinating task `01a096c2-24f2-7601-95b7-43f88c18541a`.
 - Implementation session: Selected `implementation_specialist`, GPT-5.6 Sol/high, for the approved
   cross-cutting scope; starts after this approval record. No escalation or exception.
-- Implementation tests and acceptance: Not run.
+- Review session: `/root/issue47_review`, `code_reviewer`, GPT-5.6 Sol/high, ran after implementation.
+  It found missing available-sector shape validation when graph context is unavailable and
+  inconsistent historical screening citations in restore-test fixtures. The coordinator routed
+  both back to a separate sequential `implementation_specialist` session with the same model and
+  effort. These corrections implement the existing approved shape-precedence and coherent-artifact
+  acceptance criteria; no architectural scope expansion or workflow exception is authorized.
+- Review recheck: The separate sequential `code_reviewer` session confirmed both findings resolved
+  and returned no remaining findings. It reproduced the corrected sector contract error and
+  inspected coherent screening citations and revision seals; full-suite evidence remains the
+  implementation session's result below.
+- Implementation tests and acceptance: Final remediation verification completed locally at
+  `2026-09-13T17:43:13Z`. The focused seven-file suite passed **310 tests** in 63.39 seconds, including
+  available-sector shape precedence with absent and unavailable graph context, coherently resealed
+  revision review/reuse artifacts, and a bounded former-behavior seam proving that construction
+  accepted the coherent stale artifact before the new freshness check. The complete offline suite
+  passed **731 tests** in 155.42 seconds. `uv sync --frozen --all-extras`, the Codex workflow
+  validator, Ruff lint, Ruff format check (124 files), strict mypy (46 source files), both offline
+  evaluations, `uv build`, `docker compose config --quiet`, and `git diff --check` passed. Retrieval
+  retained perfect attribution and exact graph-sector constraint matching without a ranking change;
+  all eight explanation decisions matched expectations. Tests used fixed data, injected
+  clocks/adapters, and in-memory checkpoints. No live provider, market-data, database, trade, or
+  external financial-write operation was invoked.
 
 DESIGN_READY

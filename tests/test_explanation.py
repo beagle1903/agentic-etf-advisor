@@ -183,6 +183,38 @@ def _construction_source(
     )
 
 
+def test_explanation_request_rejects_coherent_prior_artifacts_with_stale_field_evidence() -> None:
+    request = _request()
+    candidate = request.candidate_evidence.candidates[0]
+    provenance = json.loads(candidate.metadata["field_provenance_json"])
+    stale_at = request.candidate_evidence.checked_at - timedelta(days=30)
+    provenance["top_10_concentration_pct"]["observed_at"] = stale_at.isoformat()
+    candidate.metadata["field_provenance_json"] = json.dumps(
+        provenance,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    citation = request.candidate_screening.candidates[0].rules[5].citation
+    assert citation is not None
+    citation.observed_at = stale_at
+    request.candidate_evidence.snapshot_version = None
+    request.candidate_evidence.snapshot_digest = None
+    payload = request.model_dump(mode="python")
+
+    with pytest.raises(
+        ValidationError,
+        match="deterministically revalidated portfolio construction",
+    ):
+        ExplanationRequest.model_validate(payload)
+
+    stale_field = json.loads(
+        payload["candidate_evidence"]["candidates"][0]["metadata"]["field_provenance_json"]
+    )["top_10_concentration_pct"]
+    assert stale_field["value"] == 40.0
+    assert payload["candidate_screening"]["status"] == "ready"
+    assert payload["portfolio_construction"]["status"] == "ready"
+
+
 def _generated() -> GeneratedExplanation:
     return GeneratedExplanation(
         summary=GroundedStatement(

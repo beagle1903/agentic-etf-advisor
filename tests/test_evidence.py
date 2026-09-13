@@ -1,6 +1,6 @@
 import json
 from datetime import UTC, datetime, timedelta
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import pytest
 from pydantic import ValidationError
@@ -16,6 +16,7 @@ from etf_advisor.rag.evidence import (
     select_candidate_evidence,
 )
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, SectorExposure
+from etf_advisor.research.models import ResearchField
 
 CHECKED_AT = datetime(2026, 8, 28, 12, 0, tzinfo=UTC)
 
@@ -106,6 +107,38 @@ def test_current_sources_become_ranked_json_safe_evidence() -> None:
     assert results.health.healthy is True
     assert any("sector exclusions" in warning.lower() for warning in results.warnings)
     json.dumps(results.model_dump(mode="json"))
+
+
+def test_document_health_remains_distinct_from_consumed_field_freshness() -> None:
+    current_source = source("SPY")
+    field = ResearchField[Any](
+        value=0.03,
+        unit="percent",
+        provider="yahoo_finance",
+        source_url="https://finance.yahoo.com/quote/SPY/",
+        observed_at=CHECKED_AT - timedelta(hours=24, microseconds=1),
+        ingested_at=CHECKED_AT,
+        snapshot_version="field-freshness-test-v1",
+    )
+    current_source.metadata["expense_ratio_pct_status"] = "available"
+    current_source.metadata["field_provenance_json"] = json.dumps(
+        {"expense_ratio_pct": field.model_dump(mode="json")},
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+    evidence = select_candidate_evidence(
+        profile(),
+        [current_source],
+        query="field freshness boundary",
+        checked_at=CHECKED_AT,
+        max_age=timedelta(hours=24),
+    )
+
+    assert evidence.status == EvidenceStatus.READY
+    assert evidence.health.healthy is True
+    assert evidence.candidates[0].observed_at == CHECKED_AT - timedelta(hours=1)
+    assert CandidateEvidenceBundle.model_validate(evidence.model_dump(mode="python")) == evidence
 
 
 def test_stale_source_blocks_review_evidence_and_retains_health_details() -> None:

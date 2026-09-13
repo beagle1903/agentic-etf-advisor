@@ -555,7 +555,10 @@ def test_screening_renderer_shows_comparison_reasons_and_source_links() -> None:
             "Symbol": "SPY",
             "Result": "unknown",
             "Failed rules": "—",
-            "Unknown rules": ("expense_ratio_unknown, volume_unknown, concentration_unknown"),
+            "Unknown rules": (
+                "us_listing_unknown, etf_type_unknown, expense_ratio_unknown, volume_unknown, "
+                "concentration_unknown"
+            ),
         }
     ]
     assert st.links
@@ -577,6 +580,36 @@ def test_review_payload_recomputes_screening_from_evidence() -> None:
 
     with pytest.raises(ValueError, match="failed contract validation"):
         review_payload(state)
+
+
+def test_review_payload_rejects_coherent_prior_artifacts_with_stale_field_evidence() -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    stale_at = datetime(2026, 8, 27, 11, 59, 59, 999999, tzinfo=UTC)
+    for evidence in (
+        state["candidate_evidence"],
+        state["__interrupt__"][0].value["candidate_evidence"],
+    ):
+        candidate = evidence["candidates"][0]
+        provenance = json.loads(candidate["metadata"]["field_provenance_json"])
+        provenance["expense_ratio_pct"]["observed_at"] = stale_at.isoformat()
+        candidate["metadata"]["field_provenance_json"] = json.dumps(
+            provenance,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        evidence["snapshot_version"] = None
+        evidence["snapshot_digest"] = None
+    for screening in (
+        state["candidate_screening"],
+        state["__interrupt__"][0].value["candidate_screening"],
+    ):
+        screening["candidates"][0]["rules"][3]["citation"]["observed_at"] = stale_at.isoformat()
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+    assert state["candidate_screening"]["status"] == "ready"
+    assert state["portfolio_construction"]["status"] == "ready"
 
 
 def test_review_payload_requires_explanation_to_have_evidence() -> None:
