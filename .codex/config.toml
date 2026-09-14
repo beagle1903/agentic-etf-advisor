@@ -7,11 +7,11 @@ description = "Read-only architect for consequential contracts, architecture, an
 config_file = "agents/design-architect.toml"
 
 [agents.bounded_worker]
-description = "Bounded worker for approved mechanical changes, unit tests, and straightforward review fixes."
+description = "Bounded worker owning authorized mechanical work from design capsule through verification."
 config_file = "agents/bounded-worker.toml"
 
 [agents.implementation_worker]
-description = "Implementation worker for approved normal engineering and routine CI/CD work."
+description = "Implementation worker owning authorized ordinary work from design capsule through verification."
 config_file = "agents/implementation-worker.toml"
 
 [agents.code_reviewer]

@@ -50,8 +50,8 @@ def main() -> None:
         "agents/bounded-worker.toml": {
             "name": "bounded_worker",
             "description": (
-                "Bounded worker for approved mechanical changes, unit tests, and "
-                "straightforward review fixes."
+                "Bounded worker owning authorized mechanical work from design capsule "
+                "through verification."
             ),
             "model": "gpt-5.6-terra",
             "model_reasoning_effort": "medium",
@@ -60,7 +60,8 @@ def main() -> None:
         "agents/implementation-worker.toml": {
             "name": "implementation_worker",
             "description": (
-                "Implementation worker for approved normal engineering and routine CI/CD work."
+                "Implementation worker owning authorized ordinary work from design capsule "
+                "through verification."
             ),
             "model": "gpt-5.6-sol",
             "model_reasoning_effort": "medium",
@@ -159,15 +160,17 @@ def main() -> None:
             ("Do not edit source", "execute mutating commands")
             if expectations["sandbox_mode"] == "read-only"
             else (
-                "recorded approved DESIGN_READY",
-                "stop and report the missing gate",
-                "Implement only the approved scope",
+                "DESIGN_READY",
+                "Consequential financial",
+                "coordinator approval",
+                "stop and report",
                 "focused tests",
                 "verification gates",
             )
         )
         role_markers = {
             "planning_analyst": (
+                "not a routine prerequisite",
                 "low-risk solution fully determined by existing architecture",
                 "consequential contracts require design_architect",
                 "code_reviewer",
@@ -180,20 +183,35 @@ def main() -> None:
                 "records and approves",
             ),
             "code_reviewer": (
-                "do not issue a design gate or independently authorize",
+                "high-risk or disputed output",
+                (
+                    "do not issue a design gate or independently authorize implementation "
+                    "or contract changes"
+                ),
                 "design_architect",
             ),
             "bounded_worker": (
-                "approved mechanical changes",
+                "mechanical, low-risk",
+                "same session",
+                "capsule must precede edits",
+                "self-review",
+                "multiple files or unfamiliarity alone are not sufficient",
                 "implementation_specialist",
                 "design_architect",
             ),
             "implementation_worker": (
+                "authorized ordinary work",
+                "same session",
+                "capsule must precede edits",
+                "self-review",
                 "routine CI/CD",
+                "multiple files, integration tests, or unfamiliarity",
                 "implementation_specialist",
                 "design_architect",
             ),
             "implementation_specialist": (
+                "recorded escalation trigger",
+                "Multiple files, integration tests, or unfamiliarity alone",
                 "Distributed systems, nondeterminism",
                 "design_architect",
             ),
@@ -216,19 +234,35 @@ def main() -> None:
             "code_reviewer",
             "implementation_specialist",
             "separate sequential session",
-            "detailed task matrix is authoritative",
+            "classification table is authoritative",
             "DESIGN_READY",
             "gpt-6-astra",
-            "Design phase",
-            "Implementation phase",
+            "Classify by impact",
+            "Complete routine work in one session",
+            "Escalate from evidence",
+            "Record the design capsule",
+            "before implementation edits",
+            "only a separate read-only `design_architect` session",
+            "Review findings cannot authorize implementation or contract changes",
+            "Multiple files, integration tests, or unfamiliarity alone do not require escalation",
         ),
     )
     require_markers(
         ROOT / ".github/PULL_REQUEST_TEMPLATE.md",
         (
+            "Classification:",
             "Design handoff",
-            "Approval:",
-            "role / model / effort",
+            "Authorization:",
+            "Owner role / model / effort",
+            "Separate architect approval:",
+            "Routine work used one owner session",
+            "Consequential work had a separate `design_architect` handoff",
+            "Self-review and focused tests",
+            "reviewer findings did not authorize changes",
+            "Static workflow validation:",
+            "Live-session provenance:",
+            "Codex CLI compatibility:",
+            "Measured quota savings:",
             "Escalations:",
             "DESIGN_READY",
             "separate sequential session",
@@ -242,6 +276,10 @@ def main() -> None:
             "implementation_specialist",
             "separate sequential session",
             "actual routing evidence",
+            "one authorized session",
+            "before implementation edits",
+            "Review findings cannot authorize implementation or contract changes",
+            "multiple files, integration tests, or unfamiliarity alone are insufficient",
         ),
     )
     for template_name in (
@@ -254,12 +292,22 @@ def main() -> None:
             ROOT / ".github/ISSUE_TEMPLATE" / template_name,
             (
                 "execution-workflow",
+                "Classification:",
+                "Owner role / model / effort:",
+                "User authorization:",
                 "Design handoff:",
-                "Approval:",
-                "role / model / effort",
+                "Capsule:",
+                "Routine execution: one owner session",
+                (
+                    "Consequential approval: separate design_architect handoff and "
+                    "coordinator approval"
+                ),
+                "Independent review: high-risk/disputed trigger and findings",
                 "Escalations:",
                 "DESIGN_READY",
                 "separate sequential session",
+                "capsule precedes implementation edits",
+                "reviewer findings do not authorize changes",
             ),
         )
     print("Codex ticket workflow configuration is valid.")

@@ -78,15 +78,17 @@ body:
     id: execution-workflow
     attributes:
       label: Codex execution workflow
-      description: Follow AGENTS.md risk-based routing. Record actual selections and update evidence as phases finish.
+      description: Classify by impact, record the capsule before edits, and keep routine work with one owner session.
       value: |
-        Design handoff: recorded DESIGN_READY link, or pending
-        Approval: approver and approval link, or pending
-        Design role / model / effort: selection and rationale
-        Implementation role / model / effort: selection and rationale, or pending
-        Review role / model / effort: selection and rationale, or not used
-        Escalations: reason and separate sequential session evidence, or none
-        Architectural ambiguity: return to design_architect before remediation
-        Gate: no write-capable role starts before recorded approved DESIGN_READY
+        Classification: mechanical, ordinary, consequential, high-risk/disputed, or difficult
+        Owner role / model / effort: selection and rationale
+        User authorization: evidence
+        Design handoff: recorded DESIGN_READY capsule link, or pending
+        Capsule: scope/non-goals; invariants/interfaces; JSON/state impact; acceptance and focused verification; documentation; risks/triggers
+        Routine execution: one owner session from capsule through focused tests, self-review, and verification
+        Consequential approval: separate design_architect handoff and coordinator approval, or not required
+        Independent review: high-risk/disputed trigger and findings, or not used
+        Escalations: concrete evidence and fresh separate sequential session, or none
+        Gate: capsule precedes implementation edits; reviewer findings do not authorize changes
     validations:
       required: true

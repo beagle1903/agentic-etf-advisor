@@ -204,7 +204,7 @@ def test_instruction_boundaries(repository: Path, role: str, damage: str) -> Non
             else (
                 "Do not edit source"
                 if role in {"planning-analyst", "design-architect", "code-reviewer"}
-                else "recorded approved DESIGN_READY"
+                else "DESIGN_READY"
             )
         )
         replace(path, marker, "removed")
@@ -285,4 +285,47 @@ def test_unreadable_document(repository: Path, damage: str) -> None:
 )
 def test_routing_evidence_marker(repository: Path, relative: str) -> None:
     replace(repository / relative, "separate sequential session", "removed")
+    reject(repository, "missing required workflow markers")
+
+
+def test_routine_session_permission_required(repository: Path) -> None:
+    replace(repository / "AGENTS.md", "Complete routine work in one session", "removed")
+    reject(repository, "missing required workflow markers")
+
+
+def test_capsule_ordering_required(repository: Path) -> None:
+    replace(repository / "AGENTS.md", "Record the design capsule", "removed")
+    reject(repository, "missing required workflow markers")
+
+
+@pytest.mark.parametrize(
+    "role", ["bounded-worker", "implementation-worker", "implementation-specialist"]
+)
+def test_consequential_gate_required_for_every_write_role(repository: Path, role: str) -> None:
+    path = repository / f".codex/agents/{role}.toml"
+    replace(
+        path,
+        "Consequential financial",
+        "removed",
+    )
+    reject(repository, "missing instruction boundaries")
+
+
+def test_reviewer_cannot_authorize_contract_changes(repository: Path) -> None:
+    path = repository / ".codex/agents/code-reviewer.toml"
+    replace(
+        path,
+        "do not issue a design gate or independently authorize implementation or contract changes",
+        "removed",
+    )
+    reject(repository, "missing instruction boundaries")
+
+
+def test_classification_marker_required(repository: Path) -> None:
+    replace(repository / ".github/PULL_REQUEST_TEMPLATE.md", "Classification:", "removed")
+    reject(repository, "missing required workflow markers")
+
+
+def test_escalation_evidence_marker_required(repository: Path) -> None:
+    replace(repository / "AGENTS.md", "Escalate from evidence", "removed")
     reject(repository, "missing required workflow markers")

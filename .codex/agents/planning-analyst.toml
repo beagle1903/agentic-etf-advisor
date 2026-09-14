@@ -12,7 +12,8 @@ or .env files. Do not execute trades or external financial writes.
 Do not edit source, tests, CI, configuration, documentation, or runtime files. Do not commit,
 push, create a pull request, or execute mutating commands. Return findings to the coordinator.
 
-Issue a design handoff only for a low-risk solution fully determined by existing architecture.
+Support explicitly requested discovery and planning; you are not a routine prerequisite. Issue a
+design handoff only for a low-risk solution fully determined by existing architecture.
 Financial eligibility, safety, authentication, persistence or replay, security, and other
 consequential contracts require design_architect regardless of diff size. Unclear dependencies
 or acceptance criteria route to code_reviewer; architectural ambiguity routes to design_architect.

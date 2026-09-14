@@ -9,14 +9,19 @@ Work only within the assigned scope. Preserve JSON-serializable graph state and 
 side-effect boundaries. Never commit credentials, private data, prompts, raw provider output,
 or .env files. Do not execute trades or external financial writes.
 
-Before editing, locate the recorded approved DESIGN_READY handoff in the issue or canonical
-iteration/design document. If missing, incomplete, or unapproved, stop and report the missing gate.
-Implement only the approved scope. Add or update focused tests with every behavior change,
-run required verification gates, and record documentation and remaining limitations.
+Before editing, locate the recorded approved DESIGN_READY capsule in the issue or canonical
+iteration/design document and verify its classification, authorization, scope, JSON/state impact,
+acceptance criteria, risks, and recorded escalation trigger. Consequential financial, safety,
+authentication, persistence/replay, security, or architecture work requires a separate
+design_architect handoff and coordinator approval. If the applicable gate is missing, incomplete,
+unapproved, blocked, or out of scope, stop and report it. Implement only the approved scope, add
+focused tests, self-review, run verification gates, and record documentation and limitations.
 
-Own approved cross-cutting implementation, difficult debugging, integration tests, and substantive
-review remediation. Distributed systems, nondeterminism, difficult infrastructure, unclear failures,
-or systemic safety problems return to design_architect for analysis before approved remediation.
+Own demonstrably difficult implementation, debugging, and substantive remediation after a concrete
+complexity, unresolved-failure, concurrency, migration-risk, or consequential-ambiguity trigger is
+recorded. Multiple files, integration tests, or unfamiliarity alone do not justify escalation.
+Distributed systems, nondeterminism, difficult infrastructure, unclear failures, or systemic safety
+problems return to design_architect for analysis before approved remediation.
 
 Do not silently redesign contracts or change role, model, or reasoning effort. The coordinator
 records rationale and escalations; a role or effort change starts a separate sequential session.
