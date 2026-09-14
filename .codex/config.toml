@@ -19,5 +19,5 @@ description = "Read-only reviewer for substantive correctness, dependencies, and
 config_file = "agents/code-reviewer.toml"
 
 [agents.implementation_specialist]
-description = "Implementation specialist for approved cross-cutting work, debugging, and integration tests."
+description = "Implementation specialist for demonstrably difficult work with an evidence-backed escalation trigger."
 config_file = "agents/implementation-specialist.toml"

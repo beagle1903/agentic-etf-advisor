@@ -80,8 +80,8 @@ def main() -> None:
         "agents/implementation-specialist.toml": {
             "name": "implementation_specialist",
             "description": (
-                "Implementation specialist for approved cross-cutting work, "
-                "debugging, and integration tests."
+                "Implementation specialist for demonstrably difficult work with an evidence-backed "
+                "escalation trigger."
             ),
             "model": "gpt-5.6-sol",
             "model_reasoning_effort": "high",
@@ -173,6 +173,8 @@ def main() -> None:
                 "not a routine prerequisite",
                 "low-risk solution fully determined by existing architecture",
                 "consequential contracts require design_architect",
+                "High-risk or disputed",
+                "output may add code_reviewer with a recorded trigger",
                 "code_reviewer",
                 "DESIGN_BLOCKED",
                 "records and approves",

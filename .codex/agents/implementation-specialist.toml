@@ -1,5 +1,5 @@
 name = "implementation_specialist"
-description = "Implementation specialist for approved cross-cutting work, debugging, and integration tests."
+description = "Implementation specialist for demonstrably difficult work with an evidence-backed escalation trigger."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

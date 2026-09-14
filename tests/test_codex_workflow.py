@@ -329,3 +329,29 @@ def test_classification_marker_required(repository: Path) -> None:
 def test_escalation_evidence_marker_required(repository: Path) -> None:
     replace(repository / "AGENTS.md", "Escalate from evidence", "removed")
     reject(repository, "missing required workflow markers")
+
+
+def test_specialist_registration_rejects_routine_cross_cutting_ownership(
+    repository: Path,
+) -> None:
+    current = (
+        "Implementation specialist for demonstrably difficult work with an evidence-backed "
+        "escalation trigger."
+    )
+    stale = (
+        "Implementation specialist for approved cross-cutting work, debugging, and integration "
+        "tests."
+    )
+    replace(repository / ".codex/config.toml", current, stale)
+    replace(repository / ".codex/agents/implementation-specialist.toml", current, stale)
+    reject(repository, "description must be")
+
+
+def test_planning_analyst_rejects_unconditional_reviewer_route(repository: Path) -> None:
+    path = repository / ".codex/agents/planning-analyst.toml"
+    replace(
+        path,
+        "High-risk or disputed\noutput may add code_reviewer with a recorded trigger",
+        "Unclear dependencies\nor acceptance criteria route to code_reviewer",
+    )
+    reject(repository, "missing instruction boundaries")
