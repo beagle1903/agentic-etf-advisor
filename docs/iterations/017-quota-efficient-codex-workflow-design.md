@@ -120,4 +120,3 @@ effort under the pre-migration workflow. The coordinator approved it based on th
 2026-09-14 implementation authorization. Implementation uses a fresh `implementation_worker`
 session with `gpt-5.6-sol` at medium effort. The pre-existing deletion of
 `.cursor/rules/project-quality.mdc` is unrelated and must remain untouched and outside delivery.
-
