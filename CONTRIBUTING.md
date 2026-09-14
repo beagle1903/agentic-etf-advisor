@@ -16,18 +16,22 @@ architecture, execution, and verification knowledge.
 
 ## Codex ticket routing
 
-Use the authoritative risk-based task matrix in `AGENTS.md` and ADR 0020. Select actual role,
-model, effort, and rationale for each separate sequential session. Low-risk architecture-determined
-design may use `planning_analyst`; consequential contracts require `design_architect`.
-Unclear dependencies or acceptance criteria route to `code_reviewer`; architectural ambiguity
-returns to `design_architect`. Reviews return findings and cannot authorize implementation.
+Use the authoritative classification contract in `AGENTS.md` and ADR 0022. Record the work's
+classification, actual role/model/effort, rationale, authorization, and escalation triggers.
+Mechanical work uses `bounded_worker`; ordinary work within established contracts uses
+`implementation_worker`. In one authorized session, that owner may record the complete
+`DESIGN_READY` capsule before implementation edits, implement, add focused tests, self-review,
+run verification gates, and document limitations. `planning_analyst` remains available for
+explicit discovery or planning and is not a routine prerequisite.
 
-A recorded, approved `DESIGN_READY` handoff is required before any write-capable role starts.
-Normal implementation uses `implementation_worker`; mechanical work uses `bounded_worker`;
-complex implementation, integration tests, and substantive remediation use
-`implementation_specialist`. Record escalations and start a separate sequential session for
-role or effort changes. The PR links the handoff, approval, actual routing evidence, and any
-explicitly approved one-off exception.
+Consequential financial, safety, authentication, persistence/replay, security, or architecture
+contracts require a separate `design_architect` handoff and coordinator approval before any
+write-capable role starts. Review findings cannot authorize implementation or contract changes.
+Add `code_reviewer` only for high-risk or disputed output. Use `implementation_specialist` only
+for concrete complexity, unresolved failure, concurrency, migration risk, or consequential
+ambiguity; multiple files, integration tests, or unfamiliarity alone are insufficient. Record
+the evidence and start a fresh separate sequential session for any escalation or role/effort
+change. The PR links the capsule, approval, actual routing evidence, and any exception.
 
 The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
 no-project-model-override, and no-concurrency-scalar compatibility policy still applies.

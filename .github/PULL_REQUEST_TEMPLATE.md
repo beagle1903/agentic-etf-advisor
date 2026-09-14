@@ -8,18 +8,22 @@
 - Completed work item: Closes #
 - Canonical iteration document: `docs/iterations/NNN-*.md`
 
-## Design and model routing
+## Design capsule and model routing
 
+- Classification: mechanical, ordinary, consequential, high-risk/disputed, or difficult
 - Design handoff: document or issue link, with recorded `DESIGN_READY`
-- Approval: approver and recorded approval link
-- Design role / model / effort: actual selection and rationale (AGENTS.md task matrix)
-- Implementation role / model / effort: actual selection and rationale
-- Review role / model / effort: actual selection, or not used
-- Escalations: reason, findings, approval, and separate sequential session evidence, or none
+- Authorization: user authorization evidence
+- Owner role / model / effort: actual selection and rationale
+- Separate architect approval: approver and evidence for consequential work, or not required
+- Independent review: recorded high-risk/disputed trigger, role/model/effort, and findings, or not used
+- Escalations: concrete reason, approval, and fresh separate sequential session evidence, or none
 - Bootstrap or one-off exception: recorded authorization, or none
-- [ ] Approved design was recorded before any write-capable role started
+- [ ] The complete design capsule was recorded before implementation edits
+- [ ] Routine work used one owner session, or the reason for another session is recorded
+- [ ] Consequential work had a separate `design_architect` handoff and coordinator approval
 - [ ] Implementation followed the approved scope
-- [ ] Architectural ambiguity returned to `design_architect`; reviews did not authorize changes
+- [ ] Self-review and focused tests were completed by the owner
+- [ ] Architectural ambiguity returned to `design_architect`; reviewer findings did not authorize changes
 
 ## Acceptance criteria covered
 
@@ -39,6 +43,13 @@
 Evidence summary:
 
 -
+
+Claim boundaries:
+
+- Static workflow validation: pass/fail and command
+- Live-session provenance: evidence or not verified
+- Codex CLI compatibility: evidence or not verified
+- Measured quota savings: evidence or not measured
 
 ## Documentation and decisions
 
