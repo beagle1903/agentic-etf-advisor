@@ -199,9 +199,15 @@ and portfolio-construction reference indexes plus a bounded set of source record
 positions only. Every returned statement declares a policy, portfolio-construction, or
 source-evidence basis. Deterministic validation rejects unknown keys, unknown references, and ETF
 subjects that do not match their cited source or construction records. A rule-based safety gate
-also rejects explicit return
-guarantees, trade or recommendation instructions, suitability claims, forecasts, and risk-free
-outcomes. Citation URLs and timestamps are copied from validated evidence, not model output.
+also rejects explicit return guarantees, trade or recommendation instructions, suitability claims,
+forecasts, and risk-free outcomes. Its deterministic English patterns include sentence- and
+clause-leading polite trade imperatives, affirmative passive personal recommendations, and
+affirmative `shall` forecasts while preserving their explicit local `not` negations. Clause-start
+parsing tolerates missing punctuation whitespace and bounded coordination; exact educational noun
+subjects and the contracted buy-and-hold wording are distinguished from trade verbs by a small
+deterministic subject-predicate grammar. The polite branch also recognizes bare `kindly`, bounded
+affirmative `do`/`immediately` modifiers, and an exact shared `do not buy and hold` negation.
+Citation URLs and timestamps are copied from validated evidence, not model output.
 Source text is treated as untrusted quoted data, every ordinary provider SDK exception is
 sanitized at the adapter boundary, and fixed safety limitations are appended after generation.
 Every numeric value in a generated statement must also be present in that statement's exact
@@ -239,13 +245,13 @@ retain the rejected generated text, model-supplied references, or unsupported nu
 
 ## Explanation evaluation
 
-The explanation baseline replays one versioned request and eight curated provider outputs
+The explanation baseline replays one versioned request and fourteen curated provider outputs
 through the same `validate_and_bundle_explanation` function used before human review. It covers
 valid and invalid citations, supported and unsupported numeric claims, matching and mismatched ETF
 subjects, revalidated portfolio-construction grounding, provider refusal, unsafe financial
-language, and both resisted and followed prompt injection. Per-dimension accuracy and the overall
-gate are deterministic and require no provider, network, database, credential, or wall-clock
-access.
+language, explicit local negation controls, and both resisted and followed prompt injection.
+Per-dimension accuracy and the overall gate are deterministic and require no provider, network,
+database, credential, or wall-clock access.
 
 The gate passes only when every actual accept/reject decision matches its curated expectation. The
 packaged cases are a small regression baseline, not proof of general semantic entailment or broad

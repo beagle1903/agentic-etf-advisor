@@ -619,14 +619,34 @@ def test_malformed_resume_fails_closed_without_non_json_state(decision: Any) -> 
     json.dumps(dict(graph.get_state(config).values), allow_nan=False)
 
 
-def test_matching_receipt_digest_does_not_bypass_output_safety_validation() -> None:
+@pytest.mark.parametrize(
+    "unsafe_text",
+    [
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "SPY is highly recommended for you.",
+    ],
+)
+def test_matching_receipt_digest_does_not_bypass_output_safety_validation(
+    unsafe_text: str,
+) -> None:
     graph, config, _state, adapters, saver = start()
     altered = deepcopy(dict(graph.get_state(config).values))
     receipt = altered["revision_ledger"]["revisions"][-1]["receipts"][-1]
     output = altered["revision_ledger"]["artifacts"][receipt["output_id"]]
-    output["value"]["explanation"]["summary"]["text"] = (
-        "This portfolio guarantees positive returns."
-    )
+    output["value"]["explanation"]["summary"]["text"] = unsafe_text
     output["digest"] = receipt["output_digest"] = digest(output["value"])
     altered["draft_explanation"] = deepcopy(output["value"])
     altered["revision_digest"] = digest(_sealed_values(altered))
@@ -637,6 +657,100 @@ def test_matching_receipt_digest_does_not_bypass_output_safety_validation() -> N
     result = restored.invoke(None, config)
     assert result["status"] == "revision_blocked"
     assert adapters.retrieval_calls == adapters.provider_calls == 1
+    assert unsafe_text not in json.dumps(result.get("explanation_errors", []))
+    receipts = validate_revision_state(result).revisions[-1].receipts
+    assert len(receipts) == 2
+    assert receipts[-1].attempt == 1
+    assert "__interrupt__" not in result
+
+
+@pytest.mark.parametrize(
+    "unsafe_text",
+    [
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "SPY is highly recommended for you.",
+    ],
+)
+def test_restored_revision_review_revalidates_new_prohibited_forms(
+    unsafe_text: str,
+) -> None:
+    graph, config, _state, adapters, saver = start()
+    altered = deepcopy(dict(graph.get_state(config).values))
+    receipt = altered["revision_ledger"]["revisions"][-1]["receipts"][-1]
+    output = altered["revision_ledger"]["artifacts"][receipt["output_id"]]
+    output["value"]["explanation"]["summary"]["text"] = unsafe_text
+    output["digest"] = receipt["output_digest"] = digest(output["value"])
+    altered["draft_explanation"] = deepcopy(output["value"])
+    altered["revision_digest"] = digest(_sealed_values(altered))
+    graph.update_state(config, altered, as_node="draft_explanation")
+    restored = build_graph(checkpointer=saver)
+
+    result = restored.invoke(None, config)
+
+    assert result["status"] == "revision_blocked"
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+    assert "__interrupt__" not in result
+
+
+@pytest.mark.parametrize(
+    "allowed_text",
+    [
+        "Please do not buy SPY.",
+        "SPY is not recommended for you.",
+        "SPY shall not outperform.",
+        "Please do not purchase cost-efficient SPY.",
+        "Please do not trade volume-weighted SPY.",
+        "Please do not hold period-sensitive SPY.",
+        "SPY shall not outperform; it may gain.",
+        "SPY is not recommended for you; it is discussed for context.",
+        "Please do not buy SPY; compare it for context.",
+        "Please do not buy SPY but do not buy QQQ.",
+        "Please do not buy SPY;Please do not buy QQQ.",
+        "Please do not buy SPY,but please do not buy QQQ.",
+        "Please, do not buy SPY.",
+        "Please kindly do not buy SPY.",
+        "SPY is not highly recommended for you.",
+        "Trade volume has increased.",
+        "Trade volume reflects liquidity.",
+        "Purchase costs depend on the broker.",
+        "Hold periods depend on the objective.",
+    ],
+)
+def test_successful_explanation_receipt_reuse_accepts_explicit_negation(
+    allowed_text: str,
+) -> None:
+    graph, config, _state, adapters, saver = start()
+    altered = deepcopy(dict(graph.get_state(config).values))
+    receipt = altered["revision_ledger"]["revisions"][-1]["receipts"][-1]
+    output = altered["revision_ledger"]["artifacts"][receipt["output_id"]]
+    output["value"]["explanation"]["summary"]["text"] = allowed_text
+    output["digest"] = receipt["output_digest"] = digest(output["value"])
+    altered["draft_explanation"] = deepcopy(output["value"])
+    altered["revision_digest"] = digest(_sealed_values(altered))
+    graph.update_state(config, altered, as_node="prepare_draft_explanation")
+    restored = build_graph(
+        checkpointer=saver, candidate_retriever=adapters, explanation_generator=adapters
+    )
+
+    result = restored.invoke(None, config)
+
+    assert result["status"] == "awaiting_human_review"
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+    assert validate_revision_state(result).revisions[-1].receipts[-1].attempt == 1
+    json.dumps(dict(restored.get_state(config).values), allow_nan=False)
 
 
 def test_dashboard_adapter_submits_typed_revision_and_close() -> None:

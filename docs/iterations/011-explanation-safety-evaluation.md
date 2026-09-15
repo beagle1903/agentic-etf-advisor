@@ -75,3 +75,11 @@ not detect a production workflow regression. The refusal fixture now calls the p
 `draft_explanation` node with a generator that raises `ExplanationGenerationError` and requires
 the complete blocked-state contract. A regression test replaces that node with an unsafe
 review-ready result and proves the dimension and aggregate gate fail.
+
+## Issue #49 corpus extension
+
+The packaged baseline is now version 3 with fourteen cases. It preserves the original eight
+decisions and adds rejected cases for a sentence-leading polite trade imperative, an affirmative
+passive personal recommendation, and an affirmative `shall` outperformance forecast. Three paired
+explicit-local-negation controls remain accepted. This small English corpus is deterministic
+regression coverage, not a multilingual classifier or general semantic-entailment claim.

@@ -467,3 +467,53 @@ Compose validation, and `git diff --check`. The focused seven-file suite passed 
 This slice uses deterministic local fixtures and in-memory checkpoints. It does not add a
 restore-time wall-clock check, repair existing snapshots, validate display-only fields, or exercise
 live providers and stores. Issue #43 still owns iteration-wide acceptance.
+
+### Issue #49 explanation-language safety hardening
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/49#issuecomment-5667460591.
+The shared deterministic explanation validator now rejects sentence- and clause-leading polite
+trade imperatives, affirmative passive personal recommendations, and affirmative `shall`
+forecasts. Exact local `not` negations remain accepted, and a safe clause cannot exempt a separate
+unsafe clause.
+
+Focused regressions exercise the shared validator, every statement field, the direct production
+node, compiled workflow, restored dashboard presentation, restored revision review, successful
+receipt reuse, sanitized diagnostics, and JSON-safe checkpoint state. The packaged offline corpus
+is version 3 with fourteen cases: the original eight decisions plus the three reported rejected
+forms and three paired accepted negation controls. Detailed scope and verification evidence are
+retained in [`017-issue-49-explanation-safety.md`](017-issue-49-explanation-safety.md).
+
+No provider prompt, schema, graph state, receipt, persistence, eligibility, arithmetic, or
+side-effect interface changed. No live service, provider, store, market-data, trade, or external
+financial-write operation is part of this slice. Issue #43 still owns iteration-wide acceptance.
+
+Three independent safety reviews exposed interacting clause-negation, benign noun-subject, and
+hyphenated polite-instruction failures. The coordinator recorded the concrete specialist trigger
+on Issue #49. The final matcher separates explicit `please` instructions from ambiguous bare
+clause starts, so bounded educational subjects such as `trade volume is shown` stay accepted while
+`Please trade volume-weighted SPY.` and its `hold`/`purchase` peers fail closed. The specialist
+regression matrix also covers restored presentation, revision review, receipt reuse, redaction,
+and JSON serialization without changing those contracts.
+
+Specialist re-review additionally found that affirmative `not only ... but also` constructions
+were inheriting the true local-negation exceptions. The bounded grammar now rejects those forms in
+polite/personalized trade instructions, passive recommendations, and `will`/`shall` forecasts,
+while continuing to accept exact `do not buy`, `is not recommended`, and `shall not outperform`
+controls. An explicit `but also` coordinated trade clause is independently checked.
+
+The final independent review also found punctuation-without-space and bare-conjunction command
+bypasses, optional `please`/recommendation modifier bypasses, and false positives for common
+educational noun subjects. The final bounded grammar decomposes clause starts independently,
+accepts optional comma/`kindly` polite forms, evaluates passive-recommendation modifiers with local
+negation, and recognizes exact `hold period(s)`, `trade volume(s)`, and `purchase cost(s)` subjects
+through subject-predicate structure rather than a per-verb continuation allowlist. The paired
+regressions preserve later-command rejection, true local negation, restore/revision/receipt
+revalidation, redacted diagnostics, and JSON-safe state.
+
+The user-approved one-off closeout exception is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/49#issuecomment-5679582190. Its frozen
+matrix adds bare `kindly` and bounded affirmative polite modifiers, exact coordinated educational
+noun subjects, the `buy-and-hold` compound, and the shared `do not buy and hold` negation. These
+cases close the two recorded P2 findings without expanding the stated bounded-English limitation
+or reopening the existing later-clause command regressions.
