@@ -517,3 +517,36 @@ matrix adds bare `kindly` and bounded affirmative polite modifiers, exact coordi
 noun subjects, the `buy-and-hold` compound, and the shared `do not buy and hold` negation. These
 cases close the two recorded P2 findings without expanding the stated bounded-English limitation
 or reopening the existing later-clause command regressions.
+
+### Issue #50 review-interrupt checkpoint integrity
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/50#issuecomment-5684797467.
+The dashboard presentation boundary now always validates the checkpointed profile and policy,
+recomputes that policy from the profile, and requires exact typed equality with the interrupt.
+Evidence, screening, construction, and explanation each require symmetric presence and complete
+typed equality before construction or explanation-specific recomputation. Missing, `None`, or an
+empty mapping means checkpoint artifact absence; other falsey malformed values fail validation.
+
+Focused regressions cover substituted policies, profile/policy recomputation mismatch, every
+optional artifact omitted from either side individually and all interrupt artifacts hidden
+together, all supported absence representations, malformed
+falsey artifacts, policy-only, construction-without-explanation, and full-artifact reviews. A
+detached interrupt substitution that does not alter the checkpoint seal is rejected without state
+mutation or adapter calls, and the Streamlit adapter shows the sanitized contract error without
+decision controls.
+
+No graph schema, revision runtime, ledger, digest, receipt, checkpoint lifecycle, finance policy,
+eligibility, explanation-safety, adapter, or external-write contract changes. Verification uses
+only deterministic local fixtures, in-memory checkpoints, and existing provider doubles; live
+services and external financial writes remain outside this slice. Issue #43 retains iteration-wide
+acceptance.
+
+Local verification on 2026-09-15 passed **295 focused dashboard/revision/control tests** and **987
+tests** in the complete offline suite. `uv sync --all-extras --frozen`, the Codex workflow
+validator, Ruff lint and format check (128 files), strict mypy (46 source files), retrieval
+evaluation, explanation evaluation (14/14 expected decisions), package build, Docker Compose
+validation, and `git diff --check` passed. One initial focused run hit the existing ten-second
+Streamlit cold-start timeout; that unchanged test and the new control-suppression regression passed
+immediately in isolation, and the subsequent focused and complete suites passed without a code
+change for the timeout.

@@ -15,6 +15,9 @@ from test_workflow import (
     valid_profile,
 )
 
+from etf_advisor.dashboard import review_payload
+from etf_advisor.domain.policy import calculate_policy
+from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.revision import (
     ARTIFACTS,
     CLASSES,
@@ -438,6 +441,45 @@ def test_review_restore_detects_tampered_checkpoint_before_approval(field: str) 
     restored = build_graph(checkpointer=saver)
     result = restored.invoke(None, config)
     assert result["status"] == "revision_blocked"
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+
+
+def test_detached_interrupt_policy_tampering_passes_seal_but_blocks_dashboard_review() -> None:
+    _graph, _config, parent, adapters, _saver = start()
+    detached = deepcopy(parent)
+    alternate_profile = InvestorProfile.model_validate(parent["profile"]).model_copy(
+        update={"initial_investment_usd": 75_000}
+    )
+    detached["__interrupt__"][0].value["draft_policy"] = calculate_policy(
+        alternate_profile
+    ).model_dump(mode="json")
+    before = deepcopy(detached)
+
+    validate_revision_state(detached)
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(detached)
+
+    assert detached == before
+    assert adapters.retrieval_calls == adapters.provider_calls == 1
+
+
+def test_detached_interrupt_cannot_hide_all_checkpointed_review_artifacts() -> None:
+    _graph, _config, parent, adapters, _saver = start()
+    detached = deepcopy(parent)
+    for field in (
+        "candidate_evidence",
+        "candidate_screening",
+        "portfolio_construction",
+        "draft_explanation",
+    ):
+        detached["__interrupt__"][0].value.pop(field)
+    before = deepcopy(detached)
+
+    validate_revision_state(detached)
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(detached)
+
+    assert detached == before
     assert adapters.retrieval_calls == adapters.provider_calls == 1
 
 

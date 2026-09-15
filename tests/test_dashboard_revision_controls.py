@@ -207,6 +207,26 @@ def test_terminal_decisions_need_no_external_adapters(
     assert result["status"] == expected
 
 
+@pytest.mark.parametrize("with_artifacts", [False, True])
+def test_exact_refresh_then_approval_preserves_policy_only_and_full_reviews(
+    with_artifacts: bool,
+) -> None:
+    adapters = Adapters() if with_artifacts else None
+    run = _run(adapters=adapters)
+    revision = _revision_id(run)
+    before_calls = (
+        (adapters.retrieval_calls, adapters.provider_calls) if adapters is not None else (0, 0)
+    )
+
+    refreshed = run.refresh()
+    result = run.resume("approve", expected_revision_id=revision)
+
+    assert refreshed["status"] == "awaiting_human_review"
+    assert result["status"] == "approved"
+    if adapters is not None:
+        assert (adapters.retrieval_calls, adapters.provider_calls) == before_calls
+
+
 def test_durable_policy_only_profile_revision_remains_supported() -> None:
     run = _run(durable=True)
     parent = _revision_id(run)
@@ -514,3 +534,25 @@ def test_streamlit_policy_review_renders_revision_lifecycle_and_typed_controls()
     app.run(timeout=10)
     assert any(select.label == "Typed feedback" for select in app.multiselect)
     assert any(expander.label == "Revision and operation history" for expander in app.expander)
+
+
+def test_streamlit_suppresses_review_controls_for_detached_interrupt_mismatch() -> None:
+    streamlit_testing = pytest.importorskip("streamlit.testing.v1")
+    app_path = Path(__file__).parents[1] / "src" / "etf_advisor" / "dashboard_app.py"
+    adapters = Adapters()
+    run = _run(adapters=adapters)
+    run.state["__interrupt__"][0].value["draft_policy"]["notes"][0] = (
+        "Substituted display-only policy note."
+    )
+    before = (adapters.retrieval_calls, adapters.provider_calls)
+    app = streamlit_testing.AppTest.from_file(str(app_path))
+    app.session_state["dashboard_run"] = run
+
+    app.run(timeout=10)
+
+    assert not app.exception
+    assert "The workflow returned an invalid review contract." in [
+        error.value for error in app.error
+    ]
+    assert not any(radio.label == "Decision" for radio in app.radio)
+    assert (adapters.retrieval_calls, adapters.provider_calls) == before

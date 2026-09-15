@@ -23,7 +23,7 @@ from etf_advisor.domain.construction import (
     PortfolioConstructionInput,
     validate_persisted_construction,
 )
-from etf_advisor.domain.policy import PolicyCalculation
+from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.revision import RetryRequest, ReviewDecision, plan_revision
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
@@ -648,63 +648,74 @@ def review_payload(state: dict[str, Any]) -> dict[str, Any]:
             ledger = validate_revision_state(cast(AdvisorState, state))
             if payload.revision_id != ledger.revisions[-1].revision_id:
                 raise ValueError("Review interrupt revision must match checkpointed state.")
-        construction = payload.portfolio_construction
-        if construction is not None:
-            evidence = payload.candidate_evidence
-            screening = payload.candidate_screening
-            if evidence is None or screening is None:
-                raise ValueError("Review construction requires evidence and screening.")
-            checkpointed_policy = PolicyCalculation.model_validate(state.get("draft_policy", {}))
-            checkpointed_evidence = CandidateEvidenceBundle.model_validate(
-                state.get("candidate_evidence", {})
+        checkpointed_profile = InvestorProfile.model_validate(state.get("profile", {}))
+        checkpointed_policy = PolicyCalculation.model_validate(state.get("draft_policy", {}))
+        if checkpointed_policy != payload.draft_policy or checkpointed_policy != calculate_policy(
+            checkpointed_profile
+        ):
+            raise ValueError(
+                "Review policy must match the checkpointed profile and workflow state."
             )
-            checkpointed_screening = CandidateScreeningBundle.model_validate(
-                state.get("candidate_screening", {})
-            )
-            checkpointed_construction = PortfolioConstructionBundle.model_validate(
-                state.get("portfolio_construction", {})
-            )
-            checkpoint_pairs: tuple[tuple[BaseModel, BaseModel], ...] = (
-                (checkpointed_policy, payload.draft_policy),
-                (checkpointed_evidence, evidence),
-                (checkpointed_screening, screening),
-                (checkpointed_construction, construction),
-            )
-            checkpointed_explanation_payload = state.get("draft_explanation", {})
-            checkpoint_has_explanation = checkpointed_explanation_payload not in ({}, None)
-            interrupt_has_explanation = payload.draft_explanation is not None
-            if checkpoint_has_explanation != interrupt_has_explanation:
+
+        checkpointed_artifacts: dict[str, BaseModel] = {}
+        artifact_contracts: tuple[tuple[str, type[BaseModel], BaseModel | None], ...] = (
+            ("candidate_evidence", CandidateEvidenceBundle, payload.candidate_evidence),
+            ("candidate_screening", CandidateScreeningBundle, payload.candidate_screening),
+            (
+                "portfolio_construction",
+                PortfolioConstructionBundle,
+                payload.portfolio_construction,
+            ),
+            ("draft_explanation", ExplanationBundle, payload.draft_explanation),
+        )
+        for field_name, model_type, interrupted in artifact_contracts:
+            checkpointed_value = state.get(field_name)
+            checkpoint_has_artifact = checkpointed_value is not None and checkpointed_value != {}
+            interrupt_has_artifact = interrupted is not None
+            if checkpoint_has_artifact != interrupt_has_artifact:
                 raise ValueError(
-                    "Review explanation presence must match checkpointed workflow state."
+                    f"Review {field_name} presence must match checkpointed workflow state."
                 )
-            checkpointed_explanation: ExplanationBundle | None = None
-            if payload.draft_explanation is not None:
-                checkpointed_explanation = ExplanationBundle.model_validate(
-                    checkpointed_explanation_payload
-                )
-                checkpoint_pairs = (
-                    *checkpoint_pairs,
-                    (checkpointed_explanation, payload.draft_explanation),
-                )
-            if any(checkpointed != interrupted for checkpointed, interrupted in checkpoint_pairs):
-                raise ValueError("Review payload must match checkpointed workflow state.")
-            inputs = PortfolioConstructionInput(
-                profile=InvestorProfile.model_validate(state.get("profile", {})),
-                policy_calculation=checkpointed_policy,
-                candidate_evidence=checkpointed_evidence,
-                candidate_screening=checkpointed_screening,
-                construction_policy=checkpointed_construction.policy,
+            if checkpoint_has_artifact:
+                checkpointed = model_type.model_validate(checkpointed_value)
+                if checkpointed != interrupted:
+                    raise ValueError("Review payload must match checkpointed workflow state.")
+                checkpointed_artifacts[field_name] = checkpointed
+
+        construction = cast(
+            PortfolioConstructionBundle | None,
+            checkpointed_artifacts.get("portfolio_construction"),
+        )
+        if construction is not None:
+            evidence = cast(
+                CandidateEvidenceBundle,
+                checkpointed_artifacts["candidate_evidence"],
             )
-            recomputed = validate_persisted_construction(inputs, checkpointed_construction)
+            screening = cast(
+                CandidateScreeningBundle,
+                checkpointed_artifacts["candidate_screening"],
+            )
+            inputs = PortfolioConstructionInput(
+                profile=checkpointed_profile,
+                policy_calculation=checkpointed_policy,
+                candidate_evidence=evidence,
+                candidate_screening=screening,
+                construction_policy=construction.policy,
+            )
+            recomputed = validate_persisted_construction(inputs, construction)
             if recomputed.status != "ready":
                 raise ValueError("Review construction failed deterministic recomputation.")
+            checkpointed_explanation = cast(
+                ExplanationBundle | None,
+                checkpointed_artifacts.get("draft_explanation"),
+            )
             if checkpointed_explanation is not None:
                 explanation_request = build_explanation_request(
-                    profile=state.get("profile", {}),
-                    draft_policy=state.get("draft_policy", {}),
-                    candidate_evidence=state.get("candidate_evidence", {}),
-                    candidate_screening=state.get("candidate_screening", {}),
-                    portfolio_construction=state.get("portfolio_construction", {}),
+                    profile=checkpointed_profile.model_dump(mode="json"),
+                    draft_policy=checkpointed_policy.model_dump(mode="json"),
+                    candidate_evidence=evidence.model_dump(mode="json"),
+                    candidate_screening=screening.model_dump(mode="json"),
+                    portfolio_construction=construction.model_dump(mode="json"),
                 )
                 recomputed_explanation = validate_and_bundle_explanation(
                     explanation_request,

@@ -320,14 +320,18 @@ only that exact thread from a newly compiled graph; the UI does not enumerate sa
 
 Both modes render policy, evidence, deterministic portfolio construction, and explanation fields
 from the interrupt rather than reconstructing an allocation in the UI. Before rendering, a typed
-presentation contract revalidates every nested field, policy/evidence consistency, and the identity,
-URL, and timestamp of explanation citations against the validated evidence records. It recomputes
-candidate screening from the evidence and checkpointed screening policy, then recomputes portfolio
-construction from the validated profile, policy calculation, evidence, screening, and checkpointed
-construction policy. A restored explanation must also match its checkpointed interrupt copy and
-rebuild the explanation request from that revalidated construction before passing the same
-grounding, selected-position, numeric-support, and prohibited-claim validation used before the
-original interrupt. Either persisted mismatch produces a controlled error without review controls.
+presentation contract requires a typed-valid checkpoint profile and policy, recomputes the policy
+from that profile, and requires exact typed equality with the interrupt policy. Evidence, screening,
+construction, and explanation must each have matching presence and complete typed equality across
+the checkpoint and interrupt before optional downstream validation branches. The contract then
+revalidates every nested field, policy/evidence consistency, and the identity, URL, and timestamp of
+explanation citations against the validated evidence records. It recomputes candidate screening from
+the evidence and checkpointed screening policy, then recomputes portfolio construction from the
+validated profile, policy calculation, evidence, screening, and checkpointed construction policy. A
+restored explanation rebuilds the explanation request from that revalidated construction before
+passing the same grounding, selected-position, numeric-support, and prohibited-claim validation used
+before the original interrupt. Any absence, substitution, malformed artifact, or recomputation
+mismatch produces a controlled error without review controls.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.
