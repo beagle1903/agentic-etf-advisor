@@ -91,13 +91,16 @@ def valid_profile() -> InvestorProfile:
 
 def paused_state() -> dict[str, Any]:
     profile = valid_profile()
+    policy = calculate_policy(profile).model_dump(mode="json")
     payload = {
         "kind": "portfolio_policy_review",
         "question": "Approve?",
         "allowed_actions": ["approve", "edit", "reject"],
-        "draft_policy": calculate_policy(profile).model_dump(mode="json"),
+        "draft_policy": deepcopy(policy),
     }
     return {
+        "profile": profile.model_dump(mode="json"),
+        "draft_policy": policy,
         "status": "awaiting_human_review",
         "__interrupt__": (SimpleNamespace(value=payload),),
     }
@@ -407,6 +410,53 @@ def test_review_payload_rejects_missing_or_unsupported_interrupts() -> None:
         review_payload(state)
 
 
+def test_review_payload_accepts_authoritative_policy_only_checkpoint() -> None:
+    state = paused_state()
+
+    payload = review_payload(state)
+
+    assert payload["draft_policy"] == state["draft_policy"]
+    assert json.dumps(payload, sort_keys=True)
+
+
+def test_review_payload_rejects_policy_substituted_only_in_interrupt() -> None:
+    state = paused_state()
+    substituted_profile = valid_profile().model_copy(update={"initial_investment_usd": 50_000})
+    state["__interrupt__"][0].value["draft_policy"] = calculate_policy(
+        substituted_profile
+    ).model_dump(mode="json")
+    original = deepcopy(state)
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+    assert state == original
+
+
+def test_review_payload_recomputes_policy_from_checkpointed_profile() -> None:
+    state = paused_state()
+    state["profile"]["initial_investment_usd"] = 50_000
+    original = deepcopy(state)
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+    assert state == original
+
+
+@pytest.mark.parametrize("field", ["profile", "draft_policy"])
+@pytest.mark.parametrize("absence", ["missing", "none", "empty"])
+def test_review_payload_requires_checkpointed_profile_and_policy(field: str, absence: str) -> None:
+    state = paused_state()
+    if absence == "missing":
+        state.pop(field)
+    else:
+        state[field] = None if absence == "none" else {}
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [
@@ -712,6 +762,62 @@ def test_review_payload_rejects_asymmetric_explanation_presence(missing_from: st
         review_payload(state)
 
 
+@pytest.mark.parametrize(
+    "field",
+    [
+        "candidate_evidence",
+        "candidate_screening",
+        "portfolio_construction",
+        "draft_explanation",
+    ],
+)
+@pytest.mark.parametrize(
+    "missing_from",
+    [
+        "checkpoint_missing",
+        "checkpoint_none",
+        "checkpoint_empty",
+        "interrupt_missing",
+        "interrupt_none",
+    ],
+)
+def test_review_payload_rejects_asymmetric_optional_artifact_presence(
+    field: str, missing_from: str
+) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    if missing_from == "checkpoint_missing":
+        state.pop(field)
+    elif missing_from == "checkpoint_none":
+        state[field] = None
+    elif missing_from == "checkpoint_empty":
+        state[field] = {}
+    elif missing_from == "interrupt_missing":
+        state["__interrupt__"][0].value.pop(field)
+    else:
+        state["__interrupt__"][0].value[field] = None
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+@pytest.mark.parametrize("falsey", [[], "", 0, False])
+def test_review_payload_rejects_falsey_malformed_checkpoint_artifact(falsey: object) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    state["candidate_evidence"] = falsey
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
+@pytest.mark.parametrize("falsey", [{}, [], "", 0, False])
+def test_review_payload_rejects_falsey_malformed_interrupt_artifact(falsey: object) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    state["__interrupt__"][0].value["candidate_evidence"] = falsey
+
+    with pytest.raises(ValueError, match="failed contract validation"):
+        review_payload(state)
+
+
 def test_review_payload_recomputes_persisted_portfolio_before_rendering() -> None:
     state = paused_state_with_portfolio_and_explanation()
 
@@ -719,6 +825,17 @@ def test_review_payload_recomputes_persisted_portfolio_before_rendering() -> Non
 
     assert payload["portfolio_construction"]["status"] == "ready"
     assert payload["portfolio_construction"]["draft"]["total_weight_bps"] == 10_000
+
+
+def test_review_payload_accepts_construction_without_explanation() -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    state["draft_explanation"] = {}
+    state["__interrupt__"][0].value.pop("draft_explanation")
+
+    payload = review_payload(state)
+
+    assert payload["portfolio_construction"]["status"] == "ready"
+    assert "draft_explanation" not in payload
 
 
 def test_review_payload_blocks_tampered_persisted_portfolio() -> None:
