@@ -33,6 +33,12 @@ ambiguity; multiple files, integration tests, or unfamiliarity alone are insuffi
 the evidence and start a fresh separate sequential session for any escalation or role/effort
 change. The PR links the capsule, approval, actual routing evidence, and any exception.
 
+Two consecutive implementation-review cycles that fail for related reasons are evidence that the
+approved design or acceptance matrix is incomplete. Stop remediation at that point and return to a
+fresh read-only `design_architect` session. Implementation resumes only after the coordinator has
+recorded and approved a revised `DESIGN_READY` capsule. An `implementation_specialist` does not
+replace this design reset, and reviewer-implementation ping-pong must not continue indefinitely.
+
 The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
 no-project-model-override, and no-concurrency-scalar compatibility policy still applies.
 `scripts/validate_codex_workflow.py` checks static contracts in CI; it cannot prove live-session

@@ -39,6 +39,12 @@ selected role, model, effort, rationale, authorization, and any escalation evide
    ambiguity may require `implementation_specialist`. The coordinator records the trigger and
    starts a fresh separate sequential session. Multiple files, integration tests, or unfamiliarity alone do not require escalation.
    Architectural ambiguity returns to `design_architect`.
+6. **Break remediation ping-pong:** after two consecutive implementation-review cycles fail for
+   related reasons, stop patching. Return the work to a fresh read-only `design_architect` session
+   to reassess the contract, failure pattern, and acceptance matrix. The coordinator records and
+   approves a revised `DESIGN_READY` capsule before implementation resumes. Do not continue
+   alternating reviewer findings and implementation patches under a design that has proved
+   incomplete.
 
 | Role | Model | Effort | Access |
 | --- | --- | --- | --- |
