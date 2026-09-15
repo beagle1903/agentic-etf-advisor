@@ -634,6 +634,21 @@ def test_review_payload_rejects_explanation_citation_not_matching_evidence() -> 
     [
         "SPY guarantees positive returns.",
         "SPY has a 14.38% portfolio weight.",
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "SPY is highly recommended for you.",
     ],
 )
 def test_review_payload_replays_explanation_safety_after_checkpoint_restore(text: str) -> None:
@@ -646,6 +661,43 @@ def test_review_payload_replays_explanation_safety_after_checkpoint_restore(text
 
     with pytest.raises(ValueError, match="failed contract validation"):
         review_payload(state)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Please do not buy SPY.",
+        "SPY is not recommended for you.",
+        "SPY shall not outperform.",
+        "Please do not purchase cost-efficient SPY.",
+        "Please do not trade volume-weighted SPY.",
+        "Please do not hold period-sensitive SPY.",
+        "SPY shall not outperform; it may gain.",
+        "SPY is not recommended for you; it is discussed for context.",
+        "Please do not buy SPY; compare it for context.",
+        "Please do not buy SPY but do not buy QQQ.",
+        "Please do not buy SPY;Please do not buy QQQ.",
+        "Please do not buy SPY,but please do not buy QQQ.",
+        "Please, do not buy SPY.",
+        "Please kindly do not buy SPY.",
+        "SPY is not highly recommended for you.",
+        "Trade volume has increased.",
+        "Trade volume reflects liquidity.",
+        "Purchase costs depend on the broker.",
+        "Hold periods depend on the objective.",
+    ],
+)
+def test_review_payload_accepts_explicitly_negated_language_after_restore(text: str) -> None:
+    state = paused_state_with_portfolio_and_explanation()
+    for explanation in (
+        state["draft_explanation"],
+        state["__interrupt__"][0].value["draft_explanation"],
+    ):
+        explanation["explanation"]["evidence_points"][0]["text"] = text
+
+    payload = review_payload(state)
+
+    assert payload["draft_explanation"]["explanation"]["evidence_points"][0]["text"] == text
 
 
 @pytest.mark.parametrize("missing_from", ["checkpoint", "interrupt"])

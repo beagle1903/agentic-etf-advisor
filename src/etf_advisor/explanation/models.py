@@ -23,6 +23,61 @@ from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle,
 
 MAX_EXPLANATION_CANDIDATES = 10
 
+_IMPERATIVE_CLAUSE_BOUNDARY: Final[re.Pattern[str]] = re.compile(
+    r"(?:"
+    r"[.!?;]\s*(?:(?:and|but)\s+(?:also\s+)?)?|"
+    r",\s*(?:and|but)\s+(?:also\s+)?|"
+    r"\s+(?:and|but)\s+(?:also\s+)?"
+    r")"
+)
+_POLITE_INSTRUCTION_PREFIX: Final[re.Pattern[str]] = re.compile(
+    r"^(?:please(?:\s*,\s*|\s+)(?:kindly(?:\s*,\s*|\s+))?|"
+    r"kindly(?:\s*,\s*|\s+))"
+)
+_TRADE_ACTION_AT_START: Final[re.Pattern[str]] = re.compile(
+    r"^(?P<action>buy|sell|purchase|hold|trade|invest\s+in|"
+    r"allocate(?:\s+funds)?\s+to)\b"
+)
+_AMBIGUOUS_ACTION_NOUNS: Final[dict[str, dict[str, bool]]] = {
+    "hold": {"period": True, "periods": False, "strategy": True, "strategies": False},
+    "purchase": {"cost": True, "costs": False},
+    "sell": {"price": True, "prices": False},
+    "trade": {"cost": True, "costs": False, "volume": True, "volumes": False},
+}
+_DECLARATIVE_AUXILIARIES: Final[frozenset[str]] = frozenset(
+    {
+        "are",
+        "can",
+        "could",
+        "did",
+        "do",
+        "does",
+        "had",
+        "has",
+        "have",
+        "is",
+        "may",
+        "might",
+        "must",
+        "should",
+        "was",
+        "were",
+        "will",
+        "would",
+    }
+)
+_DECLARATIVE_COMPLEMENT_PREPOSITIONS: Final[frozenset[str]] = frozenset(
+    {"across", "among", "between", "by", "for", "from", "in", "on", "over", "to", "under", "with"}
+)
+_WORD_AT_START: Final[re.Pattern[str]] = re.compile(r"^\s+(?P<word>[a-z]+(?:-[a-z]+)*)\b")
+_BUY_AND_HOLD_NOUN_SUBJECT: Final[re.Pattern[str]] = re.compile(
+    r"^buy-and-hold\s+strateg(?:y|ies)\b"
+)
+_PASSIVE_PERSONAL_RECOMMENDATION: Final[re.Pattern[str]] = re.compile(
+    r"\b(?:is|are)\s+(?P<modifiers>(?:[a-z-]+\s+){0,4})recommended\s+"
+    r"for\s+(?:you|the user|this investor)\b"
+)
+
 _PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
     (
         "guaranteed_outcome",
@@ -43,14 +98,8 @@ _PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
         re.compile(
             r"\b(?:you|investors?|the user|this investor)\s+"
             r"(?:should|must|need(?:s)? to|ought to)\s+"
+            r"(?:not\s+only\s+)?"
             r"(?:buy|sell|purchase|hold|trade|invest in|allocate(?: funds)? to)\b"
-        ),
-    ),
-    (
-        "imperative_trade_instruction",
-        re.compile(
-            r"(?:^|[.!?]\s+)(?:buy|sell|purchase|hold|trade|invest in|"
-            r"allocate(?: funds)? to)\b"
         ),
     ),
     (
@@ -64,7 +113,9 @@ _PROHIBITED_CLAIM_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
     (
         "forecast",
         re.compile(
-            r"\b(?:will(?!\s+not\b)|is expected to|are expected to|is projected to|"
+            r"\b(?:will(?!\s+not\b(?!\s+only\b))|"
+            r"shall(?!\s+not\b(?!\s+only\b))|is expected to|"
+            r"are expected to|is projected to|"
             r"are projected to)\b.{0,80}\b(?:return|gain|rise|fall|outperform|underperform|"
             r"yield)\b"
         ),
@@ -497,10 +548,107 @@ def _all_statements(explanation: GeneratedExplanation) -> list[GroundedStatement
     ]
 
 
+def _contains_imperative_trade_instruction(text: str) -> bool:
+    clause_starts = [0]
+    for match in _IMPERATIVE_CLAUSE_BOUNDARY.finditer(text):
+        if _is_shared_negated_buy_and_hold_boundary(text, match):
+            continue
+        clause_starts.append(match.end())
+    return any(_clause_starts_with_trade_instruction(text[start:]) for start in clause_starts)
+
+
+def _is_shared_negated_buy_and_hold_boundary(text: str, match: re.Match[str]) -> bool:
+    return bool(
+        re.fullmatch(r"\s+and\s+", match.group())
+        and re.search(r"\bdo\s+not\s+buy\s*$", text[: match.start()])
+        and re.match(r"hold\b", text[match.end() :])
+    )
+
+
+def _clause_starts_with_trade_instruction(clause: str) -> bool:
+    clause = clause.lstrip()
+    polite_prefix = _POLITE_INSTRUCTION_PREFIX.match(clause)
+    if polite_prefix is not None:
+        instruction = clause[polite_prefix.end() :]
+        true_negation = re.match(r"do\s+not\b(?!\s+only\b)", instruction)
+        if true_negation is not None:
+            return False
+        not_only = re.match(r"(?:do\s+)?not\s+only\s+", instruction)
+        if not_only is not None:
+            instruction = instruction[not_only.end() :]
+        else:
+            modifier = re.match(r"(?:do|immediately)\s+", instruction)
+            if modifier is not None:
+                instruction = instruction[modifier.end() :]
+        return _TRADE_ACTION_AT_START.match(instruction) is not None
+
+    if _BUY_AND_HOLD_NOUN_SUBJECT.match(clause):
+        return False
+
+    action = _TRADE_ACTION_AT_START.match(clause)
+    if action is None:
+        return False
+    action_name = action.group("action")
+    if action_name not in _AMBIGUOUS_ACTION_NOUNS:
+        return True
+    return not _starts_with_declarative_noun_subject(
+        clause[action.end() :],
+        _AMBIGUOUS_ACTION_NOUNS[action_name],
+    )
+
+
+def _starts_with_declarative_noun_subject(
+    remainder: str,
+    noun_forms: dict[str, bool],
+) -> bool:
+    noun = _WORD_AT_START.match(remainder)
+    if noun is None or noun.group("word") not in noun_forms:
+        return False
+
+    noun_form = noun.group("word")
+    predicate_text = remainder[noun.end() :]
+    if not predicate_text or re.match(r"^[.,;:!?]", predicate_text):
+        return True
+
+    predicate = _WORD_AT_START.match(predicate_text)
+    if predicate is None:
+        return False
+    predicate_word = predicate.group("word")
+    if predicate_word in _DECLARATIVE_AUXILIARIES:
+        return True
+
+    if noun_forms[noun_form]:
+        return predicate_word.endswith("s")
+
+    complement_text = predicate_text[predicate.end() :]
+    if not complement_text or re.match(r"^[.,;:!?]", complement_text):
+        return True
+    complement = _WORD_AT_START.match(complement_text)
+    return (
+        complement is not None and complement.group("word") in _DECLARATIVE_COMPLEMENT_PREPOSITIONS
+    )
+
+
+def _contains_affirmative_passive_recommendation(text: str) -> bool:
+    for match in _PASSIVE_PERSONAL_RECOMMENDATION.finditer(text):
+        modifiers = match.group("modifiers").split()
+        if any(
+            modifier == "not" and (index + 1 == len(modifiers) or modifiers[index + 1] != "only")
+            for index, modifier in enumerate(modifiers)
+        ):
+            continue
+        return True
+    return False
+
+
 def _validate_prohibited_claims(explanation: GeneratedExplanation) -> None:
     violations: list[str] = []
     for statement in _all_statements(explanation):
         normalized = " ".join(unicodedata.normalize("NFKC", statement.text).casefold().split())
+        if _contains_imperative_trade_instruction(normalized):
+            violations.append("imperative_trade_instruction")
+        if _contains_affirmative_passive_recommendation(normalized):
+            violations.append("recommendation_or_suitability")
         for name, pattern in _PROHIBITED_CLAIM_PATTERNS:
             if pattern.search(normalized):
                 violations.append(name)

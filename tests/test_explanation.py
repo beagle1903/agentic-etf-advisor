@@ -389,6 +389,49 @@ def test_tampered_portfolio_cannot_form_an_explanation_request() -> None:
         "SPY is suitable for you.",
         "SPY will outperform the market.",
         "Buy SPY now.",
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please do not buy SPY. Please buy SPY.",
+        "Please do not buy SPY; please buy QQQ.",
+        "Please do not buy SPY, but please buy QQQ.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please do not buy SPY but purchase QQQ.",
+        "Please do not buy SPY;buy QQQ.",
+        "Please do not buy SPY,but buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "Please, kindly buy SPY.",
+        "Kindly buy SPY.",
+        "Please immediately buy SPY.",
+        "Please do buy SPY.",
+        "SPY is highly recommended for you.",
+        "SPY is very highly recommended for you.",
+        "Costs are low, but hold SPY for this portfolio.",
+        "The evidence is educational; trade SPY now.",
+        "Expenses vary, and purchase QQQ.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "Purchase cost-efficient SPY.",
+        "Trade volume-weighted SPY.",
+        "Hold period-sensitive SPY.",
+        "Purchase cost efficient SPY.",
+        "Trade volume weighted SPY.",
+        "Hold period sensitive SPY.",
+        "Costs vary, but please purchase cost-efficient SPY.",
+        "The evidence is educational; please trade volume-weighted SPY.",
+        "Please do not buy SPY. Please hold period-sensitive QQQ.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "SPY WILL   NOT ONLY OUTPERFORM BUT ALSO GAIN.",
+        "SPY IS   NOT ONLY RECOMMENDED FOR THE USER; IT IS PREFERRED.",
+        "PLEASE DO   NOT ONLY PURCHASE SPY, BUT ALSO HOLD QQQ.",
+        "Please do not buy SPY, but also hold QQQ.",
+        "You should not only buy SPY but also hold QQQ.",
         "SPY offers risk-free growth.",
     ],
 )
@@ -399,6 +442,82 @@ def test_prohibited_financial_claims_fail_before_bundling(prohibited_text: str) 
 
     with pytest.raises(ExplanationContractError, match="prohibited financial claims") as exc:
         validate_and_bundle_explanation(_request(), result)
+    assert exc.value.code == ExplanationContractFailureCode.PROHIBITED_CLAIM
+
+
+@pytest.mark.parametrize(
+    "allowed_text",
+    [
+        "Please do not buy SPY.",
+        "SPY is not recommended for you.",
+        "SPY shall not outperform.",
+        "SPY is presented as educational research context.",
+        "Please do not buy SPY; please do not buy QQQ.",
+        "Please do not buy SPY, but please do not buy QQQ.",
+        "Please do not buy SPY but do not buy QQQ.",
+        "Please do not buy SPY;Please do not buy QQQ.",
+        "Please do not buy SPY,but please do not buy QQQ.",
+        "Please, do not buy SPY.",
+        "Please kindly do not buy SPY.",
+        "SPY is not highly recommended for you.",
+        "Costs are low, but hold periods can be long.",
+        "The evidence is educational; trade volume is shown for context.",
+        "Expenses vary, and purchase costs may apply.",
+        "Hold periods can be long.",
+        "Trade volume is shown for context.",
+        "Purchase costs may apply.",
+        "Hold period differs by objective.",
+        "Trade volumes vary by session.",
+        "Purchase cost remains source-dependent.",
+        "Trade volume has increased.",
+        "Trade volume reflects liquidity.",
+        "Purchase costs depend on the broker.",
+        "Hold periods depend on the objective.",
+        "Trade volume depends on liquidity.",
+        "Purchase cost depends on the broker.",
+        "Hold period depends on the objective.",
+        "Please do not purchase cost-efficient SPY.",
+        "Please do not trade volume-weighted SPY.",
+        "Please do not hold period-sensitive SPY.",
+        "SPY shall not outperform; it may gain.",
+        "SPY is not recommended for you; it is discussed for context.",
+        "Please do not buy SPY; compare it for context.",
+        "SPY WILL   NOT OUTPERFORM.",
+        "SPY IS   NOT RECOMMENDED FOR YOU.",
+        "PLEASE DO   NOT BUY SPY.",
+        "You should not buy SPY.",
+        "The spread between buy and sell prices is shown.",
+        "Research compares buy and hold strategies.",
+        "Investors compare purchase and trade costs.",
+        "Buy-and-hold strategies can reduce turnover.",
+        "Please do not buy and hold SPY.",
+    ],
+)
+def test_explicit_negation_and_educational_language_remain_allowed(allowed_text: str) -> None:
+    generated = _generated()
+    generated.evidence_points[0].text = allowed_text
+    result = ExplanationResult(provider="test", model="fixed", explanation=generated)
+
+    bundle = validate_and_bundle_explanation(_request(), result)
+
+    assert bundle.status == "ready"
+
+
+@pytest.mark.parametrize("field", ["summary", "policy_points", "evidence_points", "tradeoffs"])
+def test_polite_trade_instruction_is_rejected_in_every_statement_field(field: str) -> None:
+    generated = _generated()
+    statement = getattr(generated, field)
+    if isinstance(statement, list):
+        statement[0].text = "Please buy SPY."
+    else:
+        statement.text = "Please buy SPY."
+
+    with pytest.raises(ExplanationContractError) as exc:
+        validate_and_bundle_explanation(
+            _request(),
+            ExplanationResult(provider="test", model="fixed", explanation=generated),
+        )
+
     assert exc.value.code == ExplanationContractFailureCode.PROHIBITED_CLAIM
 
 

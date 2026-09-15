@@ -22,9 +22,9 @@ def test_offline_explanation_evaluation_is_deterministic_and_passes_all_dimensio
 
     assert first == second
     assert first.dataset_id == "explanation-safety-baseline"
-    assert first.version == 2
-    assert first.metrics.case_count == 8
-    assert first.metrics.correct_count == 8
+    assert first.version == 3
+    assert first.metrics.case_count == 14
+    assert first.metrics.correct_count == 14
     assert first.metrics.decision_accuracy == 1.0
     assert first.metrics.citation_validity.accuracy == 1.0
     assert first.metrics.claim_support.accuracy == 1.0
@@ -35,6 +35,30 @@ def test_offline_explanation_evaluation_is_deterministic_and_passes_all_dimensio
     assert first.metrics.prompt_injection_resistance.accuracy == 1.0
     assert first.metrics.passed is True
     assert all(case.passed for case in first.cases)
+
+
+def test_version_three_preserves_original_decisions_and_adds_paired_safety_cases() -> None:
+    dataset = load_explanation_evaluation_dataset()
+    decisions = [(case.case_id, case.expected_decision.value) for case in dataset.cases]
+
+    assert decisions[:8] == [
+        ("grounded-safe-response", "accept"),
+        ("unknown-source-citation", "reject"),
+        ("mismatched-etf-subject", "reject"),
+        ("unsupported-guaranteed-outcome", "reject"),
+        ("unsupported-numeric-source-claim", "reject"),
+        ("provider-refusal", "reject"),
+        ("prompt-injection-followed", "reject"),
+        ("negative-guarantee-disclaimer", "accept"),
+    ]
+    assert decisions[8:] == [
+        ("polite-trade-imperative", "reject"),
+        ("passive-personal-recommendation", "reject"),
+        ("shall-outperformance-forecast", "reject"),
+        ("negated-polite-trade-imperative", "accept"),
+        ("negated-passive-recommendation", "accept"),
+        ("negated-shall-forecast", "accept"),
+    ]
 
 
 def test_unexpected_validator_decision_fails_the_gate_and_dimension_score() -> None:
@@ -48,7 +72,7 @@ def test_unexpected_validator_decision_fails_the_gate_and_dimension_score() -> N
     report = run_offline_explanation_evaluation(dataset)
 
     assert report.metrics.passed is False
-    assert report.metrics.correct_count == 7
+    assert report.metrics.correct_count == 13
     assert report.metrics.citation_validity.accuracy == 0.5
     assert report.metrics.prompt_injection_resistance.accuracy == 0.5
     assert report.cases[0].actual_decision == "accept"

@@ -20,6 +20,7 @@ from etf_advisor.explanation import (
     ProviderFailureCode,
     ProviderFailureDiagnostic,
 )
+from etf_advisor.graph.nodes import draft_explanation
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import (
     CandidateEvidenceBundle,
@@ -430,11 +431,82 @@ def test_screening_contract_failure_stops_before_explanation_or_review() -> None
     assert "__interrupt__" not in result
 
 
-def test_prohibited_explanation_claim_stops_before_human_review() -> None:
+@pytest.mark.parametrize(
+    "unsafe_text",
+    [
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "SPY is highly recommended for you.",
+    ],
+)
+def test_prohibited_explanation_claim_stops_in_production_node(unsafe_text: str) -> None:
     class UnsafeGenerator:
         def generate(self, request: ExplanationRequest) -> ExplanationResult:
             explanation = _valid_generated_explanation()
-            explanation.evidence_points[0].text = "SPY guarantees positive returns."
+            explanation.evidence_points[0].text = unsafe_text
+            return ExplanationResult(provider="test", model="unsafe", explanation=explanation)
+
+    state = build_graph(
+        checkpointer=InMemorySaver(),
+        candidate_retriever=_current_evidence_retriever(),
+    ).invoke(
+        {"profile": valid_profile()},
+        config={"configurable": {"thread_id": f"unsafe-node-{unsafe_text}"}},
+    )
+
+    result = draft_explanation(state, generator=UnsafeGenerator())
+
+    assert result == {
+        "status": "explanation_blocked",
+        "draft_explanation": {},
+        "explanation_errors": [
+            {
+                "type": "explanation_contract",
+                "message": "Generated explanation failed safety or grounding validation.",
+                "code": "prohibited_claim",
+            }
+        ],
+    }
+    assert unsafe_text not in json.dumps(result)
+
+
+@pytest.mark.parametrize(
+    "unsafe_text",
+    [
+        "Please buy SPY.",
+        "SPY is recommended for you.",
+        "SPY shall outperform.",
+        "Please purchase cost-efficient SPY.",
+        "Please trade volume-weighted SPY.",
+        "Please hold period-sensitive SPY.",
+        "SPY shall not only outperform but also gain.",
+        "SPY is not only recommended for you; it is preferred.",
+        "Please do not only buy SPY, but also hold SPY.",
+        "Please do not buy SPY but buy QQQ.",
+        "Please do not buy SPY;Please buy QQQ.",
+        "Please do not buy SPY,but please buy QQQ.",
+        "Please, buy SPY.",
+        "Please kindly buy SPY.",
+        "SPY is highly recommended for you.",
+    ],
+)
+def test_prohibited_explanation_claim_stops_before_human_review(unsafe_text: str) -> None:
+    class UnsafeGenerator:
+        def generate(self, request: ExplanationRequest) -> ExplanationResult:
+            explanation = _valid_generated_explanation()
+            explanation.evidence_points[0].text = unsafe_text
             return ExplanationResult(
                 provider="test",
                 model="unsafe",
@@ -462,6 +534,7 @@ def test_prohibited_explanation_claim_stops_before_human_review() -> None:
         }
     ]
     json.dumps(result["explanation_errors"])
+    assert unsafe_text not in json.dumps(result)
     assert "__interrupt__" not in result
 
 
