@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -16,6 +17,62 @@ from etf_advisor.rag.snapshots import (
     SnapshotPublicationReport,
 )
 from etf_advisor.research.snapshot_io import persist_research_snapshot
+
+
+@dataclass(frozen=True)
+class FakePreparationReport:
+    collection_name: str = "test_sources"
+    total_documents: int = 2
+    legacy_documents: int = 1
+    blocked_documents: int = 1
+    pages: int = 1
+    applied: bool = False
+    ready: bool = False
+
+
+def test_prepare_chroma_legacy_visibility_previews_by_default(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[bool, int]] = []
+
+    class FakeStore:
+        def prepare_legacy_visibility(
+            self, *, apply: bool, page_size: int
+        ) -> FakePreparationReport:
+            calls.append((apply, page_size))
+            return FakePreparationReport()
+
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: FakeStore())
+
+    result = CliRunner().invoke(cli.app, ["prepare-chroma-legacy-visibility"])
+
+    assert result.exit_code == 0
+    assert calls == [(False, 100)]
+    assert '"applied": false' in result.output
+
+
+def test_prepare_chroma_legacy_visibility_applies_explicit_bounded_page_size(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[bool, int]] = []
+
+    class FakeStore:
+        def prepare_legacy_visibility(
+            self, *, apply: bool, page_size: int
+        ) -> FakePreparationReport:
+            calls.append((apply, page_size))
+            return FakePreparationReport(applied=True, ready=True)
+
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: FakeStore())
+
+    result = CliRunner().invoke(
+        cli.app,
+        ["prepare-chroma-legacy-visibility", "--apply", "--page-size", "25"],
+    )
+
+    assert result.exit_code == 0
+    assert calls == [(True, 25)]
+    assert '"ready": true' in result.output
 
 
 def test_explanation_demo_requires_evidence() -> None:

@@ -456,6 +456,45 @@ def publish_research_universe(
     typer.echo(json.dumps(asdict(report), indent=2))
 
 
+@app.command("prepare-chroma-legacy-visibility")
+def prepare_chroma_legacy_visibility(
+    apply: Annotated[
+        bool,
+        typer.Option(
+            "--apply",
+            help=(
+                "Write and verify visibility metadata. Requires all collection readers and "
+                "writers to be quiesced until the command finishes."
+            ),
+        ),
+    ] = False,
+    page_size: Annotated[
+        int,
+        typer.Option(
+            "--page-size",
+            min=1,
+            max=10_000,
+            help="Maximum document metadata rows read or written per bounded page.",
+        ),
+    ] = 100,
+) -> None:
+    """Preview or explicitly prepare safe no-snapshot Chroma visibility."""
+
+    try:
+        store = ChromaDocumentStore(
+            host=settings.chroma_host,
+            port=settings.chroma_port,
+            collection_name=settings.chroma_collection,
+            create_if_missing=False,
+        )
+        report = store.prepare_legacy_visibility(apply=apply, page_size=page_size)
+    except (ChromaUnavailable, OSError, RuntimeError, ValueError) as exc:
+        typer.echo(f"Chroma legacy visibility preparation failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo(json.dumps(asdict(report), indent=2))
+
+
 @app.command("data-health")
 def data_health(
     symbols: str = typer.Option(
