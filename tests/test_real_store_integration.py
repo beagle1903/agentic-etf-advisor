@@ -83,19 +83,18 @@ def real_stores() -> RealStoreEnvironment:
         str(COMPOSE_FILE),
     ]
     try:
-        subprocess.run(
-            [*command, "up", "--detach", "--wait", "--wait-timeout", "180"],
-            cwd=ROOT,
-            env=compose_environment,
-            check=True,
-            capture_output=True,
-            text=True,
-            timeout=240,
-        )
-    except (OSError, subprocess.SubprocessError) as exc:
-        pytest.fail(f"Could not start disposable real-store services: {exc}")
-
-    try:
+        try:
+            subprocess.run(
+                [*command, "up", "--detach", "--wait", "--wait-timeout", "180"],
+                cwd=ROOT,
+                env=compose_environment,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=240,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            pytest.fail(f"Could not start disposable real-store services: {exc}")
         yield environment
     finally:
         subprocess.run(
@@ -107,6 +106,25 @@ def real_stores() -> RealStoreEnvironment:
             text=True,
             timeout=120,
         )
+
+
+def test_real_store_start_failure_still_tears_down(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(INTEGRATION_ENABLED, "1")
+    monkeypatch.setattr(shutil, "which", lambda executable: "docker")
+    calls: list[list[str]] = []
+
+    def failed_start(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        calls.append(command)
+        if "up" in command:
+            raise subprocess.CalledProcessError(1, command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(subprocess, "run", failed_start)
+
+    with pytest.raises(pytest.fail.Exception, match="Could not start"):
+        next(real_stores.__wrapped__())
+
+    assert any(command[-3:] == ["down", "--volumes", "--remove-orphans"] for command in calls)
 
 
 class DeterministicEmbedding:
