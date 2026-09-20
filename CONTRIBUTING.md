@@ -106,6 +106,22 @@ docker compose config --quiet
 git diff --check
 ```
 
+## Opt-in real-store contract coverage
+
+Default tests use deterministic in-memory or driver doubles and never start local services. To
+exercise the disposable PostgreSQL, Neo4j, and Chroma contract suite, install the checkpoint and
+RAG extras, ensure Docker Desktop is running, then run:
+
+```powershell
+$env:RUN_REAL_STORE_TESTS = "1"
+uv run pytest tests/test_real_store_integration.py
+Remove-Item Env:RUN_REAL_STORE_TESTS
+```
+
+The fixture assigns loopback ports, starts a uniquely named Compose project from
+`compose.integration.yaml`, and always runs `docker compose down --volumes` for that project. It
+uses no production Compose volumes, credentials, providers, market-data calls, or private data.
+
 ## Verification evidence
 
 Pull requests contain implementation-specific test results. The iteration document contains the
