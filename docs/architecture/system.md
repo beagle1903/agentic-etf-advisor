@@ -49,8 +49,14 @@ failed stage or graph transaction therefore leaves the previous active snapshot 
 inactive staged Chroma records do not enter advisory retrieval. A published version is
 content-address checked and cannot be reused for different snapshot content. Canonical field-level
 provenance JSON is retained on each source document in both stores. When no snapshot has ever been
-activated, hybrid retrieval uses a dedicated legacy-only semantic query that removes every record
-carrying version or digest metadata, so a failed first publication cannot bypass activation.
+activated, hybrid retrieval requires a freshly read, collection-level legacy-visibility
+certification and issues a result-limit-bounded equality-filter query for adapter-classified legacy
+records. Every returned row is checked again for the legacy marker and absence of both snapshot
+keys before the adapter marker is removed. Existing collections require an explicit bounded,
+metadata-only preview/apply preparation while readers and writers are quiesced; interrupted or
+malformed preparation fails closed. All new adapter writes classify snapshot-key presence, and a
+legacy upsert cannot replace an existing ID that carries either snapshot key. A failed first
+publication therefore cannot bypass activation, even under metadata-merging store behavior.
 
 The publication CLI writes the validated canonical snapshot payload atomically to an ignored local
 artifact before either database is changed. An explicit-version retry loads that payload rather

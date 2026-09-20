@@ -133,6 +133,28 @@ documents are not searched by the advisory path. Before the first activation, a 
 legacy-only query excludes every document carrying snapshot identity metadata. A published version
 cannot be reused for different content.
 
+Legacy visibility is now an explicitly prepared Chroma compatibility contract. Newly created
+collections are ready while empty and every adapter write receives an internal `legacy-v1` or
+`blocked-v1` marker. Existing collections remain unavailable to the no-active-snapshot branch until
+they are prepared. First stop or quiesce every reader and writer, then preview the bounded metadata
+classification:
+
+```powershell
+uv run etf-advisor prepare-chroma-legacy-visibility --page-size 100
+```
+
+Review the legacy and blocked counts. While the collection remains quiesced, apply and read back
+the metadata-only update:
+
+```powershell
+uv run etf-advisor prepare-chroma-legacy-visibility --apply --page-size 100
+```
+
+An interrupted or failed apply deliberately leaves legacy retrieval disabled. Fix the reported
+store problem and rerun the same command while the collection is quiesced. The operation does not
+rewrite document content, embeddings, IDs, canonical provenance, or snapshot identity. Active
+snapshot retrieval is unaffected and continues to use its exact version-and-digest filter.
+
 Before either store is changed, the command atomically saves the canonical snapshot under the
 ignored `.artifacts/research-snapshots/` directory. Re-running the same explicit version reuses
 that payload instead of refetching mutable Yahoo data. Use `--snapshot-file PATH` to select or

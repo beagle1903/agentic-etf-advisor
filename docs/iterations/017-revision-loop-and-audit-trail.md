@@ -659,3 +659,36 @@ ownership, live retrieval/provider behavior, market-data freshness in production
 multi-user concurrency, backups, and external financial writes remain unverified and out of scope.
 Future external financial writes still require a separate human approval immediately before
 execution.
+
+### Issue #51 bounded legacy Chroma visibility
+
+The coordinator-approved `DESIGN_READY` handoff is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/51#issuecomment-5729652738. ADR 0024 adds an
+adapter-owned document marker and collection readiness certificate so no-active-snapshot retrieval
+uses an exact equality filter with `n_results` equal to the requested limit. Returned rows retain a
+fail-closed contradiction check, and the internal marker is removed before evidence leaves the
+adapter. Active version-and-digest retrieval is unchanged.
+
+All adapter writes classify records by presence of either snapshot key. A legacy upsert first reads
+the matching IDs and rejects the complete batch if existing metadata contains snapshot identity,
+preventing metadata merge or replacement from exposing staged evidence. Existing collections need
+an explicit `prepare-chroma-legacy-visibility` preview and `--apply` while readers and writers are
+quiesced. Apply uses bounded metadata-only pages, marks readiness incomplete before writes, reads
+back every page, performs a bounded complete validation, and certifies readiness only after success.
+
+Focused fake-store coverage includes a 50,000-record count with a K-bounded equality query;
+empty, mixed, staged-only identity forms; forged markers; fresh readiness; merge-protected upserts;
+bounded preparation, readback failure, and rerun behavior; marker stripping; and the existing
+hybrid/publication paths. A disposable embedded Chroma test with deterministic embeddings covers
+the relied-on equality-filter and metadata-update semantics. The implementation does not change
+canonical JSON, graph/checkpoint state, snapshot digests, finance policy, or external-write
+behavior. Docker/server concurrency remains untested and requires operational quiescence.
+
+Remediation verification completed on `2026-09-19`. The focused Chroma, CLI, hybrid, and
+snapshot-publication suite passed **54 tests**. The Codex workflow validator, Ruff format check
+(129 files), Ruff lint, strict mypy (46 source files), and the complete offline suite passed with
+**1013 tests**. Retrieval evaluation retained full hit/recall/attribution and full
+graph-context accuracy; explanation evaluation matched **14/14** expected decisions. Package
+source/wheel build, Docker Compose configuration, and `git diff --check` also passed. No live
+Chroma server, concurrent migration, provider, market-data, Neo4j, PostgreSQL, trade, or external
+financial-write operation was performed.

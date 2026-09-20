@@ -1,8 +1,17 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier, Lock
+from typing import Any
+from uuid import uuid4
 
+import pytest
 from test_research_snapshot import research_snapshot
 
+from etf_advisor.rag.chroma_store import (
+    BLOCKED_VISIBILITY_VALUE,
+    LEGACY_VISIBILITY_KEY,
+    ChromaDocumentStore,
+)
+from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError
 from etf_advisor.rag.models import SourceDocument
 from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, publish_research_snapshot
@@ -221,3 +230,66 @@ def test_interleaved_same_version_publishers_cannot_cross_activate_chroma_conten
         and document.metadata["snapshot_digest"] == active.snapshot_digest
     ]
     assert len(reachable) == 1
+
+
+def test_failed_first_publication_stays_hidden_until_exact_snapshot_activation() -> None:
+    chromadb = pytest.importorskip("chromadb")
+    from chromadb.api.types import EmbeddingFunction
+
+    class DeterministicEmbedding(EmbeddingFunction[list[str]]):
+        def __init__(self) -> None:
+            pass
+
+        @staticmethod
+        def name() -> str:
+            return "issue-51-publication-boundary"
+
+        @staticmethod
+        def get_config() -> dict[str, Any]:
+            return {}
+
+        @staticmethod
+        def build_from_config(config: dict[str, Any]) -> "DeterministicEmbedding":
+            return DeterministicEmbedding()
+
+        def __call__(self, input: list[str]) -> list[list[float]]:
+            return [[float(len(text)), float(sum(map(ord, text)) % 101)] for text in input]
+
+    snapshot = research_snapshot()
+    documents = snapshot.to_source_documents()
+    identity = ActiveSnapshotIdentity(snapshot.snapshot_version, snapshot.content_digest())
+    chroma = ChromaDocumentStore(
+        client=chromadb.EphemeralClient(),
+        collection_name=f"issue_51_publication_{uuid4().hex}",
+        embedding_function=DeterministicEmbedding(),
+    )
+
+    with pytest.raises(RuntimeError, match="graph transaction failed"):
+        publish_research_snapshot(snapshot, chroma, FakeSnapshotGraphStore(fail=True))
+
+    stored = chroma.document_metadatas([documents[0].document_id])
+    assert stored[documents[0].document_id][LEGACY_VISIBILITY_KEY] == BLOCKED_VISIBILITY_VALUE
+
+    class RetrievalGraph:
+        def __init__(self, active: ActiveSnapshotIdentity | None) -> None:
+            self.active = active
+            self.requested_ids: list[str] | None = None
+
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+            return self.active
+
+        def find_contexts(self, document_ids: list[str]) -> dict[str, object]:
+            self.requested_ids = document_ids
+            return {}
+
+    inactive_graph = RetrievalGraph(None)
+    assert HybridRetriever(chroma, inactive_graph).search("ETF research", limit=5) == []
+    assert inactive_graph.requested_ids == []
+
+    active_graph = RetrievalGraph(identity)
+    active_results = HybridRetriever(chroma, active_graph).search("ETF research", limit=5)
+    assert [result.document_id for result in active_results] == [documents[0].document_id]
+    assert active_results[0].metadata["snapshot_version"] == identity.snapshot_version
+    assert active_results[0].metadata["snapshot_digest"] == identity.snapshot_digest
+    assert LEGACY_VISIBILITY_KEY not in active_results[0].metadata
+    assert active_graph.requested_ids == [documents[0].document_id]
