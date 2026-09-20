@@ -239,8 +239,4 @@ def route_after_screening(state: AdvisorState) -> Literal["next", "end"]:
     return "next" if state.get("status") == "awaiting_human_review" else "end"
 
 
-def route_after_construction(state: AdvisorState) -> Literal["next", "end"]:
-    return "next" if state.get("status") == "awaiting_human_review" else "end"
-
-
 graph = build_graph()
