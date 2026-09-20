@@ -1,7 +1,8 @@
 # Iteration 017: Revision loop and audit trail
 
-- Status: Active
+- Status: Complete
 - Created: 2026-09-04
+- Completed: 2026-09-19
 - Tracking issue: https://github.com/beagle1903/agentic-etf-advisor/issues/22
 
 ## Goal
@@ -73,7 +74,7 @@ explicit lifecycle for durable checkpoints.
 - [x] Implement deterministic revision routing and replay guards (#40).
 - [x] Implement audit lineage and the local checkpoint lifecycle (#41).
 - [x] Present revisions, rerun controls, and checkpoint deletion in the dashboard (#42).
-- [ ] Run end-to-end revision-loop and audit-trail acceptance verification (#43).
+- [x] Run end-to-end revision-loop and audit-trail acceptance verification (#43).
 
 The GitHub tracking issue owns progress, parent/sub-issue relationships, blocked-by relationships,
 pull requests, and closure. This file is the canonical execution contract and will retain final
@@ -550,6 +551,114 @@ validation, and `git diff --check` passed. One initial focused run hit the exist
 Streamlit cold-start timeout; that unchanged test and the new control-suppression regression passed
 immediately in isolation, and the subsequent focused and complete suites passed without a code
 change for the timeout.
+
+## Issue #43 DESIGN_READY: iteration acceptance verification
+
+- Status: **DESIGN_READY — approved by the user's 2026-09-19 request.**
+- Classification and owner: ordinary verification work within the accepted revision, replay,
+  lifecycle, and dashboard contracts; `implementation_worker` (`gpt-5.6-sol`, medium). The task
+  exercises consequential boundaries but does not change their contracts, so a separate
+  `design_architect` handoff is not required.
+- Authorization and scope: run the Issue #43 deterministic local acceptance matrix against the
+  current `main` baseline; record redacted commands, results, representative outcomes, and
+  limitations here. If verification exposes a defect, repair only the established revision-loop,
+  audit-trail, lifecycle, or dashboard presentation behavior needed for this matrix, with focused
+  regression coverage and the standard gates.
+- Non-goals: no market-data, provider, Chroma, Neo4j, PostgreSQL, credential, network-financial,
+  trade, brokerage, or other external financial write; no change to finance eligibility,
+  allocation, safety, snapshot, retention, replay, or authorization contracts; no migration,
+  cleanup, or edits to unrelated in-progress workspace changes.
+- Invariants and interfaces: typed feedback alone selects the fixed restart boundary; invalidation,
+  immutable lineage, receipt identity/reuse, explicit retry, and fail-closed restore/tamper
+  behavior remain authoritative in the graph. Lifecycle remains bounded, exact-token scoped, and
+  atomic for deletion. The dashboard remains an allowlisted, token-redacting adapter that delegates
+  decisions to the graph. Retrieval, explanation, clock, and checkpoint interfaces remain
+  injected and replaceable.
+- State impact: no intended graph-state, JSON schema, persistence, or external-interface change.
+  Any scoped repair must preserve JSON serialization and existing canonical digests; it must not
+  introduce adapter calls in blocked, reuse, restore, or terminal paths.
+- Acceptance and verification: cover every feedback class, mixed precedence, close, successful
+  reuse, explicit retry, ambiguous and tampered receipts, audit reconstruction, expiry/preview/
+  prune/deletion/discard, restored dashboard safety, and representative local Streamlit controls.
+  Run the focused matrix, complete offline suite, workflow validator, Ruff lint/format, strict
+  mypy, both offline evaluations, package build, Docker Compose validation, and diff check.
+- Documentation and risks: append final UTC timestamp, tested commit, redacted environment,
+  commands/results, representative outcomes, PR/CI status, and limitations to this document.
+  Escalate rather than redesign if a result requires a contract, migration, concurrency, live
+  service, authentication, or external-write change; stop after two related review-remediation
+  failures under ADR 0023.
+
+## Final acceptance verification (Issue #43)
+
+Iteration 017 was accepted after deterministic end-to-end verification of the merged revision,
+audit, lifecycle, and dashboard baseline. No scoped defect or contract change was identified.
+
+### Tested baseline and environment
+
+- Tested commit: `966b7d34604298e07c83845af9420ef2c00ea58b`, `main`'s merge commit for
+  [PR #64](https://github.com/beagle1903/agentic-etf-advisor/pull/64). It includes the merged
+  revision/replay implementation ([PR #45](https://github.com/beagle1903/agentic-etf-advisor/pull/45)),
+  audit/lifecycle implementation ([PR #55](https://github.com/beagle1903/agentic-etf-advisor/pull/55)),
+  and dashboard controls ([PR #58](https://github.com/beagle1903/agentic-etf-advisor/pull/58)).
+- PR #64's [CI test job](https://github.com/beagle1903/agentic-etf-advisor/actions/runs/35004949822/job/104502265543)
+  completed successfully. This acceptance ran again in a clean worktree whose application source
+  was at that exact commit; only this Issue #43 documentation record was uncommitted while the
+  local commands ran.
+- Verification completed on 2026-09-19 UTC. Redacted environment: local Windows worktree,
+  PowerShell, Python 3.13.14, uv 0.9.7, Docker 29.8.0, Docker Compose 5.5.1, and the locked
+  repository dependencies including dashboard and checkpoint extras.
+- Method: deterministic in-memory graph/checkpoint and PostgreSQL-contract doubles, fixed clocks
+  and fake retrieval/provider boundaries, Streamlit's local application test harness, offline
+  evaluation datasets, package build, and static Compose validation.
+- No credential, provider, market-data, Chroma, Neo4j, PostgreSQL, brokerage, trade, or external
+  financial-system request was made. No review token, full profile, source body, prompt, raw
+  provider output, or private configuration is retained here.
+
+### Automated and representative results
+
+| Verification | Result |
+| --- | --- |
+| Focused revision/audit/lifecycle/dashboard/workflow matrix | Pass; 384 collected tests. |
+| `uv run pytest` | Pass; 987 offline tests on the clean merged baseline. |
+| `uv run python scripts/validate_codex_workflow.py` | Pass. |
+| `uv run ruff check .` | Pass. |
+| `uv run ruff format --check .` | Pass; all 128 baseline files formatted. |
+| `uv run mypy` | Pass in strict mode across 46 source files. |
+| `uv run etf-advisor evaluate-retrieval` | Pass; baseline v3 retains 1.0 hit/recall/source attribution and graph-sector context accuracy, with no semantic-ranking delta. |
+| `uv run etf-advisor evaluate-explanations` | Pass; all 14 expected decisions matched. |
+| `uv build` | Pass; source and wheel artifacts built. |
+| `docker compose config --quiet` | Pass. |
+| `git diff --check` | Pass. |
+
+Representative local acceptance scenarios produced these results:
+
+- Every typed feedback class, mixed-feedback precedence, and reject-close followed its single
+  planned restart/invalidation outcome; malformed or stale inputs produced no partial patch or
+  adapter call.
+- Matching successful retrieval/provider receipts reused their validated output without another
+  adapter call. Failed or ambiguous attempts required an exact explicit retry with a new operation
+  identity; malformed, cross-thread, cross-revision, or digest-mismatched receipts failed closed.
+- Audit reconstruction preserved JSON-safe immutable profile/artifact, source-snapshot, decision,
+  receipt, and child-lineage references. Tampering and detached interrupt substitutions disabled
+  review controls without mutation.
+- Lifecycle tests verified exact expiry, read-only non-renewal, preview/prune's captured candidate
+  set, confirmed atomic whole-thread deletion, post-deletion restore failure, and process-local
+  discard. Other threads remained intact.
+- The Streamlit application harness rendered allowlisted revision/lifecycle and typed-feedback
+  controls for a valid policy review, while a detached checkpoint/interrupt mismatch suppressed
+  mutation controls. Tokens, profile values, source bodies, prompts, and raw provider content were
+  not rendered in the audit projection.
+
+### Acceptance outcomes and remaining limitations
+
+All Issue #43 acceptance criteria pass for the deterministic local prototype. The verification
+confirms contract behavior, not exactly-once external execution, financial suitability,
+optimization, forecasting, authorization, production durability, or broad model safety. Live
+PostgreSQL transaction/advisory-lock behavior, durable adapter reattachment, Neo4j startup-resource
+ownership, live retrieval/provider behavior, market-data freshness in production, authentication,
+multi-user concurrency, backups, and external financial writes remain unverified and out of scope.
+Future external financial writes still require a separate human approval immediately before
+execution.
 
 ### Issue #51 bounded legacy Chroma visibility
 
