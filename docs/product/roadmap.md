@@ -10,7 +10,7 @@ outputs.
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
 
-## Proven baseline: iterations 000-016
+## Proven baseline: iterations 000-017
 
 The repository already proves the following vertical slices:
 
@@ -37,6 +37,9 @@ The repository already proves the following vertical slices:
 - Deterministic model-portfolio construction with exact weight and cash reconciliation, explicit
   category and position constraints, source-attributable reasons, fail-closed dashboard
   recomputation, and durable human-review restoration.
+- Typed, auditable revision planning with explicit feedback boundaries, immutable lineage,
+  fail-closed side-effect replay receipts, local checkpoint retention/deletion, and allowlisted
+  dashboard lifecycle controls.
 
 This is a strong research and review foundation. Iteration 016 builds, validates, presents, and
 restores a checkpointed illustrative portfolio at human review with deterministic safety gates. It
@@ -131,22 +134,22 @@ Acceptance gate:
 - Remain educational: no forecast, guaranteed return, suitability claim, trade instruction, or
   brokerage action.
 
-## Active: make review operationally complete
+### Iteration 017: revision loop and audit trail (complete)
 
-### Iteration 017: revision loop and audit trail (active)
-
-Make edit and reject decisions useful inputs to a controlled rerun instead of terminal labels.
-
-Canonical contract:
-`docs/iterations/017-revision-loop-and-audit-trail.md`.
+Make edit and reject decisions controlled, auditable reruns rather than terminal labels.
 
 Acceptance gate:
 
-- Classify feedback and rerun only the affected deterministic, retrieval, or explanation stages.
-- Never replay side effects accidentally across a checkpoint resume.
-- Keep profile versions, evidence snapshot IDs, generated drafts, review decisions, and revision
-  lineage auditable.
-- Add explicit retention and deletion behavior for local checkpoints.
+- Route typed feedback only to its earliest affected workflow stage and invalidate downstream
+  artifacts deterministically.
+- Reuse only validated successful side-effect receipts; require an explicit retry after failed or
+  ambiguous attempts.
+- Preserve revision lineage, source-snapshot identity, audit reconstruction, bounded retention,
+  exact-thread deletion, and process-local discard behavior.
+- Present allowlisted history and lifecycle controls without treating a review token as
+  authentication or exposing private audit content.
+
+## Active: make review operationally complete
 
 ### Iteration 018: authenticated multi-user review
 
