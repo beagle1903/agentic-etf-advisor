@@ -55,6 +55,9 @@ packages = ["src/etf_advisor"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+markers = [
+  "real_store: opt-in disposable PostgreSQL, Neo4j, and Chroma contract coverage",
+]
 
 [tool.ruff]
 line-length = 100

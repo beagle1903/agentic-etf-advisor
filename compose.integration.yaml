@@ -1,0 +1,40 @@
+services:
+  chroma:
+    image: chromadb/chroma@sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6
+    ports:
+      - "127.0.0.1:${REAL_STORE_CHROMA_PORT}:8000"
+    healthcheck:
+      test: ["CMD", "/usr/bin/bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8000"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  neo4j:
+    image: neo4j:2026.07.1
+    ports:
+      - "127.0.0.1:${REAL_STORE_NEO4J_PORT}:7687"
+    environment:
+      NEO4J_AUTH: neo4j/integration-password
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          cypher-shell -a bolt://localhost:7687 -u "$${NEO4J_AUTH%%/*}"
+          -p "$${NEO4J_AUTH#*/}" "RETURN 1" >/dev/null
+      interval: 5s
+      timeout: 3s
+      retries: 36
+
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:${REAL_STORE_POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_USER: integration
+      POSTGRES_PASSWORD: integration-password
+      POSTGRES_DB: integration
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
