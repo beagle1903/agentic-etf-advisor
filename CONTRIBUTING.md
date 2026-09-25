@@ -16,8 +16,10 @@ architecture, execution, and verification knowledge.
 
 ## Codex ticket routing
 
-Use the authoritative classification contract in `AGENTS.md` and ADR 0022. Record the work's
-classification, actual role/model/effort, rationale, authorization, and escalation triggers.
+Use the authoritative classification contract in `AGENTS.md`, ADR 0022, and the current GPT-6
+model assignments in [ADR 0025](docs/architecture/decisions/0025-gpt6-codex-role-routing.md).
+Record the work's classification, actual role/model/effort, rationale, authorization, and
+escalation triggers.
 Mechanical work uses `bounded_worker`; ordinary work within established contracts uses
 `implementation_worker`. In one authorized session, that owner may record the complete
 `DESIGN_READY` capsule before implementation edits, implement, add focused tests, self-review,

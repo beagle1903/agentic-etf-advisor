@@ -25,6 +25,17 @@ def require_markers(path: Path, markers: tuple[str, ...]) -> None:
         raise SystemExit(f"{path}: missing required workflow markers: {joined}")
 
 
+def require_lines(path: Path, expected_lines: tuple[str, ...]) -> None:
+    try:
+        lines = set(path.read_text(encoding="utf-8").splitlines())
+    except (OSError, UnicodeError) as exc:
+        raise SystemExit(f"{path}: unreadable workflow document: {exc}") from exc
+    missing = [line for line in expected_lines if line not in lines]
+    if missing:
+        joined = ", ".join(repr(line) for line in missing)
+        raise SystemExit(f"{path}: missing required workflow lines: {joined}")
+
+
 def main() -> None:
     agent_expectations = {
         "agents/planning-analyst.toml": {
@@ -33,7 +44,7 @@ def main() -> None:
                 "Read-only analyst for discovery, planning, and "
                 "architecture-determined low-risk designs."
             ),
-            "model": "gpt-5.6-terra",
+            "model": "gpt-6-luna",
             "model_reasoning_effort": "medium",
             "sandbox_mode": "read-only",
         },
@@ -53,7 +64,7 @@ def main() -> None:
                 "Bounded worker owning authorized mechanical work from design capsule "
                 "through verification."
             ),
-            "model": "gpt-5.6-terra",
+            "model": "gpt-6-luna",
             "model_reasoning_effort": "medium",
             "sandbox_mode": "workspace-write",
         },
@@ -63,7 +74,7 @@ def main() -> None:
                 "Implementation worker owning authorized ordinary work from design capsule "
                 "through verification."
             ),
-            "model": "gpt-5.6-sol",
+            "model": "gpt-6-sol",
             "model_reasoning_effort": "medium",
             "sandbox_mode": "workspace-write",
         },
@@ -73,7 +84,7 @@ def main() -> None:
                 "Read-only reviewer for substantive correctness, dependencies, and "
                 "test-gap analysis."
             ),
-            "model": "gpt-5.6-sol",
+            "model": "gpt-6-sol",
             "model_reasoning_effort": "high",
             "sandbox_mode": "read-only",
         },
@@ -83,7 +94,7 @@ def main() -> None:
                 "Implementation specialist for demonstrably difficult work with an evidence-backed "
                 "escalation trigger."
             ),
-            "model": "gpt-5.6-sol",
+            "model": "gpt-6-sol",
             "model_reasoning_effort": "high",
             "sandbox_mode": "workspace-write",
         },
@@ -226,6 +237,16 @@ def main() -> None:
         if missing:
             raise SystemExit(f"{path}: missing instruction boundaries: {missing}")
 
+    routing_table_rows = tuple(
+        "| `{name}` | `{model}` | {effort} | {access} |".format(
+            name=expectations["name"],
+            model=expectations["model"],
+            effort=expectations["model_reasoning_effort"],
+            access=expectations["sandbox_mode"],
+        )
+        for expectations in agent_expectations.values()
+    )
+    require_lines(ROOT / "AGENTS.md", routing_table_rows)
     require_markers(
         ROOT / "AGENTS.md",
         (
@@ -239,6 +260,8 @@ def main() -> None:
             "classification table is authoritative",
             "DESIGN_READY",
             "gpt-6-astra",
+            "Luna → Sol → Astra",
+            "ADR 0025",
             "Classify by impact",
             "Complete routine work in one session",
             "Escalate from evidence",
@@ -276,6 +299,7 @@ def main() -> None:
             "DESIGN_READY",
             "planning_analyst",
             "implementation_specialist",
+            "ADR 0025",
             "separate sequential session",
             "actual routing evidence",
             "one authorized session",

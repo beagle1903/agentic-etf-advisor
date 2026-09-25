@@ -48,14 +48,14 @@ selected role, model, effort, rationale, authorization, and any escalation evide
 
 | Role | Model | Effort | Access |
 | --- | --- | --- | --- |
-| `planning_analyst` | `gpt-5.6-terra` | medium | read-only |
+| `planning_analyst` | `gpt-6-luna` | medium | read-only |
 | `design_architect` | `gpt-6-astra` | high | read-only |
-| `bounded_worker` | `gpt-5.6-terra` | medium | workspace-write |
-| `implementation_worker` | `gpt-5.6-sol` | medium | workspace-write |
-| `code_reviewer` | `gpt-5.6-sol` | high | read-only |
-| `implementation_specialist` | `gpt-5.6-sol` | high | workspace-write |
+| `bounded_worker` | `gpt-6-luna` | medium | workspace-write |
+| `implementation_worker` | `gpt-6-sol` | medium | workspace-write |
+| `code_reviewer` | `gpt-6-sol` | high | read-only |
+| `implementation_specialist` | `gpt-6-sol` | high | workspace-write |
 
-The classification table is authoritative; Terra → Sol → Astra is routing shorthand, not a
+The classification table is authoritative; Luna → Sol → Astra is routing shorthand, not a
 mandatory sequence through all roles.
 
 | Classification | Owner and execution contract |
@@ -75,14 +75,16 @@ high fits ambiguity, important edge cases, or costly mistakes. `xhigh` is except
 `max`/`ultra` are last-resort settings, not routine quality switches. These six pinned roles
 do not silently adopt those settings. Lower effort for a routine follow-up requires a newly
 selected appropriate role/session. Luna/low may be explicitly selected for bounded read-only
-fact gathering; it cannot issue a design gate or implement a ticket. No permanent Luna role
-or GPT-5.5 default is added.
+fact gathering; this exception cannot issue a design gate or implement a ticket. No GPT-5.5
+default is added.
 
 Required dependent phases remain sequential, with no parallel subagents. All six roles have explicit
 descriptions and relative `config_file` registrations. ADR 0018 compatibility policy remains:
 no `enabled`, generic-agent model/effort defaults, concurrency scalars, `max_threads`, default
 role, or project-level model override. Sequencing is coordinator policy, not a runtime cap.
 ADR 0022 supersedes ADR 0020 only for mandatory routine phase separation and task-by-task routing;
+[ADR 0025](docs/architecture/decisions/0025-gpt6-codex-role-routing.md) supersedes only earlier
+pinned model assignments and the permanent-Luna prohibition;
 accepted ADRs remain history.
 
 Any one-off workflow exception must be explicitly approved and recorded in the issue and PR.

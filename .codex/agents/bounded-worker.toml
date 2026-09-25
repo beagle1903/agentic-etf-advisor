@@ -1,6 +1,6 @@
 name = "bounded_worker"
 description = "Bounded worker owning authorized mechanical work from design capsule through verification."
-model = "gpt-5.6-terra"
+model = "gpt-6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """
