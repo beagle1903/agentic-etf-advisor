@@ -58,6 +58,24 @@ class FakeRelationshipStore:
         }
 
 
+def test_active_identity_change_during_graph_enrichment_fails_closed() -> None:
+    class ChangedRelationshipStore(FakeRelationshipStore):
+        changed = False
+
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity | None:
+            return ActiveSnapshotIdentity("new", "digest") if self.changed else None
+
+        def find_contexts(self, document_ids: list[str]) -> dict[str, GraphContext]:
+            result = super().find_contexts(document_ids)
+            self.changed = True
+            return result
+
+    with pytest.raises(ValueError, match="projection_integrity"):
+        HybridRetriever(FakeSemanticStore(), ChangedRelationshipStore()).search(
+            "broad market", limit=2
+        )
+
+
 def test_hybrid_search_preserves_ranking_and_exposes_missing_context() -> None:
     results = HybridRetriever(FakeSemanticStore(), FakeRelationshipStore()).search(
         "broad market", limit=2

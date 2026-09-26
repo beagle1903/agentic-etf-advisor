@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -9,8 +10,10 @@ from typer.testing import CliRunner
 
 import etf_advisor.cli as cli
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.encoding import document_fingerprint
 from etf_advisor.rag.evidence import EvidenceRetrievalError
 from etf_advisor.rag.indexing import IndexConsistencyError
+from etf_advisor.rag.models import RetrievedSource
 from etf_advisor.rag.snapshots import (
     ActiveSnapshotIdentity,
     SnapshotManifest,
@@ -110,7 +113,8 @@ def test_evidence_demo_exits_nonzero_before_review_when_retrieval_fails(
     assert result.exit_code == 1
     assert "Workflow stopped before human review:" in result.output
     assert "Paused for human review:" not in result.output
-    assert "source service unavailable" in result.output
+    assert "Check local stores and retry explicitly" in result.output
+    assert "source service unavailable" not in result.output
     assert graph_store.closed is True
 
 
@@ -193,10 +197,17 @@ def test_publish_research_universe_wires_versioned_snapshot_and_closes_graph(
     monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: "chroma-store")
     monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: graph_store)
 
-    def fake_publish(snapshot: object, chroma: object, graph: object) -> SnapshotPublicationReport:
+    def fake_publish(
+        snapshot: object, chroma: object, graph: object, **kwargs: object
+    ) -> SnapshotPublicationReport:
         assert snapshot == research_snapshot()
         assert chroma == "chroma-store"
         assert graph is graph_store
+        assert kwargs["clock"] is cli.system_utc_now
+        assert kwargs["max_age"] == timedelta(hours=cli.settings.market_data_max_age_hours)
+        assert kwargs["future_tolerance"] == timedelta(
+            minutes=cli.settings.market_data_future_tolerance_minutes
+        )
         return SnapshotPublicationReport(
             snapshot_version="snapshot-v1",
             snapshot_digest="abc123",
@@ -252,7 +263,7 @@ def test_publish_retry_reuses_payload_saved_before_store_failure(
         def close(self) -> None:
             pass
 
-    def fake_publish(*args: object) -> SnapshotPublicationReport:
+    def fake_publish(*args: object, **kwargs: object) -> SnapshotPublicationReport:
         nonlocal publish_calls
         publish_calls += 1
         if publish_calls == 1:
@@ -405,6 +416,15 @@ def test_publish_retry_noops_when_requested_snapshot_is_already_active(
                 }
             }
 
+        def document_records(self, document_ids: list[str]) -> dict[str, RetrievedSource]:
+            return {
+                "doc-spy": RetrievedSource(
+                    document_id="doc-spy",
+                    content="test",
+                    metadata=self.document_metadatas(document_ids)["doc-spy"],
+                )
+            }
+
     class FakeGraphStore:
         def active_snapshot_identity(self) -> ActiveSnapshotIdentity:
             return identity
@@ -419,7 +439,20 @@ def test_publish_retry_noops_when_requested_snapshot_is_already_active(
                 snapshot_digest=identity.snapshot_digest,
                 document_count=1,
                 document_ids=("doc-spy",),
+                fingerprints={
+                    "doc-spy": document_fingerprint(
+                        "doc-spy",
+                        "test",
+                        {
+                            "snapshot_version": identity.snapshot_version,
+                            "snapshot_digest": identity.snapshot_digest,
+                        },
+                    )
+                },
             )
+
+        def verify_snapshot(self, version: str) -> None:
+            assert version == "snapshot-v1"
 
         def close(self) -> None:
             pass
@@ -489,7 +522,77 @@ def test_publish_retry_fails_when_active_chroma_documents_are_missing(
     )
 
     assert result.exit_code == 1
-    assert "Chroma is missing 1 active snapshot document" in result.output
+    assert "document_integrity" in result.output
+    assert "Republish validated evidence" in result.output
+
+
+def test_publication_diagnostic_does_not_echo_raw_store_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    private = "postgresql://private-user:private-password@private-host/private-db"
+
+    def fail(**kwargs: object) -> None:
+        raise ValueError(private)
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", fail)
+    result = CliRunner().invoke(cli.app, ["publish-research-universe"])
+    assert result.exit_code == 1
+    assert "schema_encoding" in result.output
+    assert private not in result.output
+
+
+@pytest.mark.parametrize("records", [None, [None], [{}]])
+def test_actual_cli_malformed_schema2_record_shapes_have_safe_diagnostics(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, records: object
+) -> None:
+    from test_lossless_contract import lossless_snapshot
+
+    private = "private-source-marker"
+    payload = lossless_snapshot().model_dump(mode="json")
+    payload["records"] = records
+    payload["universe_version"] = private
+    payload_path = tmp_path / "malformed-schema2.json"
+    payload_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    class EmptyGraph:
+        def active_snapshot_identity(self) -> None:
+            return None
+
+        def snapshot_digest(self, version: str) -> None:
+            return None
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: EmptyGraph())
+    monkeypatch.setattr(
+        cli,
+        "load_research_universe",
+        lambda path: SimpleNamespace(universe_id=payload["universe_id"]),
+    )
+    monkeypatch.setattr(
+        cli, "ChromaDocumentStore", lambda **kwargs: pytest.fail("malformed input reached staging")
+    )
+    monkeypatch.setattr(
+        cli,
+        "YahooResearchAdapter",
+        lambda **kwargs: pytest.fail("malformed input reached provider"),
+    )
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            payload["snapshot_version"],
+            "--snapshot-file",
+            str(payload_path),
+        ],
+    )
+    assert result.exit_code == 1
+    assert "schema_encoding" in result.output
+    assert "Republish validated evidence" in result.output
+    assert private not in result.output
+    assert not isinstance(result.exception, (TypeError, KeyError))
     assert '"already_active": true' not in result.output
 
 

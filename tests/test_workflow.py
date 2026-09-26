@@ -420,12 +420,15 @@ def test_screening_contract_failure_stops_before_explanation_or_review() -> None
         config={"configurable": {"thread_id": "screening-contract-failure"}},
     )
 
-    assert result["status"] == "screening_blocked"
+    assert result["status"] == "evidence_blocked"
     assert result["candidate_screening"] == {}
-    assert result["screening_errors"] == [
+    assert result["evidence_errors"] == [
         {
-            "type": "screening_contract",
-            "message": "Candidate screening failed source or policy contract validation.",
+            "type": "evidence_contract",
+            "code": "schema_encoding",
+            "message": (
+                "Research evidence failed schema_encoding validation. Republish validated evidence."
+            ),
         }
     ]
     assert "__interrupt__" not in result
@@ -671,7 +674,11 @@ def test_retrieval_failure_stops_before_human_review() -> None:
     assert result["candidate_screening"] == {}
     assert result["screening_errors"] == []
     assert result["evidence_errors"] == [
-        {"type": "retrieval_error", "message": "source service unavailable"}
+        {
+            "type": "retrieval_error",
+            "code": "retrieval_unavailable",
+            "message": "Source evidence retrieval failed. Check local stores and retry explicitly.",
+        }
     ]
     assert "__interrupt__" not in result
 
@@ -706,7 +713,11 @@ def test_reused_thread_cannot_review_retained_evidence_after_retrieval_failure()
     assert second_result["portfolio_construction"] == {}
     assert second_result["construction_errors"] == []
     assert second_result["evidence_errors"] == [
-        {"type": "retrieval_error", "message": "Source evidence retrieval failed."}
+        {
+            "type": "retrieval_error",
+            "code": "retrieval_unavailable",
+            "message": "Source evidence retrieval failed. Check local stores and retry explicitly.",
+        }
     ]
     assert second_result["review_decision"] == {}
     assert second_result["final_message"] == ""
@@ -808,7 +819,10 @@ def test_workflow_revalidates_freshness_from_replaceable_retrievers() -> None:
     assert result["evidence_errors"] == [
         {
             "type": "evidence_contract",
-            "message": "Source evidence bundle failed contract validation.",
+            "code": "schema_encoding",
+            "message": (
+                "Research evidence failed schema_encoding validation. Republish validated evidence."
+            ),
         }
     ]
     assert "__interrupt__" not in result
@@ -936,7 +950,10 @@ def test_workflow_rejects_foreign_graph_context_from_replaceable_retriever() -> 
     assert result["evidence_errors"] == [
         {
             "type": "evidence_contract",
-            "message": "Source evidence bundle failed contract validation.",
+            "code": "schema_encoding",
+            "message": (
+                "Research evidence failed schema_encoding validation. Republish validated evidence."
+            ),
         }
     ]
     assert "__interrupt__" not in result

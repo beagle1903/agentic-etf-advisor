@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 from test_research_snapshot import research_snapshot
 
+from etf_advisor.data.quality import MarketDataQualityError
 from etf_advisor.rag.chroma_store import (
     BLOCKED_VISIBILITY_VALUE,
     LEGACY_VISIBILITY_KEY,
@@ -13,8 +14,17 @@ from etf_advisor.rag.chroma_store import (
 )
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.indexing import IndexConsistencyError
-from etf_advisor.rag.models import SourceDocument
-from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, publish_research_snapshot
+from etf_advisor.rag.models import RetrievedSource, SourceDocument
+from etf_advisor.rag.snapshots import (
+    ActiveSnapshotIdentity,
+)
+from etf_advisor.rag.snapshots import (
+    publish_research_snapshot as _publish_research_snapshot,
+)
+
+
+def publish_research_snapshot(snapshot: Any, chroma: Any, graph: Any) -> Any:
+    return _publish_research_snapshot(snapshot, chroma, graph, clock=lambda: snapshot.ingested_at)
 
 
 class FakeChromaStore:
@@ -29,6 +39,9 @@ class FakeChromaStore:
         self.documents = documents
         return len(documents)
 
+    def stage_snapshot(self, documents: list[SourceDocument]) -> int:
+        return self.upsert(documents)
+
     def missing_document_ids(self, document_ids: list[str]) -> list[str]:
         return document_ids if self.missing else []
 
@@ -39,6 +52,20 @@ class FakeChromaStore:
         if self.corrupt_metadata:
             metadata[document_ids[0]]["snapshot_digest"] = "wrong-digest"
         return metadata
+
+    def document_records(self, document_ids: list[str]) -> dict[str, RetrievedSource]:
+        if self.missing:
+            return {}
+        metadata = self.document_metadatas(document_ids)
+        return {
+            document.document_id: RetrievedSource(
+                document_id=document.document_id,
+                content=document.content,
+                metadata=metadata[document.document_id],
+            )
+            for document in self.documents
+            if document.document_id in document_ids
+        }
 
 
 class FakeSnapshotGraphStore:
@@ -64,6 +91,7 @@ class FakeSnapshotGraphStore:
         universe_id: str,
         universe_version: str,
         snapshot_digest: str,
+        expected_prior: ActiveSnapshotIdentity | None = None,
     ) -> int:
         self.publish_calls += 1
         if self.fail:
@@ -131,6 +159,37 @@ def test_chroma_digest_mismatch_leaves_previous_graph_snapshot_active() -> None:
     assert graph.active_identity == ActiveSnapshotIdentity("snapshot-v0", "previous-digest")
 
 
+def test_complete_chroma_content_is_rechecked_before_graph_mutation() -> None:
+    class MutatedReadback(FakeChromaStore):
+        def document_records(self, document_ids: list[str]) -> dict[str, RetrievedSource]:
+            records = super().document_records(document_ids)
+            first = records[document_ids[0]]
+            records[document_ids[0]] = first.model_copy(
+                update={"content": first.content + " forged"}
+            )
+            return records
+
+    graph = FakeSnapshotGraphStore()
+    with pytest.raises(IndexConsistencyError):
+        publish_research_snapshot(research_snapshot(), MutatedReadback(), graph)
+    assert graph.publish_calls == 0
+    assert graph.active_identity == ActiveSnapshotIdentity("snapshot-v0", "previous-digest")
+
+
+@pytest.mark.parametrize("existing", [False, True])
+def test_api_new_and_inactive_snapshot_require_fresh_fields_before_staging(existing: bool) -> None:
+    from datetime import timedelta
+
+    snapshot = research_snapshot()
+    chroma = FakeChromaStore()
+    graph = FakeSnapshotGraphStore(existing_digest=snapshot.content_digest() if existing else None)
+    with pytest.raises(MarketDataQualityError):
+        _publish_research_snapshot(
+            snapshot, chroma, graph, clock=lambda: snapshot.ingested_at + timedelta(days=100)
+        )
+    assert chroma.upsert_calls == graph.publish_calls == 0
+
+
 def test_existing_version_with_different_content_is_rejected_before_staging() -> None:
     chroma = FakeChromaStore()
     graph = FakeSnapshotGraphStore(existing_digest="different-digest")
@@ -177,6 +236,18 @@ def test_interleaved_same_version_publishers_cannot_cross_activate_chroma_conten
                     if item in self.retained
                 }
 
+        def document_records(self, document_ids: list[str]) -> dict[str, RetrievedSource]:
+            with self.lock:
+                return {
+                    item: RetrievedSource(
+                        document_id=item,
+                        content=self.retained[item].content,
+                        metadata=self.retained[item].chroma_metadata(),
+                    )
+                    for item in document_ids
+                    if item in self.retained
+                }
+
     class InterleavedGraphStore(FakeSnapshotGraphStore):
         def __init__(self) -> None:
             super().__init__()
@@ -196,6 +267,7 @@ def test_interleaved_same_version_publishers_cannot_cross_activate_chroma_conten
             universe_id: str,
             universe_version: str,
             snapshot_digest: str,
+            expected_prior: ActiveSnapshotIdentity | None = None,
         ) -> int:
             with self.lock:
                 if self.published_digest is not None:
