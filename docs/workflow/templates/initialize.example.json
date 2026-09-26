@@ -1,0 +1,74 @@
+{
+  "type": "initialize",
+  "at": "2026-09-26T00:00:00Z",
+  "data": {
+    "repo": "beagle1903/agentic-etf-advisor",
+    "issue": 1,
+    "classification": "ordinary",
+    "scope": [
+      "SCOPE1"
+    ],
+    "invariants": [
+      "INV1"
+    ],
+    "acceptance": [
+      "AC1"
+    ],
+    "review_required": false,
+    "authority": {
+      "kind": "coordinator",
+      "name": "actual coordinator",
+      "evidence": "actual approved capsule reference"
+    },
+    "adoption": null,
+    "predecessor": null,
+    "capsule": {
+      "id": "issue-1-example",
+      "generation": 1,
+      "repo": "beagle1903/agentic-etf-advisor",
+      "issue": 1,
+      "classification": "ordinary",
+      "owner": {
+        "role": "implementation_worker",
+        "model": "gpt-6-sol",
+        "effort": "medium",
+        "session": "actual implementation session"
+      },
+      "rationale": "Actual impact and routing rationale",
+      "authorization": {
+        "kind": "user",
+        "name": "actual authorizing user",
+        "evidence": "actual unique authorization reference"
+      },
+      "scope": {
+        "SCOPE1": "Complete scope definition"
+      },
+      "non_goals": [
+        "Explicit non-goals"
+      ],
+      "invariants": {
+        "INV1": "Complete invariant definition"
+      },
+      "interfaces": [
+        "none"
+      ],
+      "json_state_impact": "none",
+      "acceptance": {
+        "AC1": "Complete observable acceptance definition"
+      },
+      "verification": [
+        "Actual focused and required verification commands"
+      ],
+      "documentation": [
+        "Actual documentation needs"
+      ],
+      "risks": [
+        "Actual risks"
+      ],
+      "escalation_triggers": [
+        "Actual concrete escalation triggers"
+      ],
+      "escalation": null
+    }
+  }
+}

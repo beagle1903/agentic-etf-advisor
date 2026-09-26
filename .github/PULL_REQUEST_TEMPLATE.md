@@ -2,6 +2,8 @@
 
 -
 
+Primary issue: #N
+
 ## Tracking
 
 - Parent iteration: Part of #
@@ -63,3 +65,19 @@ Claim boundaries:
 - [ ] Market-data results retain source and observation timestamp metadata
 - [ ] The change does not execute trades or imply guaranteed returns
 - [ ] Any future external financial write remains behind separate immediate human approval
+
+## Finite ticket lifetime
+
+- Ledger: `docs/workflow/tickets/issue-N.json`
+- Frozen acceptance/invariant IDs and coverage:
+- Active seconds used / finite budget:
+- Lifetime initial review / remediation / final review / design reset reservations:
+- Independent consequential design challenge and coordinator approval:
+- Unresolved blockers: none, or delivery remains blocked
+- Explicit finite user extensions or predecessor/successor allocations: none, or evidence
+- Delivery gate: `uv run python scripts/ticket_workflow.py check --issue N --phase delivery`
+- Recorded enforcement is not a runtime kill switch or authenticated approval evidence.
+
+- Complete capsule ID / generation / SHA256 binding:
+- Reviewed, verified and accepted repository content SHA256:
+- Original delivery PR identity and content binding (for CI reruns):

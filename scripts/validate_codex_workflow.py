@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import tomllib
+from datetime import UTC, datetime
 from pathlib import Path
+
+from ticket_workflow import Invalid, validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -159,6 +162,10 @@ def main() -> None:
         if not isinstance(instructions, str) or not instructions.strip():
             raise SystemExit(f"{path}: developer_instructions must be nonempty text")
         common = (
+            "Finite ticket lifetime",
+            "ticket_workflow.py check",
+            "BLOCKED_FOR_DECISION",
+            "No automatic renewal",
             "Read AGENTS.md",
             "active iteration",
             "JSON-serializable",
@@ -250,6 +257,10 @@ def main() -> None:
     require_markers(
         ROOT / "AGENTS.md",
         (
+            "Finite ticket lifetime",
+            "120 active minutes",
+            "Explicit finite user extensions",
+            "BLOCKED_FOR_DECISION",
             "design_architect",
             "implementation_worker",
             "planning_analyst",
@@ -275,6 +286,9 @@ def main() -> None:
     require_markers(
         ROOT / ".github/PULL_REQUEST_TEMPLATE.md",
         (
+            "Primary issue: #N",
+            "Finite ticket lifetime",
+            "Explicit finite user extensions",
             "Classification:",
             "Design handoff",
             "Authorization:",
@@ -296,6 +310,9 @@ def main() -> None:
     require_markers(
         ROOT / "CONTRIBUTING.md",
         (
+            "Finite ticket lifetime",
+            "120 active minutes",
+            "BLOCKED_FOR_DECISION",
             "DESIGN_READY",
             "planning_analyst",
             "implementation_specialist",
@@ -317,6 +334,10 @@ def main() -> None:
         require_markers(
             ROOT / ".github/ISSUE_TEMPLATE" / template_name,
             (
+                "Finite ticket lifetime",
+                "120 active minutes",
+                "Explicit finite user extensions",
+                "BLOCKED_FOR_DECISION",
                 "execution-workflow",
                 "Classification:",
                 "Owner role / model / effort:",
@@ -336,6 +357,14 @@ def main() -> None:
                 "reviewer findings do not authorize changes",
             ),
         )
+    require_markers(
+        ROOT / ".github/workflows/ci.yml",
+        ("edited", "fetch-depth: 0", "scripts/ticket_workflow.py ci", "--event", "--base"),
+    )
+    try:
+        validate_all(ROOT, datetime.now(UTC))
+    except (Invalid, OSError, ValueError, KeyError, TypeError) as exc:
+        raise SystemExit(f"invalid recorded ticket workflow: {exc}") from exc
     print("Codex ticket workflow configuration is valid.")
 
 

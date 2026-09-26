@@ -26,4 +26,16 @@ implementation_specialist selection; multiple files or unfamiliarity alone are n
 
 Do not silently redesign contracts or change role, model, or reasoning effort. The coordinator
 records rationale and escalations; a role or effort change starts a separate sequential session.
+
+Finite ticket lifetime: before dispatch require the ticket_workflow.py check gate and
+recorded phase reservation. Default 120 active minutes; lifetime initial/final review,
+remediation and design-reset caps never reset across sessions, agents or quotas.
+Read frozen acceptance/invariant IDs and complete capsule content/digest/generation.
+Write phases must match the classified approved owner; specialist escalation is explicit.
+Review independence excludes all write authors, including remediation authors. Consequential design requires independent challenge
+before coordinator approval; challenge is separate from code review. Report concrete
+failure scenarios against frozen IDs; do not expand scope. Stop on exhaustion, failed
+final review or unresolved serious blockers (BLOCKED_FOR_DECISION). No automatic renewal;
+only explicit finite user extensions. Pause/resume retains reservations. Recorded
+ledger evidence is not a runtime kill switch or authenticated live-session provenance.
 """

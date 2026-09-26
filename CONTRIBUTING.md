@@ -35,11 +35,8 @@ ambiguity; multiple files, integration tests, or unfamiliarity alone are insuffi
 the evidence and start a fresh separate sequential session for any escalation or role/effort
 change. The PR links the capsule, approval, actual routing evidence, and any exception.
 
-Two consecutive implementation-review cycles that fail for related reasons are evidence that the
-approved design or acceptance matrix is incomplete. Stop remediation at that point and return to a
-fresh read-only `design_architect` session. Implementation resumes only after the coordinator has
-recorded and approved a revised `DESIGN_READY` capsule. An `implementation_specialist` does not
-replace this design reset, and reviewer-implementation ping-pong must not continue indefinitely.
+ADR 0026 replaces automatic repeated design resets with a finite ticket lifetime.
+See the operating policy below; every reset consumes the original counters and time.
 
 The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
 no-project-model-override, and no-concurrency-scalar compatibility policy still applies.
@@ -182,3 +179,48 @@ presenting it as completed.
 - Missing evidence remains unknown and never becomes a silent pass.
 - Any future external financial write requires a separate human approval immediately before it.
 - Never commit credentials, tokens, downloaded private data, or `.env` files.
+
+## Finite ticket lifetime (ADR 0026)
+
+Every future agents-lab ticket has one durable ledger at
+`docs/workflow/tickets/issue-N.json`, initialized before any phase. The frozen scope,
+invariant IDs and acceptance IDs apply across agents, sessions, quota resets and design resets.
+Freeze the complete capsule definitions, owner/model/effort, rationale/authorization,
+non-goals, interfaces, explicit JSON/state impact, verification, docs, risks and triggers.
+Design, challenge and approval bind the same immutable digest and current generation.
+Classified write ownership and any concrete specialist escalation must be recorded;
+reviews exclude every implementation, remediation and verification author.
+Default budget: 120 active minutes across all work, including discovery, design,
+challenge, implementation, verification and review. Start reserves the counted slot;
+crashed open phases consume through the current time. Explicit pause records elapsed
+and resume continues the same reserved phase. No unrecorded time subtraction.
+
+At most one initial review, one remediation, one final review and one design reset
+per ticket lifetime. One implementation pass is the default. A reset consumes the
+original budget and never clears counters. Consequential design requires a separate
+independent challenge before coordinator approval; challenge is not code review.
+Review findings identify a concrete failure scenario and a frozen invariant or AC;
+scope expansion becomes separate work. Failed final review, unresolved challenge,
+exhaustion or serious blockers means BLOCKED_FOR_DECISION, never delivery of defects.
+Clean final review may deliver without another phase slot. A finite attempt is
+promised, successful completion is not.
+
+Before dispatch, run `uv run python scripts/ticket_workflow.py check --issue N --phase PHASE`;
+then append the phase_start event before starting its agent. Before delivery run the
+same check with `--phase delivery`. Append measured phase ends, acceptance evidence,
+review outcomes and blocker resolutions. One writer uses atomic validated append.
+Explicit finite user extensions append additional seconds and phase counts with named
+authority and evidence; no automatic renewal. Splits require explicit user decision,
+validated predecessor history, inherited counters and allocated remaining time;
+sibling allocations total no more than the predecessor remainder. A split retires
+its predecessor. New issue numbers cannot silently evade limits.
+
+Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
+record evidence, check open phases periodically and interrupt active agents on
+exhaustion. Static validation cannot authenticate approval or session provenance. Approval evidence
+is single-use despite changed display names or surrounding/internal whitespace.
+Review, verification and acceptance bind identical repository content. Delivered ledgers
+authorize only their original PR identity and that content; reruns preserve the binding.
+CI validates immutable merge-base history and current primary issue binding on PR
+edits. Existing historical tickets are not retrospectively adopted. Issue70 remains
+stopped pending a separate user decision; this workflow ticket changes no product code.

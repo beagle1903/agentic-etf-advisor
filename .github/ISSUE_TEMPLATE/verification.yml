@@ -79,6 +79,14 @@ body:
         Consequential approval: separate design_architect handoff and coordinator approval, or not required
         Independent review: high-risk/disputed trigger and findings, or not used
         Escalations: concrete evidence and fresh separate sequential session, or none
+        Finite ticket lifetime: ledger docs/workflow/tickets/issue-N.json; default 120 active minutes
+        Frozen acceptance/invariant IDs: complete definitions plus capsule ID/generation/SHA256 before implementation
+        Content binding: review, verification, acceptance and original delivery PR share one digest
+        Lifetime reservations: initial review 1; remediation 1; final review 1; design reset 1
+        Consequential design challenge: separate independent session before coordinator approval
+        Explicit finite user extensions: none, or named authorization and finite deltas
+        Split lineage: validated predecessor, inherited counters and allocated remainder, or none
+        Stop: BLOCKED_FOR_DECISION on exhaustion, failed final review or unresolved serious blocker
         Gate: capsule precedes implementation edits; reviewer findings do not authorize changes
     validations:
       required: true
