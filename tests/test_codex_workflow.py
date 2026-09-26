@@ -17,6 +17,23 @@ ROLES = (
     "implementation-specialist",
 )
 
+MIGRATED_ROLE_MODELS = (
+    ("planning-analyst", "gpt-6-luna", "gpt-5.6-terra"),
+    ("bounded-worker", "gpt-6-luna", "gpt-5.6-terra"),
+    ("implementation-worker", "gpt-6-sol", "gpt-5.6-sol"),
+    ("code-reviewer", "gpt-6-sol", "gpt-5.6-sol"),
+    ("implementation-specialist", "gpt-6-sol", "gpt-5.6-sol"),
+)
+
+ROUTING_TABLE_ROWS = (
+    "| `planning_analyst` | `gpt-6-luna` | medium | read-only |",
+    "| `design_architect` | `gpt-6-astra` | high | read-only |",
+    "| `bounded_worker` | `gpt-6-luna` | medium | workspace-write |",
+    "| `implementation_worker` | `gpt-6-sol` | medium | workspace-write |",
+    "| `code_reviewer` | `gpt-6-sol` | high | read-only |",
+    "| `implementation_specialist` | `gpt-6-sol` | high | workspace-write |",
+)
+
 
 @pytest.fixture
 def repository(tmp_path: Path) -> Path:
@@ -62,6 +79,25 @@ def test_valid_from_another_cwd(repository: Path) -> None:
     assert result.returncode == 0, result.stderr
     assert result.stdout == "Codex ticket workflow configuration is valid.\n"
     assert not result.stderr
+
+
+@pytest.mark.parametrize("role,current_model,former_model", MIGRATED_ROLE_MODELS)
+def test_migrated_role_rejects_former_model(
+    repository: Path, role: str, current_model: str, former_model: str
+) -> None:
+    replace(
+        repository / f".codex/agents/{role}.toml",
+        f'model = "{current_model}"',
+        f'model = "{former_model}"',
+    )
+    reject(repository, "model must be")
+
+
+@pytest.mark.parametrize("row", ROUTING_TABLE_ROWS)
+@pytest.mark.parametrize("damage", ["corrupt", "remove"])
+def test_authoritative_routing_table_row_required(repository: Path, row: str, damage: str) -> None:
+    replace(repository / "AGENTS.md", row, "" if damage == "remove" else row + " drift")
+    reject(repository, "missing required workflow lines")
 
 
 def test_original_scalar_config(repository: Path) -> None:
