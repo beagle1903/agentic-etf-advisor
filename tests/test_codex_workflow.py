@@ -47,6 +47,7 @@ def repository(tmp_path: Path) -> Path:
         SOURCE / "scripts/validate_codex_workflow.py",
         root / "scripts/validate_codex_workflow.py",
     )
+    shutil.copyfile(SOURCE / "scripts/ticket_workflow.py", root / "scripts/ticket_workflow.py")
     return root
 
 
@@ -391,3 +392,18 @@ def test_planning_analyst_rejects_unconditional_reviewer_route(repository: Path)
         "Unclear dependencies\nor acceptance criteria route to code_reviewer",
     )
     reject(repository, "missing instruction boundaries")
+
+
+@pytest.mark.parametrize("marker", ["edited", "fetch-depth: 0", "scripts/ticket_workflow.py ci"])
+def test_ci_ticket_gate_required(repository: Path, marker: str) -> None:
+    replace(repository / ".github/workflows/ci.yml", marker, "removed")
+    reject(repository, "missing required workflow markers")
+
+
+def test_runtime_ledger_validation_rejects_bad_json(repository: Path) -> None:
+    directory = repository / "docs/workflow/tickets"
+    directory.mkdir(parents=True)
+    (directory / "issue-73.json").write_text(
+        '{"schema":1,"schema":1,"events":[]}', encoding="utf-8"
+    )
+    reject(repository, "invalid recorded ticket workflow")

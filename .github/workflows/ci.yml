@@ -4,15 +4,20 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
 
 permissions:
   contents: read
+  issues: read
+  pull-requests: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
@@ -22,6 +27,12 @@ jobs:
         run: uv sync --frozen
       - name: Validate Codex ticket workflow
         run: uv run python scripts/validate_codex_workflow.py
+      - name: Validate primary issue and append-only ticket history
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TICKET_BASE: ${{ github.event.pull_request.base.sha }}
+        run: uv run python scripts/ticket_workflow.py ci --event "$GITHUB_EVENT_PATH" --base "$TICKET_BASE"
       - name: Lint
         run: uv run ruff check .
       - name: Check formatting

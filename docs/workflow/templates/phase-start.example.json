@@ -1,0 +1,14 @@
+{
+  "type": "phase_start",
+  "at": "2026-09-26T00:00:01Z",
+  "data": {
+    "phase": "implementation",
+    "session": "actual implementation session",
+    "role": "implementation_worker",
+    "capsule": {
+      "id": "issue-1-example",
+      "generation": 1,
+      "digest": "5bf6e98584b54aea6a2509f8227ddecfcd8462d364f45db9dc26be33a1bb191c"
+    }
+  }
+}
