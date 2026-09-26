@@ -501,8 +501,10 @@ def test_pr_binding_rejects_missing_wrong_or_ambiguous_primary(body):
 
 
 def test_pr_binding_and_precise_historical_exemption():
+    delivered = clean(True)
+    add(delivered, "delivery", 20, evidence="recorded original delivery")
     assert "passed" in workflow.check_pr(
-        pr(), {73: clean(True)}, at(0), START + timedelta(seconds=100), {73}, CONTENT
+        pr(), {73: delivered}, at(0), START + timedelta(seconds=100), {73}, CONTENT
     )
     old = "2026-09-25T00:00:00Z"
     assert "Historical" in workflow.check_pr(pr("", old), {}, old, START)
@@ -562,11 +564,70 @@ def test_new_blocker_cannot_use_stale_successful_remediation():
 def test_ci_refreshes_current_body_and_rejects_stale_head():
     old_event = {**pr(), "number": 80}
     old_event["pull_request"]["head"] = {"sha": "a"}
-    metadata = {"number": 80, "body": "Primary issue: #74", "head": {"sha": "a"}}
+    base = {"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}}
+    old_event["pull_request"]["base"] = base
+    metadata = {"number": 80, "body": "Primary issue: #74", "head": {"sha": "a"}, "base": base}
     assert workflow.current_pr(old_event, metadata)["pull_request"]["body"] == "Primary issue: #74"
     metadata["head"]["sha"] = "b"
     with pytest.raises(workflow.Invalid, match="stale head"):
         workflow.current_pr(old_event, metadata)
+
+
+@pytest.mark.parametrize("number", [80, 81])
+def test_ci_rejects_ready_ledger_without_recorded_delivery(number):
+    value = clean(True)
+    state(value).gate("delivery", START + timedelta(seconds=100))
+    request = pr()
+    request["number"] = number
+    with pytest.raises(workflow.Invalid, match="recorded delivery"):
+        workflow.check_pr(
+            request, {73: value}, at(0), START + timedelta(seconds=100), {73}, CONTENT
+        )
+
+
+@pytest.mark.parametrize("field", ["sha", "ref", "repo"])
+def test_ci_rejects_live_base_change_with_unchanged_head(field):
+    request = pr()
+    request["pull_request"].update(
+        head={"sha": "same-head"},
+        base={"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}},
+    )
+    metadata = {"number": 80, **copy.deepcopy(request["pull_request"])}
+    assert workflow.current_pr(request, metadata)["pull_request"]["base"] == metadata["base"]
+    metadata["base"][field] = {"full_name": "other/repo"} if field == "repo" else "changed"
+    with pytest.raises(workflow.Invalid, match="stale base"):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize("cli_base", ["base-a", "different-base"])
+def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
+    import io
+
+    request = pr("", "2026-09-25T00:00:00Z")
+    request["pull_request"].update(
+        head={"sha": "same-head"},
+        base={"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}},
+    )
+    path = tmp_path / "event.json"
+    path.write_text(json.dumps(request), encoding="utf-8")
+    metadata = {"number": 80, **request["pull_request"]}
+    monkeypatch.setattr(workflow, "validate_all", lambda *_: {})
+    monkeypatch.setattr(
+        workflow.urllib.request, "urlopen", lambda *_args, **_kw: io.StringIO(json.dumps(metadata))
+    )
+    bases = []
+    monkeypatch.setattr(
+        workflow, "check_prefix", lambda _root, base, _ledgers: bases.append(base) or set()
+    )
+    monkeypatch.setattr(sys, "argv", ["workflow", "ci", "--event", str(path), "--base", cli_base])
+    if cli_base == "base-a":
+        workflow.main()
+        assert bases == ["base-a"]
+    else:
+        with pytest.raises(SystemExit) as failure:
+            workflow.main()
+        assert failure.value.code == 1
+        assert bases == []
 
 
 def test_delivered_history_cannot_be_reopened():
@@ -741,9 +802,11 @@ def test_R4_delivered_ledger_only_authorizes_original_pr_and_content(damage):
 
 
 def test_R4_post_review_content_change_cannot_use_old_verification():
-    with pytest.raises(workflow.Invalid, match="differs from reviewed"):
+    value = clean(True)
+    add(value, "delivery", 20, evidence="recorded original delivery")
+    with pytest.raises(workflow.Invalid, match="different content"):
         workflow.check_pr(
-            pr(), {73: clean(True)}, at(0), START + timedelta(seconds=100), content="a" * 64
+            pr(), {73: value}, at(0), START + timedelta(seconds=100), content="a" * 64
         )
 
 

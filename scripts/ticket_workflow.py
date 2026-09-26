@@ -1070,28 +1070,30 @@ def check_pr(
     if state.repo != event["repository"]["full_name"]:
         raise Invalid("PR repository differs from ledger")
     actual_content = sha(content)
-    if state.delivered:
-        if state.delivery_binding != {
-            "pr": integer(event["number"], 1),
-            "repo": state.repo,
-            "content": actual_content,
-        }:
-            raise Invalid("delivered ledger belongs to another PR or different content")
-    else:
-        state.gate("delivery", now)
-        if actual_content != state.verified_content:
-            raise Invalid("PR content differs from reviewed and verified content")
+    if not state.delivered:
+        raise Invalid("primary issue requires a recorded delivery event")
+    if state.delivery_binding != {
+        "pr": integer(event["number"], 1),
+        "repo": state.repo,
+        "content": actual_content,
+    }:
+        raise Invalid("delivered ledger belongs to another PR or different content")
     return "Primary issue delivery gate passed against recorded evidence."
 
 
 def current_pr(event: dict, metadata: dict) -> dict:
-    """Do not let an older queued event validate an obsolete PR body or head."""
+    """Reject stale queued head/base identity before validating the live PR body."""
     recorded = event["pull_request"]
     if (
         metadata.get("number") != event["number"]
         or metadata["head"]["sha"] != recorded["head"]["sha"]
     ):
         raise Invalid("queued PR event has stale head or identity")
+    for key in ("sha", "ref"):
+        if text(metadata["base"][key]) != text(recorded["base"][key]):
+            raise Invalid("queued PR event has stale base SHA or ref")
+    if text(metadata["base"]["repo"]["full_name"]) != text(recorded["base"]["repo"]["full_name"]):
+        raise Invalid("queued PR event has stale base repository")
     return {**event, "pull_request": {**recorded, "body": metadata.get("body")}}
 
 
@@ -1114,7 +1116,11 @@ def main() -> None:
             append(args.root, args.issue, event, now)
         else:
             ledgers = validate_all(args.root, now)
-            changed = check_prefix(args.root, args.base, ledgers) if args.base else set()
+            changed = (
+                check_prefix(args.root, args.base, ledgers)
+                if args.base and args.command != "ci"
+                else set()
+            )
             if args.command in {"check", "status"}:
                 if args.issue not in ledgers:
                     raise Invalid("requested issue ledger missing")
@@ -1160,6 +1166,9 @@ def main() -> None:
                 )
                 with urllib.request.urlopen(request, timeout=20) as response:
                     event = current_pr(event, json.load(response))
+                if args.base != event["pull_request"]["base"]["sha"]:
+                    raise Invalid("prefix base differs from validated PR base SHA")
+                changed = check_prefix(args.root, event["pull_request"]["base"]["sha"], ledgers)
                 body = event["pull_request"].get("body") or ""
                 historical = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
                 if historical and not re.search(r"^Primary issue:", body, re.MULTILINE):

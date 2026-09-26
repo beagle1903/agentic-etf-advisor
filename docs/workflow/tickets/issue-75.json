@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-09-26T07:53:12Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 75,
+        "classification": "ordinary",
+        "scope": [
+          "SCOPE1"
+        ],
+        "invariants": [
+          "INV1"
+        ],
+        "acceptance": [
+          "AC1",
+          "AC3"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "https://github.com/beagle1903/agentic-etf-advisor/issues/73#issuecomment-5844392830"
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 75,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/bounded_workflow_implementation"
+          },
+          "rationale": "Two ordinary contract-enforcement fixes within approved Issue73 AC1/AC3; no new governance contract.",
+          "authorization": {
+            "kind": "user",
+            "name": "beagle1903",
+            "evidence": "https://github.com/beagle1903/agentic-etf-advisor/issues/73#issuecomment-5844392830"
+          },
+          "scope": {
+            "SCOPE1": "PR74 two P1 fixes only: require recorded terminal delivery; bind live and queued base SHA/ref/repo and use that base for prefix validation."
+          },
+          "non_goals": [
+            "Product changes",
+            "Reopen terminal Issue73",
+            "General reopen feature",
+            "Further repair cycles"
+          ],
+          "invariants": {
+            "INV1": "Issue73 events unchanged; delivered CI proof and exact current base required."
+          },
+          "interfaces": [
+            "check_pr/current_pr/ci CLI; fail-closed existing contracts"
+          ],
+          "json_state_impact": "none; new Issue75 governance ledger only",
+          "acceptance": {
+            "AC1": "Ready but undelivered ledger fails CI, including later PR reuse; delivered original rerun passes.",
+            "AC3": "Same-head stale base SHA/ref/repository fails; prefix check uses validated base SHA."
+          },
+          "verification": [
+            "uv run pytest tests/test_ticket_workflow.py tests/test_codex_workflow.py",
+            "uv run ruff check scripts/ticket_workflow.py tests/test_ticket_workflow.py",
+            "uv run ruff format --check scripts/ticket_workflow.py tests/test_ticket_workflow.py",
+            "uv run python scripts/validate_codex_workflow.py"
+          ],
+          "documentation": [
+            "Issue75 bounded follow-up record"
+          ],
+          "risks": [
+            "Recorded authority is not runtime authentication"
+          ],
+          "escalation_triggers": [
+            "Scope dispute",
+            "Any failed independent review",
+            "30-minute exhaustion"
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "charge",
+      "at": "2026-09-26T07:53:12Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "https://github.com/beagle1903/agentic-etf-advisor/issues/73#issuecomment-5844392830"
+        },
+        "seconds": 5529,
+        "evidence": "Explicit 30 minute follow-up; charge elapsed since authorization 07:51:03Z. Only one implementation and initial review, no remediation/reset authorized."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-09-26T07:53:12Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "https://github.com/beagle1903/agentic-etf-advisor/issues/73#issuecomment-5844392830"
+        },
+        "evidence": "Complete ordinary DESIGN_READY capsule under approved AC1/AC3 and explicit follow-up exception",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-26T07:53:12Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/bounded_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-26T07:56:21Z",
+      "data": {
+        "session": "/root/bounded_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "Two fixes implemented and self-reviewed; 81 workflow tests plus238 static fixtures pass; lint/format/validator pass. No source scope expansion."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-26T07:56:21Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/bounded_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        },
+        "content": "cdd7665243d9bc64ede319252cb6f7870bfc83acea0e243cc6febe1f63f343d1"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-26T07:56:43Z",
+      "data": {
+        "session": "/root/bounded_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "81 workflow tests, lint, format, validator and diff checks pass on frozen content;238 static fixtures already passed affected run."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-09-26T07:56:43Z",
+      "data": {
+        "ids": [
+          "AC1",
+          "AC3"
+        ],
+        "evidence": "Missing delivery/original+later PR fail; delivered rerun passes; same-head base SHA/ref/repo change fails; CLI validates prefix base exact SHA before checking history. All81 workflow tests pass.",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        },
+        "content": "cdd7665243d9bc64ede319252cb6f7870bfc83acea0e243cc6febe1f63f343d1"
+      }
+    },
+    {
+      "at": "2026-09-26T07:57:05Z",
+      "data": {
+        "session": "/root/pr74_comments_review",
+        "phase": "initial_review",
+        "role": "code_reviewer",
+        "content": "cdd7665243d9bc64ede319252cb6f7870bfc83acea0e243cc6febe1f63f343d1",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        }
+      },
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-09-26T07:58:40Z",
+      "data": {
+        "evidence": "Independent review clean for PR74 comments4110329763/4110329765; frozen content cdd7665243d9bc64ede319252cb6f7870bfc83acea0e243cc6febe1f63f343d1; Issue73 unchanged",
+        "session": "/root/pr74_comments_review",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "type": "delivery",
+      "data": {
+        "content": "cdd7665243d9bc64ede319252cb6f7870bfc83acea0e243cc6febe1f63f343d1",
+        "evidence": "Authorized two-comment followup clean independent review and319 affected tests passed; delivered in existing PR74",
+        "capsule": {
+          "id": "issue-75-pr74-enforcement-fixes",
+          "generation": 1,
+          "digest": "e4316aa43bbdc21f1310f47e8206ee3edf9d05461e0675001b9035a893ffe169"
+        },
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 74
+      },
+      "at": "2026-09-26T07:58:44Z"
+    }
+  ]
+}
