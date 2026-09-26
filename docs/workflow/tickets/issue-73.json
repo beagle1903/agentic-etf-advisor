@@ -438,6 +438,21 @@
         "session": "/root/bounded_workflow_final_review",
         "outcome": "pass"
       }
+    },
+    {
+      "data": {
+        "evidence": "PR74 created after clean independent final review and passing recorded delivery gate",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 74,
+        "capsule": {
+          "id": "issue-73-bounded-governance",
+          "generation": 1,
+          "digest": "070313b5d91cf6c9bd4de6232fdd260b32011d75d47390ab0e7f886fbfbae003"
+        },
+        "content": "ba240c6fae63ab0fe522709f79e653c793ed1129c09c24c9e5c3578be8598044"
+      },
+      "at": "2026-09-26T05:30:11Z",
+      "type": "delivery"
     }
   ]
 }
