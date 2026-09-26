@@ -7,10 +7,18 @@ import json
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
-from typing import Protocol
+from typing import Any, Protocol
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from etf_advisor.clock import Clock
 from etf_advisor.data.quality import (
@@ -19,6 +27,15 @@ from etf_advisor.data.quality import (
     assess_observations,
 )
 from etf_advisor.domain.profile import InvestmentObjective, InvestorProfile, RiskTolerance
+from etf_advisor.encoding import (
+    ResearchIntegrityError,
+    StrictWireModel,
+    document_schema,
+    integrity_diagnostic,
+    schema_version,
+    strict_json,
+    validate_document,
+)
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, MetadataValue
 
 MAX_CANDIDATE_LIMIT = 50
@@ -26,6 +43,10 @@ MAX_CANDIDATE_LIMIT = 50
 
 class EvidenceRetrievalError(RuntimeError):
     """Raised when the source-evidence adapter cannot produce a safe result."""
+
+    def __init__(self, message: str, *, code: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 class EvidenceStatus(StrEnum):
@@ -77,7 +98,7 @@ class SourceProvenance(BaseModel):
         return "us_market"
 
 
-class CandidateEvidence(BaseModel):
+class CandidateEvidence(StrictWireModel):
     """One retrievable ETF fact bundle with its original source identity."""
 
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
@@ -130,8 +151,67 @@ class CandidateEvidence(BaseModel):
 
     @model_validator(mode="after")
     def validate_graph_context_identity(self) -> CandidateEvidence:
+        version = validate_document(self.document_id, self.content, self.metadata)
+        if version == 2:
+            expected_attributes = {
+                "symbol": self.symbol,
+                "source": self.source,
+                "source_url": self.source_url,
+                "observed_at": self.observed_at.isoformat().replace("+00:00", "Z"),
+                "name": self.name,
+                "fund_family": self.fund_family,
+                "category": self.category,
+            }
+            for key, value in expected_attributes.items():
+                metadata_value = self.metadata.get(key, self.symbol if key == "name" else None)
+                if metadata_value != value:
+                    raise ValueError(
+                        "Candidate identity or classification differs from source metadata."
+                    )
+            if (
+                str(self.metadata.get("quote_type")).strip().upper() != self.quote_type
+                or str(self.metadata.get("market")).strip().lower() != self.market
+            ):
+                raise ValueError(
+                    "Candidate instrument classification differs from source metadata."
+                )
         if self.graph_context is None:
             return self
+        if self.graph_context.schema_version != version:
+            raise ValueError("Candidate graph encoding differs from its source document.")
+        if version == 2:
+            expected_name = str(self.metadata.get("name", self.symbol))
+            if self.name != expected_name or self.graph_context.etf_name != expected_name:
+                raise ValueError("Candidate names differ from the source document.")
+            for field_name in ("fund_family", "category"):
+                expected = self.metadata.get(field_name)
+                if (
+                    getattr(self, field_name) != expected
+                    or getattr(self.graph_context, field_name) != expected
+                ):
+                    raise ValueError(
+                        "Candidate graph classifications differ from the source document."
+                    )
+            provenance = strict_json(str(self.metadata["field_provenance_json"]))[
+                "sector_exposures"
+            ]
+            expected_status = (
+                "available"
+                if provenance["missing_reason"] is None
+                else provenance["missing_reason"]
+            )
+            expected_weights = {
+                " ".join(item["name"].replace("_", " ").split()): item["weight_pct_token"]
+                for item in provenance["value"] or []
+            }
+            actual_weights = {
+                item.name: item.weight_pct_token for item in self.graph_context.sector_exposures
+            }
+            if (
+                self.graph_context.sector_exposures_status != expected_status
+                or expected_weights != actual_weights
+            ):
+                raise ValueError("Candidate graph sector facts differ from source provenance.")
         if self.graph_context.source_document_id != self.document_id:
             raise ValueError("Candidate graph context must reference its source document ID.")
         if self.graph_context.symbol.strip().upper() != self.symbol:
@@ -139,7 +219,7 @@ class CandidateEvidence(BaseModel):
         return self
 
 
-class CandidateEvidenceBundle(BaseModel):
+class CandidateEvidenceBundle(StrictWireModel):
     """Review-ready evidence, including freshness results and explicit blockers."""
 
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
@@ -157,6 +237,46 @@ class CandidateEvidenceBundle(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     snapshot_version: str | None = None
     snapshot_digest: str | None = None
+    schema_version: int = 1
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_encoding(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        versions = {
+            document_schema(
+                item.metadata if isinstance(item, CandidateEvidence) else item.get("metadata", {})
+            )
+            for item in value.get("candidates", [])
+        }
+        if len(versions) > 1:
+            raise ValueError("Evidence cannot mix research encodings.")
+        identities = [
+            (item.document_id, item.symbol)
+            if isinstance(item, CandidateEvidence)
+            else (item.get("document_id"), item.get("symbol"))
+            for item in value.get("candidates", [])
+        ]
+        if len(identities) != len(set(identities)):
+            raise ValueError("Evidence candidate identities must be unique.")
+        if len({identity[0] for identity in identities}) != len(identities):
+            raise ValueError("Evidence document identities must be unique.")
+        if len({identity[1] for identity in identities}) != len(identities):
+            raise ValueError("Evidence symbols must be unique.")
+        version = next(iter(versions), 1)
+        if "schema_version" in value and schema_version(value["schema_version"]) != version:
+            raise ValueError("Evidence schema differs from its candidates.")
+        if version == 2 and "schema_version" not in value:
+            raise ValueError("Schema-2 evidence requires an explicit bundle marker.")
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_bundle(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.schema_version == 1:
+            result.pop("schema_version", None)
+        return result
 
     @field_validator("checked_at")
     @classmethod
@@ -207,6 +327,24 @@ class CandidateEvidenceBundle(BaseModel):
                 )
                 for observation in self.health.observations
             }
+            if self.schema_version == 2:
+                candidate_sources = {
+                    (
+                        candidate.symbol,
+                        candidate.source,
+                        candidate.source_url,
+                        candidate.observed_at,
+                    )
+                    for candidate in self.candidates
+                }
+                if (
+                    health_sources != candidate_sources
+                    or len(self.health.observations) != len(self.candidates)
+                    or len(self.candidates) > self.requested_limit
+                ):
+                    raise ValueError(
+                        "Schema-2 evidence has duplicate or omitted candidate observations."
+                    )
             for candidate in self.candidates:
                 candidate_source = (
                     candidate.symbol,
@@ -297,7 +435,12 @@ class HybridCandidateEvidenceRetriever:
         try:
             results = self._hybrid_search.search(query, limit=limit)
         except Exception as exc:
-            raise EvidenceRetrievalError("Source evidence retrieval failed.") from exc
+            diagnostic = integrity_diagnostic(exc)
+            if getattr(exc, "code", None) is None:
+                diagnostic = integrity_diagnostic(
+                    EvidenceRetrievalError("", code="retrieval_unavailable")
+                )
+            raise EvidenceRetrievalError(diagnostic["message"], code=diagnostic["code"]) from None
 
         try:
             checked_at = self._clock()
@@ -311,7 +454,11 @@ class HybridCandidateEvidenceRetriever:
                 limit=limit,
             )
         except Exception as exc:
-            raise EvidenceRetrievalError("Source evidence validation failed.") from exc
+            diagnostic = integrity_diagnostic(exc)
+            raise EvidenceRetrievalError(
+                "Source evidence validation failed. " + diagnostic["message"],
+                code=diagnostic["code"],
+            ) from None
 
 
 def build_candidate_query(profile: InvestorProfile) -> str:
@@ -357,6 +504,13 @@ def select_candidate_evidence(
         raise ValueError("checked_at must be timezone-aware.")
 
     bounded_results = list(results[:limit])
+    versions = {
+        schema_version(result.metadata.get("field_provenance_schema_version", 1))
+        for result in bounded_results
+    }
+    if len(versions) > 1:
+        raise ResearchIntegrityError("schema_encoding")
+    lossless = versions == {2}
     errors: list[str] = []
     warnings: list[str] = []
     parsed: list[tuple[GraphEnrichedSource, SourceProvenance]] = []
@@ -365,12 +519,19 @@ def select_candidate_evidence(
         try:
             parsed.append((result, _provenance_from_result(result)))
         except ValidationError as exc:
-            errors.append(
-                f"{result.document_id}: source provenance is invalid: "
-                f"{_validation_error_summary(exc)}"
-            )
+            if result.document_id.startswith("research:"):
+                errors.append(integrity_diagnostic(exc)["message"])
+            else:
+                errors.append(
+                    f"{result.document_id}: source provenance is invalid: "
+                    f"{_validation_error_summary(exc)}"
+                )
         except ValueError as exc:
-            errors.append(f"{result.document_id}: {exc}")
+            errors.append(
+                integrity_diagnostic(exc)["message"]
+                if result.document_id.startswith("research:")
+                else f"{result.document_id}: {exc}"
+            )
 
     health = assess_observations(
         [provenance for _, provenance in parsed],
@@ -387,6 +548,8 @@ def select_candidate_evidence(
         if observation_health.status != FreshnessStatus.CURRENT:
             continue
         if provenance.symbol in seen_symbols:
+            if lossless:
+                raise ResearchIntegrityError("schema_encoding")
             warnings.append(
                 f"Duplicate source result for {provenance.symbol} omitted; semantic order keeps "
                 "the first result."
@@ -398,6 +561,8 @@ def select_candidate_evidence(
             graph_context.source_document_id != result.document_id
             or graph_context.symbol.strip().upper() != provenance.symbol
         ):
+            if lossless:
+                raise ResearchIntegrityError("document_integrity")
             warnings.append(
                 f"Graph context for {provenance.symbol} was omitted because it does not match "
                 "the source document."
@@ -433,10 +598,13 @@ def select_candidate_evidence(
                 )
             )
         except ValidationError as exc:
-            errors.append(
-                f"{result.document_id}: evidence fields are invalid: "
-                f"{_validation_error_summary(exc)}"
-            )
+            if result.document_id.startswith("research:"):
+                errors.append(integrity_diagnostic(exc)["message"])
+            else:
+                errors.append(
+                    f"{result.document_id}: evidence fields are invalid: "
+                    f"{_validation_error_summary(exc)}"
+                )
 
     if not bounded_results:
         errors.append("No source evidence matched the research query.")
@@ -460,6 +628,7 @@ def select_candidate_evidence(
 
     status = EvidenceStatus.READY if candidates and not errors else EvidenceStatus.BLOCKED
     return CandidateEvidenceBundle(
+        schema_version=(document_schema(candidates[0].metadata) if candidates else 1),
         query=query,
         objective=profile.objective,
         risk_tolerance=profile.risk_tolerance,

@@ -24,6 +24,7 @@ from etf_advisor.domain.screening import (
     ScreeningVerdict,
     screen_candidate_evidence,
 )
+from etf_advisor.encoding import StrictWireModel
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 from etf_advisor.research.models import ResearchField
 
@@ -282,7 +283,7 @@ class PortfolioConstructionBundle(BaseModel):
         return self
 
 
-class PortfolioConstructionInput(BaseModel):
+class PortfolioConstructionInput(StrictWireModel):
     """The five validated, JSON-serializable inputs to pure construction."""
 
     model_config = ConfigDict(extra="forbid")

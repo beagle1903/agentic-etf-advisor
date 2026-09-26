@@ -411,7 +411,8 @@ def test_just_over_concentration_limit_stays_above_limit_through_screening() -> 
     assert concentration_rule.verdict == ScreeningVerdict.FAIL
     assert concentration_rule.reason_code == ScreeningReason.CONCENTRATION_ABOVE_LIMIT
     assert concentration_rule.observed_value is not None
-    assert concentration_rule.observed_value > 60
+    assert float(concentration_rule.observed_value) > 60
+    assert isinstance(concentration_rule.observed_value, str)
     assert concentration_rule.citation is not None
     assert concentration_rule.citation.field_name == "top_10_concentration_pct"
 

@@ -1,10 +1,14 @@
+from __future__ import annotations
+
+import json
 from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 
+from etf_advisor.encoding import document_fingerprint
 from etf_advisor.rag.models import SourceDocument
-from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable
+from etf_advisor.rag.neo4j_store import Neo4jGraphStore, Neo4jUnavailable, _expected_facts
 from etf_advisor.rag.snapshots import ActiveSnapshotIdentity, SnapshotManifest
 
 
@@ -21,6 +25,77 @@ class FakeDriver:
         self.active_snapshot: str | None = None
         self.snapshot_digest: str | None = None
         self.closed = False
+        self.rows: list[dict[str, Any]] = []
+        self.manifest: dict[str, Any] | None = None
+        self.commits = 0
+
+    def session(self, **kwargs: Any) -> FakeDriver:
+        return self
+
+    def __enter__(self) -> FakeDriver:
+        return self
+
+    def __exit__(self, *args: Any) -> None:
+        pass
+
+    def begin_transaction(self) -> FakeDriver:
+        return self
+
+    def commit(self) -> None:
+        self.commits += 1
+
+    def rollback(self) -> None:
+        pass
+
+    def run(self, query: str, parameters: dict[str, Any]) -> list[dict[str, Any]]:
+        if "RETURN count(active) AS active_count" in query:
+            return [{"active_count": int(self.active_snapshot is not None)}]
+        if "CREATE (snapshot:ResearchSnapshot" in query:
+            self.snapshot_parameters.append(parameters)
+            self.rows = parameters["documents"]
+            self.manifest = {
+                "snapshot_digest": parameters["snapshot_digest"],
+                "schema_version": parameters["schema_version"],
+                "document_count": len(self.rows),
+                "manifest_json": parameters["manifest_json"],
+                "children": [
+                    {
+                        "document_id": row["document_id"],
+                        "labels": ["SourceDocument"],
+                        "snapshot_version": parameters["snapshot_version"],
+                        "snapshot_digest": parameters["snapshot_digest"],
+                        "fingerprint": row["properties"]["document_fingerprint"],
+                        "immutable_json": row["properties"]["immutable_json"],
+                    }
+                    for row in self.rows
+                ],
+            }
+            return [{"published_count": len(self.rows)}]
+        if "snapshot.document_count AS document_count" in query:
+            return [self.manifest] if self.manifest else []
+        if "properties(source) AS properties" in query:
+            return [
+                {
+                    "properties": row["properties"],
+                    "facts": [json.loads(item) for item in _expected_facts(row, active=False)],
+                }
+                for row in self.rows
+                if row["document_id"] == parameters["document_id"]
+            ]
+        if "etf.symbol AS symbol, etf.name AS name" in query:
+            return [
+                {
+                    "symbol": row["symbol"],
+                    "name": row["etf_name"],
+                    "facts": [json.loads(item) for item in _expected_facts(row, active=True)],
+                }
+                for row in self.rows
+            ]
+        if "CREATE (catalog)-[:ACTIVE_SNAPSHOT]" in query:
+            self.active_snapshot = parameters["snapshot_version"]
+            assert self.manifest is not None
+            self.snapshot_digest = self.manifest["snapshot_digest"]
+        return self.execute_query(query, database_="neo4j", parameters_=parameters).records
 
     def execute_query(self, query: str, **kwargs: Any) -> FakeResult:
         assert kwargs["database_"] == "neo4j"
@@ -45,6 +120,8 @@ class FakeDriver:
                 ]
             )
         if "snapshot.document_count AS document_count" in query:
+            if self.manifest is not None:
+                return FakeResult([self.manifest])
             if self.snapshot_digest is None or self.active_snapshot is None:
                 return FakeResult()
             return FakeResult(
@@ -143,6 +220,27 @@ def test_neo4j_store_clears_relationships_when_metadata_disappears() -> None:
     )
 
 
+@pytest.mark.parametrize("symbol", ["SPY", "OTHER"])
+def test_generic_graph_upsert_rejects_active_catalog_without_projection_writes(symbol: str) -> None:
+    driver = FakeDriver()
+    driver.active_snapshot, driver.snapshot_digest = "active", "digest"
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
+    document = SourceDocument(
+        document_id="ordinary",
+        symbol=symbol,
+        title="ordinary",
+        content="ordinary",
+        source="test",
+        source_url="https://example.com",
+        observed_at=datetime(2026, 9, 26, tzinfo=UTC),
+    )
+    with pytest.raises(Neo4jUnavailable) as blocked:
+        store.upsert([document])
+    assert blocked.value.code == "projection_integrity"
+    assert driver.upsert_parameters == []
+    assert driver.commits == 0
+
+
 def test_neo4j_store_rejects_ambiguous_legacy_context() -> None:
     class DuplicateContextDriver(FakeDriver):
         def execute_query(self, query: str, **kwargs: Any) -> FakeResult:
@@ -163,7 +261,38 @@ def test_neo4j_store_rejects_ambiguous_legacy_context() -> None:
         store.find_contexts(["doc-spy"])
 
 
-def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
+@pytest.mark.parametrize("schema", [1, 2])
+def test_graph_read_rejects_duplicate_numeric_relationship_encoding(schema: int) -> None:
+    class DuplicateNumericDriver(FakeDriver):
+        def execute_query(self, query: str, **kwargs: Any) -> FakeResult:
+            if "RETURN document_id AS source_document_id" in query:
+                return FakeResult(
+                    [
+                        {
+                            "source_document_id": "doc-spy",
+                            "schema_version": schema,
+                            "symbol": "SPY",
+                            "etf_name": "ETF",
+                            "sector_exposures_status": "available",
+                            "sector_exposures": [
+                                {
+                                    "name": "technology",
+                                    "weight_pct": 37.4,
+                                    "weight_pct_token": "37.4",
+                                }
+                            ],
+                        }
+                    ]
+                )
+            return super().execute_query(query, **kwargs)
+
+    store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=DuplicateNumericDriver())
+    with pytest.raises(Neo4jUnavailable) as raised:
+        store.find_contexts(["doc-spy"])
+    assert raised.value.code == "schema_encoding"
+
+
+def test_neo4j_store_publishes_and_activates_snapshot_in_explicit_transaction() -> None:
     driver = FakeDriver()
     store = Neo4jGraphStore("neo4j://unused", ("user", "password"), driver=driver)
     document = SourceDocument(
@@ -206,6 +335,11 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
         snapshot_digest="abc123",
         document_count=1,
         document_ids=("research:snapshot-v1:abc123:spy",),
+        fingerprints={
+            document.document_id: document_fingerprint(
+                document.document_id, document.content, document.chroma_metadata()
+            )
+        },
     )
     parameters = driver.snapshot_parameters[0]
     assert parameters["expected_count"] == 1
@@ -219,19 +353,7 @@ def test_neo4j_store_publishes_and_activates_snapshot_in_one_query() -> None:
         '{"sector_exposures":{"missing_reason":null,'
         '"value":[{"name":"technology","symbol":null,"weight_pct":37.4}]}}'
     )
-    snapshot_query = next(query for query in driver.upsert_queries if "ResearchSnapshot" in query)
-    assert "ON CREATE SET snapshot.universe_id" in snapshot_query
-    assert "AND snapshot.digest = $snapshot_digest" in snapshot_query
-    assert "snapshot.document_count = $expected_count" in snapshot_query
-    assert "source.snapshot_digest = $snapshot_digest" in snapshot_query
-    assert "source.field_provenance_json = document.field_provenance_json" in snapshot_query
-    assert "DELETE stale_etf_relationship" in snapshot_query
-    assert "MERGE (etf)-[:IN_FUND_FAMILY]->(fund_family)" in snapshot_query
-    assert "MERGE (etf)-[:IN_CATEGORY]->(category)" in snapshot_query
-    assert "MERGE (source)-[reported:REPORTS_SECTOR_EXPOSURE]->(sector)" in snapshot_query
-    assert "MERGE (etf)-[has_exposure:HAS_SECTOR_EXPOSURE]->(sector)" in snapshot_query
-    assert "count(DISTINCT published_source) AS published_count" in snapshot_query
-    assert snapshot_query.index("WHERE published_count") < snapshot_query.index("ACTIVE_SNAPSHOT")
+    assert driver.commits == 1
 
 
 def test_neo4j_snapshot_publish_preserves_explicit_missing_sector_status() -> None:

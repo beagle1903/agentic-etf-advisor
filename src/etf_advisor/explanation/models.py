@@ -19,6 +19,7 @@ from etf_advisor.domain.construction import (
 from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import CandidateScreeningBundle
+from etf_advisor.encoding import StrictWireModel
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 
 MAX_EXPLANATION_CANDIDATES = 10
@@ -244,7 +245,7 @@ class GeneratedExplanation(BaseModel):
         return self
 
 
-class ExplanationRequest(BaseModel):
+class ExplanationRequest(StrictWireModel):
     """Validated inputs exposed to an explanation generator."""
 
     model_config = ConfigDict(extra="forbid")

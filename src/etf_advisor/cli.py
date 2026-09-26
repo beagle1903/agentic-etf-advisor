@@ -24,6 +24,7 @@ from etf_advisor.data.quality import (
 )
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.data.yahoo_research import YahooResearchAdapter
+from etf_advisor.encoding import ResearchIntegrityError, integrity_diagnostic
 from etf_advisor.evaluation import (
     load_evaluation_dataset,
     load_explanation_evaluation_dataset,
@@ -367,9 +368,19 @@ def publish_research_universe(
         )
         active_identity = graph_store.active_snapshot_identity()
         existing_digest = graph_store.snapshot_digest(version)
-        if not payload_path.exists() and existing_digest is not None:
+        if existing_digest is not None:
             requested_identity = ActiveSnapshotIdentity(version, existing_digest)
             if active_identity == requested_identity:
+                supplied: ETFResearchSnapshot | None = None
+                if payload_path.exists():
+                    supplied = load_research_snapshot(payload_path)
+                    if (
+                        supplied.snapshot_version != version
+                        or supplied.content_digest() != existing_digest
+                    ):
+                        raise IndexConsistencyError(
+                            "Active retry payload conflicts with immutable identity."
+                        )
                 manifest = graph_store.snapshot_manifest(version)
                 if manifest is None or (
                     manifest.snapshot_version != version
@@ -384,11 +395,27 @@ def publish_research_universe(
                     collection_name=settings.chroma_collection,
                     create_if_missing=False,
                 )
+                missing = chroma_store.missing_document_ids(list(manifest.document_ids))
+                if missing:
+                    raise IndexConsistencyError(
+                        f"Chroma is missing {len(missing)} active snapshot document(s)."
+                    )
                 verified_count = verify_snapshot_documents(
                     requested_identity,
                     list(manifest.document_ids),
                     chroma_store,
+                    manifest=manifest,
+                    expected_documents=(
+                        (
+                            supplied.to_source_documents()
+                            if supplied is not None
+                            else graph_store.snapshot_documents(version)
+                        )
+                        if not manifest.fingerprints
+                        else None
+                    ),
                 )
+                graph_store.verify_snapshot(version)
                 if graph_store.active_snapshot_identity() != requested_identity:
                     raise IndexConsistencyError(
                         "The active research snapshot changed during retry verification."
@@ -401,10 +428,33 @@ def publish_research_universe(
                     neo4j_count=manifest.document_count,
                     already_active=True,
                 )
-            else:
+            elif not payload_path.exists():
                 raise ValueError(
                     "The immutable snapshot version already exists, but its canonical payload "
                     "is unavailable. Retry with the original --snapshot-file."
+                )
+            else:
+                snapshot = load_research_snapshot(payload_path)
+                if (
+                    snapshot.snapshot_version != version
+                    or snapshot.content_digest() != existing_digest
+                ):
+                    raise ValueError("Inactive retry payload conflicts with immutable identity.")
+                _assess_research_snapshot(snapshot, clock=system_utc_now).require_healthy()
+                chroma_store = ChromaDocumentStore(
+                    host=settings.chroma_host,
+                    port=settings.chroma_port,
+                    collection_name=settings.chroma_collection,
+                )
+                report = publish_research_snapshot(
+                    snapshot,
+                    chroma_store,
+                    graph_store,
+                    clock=system_utc_now,
+                    max_age=timedelta(hours=settings.market_data_max_age_hours),
+                    future_tolerance=timedelta(
+                        minutes=settings.market_data_future_tolerance_minutes
+                    ),
                 )
         else:
             universe = load_research_universe(universe_path)
@@ -435,7 +485,14 @@ def publish_research_universe(
                 port=settings.chroma_port,
                 collection_name=settings.chroma_collection,
             )
-            report = publish_research_snapshot(snapshot, chroma_store, graph_store)
+            report = publish_research_snapshot(
+                snapshot,
+                chroma_store,
+                graph_store,
+                clock=system_utc_now,
+                max_age=timedelta(hours=settings.market_data_max_age_hours),
+                future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+            )
     except (
         IndexConsistencyError,
         MarketDataQualityError,
@@ -447,7 +504,16 @@ def publish_research_universe(
         ValueError,
         json.JSONDecodeError,
     ) as exc:
-        typer.echo(f"Research-universe publication failed: {exc}", err=True)
+        if isinstance(exc, MarketDataQualityError):
+            message = "Market-data health check failed. Publish current validated source fields."
+        else:
+            diagnostic = integrity_diagnostic(
+                ResearchIntegrityError("document_integrity")
+                if isinstance(exc, IndexConsistencyError)
+                else exc
+            )
+            message = f"{diagnostic['code']}: {diagnostic['message']}"
+        typer.echo(f"Research-universe publication failed: {message}", err=True)
         raise typer.Exit(code=1) from exc
     finally:
         if graph_store is not None:

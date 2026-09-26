@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from etf_advisor.encoding import validate_document
 from etf_advisor.rag.models import MetadataValue, RetrievedSource, SourceDocument
 
 LEGACY_VISIBILITY_KEY = "etf_advisor_legacy_visibility"
@@ -85,6 +86,8 @@ class ChromaDocumentStore:
     def upsert(self, documents: list[SourceDocument]) -> int:
         if not documents:
             return 0
+        if any(document.document_id.startswith("research:") for document in documents):
+            raise ChromaLegacyVisibilityError("Research IDs require immutable snapshot staging.")
 
         ids: list[str] = []
         metadatas: list[dict[str, MetadataValue]] = []
@@ -123,6 +126,68 @@ class ChromaDocumentStore:
             metadatas=metadatas,
         )
         return len(documents)
+
+    def stage_snapshot(self, documents: list[SourceDocument]) -> int:
+        """Insert immutable records; Chroma add never overwrites a competing accepted ID."""
+        expected = {document.document_id: document for document in documents}
+        if not expected or len(expected) != len(documents):
+            raise ChromaLegacyVisibilityError("Snapshot staging requires unique complete records.")
+        for document in documents:
+            if not document.document_id.startswith("research:"):
+                raise ChromaLegacyVisibilityError("Snapshot staging requires research identities.")
+            validate_document(document.document_id, document.content, document.chroma_metadata())
+        existing = self.document_records(list(expected), require_all=False)
+        for document_id, record in existing.items():
+            document = expected[document_id]
+            if record.content != document.content or record.metadata != document.chroma_metadata():
+                raise ChromaLegacyVisibilityError("Conflicting immutable Chroma document identity.")
+        missing = [document for document in documents if document.document_id not in existing]
+        if missing:
+            self._collection.add(
+                ids=[document.document_id for document in missing],
+                documents=[document.content for document in missing],
+                metadatas=[
+                    {**document.chroma_metadata(), LEGACY_VISIBILITY_KEY: BLOCKED_VISIBILITY_VALUE}
+                    for document in missing
+                ],
+            )
+        stored = self.document_records(list(expected))
+        for document_id, record in stored.items():
+            document = expected[document_id]
+            if record.content != document.content or record.metadata != document.chroma_metadata():
+                raise ChromaLegacyVisibilityError("Immutable Chroma staging readback differs.")
+        return len(documents)
+
+    def document_records(
+        self, document_ids: list[str], *, require_all: bool = True
+    ) -> dict[str, RetrievedSource]:
+        """Read exact bounded arrays, rejecting omissions, duplicates and foreign IDs."""
+        if not document_ids or len(document_ids) != len(set(document_ids)):
+            raise ChromaLegacyVisibilityError("Invalid document readback manifest.")
+        result = self._collection.get(ids=document_ids, include=["documents", "metadatas"])
+        ids = _strict_readback_ids(result, set(document_ids))
+        contents = result.get("documents")
+        metadata = result.get("metadatas")
+        if (
+            not isinstance(contents, list)
+            or not isinstance(metadata, list)
+            or len(contents) != len(ids)
+            or len(metadata) != len(ids)
+            or (require_all and set(ids) != set(document_ids))
+        ):
+            raise ChromaLegacyVisibilityError("Incomplete immutable Chroma readback.")
+        records: dict[str, RetrievedSource] = {}
+        for index, document_id in enumerate(ids):
+            if not isinstance(contents[index], str) or not isinstance(metadata[index], Mapping):
+                raise ChromaLegacyVisibilityError("Malformed immutable Chroma record.")
+            record = _without_adapter_metadata(
+                RetrievedSource(
+                    document_id=document_id, content=contents[index], metadata=dict(metadata[index])
+                )
+            )
+            validate_document(record.document_id, record.content, record.metadata)
+            records[document_id] = record
+        return records
 
     def search(
         self,
