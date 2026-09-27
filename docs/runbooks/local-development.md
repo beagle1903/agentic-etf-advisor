@@ -1,5 +1,29 @@
 # Local development runbook
 
+## Official BND holdings
+
+Publication injects the fixed official Vanguard Advisors port-0928 latest-holdings
+client when Yahoo BND holdings are unavailable. TLS, no redirects/compression,
+5-second connect/10-second read timeouts, three transient attempts, a checked
+90-second watchdog, 16 MiB body and 25,000 scoped-row limits bound the call.
+The watchdog interrupts header/body socket operations under a continuous trickle;
+socket idle timeouts alone do not enforce the total deadline.
+Failure aborts the new snapshot before payload/store writes with a fixed diagnostic.
+
+Exact market values rank fixedIncome and shortTermReserves rows. Negative rows and
+repeated identities are validated separately. Blank percentages are permitted only
+outside the selected ten. Exactly empty percentage, market value and face amount
+together identify the user-approved placeholder; other missing market values fail.
+All selected percentages must be nonnegative and sum exactly to at most 100.
+Publication and screening independently require exactly ten official holdings,
+including when a replacement pair has internally consistent schema-2 proofs.
+
+Observation time is the effective-date UTC boundary. Only the two official BND
+composition fields use 1,080 hours; other source/field policies remain configured.
+Fetch time cannot refresh evidence. Source unavailability, stale dates, malformed
+rows or selected missing percentages require investigation, never historical repair
+or policy relaxation.
+
 ## Bootstrap
 
 ```powershell

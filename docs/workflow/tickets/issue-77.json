@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-09-26T19:08:17Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 77,
+        "classification": "consequential",
+        "scope": [
+          "S77-SOURCE",
+          "S77-COMPOSE",
+          "S77-INTEGRATE",
+          "S77-OPERATE"
+        ],
+        "invariants": [
+          "I77-AUTHORITY",
+          "I77-NUMERIC",
+          "I77-FRESHNESS",
+          "I77-FAILCLOSED",
+          "I77-BOUNDARY",
+          "I77-COMPAT",
+          "I77-STATE"
+        ],
+        "acceptance": [
+          "AC77-1",
+          "AC77-2",
+          "AC77-3",
+          "AC77-4",
+          "AC77-5",
+          "AC77-6",
+          "AC77-7"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "Issue #77 body and authorization comment 5849031112"
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-77-authoritative-bnd-evidence",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 77,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue77_implementation"
+          },
+          "rationale": "Financial eligibility depends on source-complete concentration evidence. The established schema-2 provenance, freshness, screening and construction contracts determine the implementation, while the new authoritative issuer source requires independent architecture and challenge gates.",
+          "authorization": {
+            "kind": "user",
+            "name": "active Codex user",
+            "evidence": "User requests `fix it` and `continue`; recorded for Issue #77 in comment 5849031112"
+          },
+          "scope": {
+            "S77-SOURCE": "Add a bounded replaceable issuer-holdings client for the official Vanguard Advisors BND latest-holdings endpoint, with curated BND-to-port-ID 0928 identity, explicit timeouts/retries, response-size and row-count bounds, strict JSON/shape/type validation, and attributable provider/source/effective-date metadata.",
+            "S77-COMPOSE": "When and only when Yahoo BND top-holdings evidence is unavailable, derive exactly the ten largest holdings across the official fixed-income and short-term-reserve collections, retain exact decimal percentages, publish only those ten holdings, and compute top-ten concentration with the existing non-understating binary64 rule. Preserve all complete Yahoo fields and fail closed on fallback failure or contradiction.",
+            "S77-INTEGRATE": "Carry the issuer-derived BND fields through the existing schema-2 snapshot, publication, retrieval, screening, construction, checkpoint, PostgreSQL and dashboard contracts without adding a new eligibility bypass or weakening Issue #70 integrity guarantees.",
+            "S77-OPERATE": "Add deterministic fixtures, bounded HTTP integration coverage, disposable-store end-to-end coverage, runbook/source documentation, and a live validation that either generates a five-candidate portfolio without workflow errors or reports a new attributable fail-closed blocker."
+          },
+          "non_goals": [
+            "No screening-threshold, missing-data, category-sleeve, allocation, ranking or portfolio-position rule changes.",
+            "No missing-as-pass behavior and no synthetic, estimated or manually entered holdings.",
+            "No broad web-scraping framework, browser automation, alternate fund recommendation, universe expansion or replacement of complete Yahoo fields.",
+            "No credentials, authenticated issuer endpoints, trades, brokerage writes or guaranteed-return claims.",
+            "No repair or rewrite of historical snapshots; only newly fetched snapshots may contain issuer-derived fields."
+          ],
+          "invariants": {
+            "I77-AUTHORITY": "Issuer evidence is accepted only from the allowlisted HTTPS Vanguard Advisors host and exact curated BND port-ID endpoint; symbol/port mapping is immutable configuration and every derived field retains provider, source URL and effective date.",
+            "I77-NUMERIC": "Holding percentages are parsed as finite exact decimals with canonical bounded grammar, range 0 through 100, deterministic descending selection and tie-breaking, exact total validation, decimal proof retention and the existing upward binary64 conversion. Concentration never understates the exact selected-ten sum.",
+            "I77-FRESHNESS": "The response effective date is a real, nonfuture calendar date and the resulting fields use one conservative UTC observation instant that must pass the existing freshness policy at publication and screening.",
+            "I77-FAILCLOSED": "Unavailable, non-200, redirected-off-host, oversized, malformed, duplicate-key, empty, incomplete, stale, future-dated, contradictory or numerically invalid issuer data remains explicit unavailable/source-error evidence and cannot reach eligibility or provider/explanation calls.",
+            "I77-BOUNDARY": "The fallback activates only for BND when Yahoo top holdings are unavailable. It cannot silently replace complete Yahoo evidence, combine holdings from two providers, or affect another symbol. Network calls remain behind an injected interface and use bounded attempts/timeouts.",
+            "I77-COMPAT": "Existing schema-1 behavior and schema-2 field shape, digest/fingerprint semantics, publication/retry integrity, screening thresholds and deterministic construction remain unchanged for all existing complete inputs.",
+            "I77-STATE": "All persisted/checkpointed values remain JSON serializable and diagnostics expose only stable allowlisted source/field attribution, never raw response bodies, exception chains, URLs with unexpected query data or connection details."
+          },
+          "interfaces": [
+            "src/etf_advisor/data/yahoo_research.py composition boundary",
+            "new replaceable Vanguard issuer-holdings client under src/etf_advisor/data/",
+            "src/etf_advisor/research/universe_v1.json curated BND issuer identity",
+            "research snapshot schema-2 field provenance without schema-version change",
+            "CLI fetch/publish dependency construction",
+            "tests using deterministic HTTP fixtures and disposable stores"
+          ],
+          "json_state_impact": "No new top-level LangGraph key and no schema-version increment. New snapshots may encode BND top_holdings and top_10_concentration_pct with provider vanguard_advisors, official source URL, official effective-date observation time and existing schema-2 exact decimal/binary64 tokens. Historical snapshots are unchanged.",
+          "acceptance": {
+            "AC77-1": "A fixed official-response fixture equivalent to live BND port 0928 data selects the deterministic top ten across fixedIncome and shortTermReserves, retains exact decimal proofs, produces exact concentration 4.90581 percent before upward conversion, and records provider/source/effective date on both fields.",
+            "AC77-2": "Non-200 responses, timeout/retry exhaustion, off-host redirects, oversized bodies, duplicate JSON keys, wrong port/symbol configuration, missing or duplicate date buckets, null/wrong-type collections or rows, more than the row bound, empty eligible holdings, invalid/negative/over-100/nonfinite percentages, exact total over 100, stale dates and future dates all fail closed with stable sanitized diagnostics and no partial snapshot publication.",
+            "AC77-3": "Complete Yahoo BND holdings remain authoritative with zero issuer call; unavailable Yahoo BND holdings invoke one bounded issuer path; fallback never mixes providers within top_holdings/concentration and never runs for another symbol. Contradictory complete sources fail rather than overwrite.",
+            "AC77-4": "New issuer-derived fields round-trip through schema-2 JSON, Chroma, Neo4j manifest/fingerprint, hybrid retrieval, screening, PostgreSQL close/reopen and dashboard recomputation without numeric/provenance drift; corruption is rejected by existing Issue #70 contracts.",
+            "AC77-5": "A disposable full workflow with the six-member curated universe yields an eligible BND defensive candidate and a deterministic portfolio for the user's five-candidate profile with no workflow error; provider/explanation stubs prove malformed issuer evidence never reaches downstream calls.",
+            "AC77-6": "Golden non-BND, complete-Yahoo, schema-1, active-retry and snapshot digest/fingerprint cases remain unchanged; historical data is not repaired or rewritten.",
+            "AC77-7": "Focused unit, HTTP-boundary, CLI, screening/construction, full offline, opt-in real-store, Ruff, formatting, strict mypy, workflow validation, evaluations, build, both Compose configs, diff check and live source/application verification are recorded; required real-store/live cases are not satisfied by skips."
+          },
+          "verification": [
+            "uv run pytest focused issuer/Yahoo/research/CLI/screening/construction tests",
+            "$env:RUN_REAL_STORE_TESTS='1'; uv run pytest -q -o addopts=''",
+            "uv run ruff check .",
+            "uv run ruff format --check .",
+            "uv run mypy src",
+            "uv run python scripts/validate_codex_workflow.py",
+            "uv run etf-advisor evaluate-retrieval",
+            "uv run etf-advisor evaluate-explanations",
+            "uv build",
+            "docker compose config --quiet and integration Compose config",
+            "git diff --check",
+            "fresh live BND source fetch, atomic publication and five-candidate dashboard workflow verification"
+          ],
+          "documentation": [
+            "new or updated source/provenance ADR if the design challenge confirms a consequential contract not already covered",
+            "system architecture provider-composition boundary",
+            "local runbook for issuer endpoint, bounds, freshness, failure and quiescence",
+            "Issue #77 iteration evidence with live timestamp and claim boundaries"
+          ],
+          "risks": [
+            "Official endpoint shape or availability can change without notice.",
+            "A large 7+ MB holdings payload can create memory, latency or denial-of-service risk without streaming and bounds.",
+            "Bond holding labels repeat, so accidental deduplication can understate concentration.",
+            "Issuer effective dates are less frequent than quote timestamps and can become stale under the existing policy.",
+            "Provider composition can accidentally mix provenance or alter existing digests outside BND.",
+            "A successful BND fix may expose a different live provider or policy blocker; it must be reported rather than bypassed."
+          ],
+          "escalation_triggers": [
+            "The official endpoint cannot be bounded, identified or validated without browser/session state.",
+            "The provider has no stable attributable effective date or exact percentage representation.",
+            "Meeting the acceptance criteria requires weakening freshness, screening or construction policy.",
+            "Implementation requires a schema-version migration, historical repair or universe expansion.",
+            "A concurrency, streaming parser or response-integrity problem is not architecture-determined by the approved design.",
+            "A required live or real-store guarantee cannot be demonstrated within the finite budget."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-26T19:09:34Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue77_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-77-authoritative-bnd-evidence",
+          "generation": 1,
+          "digest": "9d5d4f11efa4c51007df94a62eb2dfef7111e6103b34b09a1d61f9f100f0449a"
+        }
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-09-27T03:38:30Z",
+      "data": {
+        "session": "/root/issue77_design",
+        "outcome": "interrupted",
+        "evidence": "The reserved design phase remained open across the overnight task gap; no design agent was dispatched and no design work occurred. Policy still charges the open interval."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-09-27T03:38:31Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "active Codex user",
+          "evidence": "User said `continue` in the active Codex task on 2026-09-27 after the recorded overnight ledger exhaustion."
+        },
+        "seconds": 32400,
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 0,
+          "final_review": 0,
+          "design_reset": 0
+        },
+        "reason": "Cover the charged overnight open-phase deficit and grant one finite continuation of approximately 2.5 active hours without replenishing any counted phase."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-09-27T03:38:32Z",
+      "data": {
+        "session": "/root/issue77_design"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T03:43:15Z",
+      "data": {
+        "session": "/root/issue77_design",
+        "outcome": "fail",
+        "evidence": "DESIGN_BLOCKED: live official response has 1,190 blank percentOfFunds rows, contradicting AC77-1 success versus I77-NUMERIC/I77-FAILCLOSED/AC77-2 rejection; effective date 2026-08-31 also fails unchanged freshness."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-09-27T03:43:16Z",
+      "data": {
+        "id": "B77-PARTIAL-HOLDINGS",
+        "criterion": "I77-FAILCLOSED",
+        "scenario": "The official live payload has 1,190 holdings with blank percentOfFunds. Rejecting them makes AC77-1 live-equivalent success impossible; dropping or inferring them violates the frozen fail-closed and numeric contract.",
+        "evidence": "Read-only design session /root/issue77_design: HTTP 200, 7,626,454 bytes, 16,300 scoped rows, 15,110 numeric rows summing 99.99954 and numeric top ten summing 4.90581."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-09-27T03:43:17Z",
+      "data": {
+        "id": "B77-STALE-HOLDINGS",
+        "criterion": "I77-FRESHNESS",
+        "scenario": "The official holdings effective date 2026-08-31 is older than both the 120-hour default and 336-hour configured maximum, so live publication and screening must reject it under the frozen policy.",
+        "evidence": "Read-only design session /root/issue77_design and src/etf_advisor/config.py market_data_max_age_hours bounds."
+      }
+    },
+    {
+      "type": "coordination_pause",
+      "at": "2026-09-27T03:43:18Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "Issue #77 DESIGN_BLOCKED requires explicit user decision before any split, replacement approach or consequential policy change."
+        },
+        "evidence": "Clock paused with no product-code edits while awaiting user choice; frozen ticket cannot be implemented or silently revised."
+      }
+    },
+    {
+      "type": "split",
+      "at": "2026-09-27T03:45:42Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "active Codex user",
+          "evidence": "User answered `yes` to the explicit successor split, residual-bound completeness proof, and 45-day source-specific issuer-holdings freshness proposal."
+        },
+        "successor": 78,
+        "seconds": 8701,
+        "reason": "Retire contradictory Issue #77 and carry its exact remaining finite budget/counters into a successor with the two explicitly approved consequential policy definitions."
+      }
+    }
+  ]
+}

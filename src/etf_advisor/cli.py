@@ -22,6 +22,8 @@ from etf_advisor.data.quality import (
     MarketDataQualityError,
     assess_observations,
 )
+from etf_advisor.data.research_quality import assess_research_fields
+from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
 from etf_advisor.data.yahoo_research import YahooResearchAdapter
 from etf_advisor.encoding import ResearchIntegrityError, integrity_diagnostic
@@ -110,18 +112,8 @@ def _assess_research_snapshot(
 ) -> MarketDataHealthReport:
     """Apply the shared freshness boundary to source-reported research timestamps."""
 
-    observations = [
-        _ResearchFieldObservation(
-            symbol=f"{record.symbol}.{field_name}",
-            source=research_field.provider,
-            source_url=research_field.source_url,
-            observed_at=research_field.observed_at,
-        )
-        for record in snapshot.records
-        for field_name, research_field in record.research_fields().items()
-    ]
-    return assess_observations(
-        observations,
+    return assess_research_fields(
+        snapshot,
         checked_at=clock(),
         max_age=timedelta(hours=settings.market_data_max_age_hours),
         future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
@@ -471,6 +463,7 @@ def publish_research_universe(
                     )
             else:
                 adapter = YahooResearchAdapter(
+                    issuer_client=VanguardHoldingsClient(),
                     clock=system_utc_now,
                     max_attempts=settings.yahoo_max_attempts,
                     retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,

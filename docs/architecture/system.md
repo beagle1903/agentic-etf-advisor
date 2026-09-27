@@ -436,6 +436,21 @@ transient adapters with no recovery promise.
 
 ## Data-source boundary
 
+### Official BND composition (ADR 0028)
+
+The CLI injects a bounded Vanguard Advisors client for BND when Yahoo holdings are
+unavailable. A pure parser ranks every valued fixedIncome and shortTermReserves row
+by exact market value, retaining ten validated percentages and original decimal
+proofs. Only exact triple-blank economic placeholders are excluded; repeated
+identities and signed rows remain validated. Holdings and concentration share issuer
+URL/provider/effective date atomically.
+
+CLI assessment, publication and screening share one deterministic resolver: only
+those two official BND fields use a 1,080-hour monthly window, with no future
+tolerance. Other field/document freshness remains configured. Pair provenance is
+validated before publication and screening. Existing schema-2 and dashboard/review
+recomputation preserve the JSON state contract.
+
 ### Lossless research evidence (ADR 0027)
 
 New research snapshots use schema 2 with canonical `binary64-text-v1` numeric strings and original

@@ -1,0 +1,434 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-09-27T03:56:05Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 79,
+        "classification": "consequential",
+        "scope": [
+          "S79-SOURCE",
+          "S79-RANK",
+          "S79-FRESHNESS",
+          "S79-INTEGRATE",
+          "S79-OPERATE"
+        ],
+        "invariants": [
+          "I79-AUTHORITY",
+          "I79-RANK",
+          "I79-PLACEHOLDER",
+          "I79-FRESHNESS",
+          "I79-FAILCLOSED",
+          "I79-COMPAT",
+          "I79-STATE"
+        ],
+        "acceptance": [
+          "AC79-1",
+          "AC79-2",
+          "AC79-3",
+          "AC79-4",
+          "AC79-5",
+          "AC79-6",
+          "AC79-7",
+          "AC79-8"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "User-approved Issue #78 split recorded in predecessor ledger and Issue #79 body"
+        },
+        "adoption": null,
+        "predecessor": {
+          "issue": 78,
+          "digest": "4d6357ce3b39a345092ace5d7d86e9452c8db99af0d2ccb86ea83d960b259056"
+        },
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 79,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue79_implementation"
+          },
+          "rationale": "The user explicitly approved exact market-value ranking, narrowly defined non-valued placeholders, selected-row percentage requirements and issuer-only monthly freshness after live data disproved the predecessor residual model.",
+          "authorization": {
+            "kind": "user",
+            "name": "active Codex user",
+            "evidence": "User answered `yes` to the exact Issue #79 successor rules; predecessor split event and Issue #79 body"
+          },
+          "scope": {
+            "S79-SOURCE": "Add a bounded replaceable issuer-holdings client for the exact allowlisted Vanguard Advisors BND port-0928 latest-holdings endpoint, with disabled unsafe redirects, bounded timeouts/retries/streamed bytes/rows, strict duplicate-key JSON parsing and attributable provider/source/effective-date metadata.",
+            "S79-RANK": "Across only fixedIncome and shortTermReserves, parse exact marketValue and percentOfFunds values without float conversion; preserve negative rows and repeated names; exclude only all-economic-fields-blank placeholders; rank valued rows by descending exact market value with collection rank and source index as deterministic tie breaks; require the selected ten to have exact nonnegative percentages and publish only those ten plus their exact non-understating concentration.",
+            "S79-FRESHNESS": "Apply a 1,080-hour maximum age only to official Vanguard-derived BND top_holdings and top_10_concentration_pct based on the source effective date. Preserve existing configured freshness and cap for Yahoo and every other field/source; fetch time is never observation time.",
+            "S79-INTEGRATE": "Invoke issuer composition only when Yahoo BND holdings are unavailable, replace top_holdings and concentration atomically with one provider/date, and preserve schema-2 publication/retrieval/screening/construction/checkpoint/PostgreSQL/dashboard integrity without changing eligibility thresholds, sleeves or allocation.",
+            "S79-OPERATE": "Add deterministic large fixtures and bounded HTTP coverage, disposable real-store end-to-end coverage, ADR/architecture/runbook/iteration documentation, and fresh live source publication plus five-candidate portfolio verification."
+          },
+          "non_goals": [
+            "No global freshness or configuration-cap change; 1,080 hours applies only to the two exact Vanguard BND fields.",
+            "No imputation, zero-fill, publication of blank-percentage rows, net/gross residual inference, missing-as-pass behavior or use of fetch time.",
+            "No screening threshold, category-sleeve, allocation, ranking outside this source parser, universe member or alternate-fund change.",
+            "No broad scraper/browser framework, authenticated source, credentials, trades, brokerage writes or guaranteed-return claims.",
+            "No historical snapshot repair or rewrite."
+          ],
+          "invariants": {
+            "I79-AUTHORITY": "Issuer evidence is accepted only from the exact allowlisted HTTPS Vanguard Advisors host/path for curated BND port ID 0928. Both derived fields retain provider vanguard_advisors, canonical source URL and effective date.",
+            "I79-RANK": "Every valued row has a bounded finite exact Decimal marketValue; negative values are preserved. Rank descending by exact market value across fixedIncome then shortTermReserves, using collection rank and original row index only for exact ties. Repeated names/CUSIPs remain distinct. Exactly ten selected rows must each have a bounded exact percentOfFunds in [0,100]; their exact percentage-point sum defines concentration and receives the existing upward binary64 conversion.",
+            "I79-PLACEHOLDER": "A row is an authorized non-valued placeholder only when percentOfFunds, marketValue and faceAmount are all exactly blank strings. Such rows are counted/audited but excluded from ranking and publication. Any partial blank combination involving missing marketValue, or any selected row with blank percentage, fails closed. A blank percentage with valid marketValue is retained for ranking and causes failure only if selected in the top ten.",
+            "I79-FRESHNESS": "Only the exact provider/field tuple vanguard_advisors plus BND plus top_holdings/top_10_concentration_pct uses 1,080 hours from the effective-date UTC boundary. Every other provenance uses existing configured max age/future tolerance. Publication and consumed-field screening share one pure resolver and expose the applied window.",
+            "I79-FAILCLOSED": "Non-200/off-host/changed-path redirects, oversized/malformed/duplicate-key responses, wrong configuration/date bucket/collection/row types, unbounded/nonfinite numeric lexemes, fewer than ten valued rows, invalid placeholders, selected blank/negative percentage, stale/future issuer date, contradiction or provider failure produces atomic unavailable/source-error evidence and cannot partially publish or reach review/explanation.",
+            "I79-COMPAT": "Issue #70 schema-1/schema-2 encoding, digests/fingerprints, immutable publication/retry and retrieval validation remain unchanged. Non-BND and complete-Yahoo behavior, screening thresholds and construction rules remain byte/semantically compatible.",
+            "I79-STATE": "State remains JSON serializable and contains enough provider/field provenance for deterministic freshness recomputation. Diagnostics contain only fixed allowlisted codes/source/field attribution, never raw bodies, unexpected URLs, connection details or exception chains."
+          },
+          "interfaces": [
+            "new injected Vanguard issuer-holdings HTTP client under src/etf_advisor/data/",
+            "YahooResearchAdapter BND record-composition boundary",
+            "research/universe_v1.json curated BND issuer identity",
+            "shared publication and screening field-freshness resolver",
+            "existing schema-2 ResearchField, exact decimal proof and fingerprint contracts",
+            "CLI dependency construction, deterministic HTTP transport fixtures and disposable stores"
+          ],
+          "json_state_impact": "No new top-level LangGraph key or research schema version. New BND snapshots use existing top_holdings and top_10_concentration_pct with Vanguard provider/URL/effective-date and existing exact tokens. The 1,080-hour decision is deterministically derived from validated provider/symbol/field and represented through existing screening criteria; historical state is unchanged.",
+          "acceptance": {
+            "AC79-1": "A live-equivalent fixture with 16,300 scoped rows, 16,296 exact market values, four all-economic-fields-blank placeholders, 1,190 blank percentages and 26 negative percentages selects the same ten market-value-ranked rows, all with nonnegative exact percentages summing 4.90581, publishes only those ten and retains provider/source/effective date. The largest valued blank-percentage row remains below the tenth selected row and is not published.",
+            "AC79-2": "Table tests preserve negative rows and repeated names, prove cross-collection ordering and source-index ties, accept only the exact triple-blank placeholder, reject partial blanks/missing market value/fewer than ten valued rows/selected blank or negative percentage/nonfinite or overlong numerics, and verify no deduplication or imputation.",
+            "AC79-3": "Issuer BND fields pass exactly at 1,080 hours and fail immediately beyond; future dates fail. Yahoo and every other field retain the configured 120-hour default and 336-hour cap. CLI/API publication, evidence, screening, restored review, construction and dashboard agree and identify the applied window.",
+            "AC79-4": "HTTP boundary tests prove exact host/path/port identity, no unsafe redirect, bounded connect/read timeouts and attempts, streaming byte/row limits, duplicate-key rejection and sanitized failure with zero partial publication.",
+            "AC79-5": "Complete Yahoo BND holdings make zero issuer calls; unavailable Yahoo BND holdings invoke one bounded issuer path; another symbol never invokes it; holdings/concentration never mix providers and both become unavailable atomically on source/ranking failure.",
+            "AC79-6": "Derived fields round-trip through schema-2 JSON, Chroma, Neo4j manifest/fingerprint, hybrid retrieval, screening, PostgreSQL close/reopen and dashboard without drift; corruption remains rejected and schema-1/non-BND golden digests remain exact.",
+            "AC79-7": "While the official endpoint retains the verified live shape/date window, a fresh guarded publication and the user's five-candidate workflow produce an eligible BND defensive candidate and deterministic portfolio with no workflow error. External-state changes produce an attributable blocker, never a bypass.",
+            "AC79-8": "Focused parser/HTTP/Yahoo/research/publication/evidence/screening/construction/CLI tests, full offline and opt-in real-store suites, Ruff, formatting, strict mypy, workflow validation, evaluations, build, both Compose configs, diff check, independent review and visible live application verification are recorded with no required skips."
+          },
+          "verification": [
+            "focused unit/HTTP/Yahoo/research/publication/evidence/screening/construction/CLI pytest suites",
+            "$env:RUN_REAL_STORE_TESTS='1'; uv run pytest -q -o addopts=''",
+            "uv run ruff check . and uv run ruff format --check .",
+            "uv run mypy src",
+            "uv run python scripts/validate_codex_workflow.py",
+            "uv run etf-advisor evaluate-retrieval and evaluate-explanations",
+            "uv build",
+            "docker compose config --quiet and integration Compose config",
+            "git diff --check",
+            "fresh official BND fetch, guarded publication and visible five-candidate dashboard workflow"
+          ],
+          "documentation": [
+            "ADR for market-value-ranked issuer evidence and issuer-only monthly freshness",
+            "system architecture provider composition/freshness resolver",
+            "runbook for endpoint bounds, placeholders, negative/blank rows, selected-row rules and 45-day policy",
+            "Issue #79 iteration evidence including predecessor lineage and live limitations"
+          ],
+          "risks": [
+            "Official response shape, order, size, cadence or accessibility can change.",
+            "Treating exact triple-blank rows as non-valued placeholders is an explicit user-approved source interpretation, not a completeness guarantee from Vanguard.",
+            "Market value and percent fields may diverge or selected rows may later lack percentages, requiring fail-closed rejection.",
+            "Repeated bonds, negative values and exact ties can be accidentally deduplicated or converted through float.",
+            "Field-specific freshness can drift between publication and downstream recomputation.",
+            "Large streaming responses can exceed finite time or resource bounds."
+          ],
+          "escalation_triggers": [
+            "Live data contains a selected top-ten row without valid nonnegative percentage or an invalid non-placeholder missing market value.",
+            "Implementing issuer-only freshness requires schema migration, historical rewrite or global relaxation.",
+            "The HTTP stack cannot enforce streaming byte, redirect and timeout bounds through an injected interface.",
+            "Publication and downstream freshness cannot share the same deterministic resolver.",
+            "Unresolved concurrency, integrity or provider-composition ambiguity appears.",
+            "Inherited finite budget cannot complete required real-store/live evidence."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T03:57:52Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue79_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-09-27T08:53:10Z",
+      "data": {
+        "session": "/root/issue79_design",
+        "outcome": "interrupted",
+        "evidence": "The same design session was interrupted by the service usage limit; the open interval is charged in full and no replacement agent or reset is used."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-09-27T08:53:11Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "active Codex user",
+          "evidence": "User said `continue` after the Issue #79 design session service-limit interruption on 2026-09-27."
+        },
+        "seconds": 18000,
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 0,
+          "final_review": 0,
+          "design_reset": 0
+        },
+        "reason": "Cover the charged quota-interruption gap and grant one finite continuation of the same reserved design session without replenishing counted phases."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-09-27T08:53:12Z",
+      "data": {
+        "session": "/root/issue79_design"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T08:56:05Z",
+      "data": {
+        "session": "/root/issue79_design",
+        "outcome": "pass",
+        "evidence": "DESIGN_READY bound to capsule issue-79-bnd-market-value-evidence generation 1 digest a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777; exact parser, atomic composition, shared freshness resolver and AC79-1..8 guidance recorded by read-only architect."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T08:56:25Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue79_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T08:58:44Z",
+      "data": {
+        "session": "/root/issue79_challenge",
+        "outcome": "pass",
+        "evidence": "CHALLENGE_PASS: independent code_reviewer found no unresolved failure against I79-RANK/PLACEHOLDER/AUTHORITY/FAILCLOSED/FRESHNESS/COMPAT/STATE and AC79-1..8; no changes made."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-09-27T08:58:45Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "DESIGN_READY issue comment 5854424290 and independent CHALLENGE_PASS session /root/issue79_challenge"
+        },
+        "evidence": "Coordinator approves the exact frozen capsule after independent challenge; implementation remains limited to Issue #79 scope and AC79-1..8.",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T08:59:00Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue79_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:19:33Z",
+      "data": {
+        "session": "/root/issue79_implementation",
+        "outcome": "pass",
+        "evidence": "Implementation frozen at canonical content 4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038. Full opt-in suite passed 1267 tests with zero skips plus the final independent transport boundary test; 39 real-store tests, focused suite, lint, format, strict mypy, workflow validation, evaluations, build, Compose configs and diff check passed. Live guarded BND publication succeeded. Coordinator visible five-candidate run reached Human review with eligible BND at 42.50%, five positions and 100.00% total weight; optional Ollama explanation separately failed closed on authentication and was not used for acceptance."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-09-27T09:20:05Z",
+      "data": {
+        "ids": [
+          "AC79-1",
+          "AC79-2",
+          "AC79-3",
+          "AC79-4",
+          "AC79-5",
+          "AC79-6",
+          "AC79-7",
+          "AC79-8"
+        ],
+        "evidence": "AC79-1 through AC79-6 and AC79-8 are supported by the 179 focused tests, 1267-test full opt-in run plus the final transport test, 39 disposable real-store tests and the recorded static gates. AC79-7 passed with official Vanguard BND publication issue79-20260927T0910Z digest cd64768184623ad05f2591630c4201fdc108189d9c1e40a90c15066416d80482 and visible Streamlit workflow token 246f5ee3-3e06-4125-ae94-f6a8887e823c: five candidates, eligible defensive BND at 42.50%, five positions, 100.00% total weight and Human review without screening or construction error. Optional provider authentication failed closed and was excluded from portfolio acceptance.",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T09:20:30Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue79_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:21:35Z",
+      "data": {
+        "session": "/root/issue79_implementation",
+        "outcome": "pass",
+        "evidence": "Verification PASS on reserved content 4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038. Production and tests are unchanged from the fully verified implementation digest; coordinator iteration evidence accurately records Human review, five positions totaling 100.00%, BND 42.50%, and the separately failed-closed optional Ollama authentication path. Diff check, Ruff, formatting, workflow validation and ticket-ledger validation pass."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T09:22:05Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue79_initial_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:25:14Z",
+      "data": {
+        "session": "/root/issue79_initial_review",
+        "outcome": "fail",
+        "evidence": "REVIEW_FAIL on frozen content 4a0007cf4b36d80a90617b8d56d41a9680365e5d2f1ca6bc1296bea97269f038. P1: issuer pair validation permits a self-consistent truncated or oversized holdings list, violating I79-RANK, I79-FAILCLOSED and AC79-6. P2: blocking getresponse and buffered read operations can exceed the 90-second elapsed budget under slow header/body trickle, violating I79-FAILCLOSED and AC79-4. Regression coverage required for exact ten holdings and deadline expiry during transport operations."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T09:25:41Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue79_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:33:05Z",
+      "data": {
+        "session": "/root/issue79_implementation",
+        "outcome": "pass",
+        "evidence": "The one remediation pass fixed both review findings on canonical content a8116a63cb17a3b28839fc67ab5bc31c1ef11b416ea32a90fbc6f38c7570d7a3: shared issuer validation now requires exactly ten holdings and rejects self-consistent 9/11 pairs; a remaining-deadline watchdog interrupts slow-trickle header/body socket operations. Regressions fail against the prior boundary. Full opt-in suite passed 1274 tests with zero skips; issuer suite 46/46; Ruff, format, mypy, workflow validation, evaluations, build, Compose configs and diff check pass. Guarded official fetch still returns ten holdings and exact 4.90581 concentration."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-09-27T09:35:21Z",
+      "data": {
+        "ids": [
+          "AC79-1",
+          "AC79-2",
+          "AC79-3",
+          "AC79-4",
+          "AC79-5",
+          "AC79-6",
+          "AC79-7",
+          "AC79-8"
+        ],
+        "evidence": "AC79-1 through AC79-6 and AC79-8 pass on remediated content through 46 issuer tests, 1274-test full opt-in run with zero skips, 39 disposable real-store paths and all recorded static gates. AC79-4 now includes slow-header/body deadline interruption; AC79-6 rejects self-consistent 9/11 issuer pairs. AC79-7 passed again after a fresh server restart on the remediated build: durable review token 9bc06eff-544e-4569-85b7-c041272272bf reached Human review with five candidates, eligible defensive BND at 42.50%, five positions and 100.00% total weight, with no screening or construction error.",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T09:35:42Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue79_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:36:49Z",
+      "data": {
+        "session": "/root/issue79_implementation",
+        "outcome": "pass",
+        "evidence": "Post-remediation verification PASS on exact content 3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa. The only delta from fully verified remediation content is accurate coordinator iteration evidence for the post-restart visible run and final 1274-test/static results. Diff check, Ruff, formatting, workflow configuration and ledger validation pass."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T09:37:06Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue79_initial_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        },
+        "content": "3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T09:38:45Z",
+      "data": {
+        "session": "/root/issue79_initial_review",
+        "outcome": "pass",
+        "evidence": "FINAL_REVIEW_PASS on frozen content 3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa. Exact-ten issuer validation closes truncated/oversized pair acceptance; watchdog socket shutdown closes continuous-trickle header/body deadline overruns with correct cleanup and sanitized diagnostics. All six remediation regressions including real socket cases passed independently. Final diff scan found no new substantive defect; documentation and optional explanation limitation are accurate."
+      }
+    }
+  ]
+}
