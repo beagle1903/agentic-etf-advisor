@@ -214,6 +214,21 @@
         "outcome": "pass",
         "evidence": "REVIEW_PASS on frozen content 4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d. Independent reviewer passed all 52 Vanguard tests, reproduced abandoned and completed-handoff races, confirmed exact remaining setup bound, late cleanup with zero request authority, retry/watchdog attribution and compatibility, and found no scoped defect. Documented OS-resolver daemon lifetime is outside the promised forced-cancellation/process-cap scope."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-09-27T17:44:41Z",
+      "data": {
+        "evidence": "PR #80 now carries the user-authorized Issue #81 successor fix on independently reviewed content. Review thread discussion_r4114863868 has an evidence reply and is resolved. Local full/static/live gates pass; the recorded delivery binding enables the required fresh PR CI gate.",
+        "pr": 80,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        }
+      }
     }
   ]
 }
