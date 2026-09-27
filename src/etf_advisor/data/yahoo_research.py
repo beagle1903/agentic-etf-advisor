@@ -12,6 +12,7 @@ from decimal import Decimal, localcontext
 from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
+from etf_advisor.data.vanguard import BND_URL, PROVIDER, IssuerHoldingsClient, IssuerSourceError
 from etf_advisor.data.yahoo import MarketDataError
 from etf_advisor.encoding import decimal_token
 from etf_advisor.research.models import (
@@ -58,6 +59,7 @@ class YahooResearchAdapter:
         max_attempts: int = 3,
         retry_backoff_seconds: float = 0.25,
         sleeper: Callable[[float], None] = time.sleep,
+        issuer_client: IssuerHoldingsClient | None = None,
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be at least 1.")
@@ -68,6 +70,7 @@ class YahooResearchAdapter:
         self._max_attempts = max_attempts
         self._retry_backoff_seconds = retry_backoff_seconds
         self._sleeper = sleeper
+        self._issuer_client = issuer_client
 
     @staticmethod
     def _load_ticker_factory() -> Callable[[str], Any]:
@@ -229,7 +232,7 @@ class YahooResearchAdapter:
             if raw.top_holdings
             else None
         )
-        return ETFResearchRecord(
+        record = ETFResearchRecord(
             symbol=raw.symbol,
             name=field(_first_text(info.get("longName"), info.get("shortName")), "text"),
             quote_type=field(_optional_text(info.get("quoteType")), "classification"),
@@ -279,6 +282,36 @@ class YahooResearchAdapter:
                 provider="yahoo_finance_derived",
             ),
         )
+        if raw.symbol == "BND" and holdings is None and self._issuer_client is not None:
+            try:
+                issuer = self._issuer_client.fetch()
+            except IssuerSourceError:
+                raise MarketDataError(
+                    "BND issuer holdings unavailable (issuer_source_error)."
+                ) from None
+            record = record.model_copy(
+                update={
+                    "top_holdings": ResearchField[list[WeightedExposure]](
+                        value=issuer.holdings,
+                        unit="percent_of_fund",
+                        provider=PROVIDER,
+                        source_url=BND_URL,
+                        observed_at=issuer.observed_at,
+                        ingested_at=ingested_at,
+                        snapshot_version=snapshot_version,
+                    ),
+                    "top_10_concentration_pct": ResearchField[float](
+                        value=issuer.concentration,
+                        unit="percent",
+                        provider=PROVIDER,
+                        source_url=BND_URL,
+                        observed_at=issuer.observed_at,
+                        ingested_at=ingested_at,
+                        snapshot_version=snapshot_version,
+                    ),
+                }
+            )
+        return record
 
 
 def _required_info(ticker: Any) -> dict[str, Any]:

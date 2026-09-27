@@ -21,6 +21,7 @@ from pydantic import (
 )
 
 from etf_advisor.data.quality import FreshnessStatus, ObservationHealth
+from etf_advisor.data.research_quality import field_max_age, is_issuer_field, validate_issuer_pair
 from etf_advisor.encoding import (
     StrictWireModel,
     binary_token,
@@ -414,6 +415,10 @@ def _screen_candidate(
     future_tolerance_minutes: float,
 ) -> CandidateScreeningResult:
     provenance = _field_provenance(candidate)
+    try:
+        validate_issuer_pair(candidate.symbol, provenance)
+    except ValueError:
+        raise ScreeningContractError("issuer_provenance_pair") from None
     _validate_consumed_field_contracts(
         candidate,
         provenance,
@@ -513,6 +518,12 @@ def _screen_candidate(
             tolerance=policy.excluded_sector_weight_tolerance_pct,
         ),
     ]
+    if provenance.get("top_10_concentration_pct") is not None and (
+        provenance["top_10_concentration_pct"].provider == "vanguard_advisors"
+    ):
+        for rule in rules:
+            if rule.criterion == ScreeningCriterion.FRESHNESS:
+                rule.message += "; official BND holdings use a 1080-hour field window."
     return CandidateScreeningResult(
         document_id=candidate.document_id,
         symbol=candidate.symbol,
@@ -622,13 +633,32 @@ def _ensure_available_field_current(
     if provenance is None or provenance.missing_reason is not None:
         return
     citation = _field_citation(candidate, field_name, provenance)
-    if provenance.observed_at > checked_at + timedelta(minutes=future_tolerance_minutes):
+    applied = field_max_age(
+        symbol=candidate.symbol,
+        field_name=field_name,
+        provider=provenance.provider,
+        source_url=provenance.source_url,
+        observed_at=provenance.observed_at,
+        default=timedelta(hours=max_age_hours),
+    )
+    future = (
+        timedelta(0)
+        if is_issuer_field(
+            symbol=candidate.symbol,
+            field_name=field_name,
+            provider=provenance.provider,
+            source_url=provenance.source_url,
+            observed_at=provenance.observed_at,
+        )
+        else timedelta(minutes=future_tolerance_minutes)
+    )
+    if provenance.observed_at > checked_at + future:
         raise ScreeningFieldFreshnessError(
             code="field_future",
             citation=citation,
             checked_at=checked_at,
         )
-    if checked_at - provenance.observed_at > timedelta(hours=max_age_hours):
+    if checked_at - provenance.observed_at > applied:
         raise ScreeningFieldFreshnessError(
             code="field_stale",
             citation=citation,

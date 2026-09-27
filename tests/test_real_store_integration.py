@@ -20,6 +20,8 @@ from test_checkpoint_lifecycle import Time, invoke, start
 from test_lossless_contract import lossless_snapshot
 from test_research_snapshot import research_snapshot
 from test_revision import Adapters
+from test_vanguard import NOW
+from test_vanguard import snapshot as issuer_snapshot
 from test_workflow import valid_profile
 from typer.testing import CliRunner
 
@@ -391,6 +393,57 @@ def test_lossless_real_chroma_graph_postgres_reopen_dashboard(
             candidate["metadata"]["top_10_concentration_pct"] == "46.272379900000004"
             for candidate in payload["candidate_evidence"]["candidates"]
         )
+        graph_store.verify_snapshot(snapshot.snapshot_version)
+    finally:
+        graph_store.close()
+
+
+def test_issuer_real_stores_reopen_dashboard(real_stores: RealStoreEnvironment) -> None:
+    chroma, graph_store = _lossless_stores(real_stores)
+    snapshot = lossless_snapshot(f"issuer-{uuid4().hex}")
+    issuer, _ = issuer_snapshot()
+    snapshot.ingested_at = NOW
+    for record in snapshot.records:
+        for field in record.research_fields().values():
+            field.observed_at = field.ingested_at = NOW
+        if record.symbol == "BND":
+            for name in ("top_holdings", "top_10_concentration_pct"):
+                field = getattr(issuer.records[0], name).model_copy(deep=True)
+                field.snapshot_version = snapshot.snapshot_version
+                setattr(record, name, field)
+    try:
+        publish_research_snapshot(snapshot, chroma, graph_store, clock=lambda: NOW)
+        retriever = HybridCandidateEvidenceRetriever(
+            HybridRetriever(chroma, graph_store), clock=lambda: NOW, max_age=timedelta(hours=120)
+        )
+        store = PostgresCheckpointStore(SecretStr(real_stores.postgres_uri), clock=lambda: NOW)
+        store.setup()
+        token = str(uuid4())
+        with store.managed(token, create=True) as saver:
+            graph = build_graph(
+                checkpointer=saver, clock=store.clock, candidate_retriever=retriever
+            )
+            state = dict(
+                graph.invoke({"profile": valid_profile()}, {"configurable": {"thread_id": token}})
+            )
+        assert state["status"] == "awaiting_human_review", state.get("errors")
+        with store.managed(token) as saver:
+            reopened = build_graph(
+                checkpointer=saver, clock=store.clock, candidate_retriever=retriever
+            )
+            restored = reopened.get_state({"configurable": {"thread_id": token}})
+            values = dict(restored.values)
+            values["__interrupt__"] = tuple(
+                item for task in restored.tasks for item in task.interrupts
+            )
+        payload = review_payload(values)
+        assert payload["portfolio_construction"] is not None
+        bnd = next(
+            candidate
+            for candidate in payload["candidate_evidence"]["candidates"]
+            if candidate["symbol"] == "BND"
+        )
+        assert bnd["metadata"]["top_10_concentration_pct"] == "5.0"
         graph_store.verify_snapshot(snapshot.snapshot_version)
     finally:
         graph_store.close()

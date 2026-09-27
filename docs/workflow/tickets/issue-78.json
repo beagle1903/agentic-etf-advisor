@@ -1,0 +1,207 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-09-27T03:45:43Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 78,
+        "classification": "consequential",
+        "scope": [
+          "S78-SOURCE",
+          "S78-PROOF",
+          "S78-FRESHNESS",
+          "S78-INTEGRATE",
+          "S78-OPERATE"
+        ],
+        "invariants": [
+          "I78-AUTHORITY",
+          "I78-RESIDUAL",
+          "I78-FRESHNESS",
+          "I78-FAILCLOSED",
+          "I78-BOUNDARY",
+          "I78-COMPAT",
+          "I78-STATE"
+        ],
+        "acceptance": [
+          "AC78-1",
+          "AC78-2",
+          "AC78-3",
+          "AC78-4",
+          "AC78-5",
+          "AC78-6",
+          "AC78-7",
+          "AC78-8"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "User-approved Issue #77 split recorded in predecessor ledger and Issue #78 body"
+        },
+        "adoption": null,
+        "predecessor": {
+          "issue": 77,
+          "digest": "145c219b3406773ceb8f2583dc696777528ea3c00831ad42dab6c5440cf0be63"
+        },
+        "capsule": {
+          "id": "issue-78-bnd-residual-monthly-evidence",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 78,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue78_implementation"
+          },
+          "rationale": "The user explicitly approved a mathematically bounded residual proof and a 45-day issuer-holdings freshness policy to resolve Issue #77's live-source contradictions without treating missing weights as known or relaxing any other eligibility rule.",
+          "authorization": {
+            "kind": "user",
+            "name": "active Codex user",
+            "evidence": "User answered `yes` to the explicit successor split and both consequential policy definitions; predecessor split event and Issue #78 body"
+          },
+          "scope": {
+            "S78-SOURCE": "Add a bounded replaceable issuer-holdings client for the allowlisted official Vanguard Advisors BND latest-holdings endpoint with immutable BND-to-port-ID 0928 configuration, disabled unsafe redirects, bounded timeouts/retries/bytes/rows, strict duplicate-key JSON parsing and attributable provider/source/effective-date metadata.",
+            "S78-PROOF": "Parse every numeric percentOfFunds as an exact finite nonnegative percentage point value and permit blank strings only as explicitly unweighted unknown rows. Select and publish exactly the ten largest known rows only when the known exact sum is at most 100 and the total unknown residual 100 minus that sum is strictly smaller than the tenth-largest known weight, proving no unknown row can displace the selected ten. Never impute, zero-fill, publish or deduplicate unknown rows or repeated named bonds.",
+            "S78-FRESHNESS": "Apply an explicit 1,080-hour maximum age only to Vanguard issuer-derived BND top_holdings and top_10_concentration_pct, using their source effective date. Preserve the existing configured freshness window and cap for Yahoo and every other field/source; fetch time never substitutes for observation time.",
+            "S78-INTEGRATE": "Compose issuer evidence only when Yahoo BND holdings are unavailable; replace top_holdings and concentration together with one provider/date and carry them through existing schema-2 publication, retrieval, screening, construction, checkpoints, PostgreSQL and dashboard integrity without altering thresholds, sleeves or allocation.",
+            "S78-OPERATE": "Add deterministic fixtures and bounded HTTP tests, disposable real-store end-to-end coverage, architecture/runbook/iteration documentation, and live source publication plus five-candidate portfolio verification under the approved source-specific policy."
+          },
+          "non_goals": [
+            "No global freshness-window or configuration-cap increase; 1,080 hours applies only to the two named official issuer-derived BND fields.",
+            "No weight imputation, zero-fill, publication of blank-weight rows, missing-as-pass behavior or reliance on fetch time.",
+            "No screening threshold, category-sleeve, allocation, ranking, universe membership or alternate-fund change.",
+            "No broad scraper/browser framework, authenticated endpoints, credentials, trades, brokerage writes or guaranteed-return claims.",
+            "No historical snapshot repair or rewrite; only newly fetched snapshots may use the successor contract."
+          ],
+          "invariants": {
+            "I78-AUTHORITY": "Issuer evidence is accepted only from the exact allowlisted HTTPS Vanguard Advisors host/path for curated BND port ID 0928; provider, canonical source URL and effective date are retained on both derived fields.",
+            "I78-RESIDUAL": "Known percentages use bounded exact decimals in percentage points. Blank strings remain unknown. Let K be the exact sum of all known rows and R=100-K. Success requires 0<=K<=100, at least ten known rows, R>=0 and R strictly less than the tenth-largest known exact weight. This proves every unknown row is below the tenth-largest because unknown weights are nonnegative and collectively cannot exceed R. The ten selected exact weights and their exact sum alone define published holdings and concentration; repeated names remain distinct rows with deterministic source-order tie breaks.",
+            "I78-FRESHNESS": "Only provider vanguard_advisors fields top_holdings and top_10_concentration_pct use max age 1,080 hours from the source effective-date UTC boundary. All other provenance uses the existing configured max age and future tolerance. The applied window is deterministic and visible in screening diagnostics/recomputation.",
+            "I78-FAILCLOSED": "Non-200/off-host/changed-path redirects, oversized or malformed bodies, duplicate keys, wrong configuration/date bucket/collection/row types, nonblank invalid weights, negative/nonfinite/over-100 weights, known sum over 100, insufficient known rows, failed residual inequality, stale/future issuer date, contradiction or provider failure remains explicit unavailable/source-error and cannot partially publish or reach explanation/review.",
+            "I78-BOUNDARY": "Fallback runs only for BND when Yahoo holdings are unavailable, replaces holdings and concentration as an atomic pair, never combines two providers within either field, never overwrites complete Yahoo evidence and never runs for another symbol. Network and clock calls remain injected and bounded.",
+            "I78-COMPAT": "Issue #70 schema-1/schema-2 encoding, digest/fingerprint, immutable publication/retry, retrieval validation and all existing non-BND/complete-Yahoo behavior remain unchanged. Screening thresholds and construction rules do not change.",
+            "I78-STATE": "State stays JSON serializable and persisted evidence contains sufficient provider/field information for deterministic source-specific freshness recomputation. Diagnostics expose only fixed allowlisted source/field/code attribution, never raw bodies, unexpected URLs, connection details or exception chains."
+          },
+          "interfaces": [
+            "new replaceable Vanguard issuer-holdings client under src/etf_advisor/data/",
+            "src/etf_advisor/data/yahoo_research.py snapshot composition boundary",
+            "src/etf_advisor/research/universe_v1.json curated BND issuer identity",
+            "publication freshness assessment with field/provider-specific resolver",
+            "evidence/screening freshness recomputation and diagnostics",
+            "existing schema-2 ResearchField provenance with no schema-version increment",
+            "CLI dependency construction and deterministic HTTP fixtures"
+          ],
+          "json_state_impact": "No new top-level LangGraph key and no research schema-version increment. New BND snapshots may encode only the existing top_holdings and top_10_concentration_pct fields with provider vanguard_advisors, official canonical URL, effective-date observation timestamp and existing exact decimal/binary64 tokens. The applied 1,080-hour rule is deterministically derived from provider plus field name and reflected in existing screening criteria; historical state remains unchanged.",
+          "acceptance": {
+            "AC78-1": "A live-equivalent 7.6 MB fixture with 16,300 scoped rows, 1,190 blank percentages, known exact sum 99.99954 and numeric top ten sum 4.90581 passes the residual proof, publishes only those ten exact rows, produces non-understating concentration from 4.90581, and retains provider/source/effective date on both fields without assigning the blank rows.",
+            "AC78-2": "Table tests reject known sum over 100, fewer than ten numeric rows, tenth weight equal to or below residual, any individual or aggregate configuration where an unknown could displace the tenth, nonblank invalid/negative/nonfinite/over-100 values, wrong collections/date buckets and nondeterministic ties. Repeated bond names remain distinct and source-order stable.",
+            "AC78-3": "Issuer-derived BND fields pass at exactly 1,080 hours and fail just beyond; future dates fail. Yahoo and every other field still use the configured 120-hour default/336-hour cap in tests. Publication, evidence selection, screening, construction and persisted/dashboard recomputation agree on the same field-specific result and show the applied window.",
+            "AC78-4": "HTTP tests prove fixed host/path/port identity, no unsafe redirect, bounded connection/read timeout, bounded attempts, streaming body limit below exhaustion, bounded rows, duplicate-key rejection and sanitized errors with zero partial publication.",
+            "AC78-5": "Complete Yahoo BND holdings cause zero issuer calls; unavailable Yahoo BND holdings invoke one bounded issuer path; fallback never runs for another symbol, never mixes providers and atomically marks both fields unavailable if proof/source validation fails.",
+            "AC78-6": "Issuer-derived fields round-trip through schema-2 JSON, Chroma, Neo4j manifest/fingerprint, hybrid retrieval, screening, PostgreSQL close/reopen and dashboard without drift; corruption remains rejected by Issue #70 guarantees. Schema-1 and non-BND golden digests remain exact.",
+            "AC78-7": "With the current official source satisfying the residual proof and 45-day window, a fresh atomic publication and five-candidate user-profile workflow produce an eligible BND defensive candidate and deterministic portfolio with no workflow error. If external state changes before verification, the run must report the exact attributable source/freshness blocker rather than bypass it.",
+            "AC78-8": "Focused unit/HTTP/CLI/screening/construction tests, full offline and opt-in real-store suites, Ruff, formatting, strict mypy, workflow validation, both evaluations, build, both Compose configs, diff check, independent review and live source/application verification are recorded; required real/live cases are not satisfied by skips."
+          },
+          "verification": [
+            "uv run pytest focused issuer/Yahoo/research/publication/evidence/screening/construction/CLI tests",
+            "$env:RUN_REAL_STORE_TESTS='1'; uv run pytest -q -o addopts=''",
+            "uv run ruff check . and uv run ruff format --check .",
+            "uv run mypy src",
+            "uv run python scripts/validate_codex_workflow.py",
+            "uv run etf-advisor evaluate-retrieval and evaluate-explanations",
+            "uv build",
+            "docker compose config --quiet and integration Compose config",
+            "git diff --check",
+            "fresh official BND fetch, guarded publication and visible five-candidate dashboard workflow"
+          ],
+          "documentation": [
+            "ADR for residual-bound issuer evidence and source-specific monthly freshness",
+            "system architecture provider composition and freshness resolver",
+            "local runbook for endpoint bounds, blank rows, residual proof, 45-day rule and failure recovery",
+            "Issue #78 iteration evidence including predecessor binding and live claim boundaries"
+          ],
+          "risks": [
+            "The official endpoint can change shape, size, effective-date cadence or accessibility.",
+            "The proof relies on percentOfFunds semantics that known plus unknown nonnegative fund weights total no more than 100 percentage points; implementation must make that assumption explicit and fail if known data contradict it.",
+            "Repeated bond names and rounded percentage lexemes can be accidentally deduplicated or converted through float.",
+            "A provider/field freshness resolver can drift between publication and downstream recomputation.",
+            "Large response handling can create latency or memory risk if byte/row bounds are applied after full materialization.",
+            "External data may change before final live verification, producing a new honest blocker despite correct code."
+          ],
+          "escalation_triggers": [
+            "The residual proof cannot be derived from documented endpoint semantics without an additional unapproved assumption.",
+            "Implementing the 45-day field-specific rule requires a schema migration, historical rewrite or global freshness relaxation.",
+            "The HTTP library cannot enforce redirect, streaming byte and timeout bounds through a replaceable interface.",
+            "A required publication/downstream recomputation path cannot preserve identical freshness decisions.",
+            "Implementation exposes unresolved concurrency, response-integrity or provider-composition ambiguity.",
+            "The inherited finite budget cannot complete required real-store and live evidence."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T03:48:10Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue78_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-78-bnd-residual-monthly-evidence",
+          "generation": 1,
+          "digest": "38cb99304a553ae789d079610896a50b0885c2f84b196f214bb588813f36a100"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T03:54:10Z",
+      "data": {
+        "session": "/root/issue78_design",
+        "outcome": "fail",
+        "evidence": "DESIGN_BLOCKED: live response has 26 negative numeric percentOfFunds values, so AC78-1 live-equivalent success conflicts with I78-RESIDUAL/I78-FAILCLOSED/AC78-2 nonnegative-input rejection."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-09-27T03:54:11Z",
+      "data": {
+        "id": "B78-NEGATIVE-WEIGHTS",
+        "criterion": "I78-RESIDUAL",
+        "scenario": "The official live-equivalent payload includes 26 negative numeric holding percentages, invalidating the frozen nonnegative residual model while AC78-1 requires that payload to succeed.",
+        "evidence": "Read-only /root/issue78_design exact-Decimal inspection: minimum percentOfFunds -0.05923; numeric sum 99.99954 includes negative rows; one blank-percentage row also has negative marketValue."
+      }
+    },
+    {
+      "type": "coordination_pause",
+      "at": "2026-09-27T03:54:12Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "Issue #78 DESIGN_BLOCKED requires explicit user authority for any replacement mathematical model and successor split."
+        },
+        "evidence": "Clock paused with no product-code edits; implementation dispatch is forbidden under the contradictory frozen capsule."
+      }
+    },
+    {
+      "type": "split",
+      "at": "2026-09-27T03:56:04Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "active Codex user",
+          "evidence": "User answered `yes` to the explicit second successor split and exact market-value ordering, placeholder, selected-percentage and issuer-only freshness rules."
+        },
+        "successor": 79,
+        "seconds": 8192,
+        "reason": "Retire contradictory Issue #78 and carry its exact remaining finite budget/counters into the user-approved market-value successor."
+      }
+    }
+  ]
+}

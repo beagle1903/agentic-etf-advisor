@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Protocol
 
 from etf_advisor.clock import Clock, system_utc_now
-from etf_advisor.data.quality import assess_observations
+from etf_advisor.data.research_quality import assess_research_fields
 from etf_advisor.encoding import document_fingerprint, validate_document
 from etf_advisor.encoding import schema_version as validate_schema_version
 from etf_advisor.rag.indexing import IndexConsistencyError
@@ -225,15 +225,8 @@ def publish_research_snapshot(
             len(documents),
             True,
         )
-    observations = [
-        _FieldObservation(
-            f"{record.symbol}.{name}", field.provider, field.source_url, field.observed_at
-        )
-        for record in snapshot.records
-        for name, field in record.research_fields().items()
-    ]
-    assess_observations(
-        observations, checked_at=clock(), max_age=max_age, future_tolerance=future_tolerance
+    assess_research_fields(
+        snapshot, checked_at=clock(), max_age=max_age, future_tolerance=future_tolerance
     ).require_healthy()
     chroma_count = chroma_store.stage_snapshot(documents)
     if chroma_count != len(documents):

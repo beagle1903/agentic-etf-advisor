@@ -1,0 +1,234 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-09-27T17:21:12Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 81,
+        "classification": "ordinary",
+        "scope": [
+          "S81-CONNECT",
+          "S81-CANCEL",
+          "S81-VERIFY"
+        ],
+        "invariants": [
+          "I81-DEADLINE",
+          "I81-NO-LATE-CONTINUE",
+          "I81-COMPAT"
+        ],
+        "acceptance": [
+          "AC81-1",
+          "AC81-2",
+          "AC81-3",
+          "AC81-4",
+          "AC81-5"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "User explicitly said `Create the successor issue and fix it.` after the coordinator explained that delivered Issue #79 cannot accept another extension. Issue #81 records the approved narrow post-delivery workflow exception without rewriting Issue #79 history."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 81,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue81_implementation"
+          },
+          "rationale": "The automated PR review found a concrete bounded-transport defect within Issue #79's already approved HTTP contract: pre-socket connection setup is not capped by the remaining total deadline. The fix is ordinary implementation inside that established contract, with one independent review because it affects fail-closed market-data behavior.",
+          "authorization": {
+            "kind": "user",
+            "name": "active Codex user",
+            "evidence": "User explicitly directed `Create the successor issue and fix it.` on 2026-09-27 after being told the exact additional remediation and review were required."
+          },
+          "scope": {
+            "S81-CONNECT": "Bound every Vanguard HTTPS connection setup by the lesser of the configured connect timeout and the remaining total deadline, including pre-socket DNS/TCP work.",
+            "S81-CANCEL": "A connection setup that exceeds its bound fails closed, is cancelled or discarded when it later returns, and cannot issue the request, parse a response or publish evidence.",
+            "S81-VERIFY": "Add failed-first deterministic regressions for a nearly exhausted deadline and delayed pre-socket setup, preserve all Issue #79 transport and portfolio behavior, and record verification plus independent review evidence."
+          },
+          "non_goals": [
+            "No change to holdings parsing, exact ranking, freshness, evidence schema, screening, construction or allocation.",
+            "No broad HTTP-client replacement, new dependency, provider credential change or endpoint change.",
+            "No trade, brokerage connection or external financial-system write."
+          ],
+          "invariants": {
+            "I81-DEADLINE": "Connection setup returns success or a sanitized failure within min(configured connect timeout, remaining total deadline); total-deadline exhaustion is reported only as issuer_elapsed_limit.",
+            "I81-NO-LATE-CONTINUE": "If pre-socket setup completes after the caller has timed out, its connection is closed or discarded and never reaches request, response, parsing or publication work.",
+            "I81-COMPAT": "Fixed Vanguard host/path/TLS, three-attempt maximum, read timeout, header/body watchdog, byte/row limits, diagnostics, exact data results and every non-Vanguard path retain Issue #79 behavior."
+          },
+          "interfaces": [
+            "HTTPSHoldingsTransport connection setup boundary in src/etf_advisor/data/vanguard.py",
+            "Vanguard transport regression tests in tests/test_vanguard.py",
+            "Issue #79 iteration evidence and PR #80 review thread"
+          ],
+          "json_state_impact": "None. No graph, checkpoint, research-document or persisted JSON field changes; this successor only bounds the existing transport operation.",
+          "acceptance": {
+            "AC81-1": "A nearly exhausted deadline passes the exact smaller positive remaining duration into connection setup instead of the fixed configured timeout.",
+            "AC81-2": "A deterministic delayed pre-socket setup returns to the caller within the remaining budget, reports issuer_elapsed_limit on deadline exhaustion and cannot continue the request after completing late.",
+            "AC81-3": "An ordinary configured connect-timeout expiry before the total deadline stays fail closed and does not become a raw exception or partial publication.",
+            "AC81-4": "Existing exact host/path, redirect, attempt, header/body slow-trickle, byte/row, parsing, live-source and portfolio tests remain green.",
+            "AC81-5": "Focused and full tests, Ruff, formatting, strict mypy, workflow validation, build/config checks, independent review, review-thread reply/resolution and PR CI are recorded."
+          },
+          "verification": [
+            "failed-first focused connection-deadline regressions",
+            "uv run pytest -q",
+            "uv run ruff check . and uv run ruff format --check .",
+            "uv run mypy src",
+            "uv run python scripts/validate_codex_workflow.py",
+            "uv build, Compose config and git diff --check",
+            "independent code review and PR CI"
+          ],
+          "documentation": [
+            "Issue #81 body and finite ledger",
+            "Issue #79 iteration evidence successor note",
+            "PR #80 review reply and resolution evidence"
+          ],
+          "risks": [
+            "A timed-out resolver or connector may return later and mutate a discarded connection unless cancellation ownership is explicit.",
+            "Thread or timer cleanup can leak resources or race with successful connection completion.",
+            "Changing timeout attribution can break retry semantics or expose raw connection errors."
+          ],
+          "escalation_triggers": [
+            "The connection operation cannot be bounded without a new dependency or broad transport replacement.",
+            "The fix requires changing Issue #79 endpoint, retry, parsing, evidence or publication contracts.",
+            "Cancellation introduces unresolved concurrency, resource-leak or late-request ambiguity."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-09-27T17:22:19Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex coordinator /root",
+          "evidence": "Approved DESIGN_READY comment https://github.com/beagle1903/agentic-etf-advisor/issues/81#issuecomment-5858062227 after the user's explicit successor-and-fix authorization."
+        },
+        "evidence": "Ordinary architecture-determined repair limited to AC81-1 through AC81-5; one implementation owner may complete capsule, code, tests and self-review in one session.",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T17:22:40Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue81_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T17:38:05Z",
+      "data": {
+        "session": "/root/issue81_implementation",
+        "outcome": "pass",
+        "evidence": "Implementation frozen on canonical content 4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d. Failed-first tests reproduced the fixed-five-second and delayed pre-socket defects. A connect-only daemon worker now bounds caller latency, caps construction/connect by min(configured,remaining), gives only the caller request authority, and closes/discards late setup. 52 issuer tests and the final 1280-test opt-in suite with 39 real-store tests passed with zero skips; Ruff, format, strict mypy, workflow validation, build, Compose configs, evaluations, diff check and fresh official read passed."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-09-27T17:38:30Z",
+      "data": {
+        "ids": [
+          "AC81-1",
+          "AC81-2",
+          "AC81-3",
+          "AC81-4",
+          "AC81-5"
+        ],
+        "evidence": "AC81-1 through AC81-3 are proven by failed-first and passing constructor/connect worker tests for exact remaining budget, delayed pre-socket setup, late discard/no request and sanitized retry attribution. AC81-4 passes through 52 issuer tests, fresh official read and the 1280-test opt-in suite including 39 real-store tests. AC81-5 static/build/config gates pass; independent review and PR-thread/CI closure remain delivery gates.",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        },
+        "content": "4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T17:38:56Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue81_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        },
+        "content": "4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T17:39:53Z",
+      "data": {
+        "session": "/root/issue81_implementation",
+        "outcome": "pass",
+        "evidence": "Verification PASS on exact content 4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d. All 52 Vanguard tests, focused Ruff/format and diff checks passed. Cleanup ownership transfers under lock; discarded connections close outside it; worker code contains no request/response/parsing path; private wait expiry remains distinct from early socket timeout. No post-suite edits."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-09-27T17:40:21Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue81_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        },
+        "content": "4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-09-27T17:43:23Z",
+      "data": {
+        "session": "/root/issue81_review",
+        "outcome": "pass",
+        "evidence": "REVIEW_PASS on frozen content 4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d. Independent reviewer passed all 52 Vanguard tests, reproduced abandoned and completed-handoff races, confirmed exact remaining setup bound, late cleanup with zero request authority, retry/watchdog attribution and compatibility, and found no scoped defect. Documented OS-resolver daemon lifetime is outside the promised forced-cancellation/process-cap scope."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-09-27T17:44:41Z",
+      "data": {
+        "evidence": "PR #80 now carries the user-authorized Issue #81 successor fix on independently reviewed content. Review thread discussion_r4114863868 has an evidence reply and is resolved. Local full/static/live gates pass; the recorded delivery binding enables the required fresh PR CI gate.",
+        "pr": 80,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "4cca9ba9f078e29c5fc144e8b38419f2882e70449c31ade46f63ecd90d5a8b9d",
+        "capsule": {
+          "id": "issue-81-bounded-connection-setup",
+          "generation": 1,
+          "digest": "9874f161d1a06ca69200ea1cf38a84601ce72532e2500f1ae7260ac81d9d76a7"
+        }
+      }
+    }
+  ]
+}
