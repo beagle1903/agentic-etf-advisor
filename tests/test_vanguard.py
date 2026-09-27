@@ -440,6 +440,137 @@ def test_default_transport_fixes_host_path_and_socket_timeout(monkeypatch):
     assert response.closed and calls[-1] == "close"
 
 
+def test_connection_setup_uses_remaining_deadline(monkeypatch):
+    from etf_advisor.data import vanguard
+
+    timeouts = []
+
+    class Connection:
+        def __init__(self, host, timeout):
+            timeouts.append(timeout)
+            self.sock = self
+
+        def connect(self):
+            pass
+
+        def settimeout(self, timeout):
+            pass
+
+        def request(self, *args, **kwargs):
+            pass
+
+        def getresponse(self):
+            return Response(b"{}")
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(vanguard.http.client, "HTTPSConnection", Connection)
+    transport = vanguard.HTTPSHoldingsTransport(monotonic=lambda: 89.75)
+    response = transport.open(connect_timeout=5, read_timeout=10, deadline=90)
+    response.close()
+    assert timeouts == [0.25]
+
+
+@pytest.mark.parametrize("total_expires", [True, False])
+@pytest.mark.parametrize("stage", ["construct", "connect"])
+def test_presocket_setup_returns_before_late_connect_and_never_requests(
+    total_expires, stage, monkeypatch
+):
+    import time
+    from threading import Event, Thread
+
+    from etf_advisor.data import vanguard
+
+    entered, release, finished, closed = Event(), Event(), Event(), Event()
+    calls, failures = [], []
+
+    class Connection:
+        def __init__(self, host, timeout):
+            self.sock = None
+            if stage == "construct":
+                entered.set()
+                assert release.wait(2)
+
+        def connect(self):
+            if stage == "connect":
+                entered.set()
+                assert release.wait(2)
+            self.sock = self
+
+        def request(self, *args, **kwargs):
+            calls.append("request")
+
+        def getresponse(self):
+            calls.append("response")
+            return Response(json.dumps(payload()).encode())
+
+        def settimeout(self, timeout):
+            pass
+
+        def shutdown(self, how):
+            pass
+
+        def close(self):
+            closed.set()
+
+    monkeypatch.setattr(vanguard.http.client, "HTTPSConnection", Connection)
+    transport = vanguard.HTTPSHoldingsTransport()
+
+    def invoke():
+        try:
+            transport.open(
+                connect_timeout=1 if total_expires else 0.05,
+                read_timeout=10,
+                deadline=time.monotonic() + (0.05 if total_expires else 10),
+            )
+        except Exception as error:
+            failures.append(error)
+        finally:
+            finished.set()
+
+    caller = Thread(target=invoke, daemon=True)
+    caller.start()
+    try:
+        assert entered.wait(1)
+        assert finished.wait(0.5), "caller still blocked in pre-socket setup"
+        assert len(failures) == 1
+        if total_expires:
+            assert isinstance(failures[0], IssuerSourceError)
+            assert str(failures[0]) == "issuer_elapsed_limit"
+        else:
+            assert isinstance(failures[0], TimeoutError)
+        assert calls == []
+    finally:
+        release.set()
+        caller.join(1)
+    assert closed.wait(1)
+    assert calls == []
+
+
+def test_connect_timeout_is_sanitized_after_three_attempts(monkeypatch):
+    from etf_advisor.data import vanguard
+
+    calls = []
+
+    def fail_connect(timeout):
+        calls.append(timeout)
+        raise TimeoutError("private resolver diagnostic")
+
+    monkeypatch.setattr(vanguard, "_connect", fail_connect)
+    # A socket timeout occurring early is still retryable, even in the final
+    # quarter-second; only expiry of our wait budget proves total exhaustion.
+    transport = vanguard.HTTPSHoldingsTransport(monotonic=lambda: 89.75)
+    with pytest.raises(TimeoutError):
+        transport.open(connect_timeout=5, read_timeout=10, deadline=90)
+    assert calls == [0.25]
+    calls.clear()
+    client = VanguardHoldingsClient()
+    with pytest.raises(IssuerSourceError, match=r"^issuer_unavailable$"):
+        client.fetch()
+    assert calls == [5, 5, 5]
+
+
 @pytest.mark.parametrize("count", [9, 11])
 def test_self_consistent_issuer_count_rejected_by_publication_and_screening(count):
     from test_snapshot_publication import FakeChromaStore, FakeSnapshotGraphStore

@@ -64,3 +64,37 @@ bodies terminate with the fixed elapsed-limit diagnostic. The issuer suite passe
 46 tests. The post-remediation full opt-in suite passes 1,274 tests with zero skips;
 Ruff, formatting, strict mypy, workflow validation, both evaluations, build, both
 Compose configurations and the diff check also pass.
+
+## Issue 81: Connection setup deadline repair
+
+PR #80 review found that pre-socket DNS/TCP setup could exceed the remaining
+total deadline despite the header/body watchdog. The user approved successor
+Issue #81 under its frozen ordinary transport-repair capsule; Issue #79's
+delivered ledger and acceptance remain historical evidence.
+
+Connection construction and connect now run in a connect-only daemon worker.
+The socket timeout and caller wait both use the lesser of five seconds and the
+remaining total deadline. A lock gives either the caller or an abandoned worker
+cleanup ownership. A late worker never performs HTTP request/response work and
+closes its discarded connection on return. Cleanup runs outside the ownership
+lock so a delayed close cannot keep the caller waiting. Total exhaustion retains
+`issuer_elapsed_limit`; ordinary connect expiry retains the three-attempt retry
+path and sanitized `issuer_unavailable` failure.
+
+Failed-first regressions demonstrated the fixed five-second timeout rather than
+the remaining 0.25 seconds, and callers still blocked during delayed pre-socket
+setup under both limits. The final 52-test issuer suite covers delayed constructor
+and connect work, late cleanup with zero requests, sanitized retries and existing
+real-socket header/body trickle interruption. Ruff, formatting, strict mypy,
+workflow validation, both evaluations, build, both Compose configuration checks
+and diff checks pass. A fresh official read returns the same August 31 effective
+date, 16,300 rows, ten holdings and concentration `4.905810000000001`.
+
+The final-source full opt-in run passes all 1,280 collected tests with zero
+skips, including all 39 disposable real-store tests. Earlier in-progress runs
+were stopped when source changed, so they are not used as final acceptance.
+
+Python cannot forcibly terminate an operating-system resolver that ignores its
+timeout. Such work may remain in a daemon thread until the OS returns; its result
+is discarded and closed, and it cannot parse or publish evidence. No graph,
+checkpoint, evidence, parser, freshness or portfolio contract changes.

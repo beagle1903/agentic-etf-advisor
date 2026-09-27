@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from fractions import Fraction
-from threading import Event, Timer
+from threading import Event, Lock, Thread, Timer
 from typing import Any, Protocol
 
 from etf_advisor.encoding import decimal_token, upward
@@ -27,6 +27,10 @@ MAX_ROWS = 25_000
 
 class IssuerSourceError(ValueError):
     """A sanitized official-source failure; raw transport/content never escapes."""
+
+
+class _ConnectionSetupTimeout(TimeoutError):
+    """The caller's connection wait budget expired, rather than a socket error."""
 
 
 @dataclass(frozen=True)
@@ -70,6 +74,58 @@ def _timer(seconds: float, callback: Callable[[], None]) -> DeadlineTimer:
     timer = Timer(seconds, callback)
     timer.daemon = True
     return timer
+
+
+def _connect(timeout: float) -> http.client.HTTPSConnection:
+    """Bound caller latency even when a resolver ignores the socket timeout.
+
+    Only the worker owns the connection until successful handoff. Abandonment
+    transfers cleanup to the worker; it never sends an HTTP request.
+    """
+    completed = Event()
+    ownership = Lock()
+    abandoned = False
+    connection: http.client.HTTPSConnection | None = None
+    failure: Exception | None = None
+
+    def discard(candidate: http.client.HTTPSConnection) -> None:
+        with suppress(OSError, http.client.HTTPException):
+            candidate.close()
+
+    def setup() -> None:
+        nonlocal connection, failure
+        candidate: http.client.HTTPSConnection | None = None
+        error: Exception | None = None
+        try:
+            candidate = http.client.HTTPSConnection("advisors.vanguard.com", timeout=timeout)
+            candidate.connect()
+        except Exception as caught:
+            error = caught
+        with ownership:
+            if not abandoned and error is None:
+                connection = candidate
+                candidate = None  # Ownership transfers to the caller.
+            else:
+                failure = error
+            completed.set()
+        if candidate is not None:
+            discard(candidate)
+
+    started = time.monotonic()
+    Thread(target=setup, daemon=True, name="vanguard-connect").start()
+    ready = completed.wait(max(0, timeout - (time.monotonic() - started)))
+    with ownership:
+        if not ready or time.monotonic() - started >= timeout:
+            abandoned = True
+            if connection is not None:
+                # Setup won the handoff race, but the caller's budget expired.
+                Thread(target=discard, args=(connection,), daemon=True).start()
+            raise _ConnectionSetupTimeout("issuer_connect_timeout")
+        if failure is not None:
+            raise failure
+        if connection is None:
+            raise OSError("connection unavailable")
+        return connection
 
 
 class _HTTPSResponse:
@@ -126,14 +182,16 @@ class HTTPSHoldingsTransport:
         remaining = deadline - self.monotonic()
         if remaining <= 0:
             raise IssuerSourceError("issuer_elapsed_limit")
-        connection = http.client.HTTPSConnection("advisors.vanguard.com", timeout=connect_timeout)
         expired = Event()
+        connection: http.client.HTTPSConnection | None = None
         connected_socket: socket.socket | None = None
 
         def abort() -> None:
             expired.set()
             # Retain the actual socket: HTTPResponse may own it after Connection detaches.
-            stream = connected_socket if connected_socket is not None else connection.sock
+            stream = connected_socket
+            if stream is None and connection is not None:
+                stream = connection.sock
             if stream is not None:
                 with suppress(OSError):
                     stream.shutdown(socket.SHUT_RDWR)
@@ -141,11 +199,19 @@ class HTTPSHoldingsTransport:
         timer = self.timer_factory(remaining, abort)
         timer.start()
         try:
-            connection.connect()
+            remaining = deadline - self.monotonic()
+            if remaining <= 0:
+                raise IssuerSourceError("issuer_elapsed_limit")
+            try:
+                connection = _connect(min(connect_timeout, remaining))
+            except _ConnectionSetupTimeout:
+                if remaining <= connect_timeout:
+                    raise IssuerSourceError("issuer_elapsed_limit") from None
+                raise
             if connection.sock is None:
                 raise OSError("connection unavailable")
             connected_socket = connection.sock
-            if expired.is_set():
+            if expired.is_set() or self.monotonic() >= deadline:
                 abort()
                 raise IssuerSourceError("issuer_elapsed_limit")
             connection.sock.settimeout(read_timeout)
@@ -161,8 +227,9 @@ class HTTPSHoldingsTransport:
             return _HTTPSResponse(connection, response, timer, expired)
         except Exception:
             timer.cancel()
-            connection.close()
-            if expired.is_set():
+            if connection is not None:
+                connection.close()
+            if expired.is_set() or self.monotonic() >= deadline:
                 raise IssuerSourceError("issuer_elapsed_limit") from None
             raise
 
