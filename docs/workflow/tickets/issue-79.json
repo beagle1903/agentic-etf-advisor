@@ -429,6 +429,21 @@
         "outcome": "pass",
         "evidence": "FINAL_REVIEW_PASS on frozen content 3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa. Exact-ten issuer validation closes truncated/oversized pair acceptance; watchdog socket shutdown closes continuous-trickle header/body deadline overruns with correct cleanup and sanitized diagnostics. All six remediation regressions including real socket cases passed independently. Final diff scan found no new substantive defect; documentation and optional explanation limitation are accurate."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-09-27T09:40:08Z",
+      "data": {
+        "evidence": "PR #80 delivers the accepted, verified and independently final-reviewed Issue #79 content, stacked on required lossless numeric PR #76. Live publication and the post-remediation visible five-candidate Human review are recorded in the iteration evidence.",
+        "pr": 80,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "3b60f277f3ffbf32ab4067487264b5633835b467b0e319236bf79dab4cf515aa",
+        "capsule": {
+          "id": "issue-79-bnd-market-value-evidence",
+          "generation": 1,
+          "digest": "a8ce5016cec689ad81fdb7d34da97a13a63e0ed9222c52461928fd96a935f777"
+        }
+      }
     }
   ]
 }
