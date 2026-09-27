@@ -203,6 +203,35 @@ as zero measured ranking lift even when graph-context metrics improve.
 
 ## Start infrastructure
 
+### Roll out lossless research snapshots
+
+Stop older dashboard/CLI writers before running a new schema-2 publisher. Do not run an old
+generic upsert process against research IDs while staging. The current Chroma and Neo4j adapters
+reserve `research:` IDs for immutable publication; an older installed writer may not honor that
+reservation. Leave existing snapshots, volumes and saved reviews intact.
+
+Run `uv run etf-advisor publish-research-universe` to collect a new version and atomically retain
+its canonical payload in the ignored local artifacts directory. New values use lossless tokens
+and original decimal exposure proofs. A successful publication does not turn missing source
+fields into valid eligibility evidence.
+
+Retry an exact version with `--snapshot-version VERSION --snapshot-file PATH`. If that exact
+identity is already active, verification occurs before freshness and performs no refetch, staging,
+repair or graph writes. The original payload is optional only for an already-active verified
+identity; a conflicting supplied payload fails. An inactive version requires its original payload
+and current field freshness to reactivate. A new version also undergoes API-level freshness checks.
+
+After an uncertain commit acknowledgement, explicitly retry that same identity and inspect its
+verification result. Do not assume rollback, refetch under the same version, edit the canonical
+payload, repair graph source facts, or delete saved reviews to clear an integrity failure.
+`schema_encoding`, `numeric_provenance`, `document_integrity`, manifest/projection integrity and
+retrieval-unavailable diagnostics expose fixed remediation text only. Republish validated evidence
+under a new version for a confirmed evidence defect; restore service health for an unavailable store.
+
+Disposable integration proofs use `RUN_REAL_STORE_TESTS=1` with `tests/test_real_store_integration.py`
+and `compose.integration.yaml`. Their generated project and volumes are separate from development
+data. A skipped real-store test is incomplete acceptance evidence.
+
 ```powershell
 docker compose up -d chroma neo4j postgres
 docker compose ps

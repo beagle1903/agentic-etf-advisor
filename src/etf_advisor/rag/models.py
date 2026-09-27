@@ -3,9 +3,18 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
+
+from etf_advisor.encoding import StrictWireModel, binary_value, schema_version
 
 type MetadataValue = str | int | float | bool
 type SectorExposureStatus = Literal[
@@ -17,7 +26,7 @@ type SectorExposureStatus = Literal[
 ]
 
 
-class SourceDocument(BaseModel):
+class SourceDocument(StrictWireModel):
     """A chunk that can be stored in a vector database with provenance."""
 
     model_config = ConfigDict(extra="forbid")
@@ -74,6 +83,25 @@ class SectorExposure(BaseModel):
 
     name: str = Field(min_length=1, max_length=200)
     weight_pct: float = Field(ge=0, le=100)
+    weight_pct_token: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def decode_weight(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "weight_pct_token" in value:
+            if "weight_pct" in value:
+                raise ValueError("Graph weights cannot contain duplicate numeric encodings.")
+            return {**value, "weight_pct": binary_value(value["weight_pct_token"], maximum=100)}
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_weight(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.weight_pct_token is None:
+            result.pop("weight_pct_token", None)
+        else:
+            result.pop("weight_pct", None)
+        return result
 
     @field_validator("name")
     @classmethod
@@ -84,18 +112,37 @@ class SectorExposure(BaseModel):
         return normalized
 
 
-class GraphContext(BaseModel):
+class GraphContext(StrictWireModel):
     """Normalized Neo4j neighborhood linked to one retrieved source document."""
 
     model_config = ConfigDict(extra="forbid")
 
     source_document_id: str
+    schema_version: int = 1
     symbol: str
     etf_name: str
     fund_family: str | None = None
     category: str | None = None
     sector_exposures_status: SectorExposureStatus | None = None
     sector_exposures: list[SectorExposure] = Field(default_factory=list, max_length=100)
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_encoding(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            version = schema_version(value.get("schema_version", 1))
+            for item in value.get("sector_exposures", []):
+                token = isinstance(item, dict) and "weight_pct_token" in item
+                if token != (version == 2):
+                    raise ValueError("Graph sector encoding must match its schema.")
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_context(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.schema_version == 1:
+            result.pop("schema_version", None)
+        return result
 
     @model_validator(mode="after")
     def validate_sector_projection(self) -> GraphContext:

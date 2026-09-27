@@ -20,6 +20,7 @@ from etf_advisor.domain.screening import (
     ScreeningFieldFreshnessError,
     screen_candidate_evidence,
 )
+from etf_advisor.encoding import integrity_diagnostic
 from etf_advisor.explanation import (
     ExplanationContractError,
     ExplanationContractFailureCode,
@@ -102,19 +103,24 @@ def retrieve_candidate_evidence(
     try:
         retrieved_bundle = retriever.retrieve(profile, limit=limit)
     except EvidenceRetrievalError as exc:
+        diagnostic = integrity_diagnostic(
+            exc
+            if exc.code is not None
+            else EvidenceRetrievalError("", code="retrieval_unavailable")
+        )
         return {
             "candidate_evidence": {},
-            "evidence_errors": [{"type": "retrieval_error", "message": str(exc)}],
+            "evidence_errors": [{"type": "retrieval_error", **diagnostic}],
             "status": "evidence_blocked",
         }
 
     try:
         bundle = CandidateEvidenceBundle.model_validate(retrieved_bundle.model_dump(mode="python"))
-    except (AttributeError, TypeError, ValueError, ValidationError):
-        message = "Source evidence bundle failed contract validation."
+    except (AttributeError, TypeError, ValueError, ValidationError) as exc:
+        diagnostic = integrity_diagnostic(exc)
         return {
             "candidate_evidence": {},
-            "evidence_errors": [{"type": "evidence_contract", "message": message}],
+            "evidence_errors": [{"type": "evidence_contract", **diagnostic}],
             "status": "evidence_blocked",
         }
 
@@ -178,11 +184,11 @@ def screen_candidates(
             ],
             "status": "screening_blocked",
         }
-    except (KeyError, AttributeError, TypeError, ValueError, ValidationError):
-        message = "Candidate screening failed source or policy contract validation."
+    except (KeyError, AttributeError, TypeError, ValueError, ValidationError) as exc:
+        diagnostic = integrity_diagnostic(exc)
         return {
             "candidate_screening": {},
-            "screening_errors": [{"type": "screening_contract", "message": message}],
+            "screening_errors": [{"type": "screening_contract", **diagnostic}],
             "status": "screening_blocked",
         }
     return {

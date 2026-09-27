@@ -10,9 +10,26 @@ from enum import StrEnum
 from typing import Any, Final, Literal
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from etf_advisor.data.quality import FreshnessStatus, ObservationHealth
+from etf_advisor.encoding import (
+    StrictWireModel,
+    binary_token,
+    binary_value,
+    decode_fields,
+    document_schema,
+    schema_version,
+    strict_json,
+)
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 from etf_advisor.research.models import ResearchField, WeightedExposure
 
@@ -175,7 +192,7 @@ class ScreeningRuleResult(BaseModel):
         return self
 
 
-class CandidateScreeningResult(BaseModel):
+class CandidateScreeningResult(StrictWireModel):
     """Deterministic comparison result for one retrieved candidate."""
 
     model_config = ConfigDict(extra="forbid")
@@ -185,6 +202,43 @@ class CandidateScreeningResult(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     verdict: ScreeningVerdict
     rules: list[ScreeningRuleResult]
+    schema_version: int = 1
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_encoding(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            version = schema_version(value.get("schema_version", 1))
+            if version == 1:
+                for rule in value.get("rules", []):
+                    payload = rule.model_dump() if isinstance(rule, ScreeningRuleResult) else rule
+                    if (
+                        payload.get("criterion") in {"expense_ratio", "liquidity", "concentration"}
+                        and payload.get("verdict") != "unknown"
+                        and type(payload.get("observed_value")) not in {float, int}
+                    ):
+                        raise ValueError(
+                            "Schema-1 numeric screening observations require native numbers."
+                        )
+            if version == 2:
+                for rule in value.get("rules", []):
+                    payload = rule.model_dump() if isinstance(rule, ScreeningRuleResult) else rule
+                    for name in ("observed_value", "threshold"):
+                        number = payload.get(name)
+                        if type(number) in {int, float, bool}:
+                            raise ValueError("Schema-2 screening observations require tokens.")
+                    if payload.get("criterion") in {"expense_ratio", "liquidity", "concentration"}:
+                        number = payload.get("observed_value")
+                        if number is not None and payload.get("verdict") != "unknown":
+                            binary_value(number)
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_result(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.schema_version == 1:
+            result.pop("schema_version", None)
+        return result
 
     @field_validator("symbol")
     @classmethod
@@ -208,7 +262,7 @@ class CandidateScreeningResult(BaseModel):
         return self
 
 
-class CandidateScreeningBundle(BaseModel):
+class CandidateScreeningBundle(StrictWireModel):
     """Review-ready comparison table derived from one ready evidence bundle."""
 
     model_config = ConfigDict(extra="forbid")
@@ -218,6 +272,29 @@ class CandidateScreeningBundle(BaseModel):
     excluded_sectors: list[str]
     policy: CandidateScreeningPolicy
     candidates: list[CandidateScreeningResult]
+    schema_version: int = 1
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_encoding(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            version = schema_version(value.get("schema_version", 1))
+            for item in value.get("candidates", []):
+                marker = (
+                    item.schema_version
+                    if isinstance(item, CandidateScreeningResult)
+                    else item.get("schema_version", 1)
+                )
+                if schema_version(marker) != version:
+                    raise ValueError("Screening bundle cannot mix encodings.")
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_bundle(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.schema_version == 1:
+            result.pop("schema_version", None)
+        return result
 
     @field_validator("checked_at")
     @classmethod
@@ -298,7 +375,27 @@ def screen_candidate_evidence(
         )
         for candidate in validated_evidence.candidates
     ]
+    if validated_evidence.schema_version == 2:
+        results = [
+            result.model_copy(
+                update={
+                    "schema_version": 2,
+                    "rules": [
+                        rule.model_copy(
+                            update={
+                                name: binary_token(value) if isinstance(value, float) else value
+                                for name in ("observed_value", "threshold")
+                                if (value := getattr(rule, name)) is not None
+                            }
+                        )
+                        for rule in result.rules
+                    ],
+                }
+            )
+            for result in results
+        ]
     return CandidateScreeningBundle(
+        schema_version=validated_evidence.schema_version,
         checked_at=validated_evidence.checked_at,
         excluded_sectors=list(validated_evidence.excluded_sectors),
         policy=validated_policy,
@@ -735,7 +832,7 @@ def _field_provenance(candidate: CandidateEvidence) -> dict[str, ResearchField[A
             f"{candidate.document_id}: field provenance must be canonical JSON text."
         )
     try:
-        payload = json.loads(raw)
+        payload = strict_json(raw)
     except json.JSONDecodeError as exc:
         raise ScreeningContractError(
             f"{candidate.document_id}: field provenance is not valid JSON."
@@ -745,6 +842,10 @@ def _field_provenance(candidate: CandidateEvidence) -> dict[str, ResearchField[A
             f"{candidate.document_id}: field provenance must be a JSON object."
         )
 
+    version = document_schema(candidate.metadata)
+    wire = payload
+    if version == 2:
+        payload = decode_fields(payload)
     parsed: dict[str, ResearchField[Any]] = {}
     for field_name, field_payload in payload.items():
         if not isinstance(field_name, str) or not isinstance(field_payload, dict):
@@ -767,7 +868,8 @@ def _field_provenance(candidate: CandidateEvidence) -> dict[str, ResearchField[A
         if (
             field.missing_reason is None
             and isinstance(field.value, (str, int, float, bool))
-            and candidate.metadata.get(field_name) != field.value
+            and candidate.metadata.get(field_name)
+            != (wire[field_name]["value"] if version == 2 else field.value)
         ):
             raise ScreeningContractError(
                 f"{candidate.document_id}: {field_name} metadata conflicts with provenance."
@@ -809,6 +911,8 @@ def _finite_number(
     *,
     maximum: float | None,
 ) -> float:
+    if document_schema(candidate.metadata) == 2 and isinstance(value, str):
+        return binary_value(value, maximum=maximum)
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ScreeningContractError(
             f"{candidate.document_id}: {field_name} must be a finite number."

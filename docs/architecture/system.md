@@ -436,6 +436,26 @@ transient adapters with no recovery promise.
 
 ## Data-source boundary
 
+### Lossless research evidence (ADR 0027)
+
+New research snapshots use schema 2 with canonical `binary64-text-v1` numeric strings and original
+`decimal-exact-v1` exposure proofs. Duplicate scalar metadata uses identical tokens; graph sector
+weights and numeric screening observations retain tokens in checkpoint JSON. Exact schema dispatch,
+homogeneous bundles, semantic document validation and graph-authoritative fingerprints reject
+adjacent substitution or an implicit schema downgrade. Schema-1 dumps and identities remain exact.
+
+Research Chroma staging is insert-only with complete bounded readback. Neo4j independently verifies
+immutable source facts, exact unfiltered manifest membership and mutable active projection inside
+an explicit catalog-lock/CAS transaction before pointer movement. Reactivation changes only the
+projection and activation; shrinking universes preserve source history. Commit acknowledgement
+loss remains uncertain. Exact active retries verify read-only before freshness; inactive/new
+publications still require fresh canonical input. Retrieval recomputes fingerprints and rechecks
+the active pointer. Pure downstream validation repeats the self-contained contract without I/O.
+
+The change preserves missing-data decisions, provider boundaries, financial policies and top-level
+graph state. In particular, absent BND concentration still blocks eligibility. Implementation
+acceptance is tracked under the Issue70 iteration record and requires independent review.
+
 `yfinance` is suitable for research and personal development, but it is unofficial and its
 own documentation says Yahoo data is intended for personal use. Before any public hosted
 product, replace or license the market-data source and review redistribution terms.

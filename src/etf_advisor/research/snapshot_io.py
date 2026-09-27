@@ -8,6 +8,7 @@ import re
 import tempfile
 from pathlib import Path
 
+from etf_advisor.encoding import strict_json
 from etf_advisor.research.models import ETFResearchSnapshot
 
 _SAFE_FILENAME = re.compile(r"[^A-Za-z0-9._-]+")
@@ -24,11 +25,13 @@ def default_snapshot_path(snapshot_version: str) -> Path:
 def load_research_snapshot(path: Path) -> ETFResearchSnapshot:
     """Load and validate a canonical snapshot payload."""
 
-    return ETFResearchSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
+    return ETFResearchSnapshot.model_validate(strict_json(path.read_text(encoding="utf-8")))
 
 
 def persist_research_snapshot(snapshot: ETFResearchSnapshot, path: Path) -> Path:
     """Atomically persist a snapshot, refusing to replace different content."""
+
+    snapshot = ETFResearchSnapshot.model_validate(snapshot.model_dump(mode="json"))
 
     if path.exists():
         existing = load_research_snapshot(path)

@@ -27,6 +27,7 @@ from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.revision import RetryRequest, ReviewDecision, plan_revision
 from etf_advisor.domain.screening import CandidateScreeningBundle, screen_candidate_evidence
+from etf_advisor.encoding import StrictWireModel
 from etf_advisor.explanation import (
     ExplanationBundle,
     ExplanationGenerator,
@@ -70,7 +71,7 @@ class DashboardOptions(BaseModel):
         return self
 
 
-class ReviewPayload(BaseModel):
+class ReviewPayload(StrictWireModel):
     """Complete, fail-closed contract for content rendered at human review."""
 
     model_config = ConfigDict(extra="forbid")

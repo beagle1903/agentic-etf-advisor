@@ -13,6 +13,7 @@ from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
 from etf_advisor.data.yahoo import MarketDataError
+from etf_advisor.encoding import decimal_token
 from etf_advisor.research.models import (
     ETFResearchRecord,
     ETFResearchSnapshot,
@@ -93,13 +94,15 @@ class YahooResearchAdapter:
             self._build_record(raw, snapshot_version=snapshot_version, ingested_at=ingested_at)
             for raw in raw_records
         ]
-        return ETFResearchSnapshot(
+        snapshot = ETFResearchSnapshot(
             snapshot_version=snapshot_version,
             universe_id=universe.universe_id,
             universe_version=universe.universe_version,
             ingested_at=ingested_at,
             records=records,
         )
+        # The source adapter owns original decimal proofs. Wire readers never invent them.
+        return snapshot.model_copy(update={"schema_version": 2})
 
     def _fetch_one(self, symbol: str) -> _RawResearch:
         ticker = self._retry(
@@ -357,6 +360,7 @@ def _holding_exposures(value: Any) -> _ExposureCollection | None:
             name=name,
             symbol=symbol,
             weight_pct=_nonunderstating_float(weight),
+            source_weight_pct_decimal=decimal_token(weight),
         )
         for name, symbol, weight in parsed_rows
     ]
@@ -383,6 +387,7 @@ def _sector_exposures(value: Any) -> _ExposureCollection | None:
         WeightedExposure(
             name=name,
             weight_pct=_nonunderstating_float(weight),
+            source_weight_pct_decimal=decimal_token(weight),
         )
         for name, weight in parsed_rows
     ]

@@ -6,11 +6,29 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import TypeVar
+from typing import Any, TypeVar
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
+from etf_advisor.encoding import (
+    FINGERPRINT_KEY,
+    ResearchIntegrityError,
+    decode_fields,
+    document_fingerprint,
+    encode_fields,
+    reject_schema2_fields,
+    schema_version,
+    strict_json,
+    validate_document,
+)
 from etf_advisor.rag.models import MetadataValue, SourceDocument
 
 ResearchValue = TypeVar("ResearchValue")
@@ -33,6 +51,14 @@ class WeightedExposure(BaseModel):
     name: str = Field(min_length=1, max_length=300)
     weight_pct: float = Field(ge=0, le=100)
     symbol: str | None = Field(default=None, min_length=1, max_length=24)
+    source_weight_pct_decimal: str | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_exposure(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.source_weight_pct_decimal is None:
+            result.pop("source_weight_pct_decimal", None)
+        return result
 
     @field_validator("name", "symbol")
     @classmethod
@@ -133,6 +159,60 @@ class ETFResearchSnapshot(BaseModel):
     ingested_at: datetime
     records: list[ETFResearchRecord] = Field(min_length=1)
 
+    @model_validator(mode="before")
+    @classmethod
+    def decode_wire(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        version = schema_version(value.get("schema_version", 1))
+        if version == 2:
+            records = value.get("records")
+            if (
+                not isinstance(records, list)
+                or not records
+                or any(not isinstance(record, dict) or "symbol" not in record for record in records)
+            ):
+                raise ResearchIntegrityError("schema_encoding")
+            copied = dict(value)
+            copied["records"] = [
+                {
+                    "symbol": record["symbol"],
+                    **decode_fields(
+                        {key: field for key, field in record.items() if key != "symbol"}
+                    ),
+                }
+                for record in records
+            ]
+            return copied
+        for record in value.get("records", []):
+            if isinstance(record, dict):
+                reject_schema2_fields(
+                    {key: field for key, field in record.items() if key != "symbol"}
+                )
+        return value
+
+    @classmethod
+    def model_validate_json(
+        cls, json_data: str | bytes | bytearray, **kwargs: Any
+    ) -> ETFResearchSnapshot:
+        text = json_data if isinstance(json_data, str) else bytes(json_data).decode("utf-8")
+        return cls.model_validate(strict_json(text), **kwargs)
+
+    @model_serializer(mode="wrap")
+    def serialize_snapshot(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.schema_version == 2:
+            result["records"] = [
+                {
+                    "symbol": record["symbol"],
+                    **encode_fields(
+                        {key: field for key, field in record.items() if key != "symbol"}
+                    ),
+                }
+                for record in result["records"]
+            ]
+        return result
+
     @field_validator("ingested_at")
     @classmethod
     def normalize_ingested_at(cls, value: datetime) -> datetime:
@@ -155,6 +235,11 @@ class ETFResearchSnapshot(BaseModel):
                     raise ValueError(
                         f"{record.symbol}.{field_name} has a different ingestion timestamp."
                     )
+        if self.schema_version == 2:
+            for document in self.to_source_documents():
+                validate_document(
+                    document.document_id, document.content, document.chroma_metadata()
+                )
         return self
 
     def content_digest(self) -> str:
@@ -181,6 +266,8 @@ class ETFResearchSnapshot(BaseModel):
             field_name: research_field.model_dump(mode="json")
             for field_name, research_field in research_fields.items()
         }
+        if self.schema_version == 2:
+            field_provenance = encode_fields(field_provenance)
         lines = [
             f"ETF symbol: {record.symbol}",
             f"Research snapshot: {self.snapshot_version}",
@@ -200,7 +287,7 @@ class ETFResearchSnapshot(BaseModel):
             "universe_id": self.universe_id,
             "universe_version": self.universe_version,
             "document_type": "etf_research_snapshot",
-            "field_provenance_schema_version": 1,
+            "field_provenance_schema_version": self.schema_version,
             "field_provenance_json": json.dumps(
                 field_provenance,
                 sort_keys=True,
@@ -209,18 +296,23 @@ class ETFResearchSnapshot(BaseModel):
         }
         for field_name, research_field in research_fields.items():
             if isinstance(research_field.value, (str, int, float, bool)):
-                metadata[field_name] = research_field.value
+                metadata[field_name] = field_provenance[field_name]["value"]
             metadata[f"{field_name}_status"] = (
                 "available"
                 if research_field.missing_reason is None
                 else research_field.missing_reason.value
             )
 
+        document_id = f"research:{self.snapshot_version}:{digest}:{record.symbol.lower()}"
+        content = "\n".join(lines)
+        if self.schema_version == 2:
+            metadata["numeric_encoding"] = "binary64-text-v1"
+            metadata[FINGERPRINT_KEY] = document_fingerprint(document_id, content, metadata)
         return SourceDocument(
-            document_id=(f"research:{self.snapshot_version}:{digest}:{record.symbol.lower()}"),
+            document_id=document_id,
             symbol=record.symbol,
             title=f"{record.symbol} versioned ETF research snapshot",
-            content="\n".join(lines),
+            content=content,
             source=record.name.provider,
             source_url=source_url,
             observed_at=observed_at,
