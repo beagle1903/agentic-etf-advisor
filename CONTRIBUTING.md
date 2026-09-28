@@ -121,6 +121,25 @@ The fixture assigns loopback ports, starts a uniquely named Compose project from
 `compose.integration.yaml`, and always runs `docker compose down --volumes` for that project. It
 uses no production Compose volumes, credentials, providers, market-data calls, or private data.
 
+This suite is a required local/release gate before merging changes to research snapshot
+serialization (including numeric encoding/proofs), Chroma research metadata or stage/readback,
+hybrid retrieval or candidate evidence, deterministic screening contracts, or snapshot activation,
+manifest/projection verification and retry. Changes to the fixtures or integration harness that
+prove these paths must also run it. Ordinary offline work retains the service-free default.
+
+Current CI (`.github/workflows/ci.yml`) runs the locked service-free suite and static checks; it
+does not provision the optional RAG/checkpoint extras or disposable Docker stores. Until a
+separately approved service-backed CI change, the required local/release run supplies that proof.
+A green offline CI run alone does not satisfy this gate. Use the full real-store file, with no
+failures, errors or skips; an unavailable service or missing extra is incomplete acceptance.
+
+Before merge, record the tested commit/content identity, UTC time, redacted OS/Python/dependency
+and Docker/Compose environment, exact opt-in command, collected/passed/failed/error/skipped counts,
+critical-path outcomes and confirmation that the generated project was removed after teardown.
+Link the durable iteration evidence, PR and CI run. Evidence must apply to the final reviewed
+content; rerun after relevant changes. See the [runbook](docs/runbooks/local-development.md#required-real-store-delivery-gate)
+for commands and the [Issue71 evidence map](docs/iterations/017-issue-71-real-store-contract.md).
+
 ## Verification evidence
 
 Pull requests contain implementation-specific test results. The iteration document contains the

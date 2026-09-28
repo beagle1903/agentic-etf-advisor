@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -15,6 +17,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import SecretStr
 from test_checkpoint_lifecycle import Time, invoke, start
 from test_lossless_contract import lossless_snapshot
@@ -27,7 +30,8 @@ from typer.testing import CliRunner
 
 from etf_advisor import cli
 from etf_advisor.checkpoint import PostgresCheckpointStore
-from etf_advisor.dashboard import review_payload
+from etf_advisor.dashboard import DashboardRun, review_payload
+from etf_advisor.dashboard_app import _render_run
 from etf_advisor.encoding import ResearchIntegrityError, document_fingerprint
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
@@ -71,6 +75,73 @@ def _free_loopback_port() -> int:
         return int(listener.getsockname()[1])
 
 
+def _project_volume_names(project: str, environment: dict[str, str]) -> list[str]:
+    """Read only this project's containers and retain bounded generated mount names."""
+    listing = subprocess.run(
+        [
+            "docker",
+            "ps",
+            "-a",
+            "--filter",
+            f"label=com.docker.compose.project={project}",
+            "--format",
+            "{{.ID}}",
+        ],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    containers = listing.stdout.splitlines()
+    if (
+        len(containers) > 3
+        or len(set(containers)) != len(containers)
+        or any(re.fullmatch(r"[0-9a-f]{12}|[0-9a-f]{64}", item) is None for item in containers)
+    ):
+        raise ValueError("Malformed disposable project container inventory.")
+    if not containers:
+        return []
+    inspection = subprocess.run(
+        [
+            "docker",
+            "inspect",
+            *containers,
+            "--format",
+            '{"project":{{json (index .Config.Labels "com.docker.compose.project")}},'
+            '"mounts":{{json .Mounts}}}',
+        ],
+        env=environment,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    rows = inspection.stdout.splitlines()
+    if len(rows) != len(containers):
+        raise ValueError("Incomplete disposable project volume inventory.")
+    names: set[str] = set()
+    for line in rows:
+        row = json.loads(line)
+        if (
+            not isinstance(row, dict)
+            or row.get("project") != project
+            or not isinstance(row.get("mounts"), list)
+            or len(row["mounts"]) > 16
+        ):
+            raise ValueError("Malformed disposable project volume inventory.")
+        for mount in row["mounts"]:
+            if not isinstance(mount, dict) or mount.get("Type") != "volume":
+                raise ValueError("Unexpected disposable project mount.")
+            name = mount.get("Name")
+            if not isinstance(name, str) or re.fullmatch(r"[0-9a-f]{64}", name) is None:
+                raise ValueError("Unexpected disposable project volume name.")
+            names.add(name)
+    if len(names) > 16:
+        raise ValueError("Disposable project volume inventory exceeded its bound.")
+    return sorted(names)
+
+
 @pytest.fixture(scope="session")
 def real_stores() -> RealStoreEnvironment:
     """Start one isolated Compose project only when the explicit opt-in is set."""
@@ -86,6 +157,8 @@ def real_stores() -> RealStoreEnvironment:
         neo4j_port=_free_loopback_port(),
         postgres_port=_free_loopback_port(),
     )
+    # Emit before startup so operators can inspect this exact project even after failure.
+    print(f"\nREAL_STORE_PROJECT={environment.project}", flush=True)
     compose_environment = {
         **os.environ,
         "REAL_STORE_CHROMA_PORT": str(environment.chroma_port),
@@ -115,18 +188,26 @@ def real_stores() -> RealStoreEnvironment:
             pytest.fail(f"Could not start disposable real-store services: {exc}")
         yield environment
     finally:
-        subprocess.run(
-            [*command, "down", "--volumes", "--remove-orphans"],
-            cwd=ROOT,
-            env=compose_environment,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
+        try:
+            volumes = _project_volume_names(environment.project, compose_environment)
+            print(f"\nREAL_STORE_VOLUMES={json.dumps(volumes)}", flush=True)
+        except (OSError, subprocess.SubprocessError, ValueError):
+            pytest.fail("Could not inspect disposable project volume inventory.")
+        finally:
+            subprocess.run(
+                [*command, "down", "--volumes", "--remove-orphans"],
+                cwd=ROOT,
+                env=compose_environment,
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
 
 
-def test_real_store_start_failure_still_tears_down(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_real_store_start_failure_still_tears_down(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     monkeypatch.setenv(INTEGRATION_ENABLED, "1")
     monkeypatch.setattr(shutil, "which", lambda executable: "docker")
     calls: list[list[str]] = []
@@ -135,7 +216,7 @@ def test_real_store_start_failure_still_tears_down(monkeypatch: pytest.MonkeyPat
         calls.append(command)
         if "up" in command:
             raise subprocess.CalledProcessError(1, command)
-        return subprocess.CompletedProcess(command, 0)
+        return subprocess.CompletedProcess(command, 0, stdout="")
 
     monkeypatch.setattr(subprocess, "run", failed_start)
 
@@ -143,6 +224,60 @@ def test_real_store_start_failure_still_tears_down(monkeypatch: pytest.MonkeyPat
         next(real_stores.__wrapped__())
 
     assert any(command[-3:] == ["down", "--volumes", "--remove-orphans"] for command in calls)
+    project = calls[0][calls[0].index("--project-name") + 1]
+    assert capsys.readouterr().out == (f"\nREAL_STORE_PROJECT={project}\n\nREAL_STORE_VOLUMES=[]\n")
+    assert all(
+        command[command.index("--project-name") + 1] == project
+        for command in calls
+        if "--project-name" in command
+    )
+    assert any(f"label=com.docker.compose.project={project}" in command for command in calls)
+
+    def inventory(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        output = "a" * 12 if command[1] == "ps" else json.dumps(payload)
+        return subprocess.CompletedProcess(command, 0, stdout=output)
+
+    monkeypatch.setattr(subprocess, "run", inventory)
+    payload: Any = {"project": project, "mounts": [{"Type": "volume", "Name": "b" * 64}]}
+    assert _project_volume_names(project, {}) == ["b" * 64]
+    for malformed_payload in (
+        {"project": "unrelated", "mounts": []},
+        {"project": project, "mounts": [{"Type": "volume", "Name": "unrelated"}]},
+        {"project": project, "mounts": None},
+        {"project": project, "mounts": [{}]},
+        {"project": project, "mounts": [{}] * 17},
+        None,
+    ):
+        payload = malformed_payload
+        with pytest.raises(ValueError):
+            _project_volume_names(project, {})
+
+    for listing in ("invalid", "a" * 12 + "\n" + "a" * 12, "\n".join(["a" * 12] * 4)):
+        monkeypatch.setattr(
+            subprocess,
+            "run",
+            lambda command, output=listing, **kwargs: subprocess.CompletedProcess(
+                command, 0, stdout=output
+            ),
+        )
+        with pytest.raises(ValueError):
+            _project_volume_names(project, {})
+
+    def failed_inspection(command: list[str], **kwargs: Any) -> Any:
+        if "up" in command:
+            return subprocess.CompletedProcess(command, 0)
+        if "down" in command:
+            calls.append(command)
+            return subprocess.CompletedProcess(command, 0)
+        raise subprocess.CalledProcessError(1, command)
+
+    monkeypatch.setattr(subprocess, "run", failed_inspection)
+    session = real_stores.__wrapped__()
+    next(session)
+    with pytest.raises(pytest.fail.Exception, match="Could not inspect"):
+        next(session)
+    assert calls[-1][-3:] == ["down", "--volumes", "--remove-orphans"]
+    capsys.readouterr()  # Suppress this mock session's marker in the operator-facing full run.
 
 
 class DeterministicEmbedding:
@@ -393,6 +528,18 @@ def test_lossless_real_chroma_graph_postgres_reopen_dashboard(
             candidate["metadata"]["top_10_concentration_pct"] == "46.272379900000004"
             for candidate in payload["candidate_evidence"]["candidates"]
         )
+        screened = payload["candidate_screening"]["candidates"]
+        assert len(screened) == len(documents)
+        assert all(candidate["verdict"] == "pass" for candidate in screened)
+        for candidate in screened:
+            concentration = next(
+                rule for rule in candidate["rules"] if rule["criterion"] == "concentration"
+            )
+            assert concentration["observed_value"] == "46.272379900000004"
+            assert concentration["verdict"] == "pass"
+            assert concentration["citation"]["source_url"] == (
+                f"https://example.com/{candidate['symbol']}"
+            )
         graph_store.verify_snapshot(snapshot.snapshot_version)
     finally:
         graph_store.close()
@@ -449,8 +596,10 @@ def test_issuer_real_stores_reopen_dashboard(real_stores: RealStoreEnvironment) 
         graph_store.close()
 
 
-@pytest.mark.parametrize("damage", ["content", "recomputed_content", "valid_metadata"])
-def test_real_schema2_mutated_chroma_blocks_before_evidence(
+@pytest.mark.parametrize(
+    "damage", ["content", "recomputed_content", "valid_metadata", "adjacent_numeric", "provenance"]
+)
+def test_real_schema2_mutated_chroma_workflow_shows_safe_dashboard_diagnostic(
     real_stores: RealStoreEnvironment,
     damage: str,
 ) -> None:
@@ -470,11 +619,84 @@ def test_real_schema2_mutated_chroma_blocks_before_evidence(
             record.name.value = "Semantically valid competing name"
             competing = snapshot._to_source_document(record, digest=snapshot.content_digest())
             changed, metadata = competing.content, competing.chroma_metadata()
+        elif damage in {"adjacent_numeric", "provenance"}:
+            changed = document.content
+            if damage == "adjacent_numeric":
+                # Reproduce #69's adjacent persisted observation; retain canonical proof.
+                metadata["top_10_concentration_pct"] = "46.2723799"
+            else:
+                provenance = json.loads(metadata["field_provenance_json"])
+                provenance["expense_ratio_pct"]["source_url"] = (
+                    "https://example.com/private-source-marker"
+                )
+                metadata["field_provenance_json"] = json.dumps(
+                    provenance, sort_keys=True, separators=(",", ":")
+                )
+            # Mutable Chroma fingerprints cannot authorize altered persisted facts.
+            metadata["document_fingerprint"] = document_fingerprint(
+                document.document_id, changed, metadata
+            )
         chroma._collection.update(
             ids=[document.document_id], documents=[changed], metadatas=[metadata]
         )
         with pytest.raises(ResearchIntegrityError):
             HybridRetriever(chroma, graph).search("ETF evidence", limit=5)
+
+        class NoProviderCalls:
+            def generate(self, request: Any) -> Any:
+                pytest.fail("Persisted corruption reached the explanation provider")
+
+        retriever = HybridCandidateEvidenceRetriever(
+            HybridRetriever(chroma, graph),
+            clock=lambda: snapshot.ingested_at,
+            max_age=timedelta(hours=24),
+        )
+        workflow = build_graph(
+            checkpointer=InMemorySaver(),
+            candidate_retriever=retriever,
+            explanation_generator=NoProviderCalls(),
+            clock=lambda: snapshot.ingested_at,
+        )
+        config = {"configurable": {"thread_id": str(uuid4())}}
+        state = dict(workflow.invoke({"profile": valid_profile()}, config))
+        assert state["status"] == "evidence_blocked"
+        assert not state.get("candidate_evidence")
+        assert not state.get("candidate_screening")
+        assert not state.get("__interrupt__")
+        with pytest.raises(ValueError):
+            review_payload(state)
+        assert json.loads(json.dumps(state)) == state
+
+        class DiagnosticRenderer:
+            def __init__(self) -> None:
+                self.errors: list[str] = []
+                self.payloads: list[Any] = []
+
+            def error(self, message: str) -> None:
+                self.errors.append(message)
+
+            def json(self, payload: Any) -> None:
+                self.payloads.append(payload)
+
+        renderer = DiagnosticRenderer()
+        _render_run(renderer, DashboardRun(graph=workflow, config=config, state=state))
+        # The graph-authoritative fingerprint rejects each persisted substitution first.
+        code = "document_integrity"
+        assert renderer.errors == ["The workflow stopped before human review."]
+        assert renderer.payloads == [
+            [
+                {
+                    "type": "retrieval_error",
+                    "code": code,
+                    "message": (
+                        f"Research evidence failed {code} validation. Republish validated evidence."
+                    ),
+                }
+            ]
+        ]
+        rendered = json.dumps(renderer.payloads)
+        for rejected in ("private-source-marker", "forged", "integration-password", changed):
+            assert rejected not in rendered
     finally:
         graph.close()
 

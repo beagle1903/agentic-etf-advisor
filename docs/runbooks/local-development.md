@@ -256,6 +256,110 @@ Disposable integration proofs use `RUN_REAL_STORE_TESTS=1` with `tests/test_real
 and `compose.integration.yaml`. Their generated project and volumes are separate from development
 data. A skipped real-store test is incomplete acceptance evidence.
 
+### Required real-store delivery gate
+
+Before merge, run the complete real-store suite for changes to snapshot serialization/numeric
+proofs, Chroma metadata/stage/readback, hybrid retrieval/candidate evidence, screening contracts,
+or activation/manifest/projection/retry. Relevant integration fixture/harness changes also trigger
+the gate. Use deterministic fixtures and embeddings; do not publish to development stores or
+create a live provider request to satisfy it.
+
+```powershell
+uv sync --frozen --extra rag --extra checkpoint
+docker info --format '{{.ServerVersion}}'
+docker compose version
+$env:RUN_REAL_STORE_TESTS = '1'
+try {
+    uv run pytest -q -s -o addopts='' tests/test_real_store_integration.py 2>&1 |
+        Tee-Object -Variable integrationOutput
+    $integrationExitCode = $LASTEXITCODE
+} finally {
+    Remove-Item Env:RUN_REAL_STORE_TESTS
+}
+$projectLines = @($integrationOutput | Select-String '^REAL_STORE_PROJECT=(etf-advisor-contract-[0-9a-f]{12})$')
+if ($projectLines.Count -ne 1) { throw 'Missing or ambiguous integration project identity.' }
+$integrationProject = $projectLines[0].Matches[0].Groups[1].Value
+$volumeLines = @($integrationOutput | Select-String '^REAL_STORE_VOLUMES=(\[.*\])$')
+if ($volumeLines.Count -ne 1) { throw 'Missing or ambiguous integration volume inventory.' }
+try {
+    $integrationVolumes = @($volumeLines[0].Matches[0].Groups[1].Value | ConvertFrom-Json -ErrorAction Stop)
+} catch {
+    throw 'Malformed integration volume inventory JSON; cleanup is unverified.'
+}
+if ($integrationVolumes.Count -gt 16 -or @($integrationVolumes | Select-Object -Unique).Count -ne $integrationVolumes.Count) {
+    throw 'Invalid integration volume inventory.'
+}
+foreach ($volumeName in $integrationVolumes) {
+    if ($volumeName -isnot [string] -or $volumeName -cnotmatch '^[0-9a-f]{64}$') {
+        throw 'Unexpected integration volume name.'
+    }
+}
+$remainingContainers = @(docker ps -a --filter "label=com.docker.compose.project=$integrationProject" --format '{{.Names}}')
+$containerQueryExitCode = $LASTEXITCODE
+$remainingVolumes = @(docker volume ls --filter "label=com.docker.compose.project=$integrationProject" --format '{{.Name}}')
+$volumeQueryExitCode = $LASTEXITCODE
+if ($containerQueryExitCode -ne 0 -or $volumeQueryExitCode -ne 0) {
+    throw "Cleanup inspection failed for $integrationProject."
+}
+if ($remainingContainers.Count -ne 0 -or $remainingVolumes.Count -ne 0) {
+    throw "Incomplete cleanup for $integrationProject. Containers: $remainingContainers Volumes: $remainingVolumes"
+}
+$remainingExactVolumes = @()
+foreach ($volumeName in $integrationVolumes) {
+    $remainingExactVolumes += @(docker volume ls --filter "name=^${volumeName}$" --format '{{.Name}}')
+    if ($LASTEXITCODE -ne 0) { throw "Exact volume inspection failed for $integrationProject." }
+}
+if ($remainingExactVolumes.Count -ne 0) {
+    throw "Anonymous volumes remain for ${integrationProject}: $remainingExactVolumes"
+}
+"Cleanup verified for ${integrationProject}: zero containers and volumes."
+if ($integrationExitCode -ne 0) { throw 'Real-store tests failed; see retained output.' }
+```
+
+All collected cases must pass with zero skips/errors/failures. The fixture uses a unique
+`etf-advisor-contract-*` project and loopback ports and attempts `down --volumes --remove-orphans`
+even if startup fails. Afterward verify that the generated integration project has no remaining
+containers/volumes using both exact project-label queries above. `-s` exposes the fixture's
+`REAL_STORE_PROJECT=` line before startup; `Tee-Object` retains it even when startup fails.
+Before teardown, the fixture inspects only containers bearing that exact project label and emits
+`REAL_STORE_VOLUMES=` with at most 16 validated, unique generated volume names. The pinned images
+create anonymous volumes without Compose project labels: label-scoped volume queries alone cannot
+detect their leftovers. The retained mount inventory therefore drives additional exact-name
+read-only existence checks after teardown. Missing/failed/malformed inventory blocks acceptance;
+the existing scoped teardown still runs even if inventory inspection fails. The mock startup
+regression captures its own markers, leaving one real session identity/inventory in operator output.
+JSON parsing uses explicit terminating error handling before resource queries: a parser error must
+stop the gate, rather than becoming an empty inventory. The service-free PowerShell regression
+executes this same documented block with mocked commands and verifies rejected inventory cannot
+reach inspections or cleanup confirmation:
+
+```powershell
+pwsh -NoProfile -File scripts/verify_real_store_cleanup_gate.ps1
+```
+
+Missing/ambiguous identity, failed Docker inspection, remaining containers or remaining volumes
+blocks cleanup acceptance. The fixture captures teardown errors, so passing tests alone do not
+prove cleanup. The read-only queries exclude unrelated projects; development projects may remain.
+A failed startup/teardown requires scoped
+investigation and a successful rerun, and is not acceptance evidence. Never run volume deletion
+against the development Compose project to satisfy this check.
+
+The production-shaped path publishes complete canonical schema-2 documents, reads back Chroma,
+activates Neo4j, retrieves candidate evidence, screens it, and validates the dashboard after a
+PostgreSQL reopen. The exact `46.272379900000004` observation is preserved. Persisted numeric,
+provenance and content mutations must block before provider/human review and render only stable
+actionable diagnostics. Startup-failure cleanup has a deterministic harness regression.
+
+Record tested commit/content, UTC timestamp, redacted environment and dependency identity, exact
+commands, collected/pass/failure/error/skip counts, these acceptance outcomes, teardown result,
+PR and CI links in the issue and iteration record. Re-run for final reviewed content after relevant
+changes. Current CI runs service-free checks and has no optional stores/extras provisioning; the
+required auditable local/release run complements it. Adding service-backed CI is a separate
+workflow change. The [contributor policy](../../CONTRIBUTING.md#opt-in-real-store-contract-coverage)
+defines the gate; [Issue71](../iterations/017-issue-71-real-store-contract.md) retains its evidence.
+
+### Development services
+
 ```powershell
 docker compose up -d chroma neo4j postgres
 docker compose ps
