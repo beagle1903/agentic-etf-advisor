@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import socket
@@ -15,6 +16,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from langgraph.checkpoint.memory import InMemorySaver
 from pydantic import SecretStr
 from test_checkpoint_lifecycle import Time, invoke, start
 from test_lossless_contract import lossless_snapshot
@@ -27,7 +29,8 @@ from typer.testing import CliRunner
 
 from etf_advisor import cli
 from etf_advisor.checkpoint import PostgresCheckpointStore
-from etf_advisor.dashboard import review_payload
+from etf_advisor.dashboard import DashboardRun, review_payload
+from etf_advisor.dashboard_app import _render_run
 from etf_advisor.encoding import ResearchIntegrityError, document_fingerprint
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
@@ -393,6 +396,18 @@ def test_lossless_real_chroma_graph_postgres_reopen_dashboard(
             candidate["metadata"]["top_10_concentration_pct"] == "46.272379900000004"
             for candidate in payload["candidate_evidence"]["candidates"]
         )
+        screened = payload["candidate_screening"]["candidates"]
+        assert len(screened) == len(documents)
+        assert all(candidate["verdict"] == "pass" for candidate in screened)
+        for candidate in screened:
+            concentration = next(
+                rule for rule in candidate["rules"] if rule["criterion"] == "concentration"
+            )
+            assert concentration["observed_value"] == "46.272379900000004"
+            assert concentration["verdict"] == "pass"
+            assert concentration["citation"]["source_url"] == (
+                f"https://example.com/{candidate['symbol']}"
+            )
         graph_store.verify_snapshot(snapshot.snapshot_version)
     finally:
         graph_store.close()
@@ -449,8 +464,10 @@ def test_issuer_real_stores_reopen_dashboard(real_stores: RealStoreEnvironment) 
         graph_store.close()
 
 
-@pytest.mark.parametrize("damage", ["content", "recomputed_content", "valid_metadata"])
-def test_real_schema2_mutated_chroma_blocks_before_evidence(
+@pytest.mark.parametrize(
+    "damage", ["content", "recomputed_content", "valid_metadata", "adjacent_numeric", "provenance"]
+)
+def test_real_schema2_mutated_chroma_workflow_shows_safe_dashboard_diagnostic(
     real_stores: RealStoreEnvironment,
     damage: str,
 ) -> None:
@@ -470,11 +487,84 @@ def test_real_schema2_mutated_chroma_blocks_before_evidence(
             record.name.value = "Semantically valid competing name"
             competing = snapshot._to_source_document(record, digest=snapshot.content_digest())
             changed, metadata = competing.content, competing.chroma_metadata()
+        elif damage in {"adjacent_numeric", "provenance"}:
+            changed = document.content
+            if damage == "adjacent_numeric":
+                # Reproduce #69's adjacent persisted observation; retain canonical proof.
+                metadata["top_10_concentration_pct"] = "46.2723799"
+            else:
+                provenance = json.loads(metadata["field_provenance_json"])
+                provenance["expense_ratio_pct"]["source_url"] = (
+                    "https://example.com/private-source-marker"
+                )
+                metadata["field_provenance_json"] = json.dumps(
+                    provenance, sort_keys=True, separators=(",", ":")
+                )
+            # Mutable Chroma fingerprints cannot authorize altered persisted facts.
+            metadata["document_fingerprint"] = document_fingerprint(
+                document.document_id, changed, metadata
+            )
         chroma._collection.update(
             ids=[document.document_id], documents=[changed], metadatas=[metadata]
         )
         with pytest.raises(ResearchIntegrityError):
             HybridRetriever(chroma, graph).search("ETF evidence", limit=5)
+
+        class NoProviderCalls:
+            def generate(self, request: Any) -> Any:
+                pytest.fail("Persisted corruption reached the explanation provider")
+
+        retriever = HybridCandidateEvidenceRetriever(
+            HybridRetriever(chroma, graph),
+            clock=lambda: snapshot.ingested_at,
+            max_age=timedelta(hours=24),
+        )
+        workflow = build_graph(
+            checkpointer=InMemorySaver(),
+            candidate_retriever=retriever,
+            explanation_generator=NoProviderCalls(),
+            clock=lambda: snapshot.ingested_at,
+        )
+        config = {"configurable": {"thread_id": str(uuid4())}}
+        state = dict(workflow.invoke({"profile": valid_profile()}, config))
+        assert state["status"] == "evidence_blocked"
+        assert not state.get("candidate_evidence")
+        assert not state.get("candidate_screening")
+        assert not state.get("__interrupt__")
+        with pytest.raises(ValueError):
+            review_payload(state)
+        assert json.loads(json.dumps(state)) == state
+
+        class DiagnosticRenderer:
+            def __init__(self) -> None:
+                self.errors: list[str] = []
+                self.payloads: list[Any] = []
+
+            def error(self, message: str) -> None:
+                self.errors.append(message)
+
+            def json(self, payload: Any) -> None:
+                self.payloads.append(payload)
+
+        renderer = DiagnosticRenderer()
+        _render_run(renderer, DashboardRun(graph=workflow, config=config, state=state))
+        # The graph-authoritative fingerprint rejects each persisted substitution first.
+        code = "document_integrity"
+        assert renderer.errors == ["The workflow stopped before human review."]
+        assert renderer.payloads == [
+            [
+                {
+                    "type": "retrieval_error",
+                    "code": code,
+                    "message": (
+                        f"Research evidence failed {code} validation. Republish validated evidence."
+                    ),
+                }
+            ]
+        ]
+        rendered = json.dumps(renderer.payloads)
+        for rejected in ("private-source-marker", "forged", "integration-password", changed):
+            assert rejected not in rendered
     finally:
         graph.close()
 

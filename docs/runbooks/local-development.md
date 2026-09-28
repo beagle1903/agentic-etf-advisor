@@ -256,6 +256,50 @@ Disposable integration proofs use `RUN_REAL_STORE_TESTS=1` with `tests/test_real
 and `compose.integration.yaml`. Their generated project and volumes are separate from development
 data. A skipped real-store test is incomplete acceptance evidence.
 
+### Required real-store delivery gate
+
+Before merge, run the complete real-store suite for changes to snapshot serialization/numeric
+proofs, Chroma metadata/stage/readback, hybrid retrieval/candidate evidence, screening contracts,
+or activation/manifest/projection/retry. Relevant integration fixture/harness changes also trigger
+the gate. Use deterministic fixtures and embeddings; do not publish to development stores or
+create a live provider request to satisfy it.
+
+```powershell
+uv sync --frozen --extra rag --extra checkpoint
+docker info --format '{{.ServerVersion}}'
+docker compose version
+$env:RUN_REAL_STORE_TESTS = '1'
+try {
+    uv run pytest -q -o addopts='' tests/test_real_store_integration.py
+} finally {
+    Remove-Item Env:RUN_REAL_STORE_TESTS
+}
+docker ps -a --filter 'label=com.docker.compose.project' --format '{{.Names}}'
+```
+
+All collected cases must pass with zero skips/errors/failures. The fixture uses a unique
+`etf-advisor-contract-*` project and loopback ports and attempts `down --volumes --remove-orphans`
+even if startup fails. Afterward verify that the generated integration project has no remaining
+containers/volumes; development projects may remain. A failed startup/teardown requires scoped
+investigation and a successful rerun, and is not acceptance evidence. Never run volume deletion
+against the development Compose project to satisfy this check.
+
+The production-shaped path publishes complete canonical schema-2 documents, reads back Chroma,
+activates Neo4j, retrieves candidate evidence, screens it, and validates the dashboard after a
+PostgreSQL reopen. The exact `46.272379900000004` observation is preserved. Persisted numeric,
+provenance and content mutations must block before provider/human review and render only stable
+actionable diagnostics. Startup-failure cleanup has a deterministic harness regression.
+
+Record tested commit/content, UTC timestamp, redacted environment and dependency identity, exact
+commands, collected/pass/failure/error/skip counts, these acceptance outcomes, teardown result,
+PR and CI links in the issue and iteration record. Re-run for final reviewed content after relevant
+changes. Current CI runs service-free checks and has no optional stores/extras provisioning; the
+required auditable local/release run complements it. Adding service-backed CI is a separate
+workflow change. The [contributor policy](../../CONTRIBUTING.md#opt-in-real-store-contract-coverage)
+defines the gate; [Issue71](../iterations/017-issue-71-real-store-contract.md) retains its evidence.
+
+### Development services
+
 ```powershell
 docker compose up -d chroma neo4j postgres
 docker compose ps
