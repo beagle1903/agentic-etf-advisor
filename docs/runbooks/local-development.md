@@ -281,7 +281,11 @@ if ($projectLines.Count -ne 1) { throw 'Missing or ambiguous integration project
 $integrationProject = $projectLines[0].Matches[0].Groups[1].Value
 $volumeLines = @($integrationOutput | Select-String '^REAL_STORE_VOLUMES=(\[.*\])$')
 if ($volumeLines.Count -ne 1) { throw 'Missing or ambiguous integration volume inventory.' }
-$integrationVolumes = @($volumeLines[0].Matches[0].Groups[1].Value | ConvertFrom-Json)
+try {
+    $integrationVolumes = @($volumeLines[0].Matches[0].Groups[1].Value | ConvertFrom-Json -ErrorAction Stop)
+} catch {
+    throw 'Malformed integration volume inventory JSON; cleanup is unverified.'
+}
 if ($integrationVolumes.Count -gt 16 -or @($integrationVolumes | Select-Object -Unique).Count -ne $integrationVolumes.Count) {
     throw 'Invalid integration volume inventory.'
 }
@@ -324,6 +328,15 @@ detect their leftovers. The retained mount inventory therefore drives additional
 read-only existence checks after teardown. Missing/failed/malformed inventory blocks acceptance;
 the existing scoped teardown still runs even if inventory inspection fails. The mock startup
 regression captures its own markers, leaving one real session identity/inventory in operator output.
+JSON parsing uses explicit terminating error handling before resource queries: a parser error must
+stop the gate, rather than becoming an empty inventory. The service-free PowerShell regression
+executes this same documented block with mocked commands and verifies rejected inventory cannot
+reach inspections or cleanup confirmation:
+
+```powershell
+pwsh -NoProfile -File scripts/verify_real_store_cleanup_gate.ps1
+```
+
 Missing/ambiguous identity, failed Docker inspection, remaining containers or remaining volumes
 blocks cleanup acceptance. The fixture captures teardown errors, so passing tests alone do not
 prove cleanup. The read-only queries exclude unrelated projects; development projects may remain.

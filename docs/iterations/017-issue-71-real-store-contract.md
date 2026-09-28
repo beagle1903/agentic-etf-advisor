@@ -141,6 +141,46 @@ not the remediation's final-source cleanup proof because it lacked anonymous-vol
 This harness-only remediation does not change previous product/offline acceptance. Final pushed
 commit, review-thread response/resolution and push CI outcome accompany the PR evidence.
 
+## Explicitly authorized parser remediation after final review
+
+Final independent review reopened the cleanup finding: default PowerShell JSON error handling could
+convert rejected inventory into an empty list and permit cleanup confirmation. The user's explicit
+`fix it` authorization is recorded at
+https://github.com/beagle1903/agentic-etf-advisor/issues/71#issuecomment-5866493381.
+This fresh attempt remains limited to the documented parser, its executable regression and evidence;
+same ordinary owner/model/effort and historical exemption. Product, test fixture, Compose, cleanup
+operations and CI/workflow configuration are unchanged.
+
+The runbook now uses `ConvertFrom-Json -ErrorAction Stop` inside an explicit try/catch before any
+resource inspection. Parse failure throws a fixed cleanup-unverified message. Existing shape/name
+checks, correct empty arrays, exact anonymous-volume queries, Docker exit codes and pytest exit
+status remain intact.
+
+`pwsh -NoProfile -File scripts/verify_real_store_cleanup_gate.ps1` executes the exact documented gate
+with service-free command doubles. All 12 cases pass: malformed JSON, native parser error,
+injected nonterminating parser error, wrong top-level type, nonstring name, duplicate name and invalid
+name all reject with zero Docker inspections and zero cleanup confirmations. Valid `[]` and one-name
+arrays succeed with two/three inspections; nonzero pytest exit, failed Docker inspection and a
+remaining anonymous volume reject. Resource query doubles reject unrelated project/name filters;
+the script restores the prior integration opt-in environment value.
+
+On local PowerShell 7.6.5 the native malformed-JSON examples already throw an ArgumentException
+under default handling, so removing the explicit flag alone did not reproduce the review scenario.
+The separate injected nonterminating error makes that scenario deterministic: removing
+`-ErrorAction Stop` in memory fails `nonterminating-parser-error`; the corrected exact gate passes.
+The initial regression script had missing zero defaults in its command doubles and rejected the
+valid empty array; those mock defaults were corrected before the successful results above.
+
+The corrected runbook's positive PowerShell gate ran verbatim from the opt-in assignment through
+all post-run checks: 41 cases passed in 107.67 seconds, zero failures/errors/skips. Sole generated
+project `etf-advisor-contract-caca2659df7b` retained three anonymous mount names before teardown;
+both project-label queries and all three exact-name queries returned empty afterward, and the gate
+confirmed zero containers/volumes. The focused existing cleanup regression passed (1 case,
+0.62 seconds). Ruff lint/148-format targets, strict mypy/49 source files, workflow validation and
+diff checks pass. No development or unrelated resource was mutated. Final commit/CI and the reply
+to the reopened thread accompany PR evidence; only the coordinator may resolve it after the new
+independent final review passes.
+
 ## Limitations
 
 These are deterministic fixture proofs on disposable local services. They do not claim live market
