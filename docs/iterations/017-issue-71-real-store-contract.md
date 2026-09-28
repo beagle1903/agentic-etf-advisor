@@ -98,6 +98,49 @@ Self-review confirms the diff contains only `tests/test_real_store_integration.p
 the local runbook and this evidence record. The existing complete fixture and all accepted
 contracts remain unchanged. No escalation or one-off workflow exception was needed.
 
+## PR #82 cleanup-evidence remediation
+
+The [review finding](https://github.com/beagle1903/agentic-etf-advisor/pull/82#discussion_r4119940021)
+identified that the runbook's unscoped container query could miss remaining project volumes while
+the fixture captures teardown errors. The coordinator authorized routine remediation within
+AC71-5/6 and I71-ISOLATE; the same implementation owner/model/effort and historical exemption apply.
+No product, CI/configuration, Compose configuration or cleanup operation is changed.
+
+The fixture now emits its exact generated project identity before startup. Before the unchanged
+teardown, it reads only project-label-selected containers, independently verifies their project
+label, and retains at most 16 unique, validated generated anonymous-volume names. Missing/failed
+inspection, duplicate/invalid container IDs, wrong project, malformed mounts, unexpected names or
+an exceeded bound fail cleanup evidence while the original scoped teardown still runs.
+
+Live inspection confirmed that the pinned PostgreSQL/Neo4j images create three anonymous volumes
+without Compose project labels. Label-scoped volume queries return no volumes even while those
+mounts exist. The corrected PowerShell gate retains exactly one session project and volume
+inventory with `Tee-Object`, checks both exact project-label container/volume queries, and also
+checks every retained anonymous name with a read-only exact-name volume query. Each Docker query
+must succeed; any remaining resource or missing/ambiguous/malformed inventory blocks acceptance.
+The mock startup-failure regression consumes its own markers with `capsys`, so it cannot make the
+operator-facing full-file run ambiguous.
+
+The existing cleanup regression also covers generated mount inventory, wrong-project/unexpected
+name/malformed/bounded inventory rejection, and inspection failure still reaching teardown. It
+passes independently (1 case, 0.53 seconds). Ruff lint/148-format targets, strict mypy/49 source
+files, workflow validation and whitespace checks pass. During the final run, exact-name queries
+successfully detected all three mounted anonymous volumes before teardown; the project-label
+volume query remained empty.
+
+The final-source run executed the runbook's PowerShell gate verbatim from
+`$env:RUN_REAL_STORE_TESTS` through all post-run checks (environment/bootstrap was already healthy).
+All 41 collected cases passed in 98.50 seconds with zero failures/errors/skips. The retained sole
+session project was `etf-advisor-contract-35686fe85301`; its three generated anonymous names were
+captured before teardown. Both project-label queries and all three exact-name volume queries
+succeeded with empty results afterward, and the gate printed its zero-container/volume cleanup
+confirmation. Development and preexisting projects were preserved.
+
+An earlier interim identity/label-only version also passed 41 cases in 98.45 seconds, but that is
+not the remediation's final-source cleanup proof because it lacked anonymous-volume inventory.
+This harness-only remediation does not change previous product/offline acceptance. Final pushed
+commit, review-thread response/resolution and push CI outcome accompany the PR evidence.
+
 ## Limitations
 
 These are deterministic fixture proofs on disposable local services. They do not claim live market

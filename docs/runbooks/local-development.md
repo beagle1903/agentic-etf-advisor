@@ -270,17 +270,64 @@ docker info --format '{{.ServerVersion}}'
 docker compose version
 $env:RUN_REAL_STORE_TESTS = '1'
 try {
-    uv run pytest -q -o addopts='' tests/test_real_store_integration.py
+    uv run pytest -q -s -o addopts='' tests/test_real_store_integration.py 2>&1 |
+        Tee-Object -Variable integrationOutput
+    $integrationExitCode = $LASTEXITCODE
 } finally {
     Remove-Item Env:RUN_REAL_STORE_TESTS
 }
-docker ps -a --filter 'label=com.docker.compose.project' --format '{{.Names}}'
+$projectLines = @($integrationOutput | Select-String '^REAL_STORE_PROJECT=(etf-advisor-contract-[0-9a-f]{12})$')
+if ($projectLines.Count -ne 1) { throw 'Missing or ambiguous integration project identity.' }
+$integrationProject = $projectLines[0].Matches[0].Groups[1].Value
+$volumeLines = @($integrationOutput | Select-String '^REAL_STORE_VOLUMES=(\[.*\])$')
+if ($volumeLines.Count -ne 1) { throw 'Missing or ambiguous integration volume inventory.' }
+$integrationVolumes = @($volumeLines[0].Matches[0].Groups[1].Value | ConvertFrom-Json)
+if ($integrationVolumes.Count -gt 16 -or @($integrationVolumes | Select-Object -Unique).Count -ne $integrationVolumes.Count) {
+    throw 'Invalid integration volume inventory.'
+}
+foreach ($volumeName in $integrationVolumes) {
+    if ($volumeName -isnot [string] -or $volumeName -cnotmatch '^[0-9a-f]{64}$') {
+        throw 'Unexpected integration volume name.'
+    }
+}
+$remainingContainers = @(docker ps -a --filter "label=com.docker.compose.project=$integrationProject" --format '{{.Names}}')
+$containerQueryExitCode = $LASTEXITCODE
+$remainingVolumes = @(docker volume ls --filter "label=com.docker.compose.project=$integrationProject" --format '{{.Name}}')
+$volumeQueryExitCode = $LASTEXITCODE
+if ($containerQueryExitCode -ne 0 -or $volumeQueryExitCode -ne 0) {
+    throw "Cleanup inspection failed for $integrationProject."
+}
+if ($remainingContainers.Count -ne 0 -or $remainingVolumes.Count -ne 0) {
+    throw "Incomplete cleanup for $integrationProject. Containers: $remainingContainers Volumes: $remainingVolumes"
+}
+$remainingExactVolumes = @()
+foreach ($volumeName in $integrationVolumes) {
+    $remainingExactVolumes += @(docker volume ls --filter "name=^${volumeName}$" --format '{{.Name}}')
+    if ($LASTEXITCODE -ne 0) { throw "Exact volume inspection failed for $integrationProject." }
+}
+if ($remainingExactVolumes.Count -ne 0) {
+    throw "Anonymous volumes remain for ${integrationProject}: $remainingExactVolumes"
+}
+"Cleanup verified for ${integrationProject}: zero containers and volumes."
+if ($integrationExitCode -ne 0) { throw 'Real-store tests failed; see retained output.' }
 ```
 
 All collected cases must pass with zero skips/errors/failures. The fixture uses a unique
 `etf-advisor-contract-*` project and loopback ports and attempts `down --volumes --remove-orphans`
 even if startup fails. Afterward verify that the generated integration project has no remaining
-containers/volumes; development projects may remain. A failed startup/teardown requires scoped
+containers/volumes using both exact project-label queries above. `-s` exposes the fixture's
+`REAL_STORE_PROJECT=` line before startup; `Tee-Object` retains it even when startup fails.
+Before teardown, the fixture inspects only containers bearing that exact project label and emits
+`REAL_STORE_VOLUMES=` with at most 16 validated, unique generated volume names. The pinned images
+create anonymous volumes without Compose project labels: label-scoped volume queries alone cannot
+detect their leftovers. The retained mount inventory therefore drives additional exact-name
+read-only existence checks after teardown. Missing/failed/malformed inventory blocks acceptance;
+the existing scoped teardown still runs even if inventory inspection fails. The mock startup
+regression captures its own markers, leaving one real session identity/inventory in operator output.
+Missing/ambiguous identity, failed Docker inspection, remaining containers or remaining volumes
+blocks cleanup acceptance. The fixture captures teardown errors, so passing tests alone do not
+prove cleanup. The read-only queries exclude unrelated projects; development projects may remain.
+A failed startup/teardown requires scoped
 investigation and a successful rerun, and is not acceptance evidence. Never run volume deletion
 against the development Compose project to satisfy this check.
 
