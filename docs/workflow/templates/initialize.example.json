@@ -15,6 +15,7 @@
       "AC1"
     ],
     "review_required": false,
+    "lifetime_policy": "cycles-v1",
     "authority": {
       "kind": "coordinator",
       "name": "actual coordinator",

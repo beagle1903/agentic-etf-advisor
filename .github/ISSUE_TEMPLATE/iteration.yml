@@ -89,7 +89,7 @@ body:
         Consequential approval: separate design_architect handoff and coordinator approval, or not required
         Independent review: high-risk/disputed trigger and findings, or not used
         Escalations: concrete evidence and fresh separate sequential session, or none
-        Finite ticket lifetime: ledger docs/workflow/tickets/issue-N.json; default 120 active minutes
+        Finite ticket lifetime: ledger docs/workflow/tickets/issue-N.json; cycles-v1 default counted attempts
         Frozen acceptance/invariant IDs: complete definitions plus capsule ID/generation/SHA256 before implementation
         Content binding: review, verification, acceptance and original delivery PR share one digest
         Lifetime reservations: initial review 1; remediation 1; final review 1; design reset 1

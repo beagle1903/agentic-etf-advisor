@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-04T07:34:55Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 83,
+        "classification": "consequential",
+        "scope": [
+          "S83"
+        ],
+        "invariants": [
+          "I23OWNER",
+          "I23IDENTITY",
+          "I23STATE",
+          "I23LEGACY",
+          "I23OFFLINE"
+        ],
+        "acceptance": [
+          "AC83-IDENTITY",
+          "AC83-ACCESS",
+          "AC83-ATOMIC",
+          "AC83-ISOLATION",
+          "AC83-SESSION",
+          "AC83-REGRESSION",
+          "AC83-DOCS"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "User approved concrete challenged design and bounded implementation contract in current chat on 2026-10-04."
+        },
+        "adoption": null,
+        "predecessor": {
+          "issue": 23,
+          "digest": "edb0ea490e463a75cbb92696e1400c2ad8f32e939ae9fb905db132cb27e0baac"
+        },
+        "capsule": {
+          "generation": 1,
+          "documentation": [
+            "docs/iterations/018-authenticated-review-ownership.md",
+            "New ADR for approved identity/ownership/access boundaries",
+            "docs/architecture/system.md and local runbook/threat/secret configuration; roadmap Issue23 remains broader parent"
+          ],
+          "non_goals": [
+            "Implementation before user approval",
+            "Hosting, financial writes, pending-review discovery, sharing, administrator access, backup platform and broad production readiness"
+          ],
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue83_implementation"
+          },
+          "json_state_impact": "Design defines JSON-safe ownership metadata outside AdvisorState; graph-state financial and revision schema changes: none; no credentials persisted.",
+          "escalation_triggers": [
+            "Unresolved authentication trust boundary or ownership transaction ambiguity returns to architect",
+            "Concrete migration/concurrency difficulty requires recorded specialist escalation",
+            "Failed challenge or finite exhaustion stops for user decision"
+          ],
+          "risks": [
+            "Authorization bypass via low-level lifecycle interfaces",
+            "Ownership creation atomicity and namespace isolation",
+            "Streamlit identity/session behavior",
+            "Legacy migration and forged client identity"
+          ],
+          "rationale": "User approved consequential identity/security/persistence slice; separate new capsule architecture/challenge before implementation. Successor carries design-only predecessor consumed budget and counters.",
+          "interfaces": [
+            "Identity resolver and authenticated review-access boundary",
+            "Lifecycle and checkpoint store ownership checks",
+            "Dashboard create/load/resume/retry/audit/inspect/delete access",
+            "Provider and financial contracts: none"
+          ],
+          "escalation": null,
+          "issue": 83,
+          "classification": "consequential",
+          "acceptance": {
+            "AC83-IDENTITY": "Locked Streamlit OIDC adapter validates trusted issuer/subject/audience/authorized-party/iat/exp; deterministic local OIDC library tests reject invalid signature/issuer/audience/nonce and expired-cookie claims; no browser owner/token authentication.",
+            "AC83-ACCESS": "Two users cannot load, render, audit, inspect, decide, retry or delete each others reviews; all denial paths are sanitized and do not mutate, renew or call adapters; unmanaged/raw/maintenance routes cannot bypass.",
+            "AC83-ATOMIC": "Owner/lifecycle/first checkpoint or pending-write commits atomically before returning usable review reference; failed writes and deletion roll back all namespaces; immutable owners and existing exclusion/receipt visibility remain correct.",
+            "AC83-ISOLATION": "Immutable store-mode initialization lock rejects local/auth mispoint, corruption and legacy ownerless access; authenticated mode uses explicit dedicated PostgreSQL and no bulk prune; offline mode remains service-free.",
+            "AC83-SESSION": "Identity switch/logout/expiry/callbacks invalidate cached private state and confirmations; each private render and operation reauthorizes without claiming global revocation.",
+            "AC83-REGRESSION": "Existing graph JSON, financial/provenance/revision/receipt semantics remain unchanged; focused and full required static/offline/disposable real PostgreSQL tests pass with cleanup evidence and zero skipped required cases.",
+            "AC83-DOCS": "New ADR, Iteration018 first-slice plan/evidence, architecture/runbook/threat/secret configuration docs describe scope, setup, legacy and expiry limits; no secrets/private data committed."
+          },
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat 01a1031a-7a25-77d0-90d6-c9839f8d0803 user `approved` on 2026-10-04 responds to design approval and bounded implementation contract preserving consumed budget/history; authorize split to independently closable implementation successor #83 with remaining budget only."
+          },
+          "invariants": {
+            "I23OWNER": "Every protected review has one immutable owner; unauthorized or missing identity fails before private reads, mutations, lifecycle operations or side effects.",
+            "I23IDENTITY": "Authenticated identity comes from a trusted replaceable server boundary; a review UUID or client-supplied owner never authenticates.",
+            "I23STATE": "Existing JSON graph state, financial controls, revision integrity, receipts and per-thread concurrency remain reliable; credentials never enter persisted graph state.",
+            "I23LEGACY": "Existing ownerless checkpoints are never automatically claimed or exposed in authenticated mode.",
+            "I23OFFLINE": "Offline single-user development remains explicit and service-free; authenticated deployment cannot silently fall back to it."
+          },
+          "repo": "beagle1903/agentic-etf-advisor",
+          "verification": [
+            "Focused identity/store/dashboard/session and deterministic OIDC library tests",
+            "Full offline pytest, Ruff lint/format, strict mypy, workflow validators, evaluations, package build, Compose config, git diff check",
+            "Disposable real PostgreSQL and existing required real-store integration gates with exact cleanup evidence",
+            "Independent review against all frozen invariants and AC83 definitions"
+          ],
+          "scope": {
+            "S83": "Implement the approved first Iteration018 slice: native Streamlit OIDC trusted identity, immutable ownership, complete review/lifecycle access checks, authenticated-store isolation and offline single-user preservation."
+          },
+          "id": "issue-83-authenticated-owned-review"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T07:34:57Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue83_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-83-authenticated-owned-review",
+          "generation": 1,
+          "digest": "56f152c798123ae05ae6775870478c709363d745b4e52ac79f5327930e0f4f79"
+        }
+      }
+    },
+    {
+      "at": "2026-10-04T07:37:37Z",
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue83_design",
+        "evidence": "Separate architect DESIGN_READY binds frozen S83, I23 invariants, all AC83s and capsule56f152c7. Approved architecture feasible at LifecycleStore.managed/ManagedSaver.commit/Postgres atomic seams, complete dashboard/private-cache/session access coverage. No scope expansion or blocker. Handoff in current coordinator chat; user approved concrete architecture previously."
+      }
+    },
+    {
+      "at": "2026-10-04T07:37:38Z",
+      "type": "phase_start",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "generation": 1,
+          "digest": "56f152c798123ae05ae6775870478c709363d745b4e52ac79f5327930e0f4f79",
+          "id": "issue-83-authenticated-owned-review"
+        },
+        "session": "/root/issue83_challenge",
+        "phase": "challenge"
+      }
+    },
+    {
+      "data": {
+        "evidence": "Independent fresh code_reviewer /root/issue83_challenge CHALLENGE_PASS against exact frozen capsule/S83/I23 invariants/AC83. Checked managed exclusion, complete namespace collisions and first-write transaction feasibility, cached/private/raw/lifecycle access before reads/adapters and create flag commit behavior. No unresolved blocker or scope change.",
+        "session": "/root/issue83_challenge",
+        "outcome": "pass"
+      },
+      "at": "2026-10-04T07:39:59Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "Coordinator approves exact frozen successor83 design after independent challenge; owner implementation_worker gpt-6-sol/medium /root/issue83_implementation. No workflow exception, budget renewal or broadened scope.",
+        "capsule": {
+          "id": "issue-83-authenticated-owned-review",
+          "digest": "56f152c798123ae05ae6775870478c709363d745b4e52ac79f5327930e0f4f79",
+          "generation": 1
+        },
+        "authority": {
+          "evidence": "User approved concrete architecture and bounded implementation contract in chat on 2026-10-04. Fresh successor architect DESIGN_READY and independent CHALLENGE_PASS bind this same capsule.",
+          "kind": "coordinator",
+          "name": "Codex /root"
+        }
+      },
+      "at": "2026-10-04T07:40:00Z",
+      "type": "design_ready"
+    },
+    {
+      "data": {
+        "session": "/root/issue83_implementation",
+        "phase": "implementation",
+        "capsule": {
+          "id": "issue-83-authenticated-owned-review",
+          "digest": "56f152c798123ae05ae6775870478c709363d745b4e52ac79f5327930e0f4f79",
+          "generation": 1
+        },
+        "role": "implementation_worker"
+      },
+      "at": "2026-10-04T07:40:01Z",
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-04T17:11:15Z",
+      "type": "phase_end",
+      "data": {
+        "evidence": "Coordinator resumed on user continue, live status reported remaining_seconds=-28484 with implementation phase still open. Interrupted worker immediately (runtime previous_status pending_init). ADR0026 charges interrupted/crashed open phases through current time. Source/tests/docs preserved; no final verification, review, commit, push or PR. No user-sized finite extension granted.",
+        "session": "/root/issue83_implementation",
+        "outcome": "interrupted"
+      }
+    },
+    {
+      "at": "2026-10-04T17:11:16Z",
+      "type": "blocker",
+      "data": {
+        "id": "B83-EXHAUSTED",
+        "criterion": "AC83-REGRESSION",
+        "evidence": "Live status on resumed user continue reported -28484 seconds; worker interruption acknowledged pending_init. Existing targeted results are not complete final-content acceptance.",
+        "scenario": "Finite inherited allowance exhausted while implementation phase remained open during interruption. Final full verification and independent review are incomplete; delivery is prohibited until explicit user finite-extension decision."
+      }
+    }
+  ]
+}

@@ -432,6 +432,7 @@ def test_split_successors_validate_prefix_inherit_counts_and_share_remainder():
 
 def test_atomic_append_rejects_invalid_without_mutation_and_respects_lock(tmp_path):
     init = ledger()["events"][0]
+    init["data"]["lifetime_policy"] = "cycles-v1"
     workflow.append(tmp_path, 73, init, START)
     path = tmp_path / workflow.DIRECTORY / "issue-73.json"
     prior = path.read_bytes()
@@ -617,7 +618,9 @@ def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
     )
     bases = []
     monkeypatch.setattr(
-        workflow, "check_prefix", lambda _root, base, _ledgers: bases.append(base) or set()
+        workflow,
+        "check_prefix",
+        lambda _root, base, _ledgers, _primary: bases.append(base) or set(),
     )
     monkeypatch.setattr(sys, "argv", ["workflow", "ci", "--event", str(path), "--base", cli_base])
     if cli_base == "base-a":
@@ -628,6 +631,610 @@ def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
             workflow.main()
         assert failure.value.code == 1
         assert bases == []
+
+
+def cycle_ledger(issue: int = 90) -> dict:
+    value = ledger(issue=issue)
+    value["events"][0]["data"]["lifetime_policy"] = "cycles-v1"
+    return value
+
+
+def transition(value: dict, offset: int, *, waivers: list[str] | None = None) -> None:
+    add(
+        value,
+        "policy_transition",
+        offset,
+        authority={**USER, "evidence": f"cycle approval {offset}"},
+        **{"from": "timed-v1", "to": "cycles-v1"},
+        prefix_digest=workflow.digest(value),
+        reason="User selected cycle limits",
+        time_blocker_waivers=[] if waivers is None else waivers,
+    )
+
+
+def test_cycle_policy_ignores_long_wait_but_keeps_attempt_limits():
+    value = cycle_ledger()
+    ready(value, 1)
+    result = state(value, 100_000)
+    assert result.lifetime_policy == "cycles-v1"
+    result.gate("implementation", START + timedelta(seconds=100_000))
+    phase(value, "implementation", 100_001)
+    with pytest.raises(workflow.Invalid, match="lifetime limit"):
+        state(value, 100_100).gate("implementation", START + timedelta(seconds=100_100))
+
+
+def test_expired_suspended_legacy_transitions_without_resuming():
+    value = ledger(issue=91)
+    ready(value, 1)
+    add(
+        value,
+        "phase_start",
+        2,
+        phase="implementation",
+        role="implementation_worker",
+        session="worker",
+    )
+    add(value, "pause", 3, session="worker", outcome="interrupted", evidence="quota wait")
+    transition(value, 100_000)
+    result = state(value, 100_001)
+    assert result.suspended and result.active is None
+    add(value, "phase_resume", 100_002, session="worker")
+    assert state(value, 100_003).active
+
+
+def test_transition_keeps_substantive_blockers_and_is_single_use():
+    value = ledger(issue=92)
+    add(
+        value, "blocker", 1, id="defect", criterion="AC1", scenario="unsafe result", evidence="case"
+    )
+    transition(value, 2)
+    result = state(value)
+    assert "defect" in result.blockers
+    with pytest.raises(workflow.Invalid, match="invalid or stale policy transition"):
+        transition(value, 3)
+        state(value)
+
+
+def test_cycle_split_conserves_siblings_and_inherits_counts():
+    parent = cycle_ledger(93)
+    ready(parent, 1)
+    phase(parent, "implementation", 2)
+    first = {key: 0 for key in workflow.COUNTS}
+    first["initial_review"] = 1
+    second = {key: 0 for key in workflow.COUNTS}
+    second["final_review"] = 1
+    add(
+        parent,
+        "cycle_split",
+        5,
+        authority=USER,
+        successor=94,
+        remaining_counts=first,
+        reason="bounded split",
+    )
+    add(
+        parent,
+        "cycle_split",
+        6,
+        authority={**USER, "evidence": "separate sibling allocation approval"},
+        successor=95,
+        remaining_counts=second,
+        reason="bounded split",
+    )
+    assert state(parent).split_remaining_counts["initial_review"] == 0
+    child = cycle_ledger(94)
+    child["events"][0]["at"] = at(7)
+    child["events"][0]["data"]["predecessor"] = {"issue": 93, "digest": workflow.digest(parent)}
+    inherited = state(child, predecessors={93: parent})
+    assert inherited.counts["implementation"] == 1
+    assert inherited.limits["implementation"] == 1
+    assert inherited.limits["initial_review"] == 1
+    with pytest.raises(workflow.Invalid, match="lifetime limit"):
+        inherited.gate("implementation", START + timedelta(seconds=100))
+    third = {key: 0 for key in workflow.COUNTS}
+    third["initial_review"] = 1
+    add(
+        parent,
+        "cycle_split",
+        7,
+        authority={**USER, "evidence": "separate over-allocation approval"},
+        successor=96,
+        remaining_counts=third,
+        reason="overallocate",
+    )
+    with pytest.raises(workflow.Invalid, match="allocations exceed"):
+        state(parent)
+
+
+def test_cycle_split_approval_cannot_extend_successor_under_alias_or_whitespace():
+    parent = cycle_ledger(190)
+    allocation = dict.fromkeys(workflow.COUNTS, 0)
+    allocation["implementation"] = 1
+    split_authority = {**USER, "evidence": "approved  bounded\nallocation"}
+    add(
+        parent,
+        "cycle_split",
+        1,
+        authority=split_authority,
+        successor=191,
+        remaining_counts=allocation,
+        reason="one successor allocation",
+    )
+    child = cycle_ledger(191)
+    child["events"][0]["at"] = at(2)
+    child["events"][0]["data"]["predecessor"] = {
+        "issue": 190,
+        "digest": workflow.digest(parent),
+    }
+    assert state(child, predecessors={190: parent}).limits["implementation"] == 1
+    add(
+        child,
+        "extension",
+        3,
+        authority={
+            **split_authority,
+            "name": "renamed",
+            "evidence": " approved bounded allocation ",
+        },
+        seconds=0,
+        counts=allocation,
+        reason="attempted reuse of split approval",
+    )
+    with pytest.raises(workflow.Invalid, match="already consumed"):
+        state(child, predecessors={190: parent})
+
+
+def test_cycle_split_approval_cannot_be_reused_for_sibling():
+    parent = cycle_ledger(192)
+    allocation = dict.fromkeys(workflow.COUNTS, 0)
+    allocation["initial_review"] = 1
+    add(
+        parent,
+        "cycle_split",
+        1,
+        authority={**USER, "evidence": "approved sibling allocation"},
+        successor=193,
+        remaining_counts=allocation,
+        reason="first sibling",
+    )
+    add(
+        parent,
+        "cycle_split",
+        2,
+        authority={**USER, "name": "renamed", "evidence": " approved  sibling\nallocation "},
+        successor=194,
+        remaining_counts=allocation,
+        reason="attempted reused approval",
+    )
+    with pytest.raises(workflow.Invalid, match="already consumed"):
+        state(parent)
+
+
+@pytest.mark.parametrize("sibling_first", [True, False])
+def test_later_sibling_approval_cannot_extend_earlier_child(tmp_path, sibling_first):
+    parent = cycle_ledger(195)
+    implementation = dict.fromkeys(workflow.COUNTS, 0)
+    implementation["implementation"] = 1
+    review = dict.fromkeys(workflow.COUNTS, 0)
+    review["final_review"] = 1
+    add(
+        parent,
+        "cycle_split",
+        1,
+        authority={**USER, "evidence": "first approval"},
+        successor=196,
+        remaining_counts=implementation,
+        reason="first child",
+    )
+    child = cycle_ledger(196)
+    child["events"][0]["at"] = at(2)
+    child["events"][0]["data"]["predecessor"] = {
+        "issue": 195,
+        "digest": workflow.digest(parent),
+    }
+    sibling = event(
+        "cycle_split",
+        3 if sibling_first else 4,
+        authority={**USER, "evidence": "later  sibling\napproval"},
+        successor=197,
+        remaining_counts=review,
+        reason="second child",
+    )
+    reused = event(
+        "extension",
+        4 if sibling_first else 3,
+        authority={**USER, "name": "alias", "evidence": " later sibling approval "},
+        seconds=0,
+        counts=implementation,
+        reason="reused sibling approval",
+    )
+    if sibling_first:
+        parent["events"].append(sibling)
+        target, candidate = 196, reused
+    else:
+        child["events"].append(reused)
+        target, candidate = 195, sibling
+    directory = tmp_path / workflow.DIRECTORY
+    directory.mkdir(parents=True)
+    for issue, value in ((195, parent), (196, child)):
+        (directory / f"issue-{issue}.json").write_text(json.dumps(value), encoding="utf-8")
+    original = (directory / f"issue-{target}.json").read_bytes()
+    with pytest.raises(workflow.Invalid, match="lineage authorization already consumed"):
+        workflow.append(tmp_path, target, candidate, START + timedelta(seconds=5))
+    assert (directory / f"issue-{target}.json").read_bytes() == original
+
+
+def test_sibling_approval_cannot_extend_descendant(tmp_path):
+    parent = cycle_ledger(198)
+    implementation = dict.fromkeys(workflow.COUNTS, 0)
+    implementation["implementation"] = 1
+    review = dict.fromkeys(workflow.COUNTS, 0)
+    review["final_review"] = 1
+    add(
+        parent,
+        "cycle_split",
+        1,
+        authority={**USER, "evidence": "first allocation"},
+        successor=199,
+        remaining_counts=implementation,
+        reason="first child",
+    )
+    child = cycle_ledger(199)
+    child["events"][0]["at"] = at(2)
+    child["events"][0]["data"]["predecessor"] = {
+        "issue": 198,
+        "digest": workflow.digest(parent),
+    }
+    add(
+        child,
+        "cycle_split",
+        3,
+        authority={**USER, "evidence": "descendant allocation"},
+        successor=200,
+        remaining_counts=implementation,
+        reason="grandchild",
+    )
+    grandchild = cycle_ledger(200)
+    grandchild["events"][0]["at"] = at(4)
+    grandchild["events"][0]["data"]["predecessor"] = {
+        "issue": 199,
+        "digest": workflow.digest(child),
+    }
+    add(
+        parent,
+        "cycle_split",
+        5,
+        authority={**USER, "evidence": "later sibling approval"},
+        successor=201,
+        remaining_counts=review,
+        reason="later sibling",
+    )
+    directory = tmp_path / workflow.DIRECTORY
+    directory.mkdir(parents=True)
+    for issue, value in ((198, parent), (199, child), (200, grandchild)):
+        (directory / f"issue-{issue}.json").write_text(json.dumps(value), encoding="utf-8")
+    reused = event(
+        "extension",
+        6,
+        authority={**USER, "name": "alias", "evidence": " later  sibling\napproval "},
+        seconds=0,
+        counts=implementation,
+        reason="reused ancestor sibling approval",
+    )
+    with pytest.raises(workflow.Invalid, match="lineage authorization already consumed"):
+        workflow.append(tmp_path, 200, reused, START + timedelta(seconds=7))
+
+
+def test_new_append_requires_cycles_even_if_backdated(tmp_path):
+    old = ledger(issue=97)["events"][0]
+    with pytest.raises(workflow.Invalid, match="requires cycles-v1"):
+        workflow.append(tmp_path, 97, old, START)
+    old["at"] = at(-10)
+    with pytest.raises(workflow.Invalid, match="requires cycles-v1"):
+        workflow.append(tmp_path, 97, old, START)
+
+
+def retained_auth_pair() -> tuple[dict, dict]:
+    directory = Path(__file__).parent / "fixtures" / "ticket_workflow"
+    parent = workflow.load((directory / "issue-23.json").read_text(encoding="utf-8"))
+    child = workflow.load((directory / "issue-83.json").read_text(encoding="utf-8"))
+    assert len(parent["events"]) == 10
+    assert workflow.digest(parent) == workflow.ISSUE23_COMPLETE_DIGEST
+    assert len(child["events"]) == 9
+    assert workflow.digest(child) == workflow.ISSUE83_LEGACY_DIGEST
+    child["events"].append(
+        {
+            "type": "policy_transition",
+            "at": "2026-10-04T17:11:17Z",
+            "data": {
+                "authority": {
+                    "kind": "user",
+                    "name": "beagle1903",
+                    "evidence": "User authorized the cycle policy for the retained Issue83 history",
+                },
+                "from": "timed-v1",
+                "to": "cycles-v1",
+                "prefix_digest": workflow.ISSUE83_LEGACY_DIGEST,
+                "reason": "Replace completion time with counted attempts",
+                "time_blocker_waivers": ["B83-EXHAUSTED"],
+            },
+        }
+    )
+    return parent, child
+
+
+@pytest.mark.parametrize("reuse_at", ["transition", "extension"])
+def test_retained_timed_split_approval_cannot_authorize_cycle_work(reuse_at):
+    parent, child = retained_auth_pair()
+    original = parent["events"][-1]["data"]["authority"]["evidence"]
+    reused = {"kind": "user", "name": "renamed", "evidence": "  ".join(original.split())}
+    if reuse_at == "transition":
+        child["events"][9]["data"]["authority"] = reused
+    else:
+        child["events"].append(
+            {
+                "type": "extension",
+                "at": "2026-10-04T17:11:18Z",
+                "data": {
+                    "authority": reused,
+                    "seconds": 0,
+                    "counts": {**dict.fromkeys(workflow.COUNTS, 0), "implementation": 1},
+                    "reason": "attempted reuse of old split approval",
+                },
+            }
+        )
+    with pytest.raises(workflow.Invalid, match="timed split authorization already consumed"):
+        workflow.validate_ledgers(
+            {23: parent, 83: child}, datetime(2026, 10, 4, 17, 11, 30, tzinfo=UTC)
+        )
+
+
+def test_retained_timed_split_accepts_distinct_cycle_approval():
+    parent, child = retained_auth_pair()
+    child["events"].append(
+        {
+            "type": "extension",
+            "at": "2026-10-04T17:11:18Z",
+            "data": {
+                "authority": {**USER, "evidence": "distinct cycle extension approval"},
+                "seconds": 0,
+                "counts": {**dict.fromkeys(workflow.COUNTS, 0), "implementation": 1},
+                "reason": "one separate finite attempt",
+            },
+        }
+    )
+    workflow.validate_ledgers(
+        {23: parent, 83: child}, datetime(2026, 10, 4, 17, 11, 30, tzinfo=UTC)
+    )
+
+
+def test_timed_split_approval_cannot_extend_cycle_grandchild():
+    parent = ledger(issue=210)
+    old_approval = {**USER, "evidence": "original timed split approval"}
+    add(parent, "split", 1, authority=old_approval, successor=211, seconds=3000, reason="child")
+    child = ledger(issue=211)
+    child["events"][0]["at"] = at(2)
+    child["events"][0]["data"]["predecessor"] = {"issue": 210, "digest": workflow.digest(parent)}
+    transition(child, 3)
+    remaining = {**dict.fromkeys(workflow.COUNTS, 0), "implementation": 1}
+    add(
+        child,
+        "cycle_split",
+        4,
+        authority={**USER, "evidence": "distinct grandchild allocation"},
+        successor=212,
+        remaining_counts=remaining,
+        reason="grandchild",
+    )
+    grandchild = cycle_ledger(212)
+    grandchild["events"][0]["at"] = at(5)
+    grandchild["events"][0]["data"]["predecessor"] = {
+        "issue": 211,
+        "digest": workflow.digest(child),
+    }
+    add(
+        grandchild,
+        "extension",
+        6,
+        authority={
+            **old_approval,
+            "name": "renamed",
+            "evidence": " original  timed\nsplit approval ",
+        },
+        seconds=0,
+        counts=remaining,
+        reason="reused ancestor approval",
+    )
+    with pytest.raises(workflow.Invalid, match="timed split authorization already consumed"):
+        workflow.validate_ledgers(
+            {210: parent, 211: child, 212: grandchild}, START + timedelta(seconds=10)
+        )
+
+
+def test_historical_timed_only_duplicate_split_approvals_still_replay():
+    parent = ledger(issue=213)
+    add(parent, "split", 1, authority=USER, successor=214, seconds=3000, reason="first")
+    add(
+        parent,
+        "split",
+        2,
+        authority={**USER, "name": "renamed", "evidence": " explicit  finite\napproval "},
+        successor=215,
+        seconds=3000,
+        reason="second",
+    )
+    workflow.validate_ledgers({213: parent}, START + timedelta(seconds=3))
+
+
+def test_migrated_timed_child_rejects_later_sibling_split():
+    parent = ledger(issue=216)
+    add(parent, "split", 1, authority=USER, successor=217, seconds=3000, reason="child")
+    child = ledger(issue=217)
+    child["events"][0]["at"] = at(2)
+    child["events"][0]["data"]["predecessor"] = {"issue": 216, "digest": workflow.digest(parent)}
+    transition(child, 3)
+    add(
+        parent,
+        "split",
+        4,
+        authority={**USER, "evidence": "later historical sibling approval"},
+        successor=218,
+        seconds=3000,
+        reason="later sibling",
+    )
+    with pytest.raises(workflow.Invalid, match="sole successor"):
+        workflow.validate_ledgers({216: parent, 217: child}, START + timedelta(seconds=5))
+
+
+def empty_merge_base(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-b", "main"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True
+    )
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"], cwd=tmp_path, check=True, capture_output=True
+    )
+
+
+def test_retained_auth_pair_intro_and_long_wait_preserve_attempts(tmp_path):
+    empty_merge_base(tmp_path)
+    parent, child = retained_auth_pair()
+    pair = {23: parent, 83: child}
+    assert workflow.check_prefix(tmp_path, "main", pair, 83) == {23, 83}
+    result = workflow.replay(child, datetime(2026, 11, 1, tzinfo=UTC), predecessors={23: parent})
+    assert result.lifetime_policy == "cycles-v1"
+    assert result.suspended and result.suspended["session"] == "/root/issue83_implementation"
+    assert result.counts["implementation"] == 1
+    assert "B83-EXHAUSTED" not in result.blockers
+    child["events"].append(
+        {
+            "type": "phase_resume",
+            "at": "2026-11-01T00:00:01Z",
+            "data": {"session": "/root/issue83_implementation"},
+        }
+    )
+    resumed = workflow.replay(
+        child, datetime(2026, 11, 1, 0, 0, 2, tzinfo=UTC), predecessors={23: parent}
+    )
+    assert resumed.active and resumed.counts["implementation"] == 1
+    child["events"].append(
+        {
+            "type": "phase_end",
+            "at": "2026-11-01T00:00:03Z",
+            "data": {
+                "session": "/root/issue83_implementation",
+                "outcome": "pass",
+                "evidence": "bounded work",
+            },
+        }
+    )
+    ended = workflow.replay(
+        child, datetime(2026, 11, 1, 0, 0, 4, tzinfo=UTC), predecessors={23: parent}
+    )
+    assert workflow.check_prefix(tmp_path, "main", pair, 83) == {23, 83}
+    with pytest.raises(workflow.Invalid, match="implementation lifetime limit"):
+        ended.gate("implementation", datetime(2026, 11, 1, 0, 0, 4, tzinfo=UTC))
+    with pytest.raises(workflow.Invalid, match="incomplete design, verification or acceptance"):
+        ended.gate("delivery", datetime(2026, 11, 1, 0, 0, 4, tzinfo=UTC))
+    with pytest.raises(workflow.Invalid, match="PR repository differs from ledger"):
+        workflow.check_pr(
+            {**pr("Primary issue: #83"), "repository": {"full_name": "other/repo"}},
+            pair,
+            "2026-10-04T00:00:00Z",
+            datetime(2026, 11, 1, 0, 0, 4, tzinfo=UTC),
+            {23, 83},
+            CONTENT,
+        )
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "wrong-primary",
+        "missing-parent",
+        "missing-child",
+        "altered-parent",
+        "extra-sibling",
+        "altered-child",
+        "missing-transition",
+        "misplaced-transition",
+        "wrong-prefix",
+        "missing-waiver",
+        "unrelated-waiver",
+        "wrong-repo",
+        "extra-legacy",
+    ],
+)
+def test_retained_auth_pair_introduction_fails_closed(tmp_path, damage):
+    empty_merge_base(tmp_path)
+    parent, child = retained_auth_pair()
+    pair = {23: parent, 83: child}
+    primary = 83
+    if damage == "wrong-primary":
+        primary = 84
+    elif damage == "missing-parent":
+        del pair[23]
+    elif damage == "missing-child":
+        del pair[83]
+    elif damage == "altered-parent":
+        parent["events"][0]["data"]["scope"][0] = "changed"
+    elif damage == "extra-sibling":
+        parent["events"].append(copy.deepcopy(parent["events"][-1]))
+    elif damage == "altered-child":
+        child["events"][0]["data"]["scope"][0] = "changed"
+    elif damage == "missing-transition":
+        child["events"].pop()
+    elif damage == "misplaced-transition":
+        child["events"].insert(
+            9,
+            {
+                "type": "charge",
+                "at": "2026-10-04T17:11:17Z",
+                "data": {"authority": AUTH, "seconds": 1, "evidence": "injected event"},
+            },
+        )
+    elif damage == "wrong-prefix":
+        child["events"][9]["data"]["prefix_digest"] = "0" * 64
+    elif damage == "missing-waiver":
+        child["events"][9]["data"]["time_blocker_waivers"] = []
+    elif damage == "unrelated-waiver":
+        child["events"][9]["data"]["time_blocker_waivers"] = ["other"]
+    elif damage == "wrong-repo":
+        child["events"][0]["data"]["repo"] = "other/repo"
+    else:
+        pair[85] = ledger(issue=85)
+    with pytest.raises(workflow.Invalid, match="new ledger introduction requires cycles-v1"):
+        workflow.check_prefix(tmp_path, "main", pair, primary)
+
+
+def test_cycle_extension_uses_counts_only_and_single_authority():
+    value = cycle_ledger(98)
+    delta = {key: 0 for key in workflow.COUNTS}
+    delta["implementation"] = 1
+    add(
+        value,
+        "extension",
+        1,
+        authority=USER,
+        seconds=0,
+        counts=delta,
+        reason="one extra implementation",
+    )
+    assert state(value).limits["implementation"] == 2
+    add(
+        value,
+        "extension",
+        2,
+        authority={**USER, "name": "alias"},
+        seconds=0,
+        counts=delta,
+        reason="replay",
+    )
+    with pytest.raises(workflow.Invalid, match="already consumed"):
+        state(value)
 
 
 def test_delivered_history_cannot_be_reopened():

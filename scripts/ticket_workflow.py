@@ -22,6 +22,11 @@ BOOTSTRAP_DIGEST = "ad92fa4555aa4162c9cefcfce7f6c2d233bdc318748b0b6b6b04bff208ae
 BOOTSTRAP_APPROVAL = (
     "https://github.com/beagle1903/agentic-etf-advisor/issues/73#issuecomment-5843156904"
 )
+ISSUE84_INITIAL_DIGEST = "462e26fdb7ae6be1315f55809630edd6c800fbad11295a3060aff4c932f3740c"
+ISSUE83_BLOCKER_DIGEST = "d9ce023c33d2047faf2881d60dc54dae51e3594e175d9da23f5f6661e073cf56"
+ISSUE23_COMPLETE_DIGEST = "edb0ea490e463a75cbb92696e1400c2ad8f32e939ae9fb905db132cb27e0baac"
+ISSUE83_LEGACY_DIGEST = "b46ec791f25f51f7e022d00e6a654e0429e59b59a874500247f7f974c60664f9"
+POLICIES = {"timed-v1", "cycles-v1"}
 PINNED = {
     "bounded_worker": ("gpt-6-luna", "medium"),
     "implementation_worker": ("gpt-6-sol", "medium"),
@@ -270,6 +275,25 @@ def evidence_key(value: object) -> str:
     return " ".join(text(value).split())
 
 
+def sole_legacy_lineage(value: dict, predecessors: dict[int, dict] | None) -> None:
+    """A timed descendant may migrate only while every ancestor has one successor."""
+    current = value
+    seen: set[int] = set()
+    while (link := current["events"][0]["data"].get("predecessor")) is not None:
+        issue = integer(link["issue"], 1)
+        if issue in seen or not predecessors or issue not in predecessors:
+            raise Invalid("missing or cyclic legacy predecessor")
+        seen.add(issue)
+        parent = predecessors[issue]
+        splits = [item for item in parent["events"] if item["type"] in {"split", "cycle_split"}]
+        if (
+            len(splits) != 1
+            or splits[0]["data"]["successor"] != current["events"][0]["data"]["issue"]
+        ):
+            raise Invalid("migrated legacy lineage requires sole successor at every ancestor")
+        current = parent
+
+
 @dataclass
 class State:
     repo: str
@@ -291,6 +315,7 @@ class State:
     acceptance_content: str | None = None
     delivery_binding: dict | None = None
     budget_seconds: int = 7200
+    lifetime_policy: str = "timed-v1"
     elapsed_seconds: int = 0
     limits: dict = field(default_factory=lambda: COUNTS.copy())
     counts: dict = field(default_factory=lambda: dict.fromkeys(COUNTS, 0))
@@ -313,6 +338,7 @@ class State:
     blockers: dict = field(default_factory=dict)
     delivered: bool = False
     split_remaining: int | None = None
+    split_remaining_counts: dict | None = None
     splits: dict = field(default_factory=dict)
     extension_authorizations: set[str] = field(default_factory=set)
 
@@ -325,9 +351,13 @@ class State:
     def gate(self, operation: str, now: datetime, *, allow_bootstrap: bool = False) -> None:
         if not self.capsule and not allow_bootstrap:
             raise Invalid("complete frozen capsule binding required")
-        if self.delivered or self.split_remaining is not None:
+        if (
+            self.delivered
+            or self.split_remaining is not None
+            or self.split_remaining_counts is not None
+        ):
             raise Invalid("terminal ticket; explicit user decision required")
-        if self.elapsed(now) >= self.budget_seconds:
+        if self.lifetime_policy == "timed-v1" and self.elapsed(now) >= self.budget_seconds:
             raise Invalid("active-time budget exhausted; stop for user decision")
         if operation == "delivery":
             if not self.clock_running:
@@ -395,7 +425,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
         previous = at
         kind, data = event["type"], event["data"]
         if state is not None:
-            if state.delivered or (state.split_remaining is not None and kind != "split"):
+            if state.delivered or (
+                (state.split_remaining is not None or state.split_remaining_counts is not None)
+                and kind not in {"split", "cycle_split"}
+            ):
                 raise Invalid("terminal history cannot be reopened")
             state.elapsed_seconds = state.elapsed(at)
             state.last = at
@@ -414,10 +447,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 "adoption",
                 "predecessor",
             }
-            data = keys(
-                data,
-                initial_fields if bootstrap else initial_fields | {"capsule"},
-            )
+            expected = initial_fields if bootstrap else initial_fields | {"capsule"}
+            if "lifetime_policy" in data:
+                expected = expected | {"lifetime_policy"}
+            data = keys(data, expected)
             repo = text(data["repo"])
             if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
                 raise Invalid("invalid repository identity")
@@ -449,6 +482,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 data["review_required"],
             )
             state.scope = scope
+            state.lifetime_policy = data.get("lifetime_policy", "timed-v1")
+            if state.lifetime_policy not in POLICIES:
+                raise Invalid("unknown lifetime policy")
             if not bootstrap:
                 if data["adoption"] is not None:
                     raise Invalid(
@@ -499,7 +535,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 if parent_state.repo != repo or issue not in parent_state.splits:
                     raise Invalid("predecessor did not allocate this successor")
                 allocation = parent_state.splits[issue]
-                state.budget_seconds = allocation["seconds"]
+                if allocation.get("policy", "timed-v1") != state.lifetime_policy:
+                    raise Invalid("successor lifetime policy differs from allocation")
+                if state.lifetime_policy == "timed-v1":
+                    state.budget_seconds = allocation["seconds"]
                 state.counts = allocation["counts"].copy()
                 state.limits = allocation["limits"].copy()
                 state.extension_authorizations = set(allocation["extensions"])
@@ -639,9 +678,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             if state.active or not state.suspended or data["session"] != state.suspended["session"]:
                 raise Invalid("no matching interrupted session")
             if (
-                state.elapsed(at) >= state.budget_seconds
+                (state.lifetime_policy == "timed-v1" and state.elapsed(at) >= state.budget_seconds)
                 or state.delivered
                 or state.split_remaining is not None
+                or state.split_remaining_counts is not None
             ):
                 raise Invalid("resume budget exhausted or terminal ticket")
             state.active = {**state.suspended, "at": event["at"]}
@@ -673,12 +713,17 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 or state.suspended
                 or state.delivered
                 or state.split_remaining is not None
+                or state.split_remaining_counts is not None
             ):
                 raise Invalid("coordination pause/resume requires nonterminal between-phase state")
             running = kind == "coordination_resume"
             if state.clock_running == running:
                 raise Invalid("duplicate coordination pause/resume")
-            if running and state.elapsed(at) >= state.budget_seconds:
+            if (
+                running
+                and state.lifetime_policy == "timed-v1"
+                and state.elapsed(at) >= state.budget_seconds
+            ):
                 raise Invalid("coordination resume budget exhausted")
             state.clock_running = running
         elif kind == "design_ready":
@@ -748,6 +793,50 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             ):
                 raise Invalid("blocker resolution requires completed remediation evidence")
             del state.blockers[data["id"]]
+        elif kind == "policy_transition":
+            data = keys(
+                data,
+                {"authority", "from", "to", "prefix_digest", "reason", "time_blocker_waivers"},
+            )
+            authority(data["authority"], "user")
+            authorization = evidence_key(data["authority"]["evidence"])
+            if authorization in state.extension_authorizations:
+                raise Invalid("policy authorization already consumed")
+            text(data["reason"])
+            if (
+                data["from"] != "timed-v1"
+                or data["to"] != "cycles-v1"
+                or state.lifetime_policy != "timed-v1"
+                or state.delivered
+                or state.split_remaining is not None
+                or state.split_remaining_counts is not None
+                or data["prefix_digest"] != digest({"schema": 1, "events": value["events"][:index]})
+            ):
+                raise Invalid("invalid or stale policy transition")
+            waivers = data["time_blocker_waivers"]
+            if (
+                not isinstance(waivers, list)
+                or any(not isinstance(item, str) for item in waivers)
+                or len(waivers) != len(set(waivers))
+            ):
+                raise Invalid("invalid time blocker waivers")
+            for ident in waivers:
+                if (
+                    ident != "B83-EXHAUSTED"
+                    or state.repo != "beagle1903/agentic-etf-advisor"
+                    or state.issue != 83
+                    or ident not in state.blockers
+                    or not any(
+                        item["type"] == "blocker" and digest(item) == ISSUE83_BLOCKER_DIGEST
+                        for item in value["events"][:index]
+                    )
+                ):
+                    raise Invalid("unapproved time blocker waiver")
+                del state.blockers[ident]
+            if value["events"][0]["data"].get("predecessor") is not None:
+                sole_legacy_lineage(value, predecessors)
+            state.lifetime_policy = "cycles-v1"
+            state.extension_authorizations.add(authorization)
         elif kind == "extension":
             data = keys(data, {"authority", "seconds", "counts", "reason"})
             authority(data["authority"], "user")
@@ -762,9 +851,12 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 state.active
                 or state.delivered
                 or state.split_remaining is not None
+                or state.split_remaining_counts is not None
                 or not (seconds or any(deltas.values()))
             ):
                 raise Invalid("invalid extension or terminal/active ticket")
+            if state.lifetime_policy == "cycles-v1" and (seconds or not any(deltas.values())):
+                raise Invalid("cycle extension requires zero seconds and positive count delta")
             state.budget_seconds += seconds
             state.extension_authorizations.add(authorization)
             for phase, delta in deltas.items():
@@ -782,6 +874,8 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             text(data["evidence"])
             state.elapsed_seconds += integer(data["seconds"], 1)
         elif kind == "split":
+            if state.lifetime_policy != "timed-v1":
+                raise Invalid("timed split forbidden for cycle policy")
             data = keys(data, {"authority", "successor", "seconds", "reason"})
             authority(data["authority"], "user")
             text(data["reason"])
@@ -800,9 +894,49 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 raise Invalid("successor allocations exceed remaining budget")
             state.split_remaining -= seconds
             state.splits[successor] = {
+                "policy": "timed-v1",
                 "seconds": seconds,
                 "counts": state.counts.copy(),
                 "limits": state.limits.copy(),
+                "extensions": sorted(state.extension_authorizations),
+                "authors": sorted(state.write_authors),
+                "sessions": state.sessions.copy(),
+            }
+        elif kind == "cycle_split":
+            data = keys(data, {"authority", "successor", "remaining_counts", "reason"})
+            authority(data["authority"], "user")
+            authorization = evidence_key(data["authority"]["evidence"])
+            if authorization in state.extension_authorizations:
+                raise Invalid("cycle allocation authorization already consumed")
+            text(data["reason"])
+            successor = integer(data["successor"], 1)
+            allocation = keys(data["remaining_counts"], set(COUNTS))
+            allocation = {key: integer(value) for key, value in allocation.items()}
+            if state.lifetime_policy != "cycles-v1" or not any(allocation.values()):
+                raise Invalid("cycle split requires positive attempt allocation")
+            if (
+                state.active
+                or state.suspended
+                or state.delivered
+                or state.split_remaining is not None
+                or successor == state.issue
+                or successor in state.splits
+            ):
+                raise Invalid("invalid cycle split")
+            if state.split_remaining_counts is None:
+                state.split_remaining_counts = {
+                    key: state.limits[key] - state.counts[key] for key in COUNTS
+                }
+                state.clock_running = False
+            if any(allocation[key] > state.split_remaining_counts[key] for key in COUNTS):
+                raise Invalid("successor allocations exceed remaining attempts")
+            for key in COUNTS:
+                state.split_remaining_counts[key] -= allocation[key]
+            state.extension_authorizations.add(authorization)
+            state.splits[successor] = {
+                "policy": "cycles-v1",
+                "counts": state.counts.copy(),
+                "limits": {key: state.counts[key] + allocation[key] for key in COUNTS},
                 "extensions": sorted(state.extension_authorizations),
                 "authors": sorted(state.write_authors),
                 "sessions": state.sessions.copy(),
@@ -946,9 +1080,66 @@ def content_digest(root: Path, issue: int, ref: str | None = None) -> str:
 
 def validate_all(root: Path, now: datetime) -> dict[int, dict]:
     ledgers = read_all(root)
-    for issue, value in ledgers.items():
-        replay(value, now, predecessors={k: v for k, v in ledgers.items() if k != issue})
+    validate_ledgers(ledgers, now)
     return ledgers
+
+
+def validate_ledgers(ledgers: dict[int, dict], now: datetime) -> None:
+    """Validate histories and their actual predecessor links before family checks."""
+    for issue, value in ledgers.items():
+        others = {k: v for k, v in ledgers.items() if k != issue}
+        state = replay(value, now, predecessors=others)
+        if (
+            state.lifetime_policy == "cycles-v1"
+            and value["events"][0]["data"].get("predecessor")
+            and value["events"][0]["data"].get("lifetime_policy") != "cycles-v1"
+        ):
+            sole_legacy_lineage(value, others)
+    validate_lineage_authorizations(ledgers)
+
+
+def validate_lineage_authorizations(ledgers: dict[int, dict]) -> None:
+    """Cycle approvals cannot reuse any split approval in their validated family."""
+    roots: dict[int, int] = {}
+
+    def root(issue: int, visiting: set[int]) -> int:
+        if issue in roots:
+            return roots[issue]
+        if issue in visiting:
+            raise Invalid("cyclic ticket predecessor")
+        visiting.add(issue)
+        predecessor = ledgers[issue]["events"][0]["data"].get("predecessor")
+        ancestor = predecessor["issue"] if predecessor else None
+        if ancestor is not None and ancestor not in ledgers:
+            raise Invalid("missing ticket predecessor")
+        roots[issue] = root(ancestor, visiting) if ancestor is not None else issue
+        visiting.remove(issue)
+        return roots[issue]
+
+    timed_splits: set[tuple[int, str]] = set()
+    used: set[tuple[int, str]] = set()
+    for issue, value in ledgers.items():
+        family = root(issue, set())
+        policy = value["events"][0]["data"].get("lifetime_policy", "timed-v1")
+        for event in value["events"]:
+            kind = event["type"]
+            if kind == "policy_transition":
+                policy = "cycles-v1"
+            if kind == "split":
+                approval = evidence_key(event["data"]["authority"]["evidence"])
+                timed_splits.add((family, approval))
+            if (
+                kind == "cycle_split"
+                or kind == "policy_transition"
+                or (kind == "extension" and policy == "cycles-v1")
+            ):
+                approval = evidence_key(event["data"]["authority"]["evidence"])
+                identity = (family, approval)
+                if identity in used:
+                    raise Invalid("cycle lineage authorization already consumed")
+                used.add(identity)
+    if used & timed_splits:
+        raise Invalid("timed split authorization already consumed in cycle lineage")
 
 
 def append(root: Path, issue: int, event: dict, now: datetime) -> State:
@@ -964,6 +1155,12 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         os.close(fd)
         ledgers = read_all(root)
         value = ledgers.get(issue, {"schema": 1, "events": []})
+        if (
+            not value["events"]
+            and event.get("type") == "initialize"
+            and event.get("data", {}).get("lifetime_policy") != "cycles-v1"
+        ):
+            raise Invalid("new initialization requires cycles-v1 lifetime policy")
         if (
             event.get("type") == "phase_start"
             and event.get("data", {}).get("phase")
@@ -995,6 +1192,7 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         )
         if state.issue != issue:
             raise Invalid("requested issue differs from initialized issue")
+        validate_ledgers({**ledgers, issue: candidate}, now)
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
         ) as target:
@@ -1011,7 +1209,55 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         lock.unlink(missing_ok=True)
 
 
-def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
+def approved_legacy_23_83(
+    ledgers: dict[int, dict], originals: dict[int, dict], primary: int | None
+) -> bool:
+    """Allow only the exact unmerged design/successor pair on Issue83's PR."""
+    if primary != 83 or 23 in originals or 83 in originals:
+        return False
+    parent, child = ledgers.get(23), ledgers.get(83)
+    if parent is None or child is None:
+        return False
+    if (
+        len(parent["events"]) != 10
+        or digest(parent) != ISSUE23_COMPLETE_DIGEST
+        or len(child["events"]) < 10
+        or digest({"schema": 1, "events": child["events"][:9]}) != ISSUE83_LEGACY_DIGEST
+    ):
+        return False
+    first_parent, first_child = parent["events"][0]["data"], child["events"][0]["data"]
+    if (
+        any(
+            initial.get("repo") != "beagle1903/agentic-etf-advisor"
+            for initial in (first_parent, first_child)
+        )
+        or first_parent.get("issue") != 23
+        or first_child.get("issue") != 83
+    ):
+        return False
+    transition = child["events"][9]
+    if transition.get("type") != "policy_transition" or not isinstance(
+        transition.get("data"), dict
+    ):
+        return False
+    data = transition["data"]
+    if (
+        data.get("from") != "timed-v1"
+        or data.get("to") != "cycles-v1"
+        or data.get("prefix_digest") != ISSUE83_LEGACY_DIGEST
+        or data.get("time_blocker_waivers") != ["B83-EXHAUSTED"]
+    ):
+        return False
+    try:
+        replay(child, timestamp(child["events"][-1]["at"]), predecessors={23: parent})
+    except (Invalid, KeyError, TypeError, ValueError):
+        return False
+    return True
+
+
+def check_prefix(
+    root: Path, base: str, ledgers: dict[int, dict], primary: int | None = None
+) -> set[int]:
     merge_base = subprocess.check_output(
         ["git", "merge-base", base, "HEAD"], cwd=root, text=True
     ).strip()
@@ -1032,6 +1278,20 @@ def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
         current = ledgers.get(issue)
         if current is None or current["events"][: len(old["events"])] != old["events"]:
             raise Invalid("merge-base ledger history edited or deleted")
+    legacy_pair = approved_legacy_23_83(ledgers, originals, primary)
+    for issue, value in ledgers.items():
+        if issue not in originals:
+            initial = value["events"][0]
+            if initial["data"].get("lifetime_policy") != "cycles-v1":
+                approved_84 = (
+                    issue == 84
+                    and primary == 84
+                    and initial["data"].get("repo") == "beagle1903/agentic-etf-advisor"
+                    and digest({"schema": 1, "events": [initial]}) == ISSUE84_INITIAL_DIGEST
+                    and value["events"][0]["data"]["issue"] == 84
+                )
+                if not approved_84 and not (legacy_pair and issue in {23, 83}):
+                    raise Invalid("new ledger introduction requires cycles-v1 policy")
     return {issue for issue, value in ledgers.items() if originals.get(issue) != value}
 
 
@@ -1137,8 +1397,22 @@ def main() -> None:
                                 "content": content_digest(args.root, args.issue),
                                 "owner": state.approved_owner,
                                 "counts": state.counts,
-                                "remaining_seconds": state.budget_seconds - state.elapsed(now),
+                                "limits": state.limits,
+                                "remaining_counts": {
+                                    key: state.limits[key] - state.counts[key] for key in COUNTS
+                                },
+                                "lifetime_policy": state.lifetime_policy,
+                                "remaining_seconds": (
+                                    state.budget_seconds - state.elapsed(now)
+                                    if state.lifetime_policy == "timed-v1"
+                                    else None
+                                ),
+                                "audit_elapsed_seconds": state.elapsed(now),
                                 "active_phase": state.active["phase"] if state.active else None,
+                                "suspended_phase": state.suspended["phase"]
+                                if state.suspended
+                                else None,
+                                "blockers": sorted(state.blockers),
                                 "verified": state.verified,
                                 "reviewed": state.reviewed,
                             },
@@ -1168,8 +1442,15 @@ def main() -> None:
                     event = current_pr(event, json.load(response))
                 if args.base != event["pull_request"]["base"]["sha"]:
                     raise Invalid("prefix base differs from validated PR base SHA")
-                changed = check_prefix(args.root, event["pull_request"]["base"]["sha"], ledgers)
                 body = event["pull_request"].get("body") or ""
+                primary = (
+                    primary_issue(body)
+                    if re.search(r"^Primary issue:", body, re.MULTILINE)
+                    else None
+                )
+                changed = check_prefix(
+                    args.root, event["pull_request"]["base"]["sha"], ledgers, primary
+                )
                 historical = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
                 if historical and not re.search(r"^Primary issue:", body, re.MULTILINE):
                     if changed:

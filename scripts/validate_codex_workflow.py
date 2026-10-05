@@ -258,7 +258,7 @@ def main() -> None:
         ROOT / "AGENTS.md",
         (
             "Finite ticket lifetime",
-            "120 active minutes",
+            "cycles-v1",
             "Explicit finite user extensions",
             "BLOCKED_FOR_DECISION",
             "design_architect",
@@ -311,7 +311,7 @@ def main() -> None:
         ROOT / "CONTRIBUTING.md",
         (
             "Finite ticket lifetime",
-            "120 active minutes",
+            "cycles-v1",
             "BLOCKED_FOR_DECISION",
             "DESIGN_READY",
             "planning_analyst",
@@ -335,7 +335,7 @@ def main() -> None:
             ROOT / ".github/ISSUE_TEMPLATE" / template_name,
             (
                 "Finite ticket lifetime",
-                "120 active minutes",
+                "cycles-v1",
                 "Explicit finite user extensions",
                 "BLOCKED_FOR_DECISION",
                 "execution-workflow",

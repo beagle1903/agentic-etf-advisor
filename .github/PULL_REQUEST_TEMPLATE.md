@@ -70,7 +70,7 @@ Claim boundaries:
 
 - Ledger: `docs/workflow/tickets/issue-N.json`
 - Frozen acceptance/invariant IDs and coverage:
-- Active seconds used / finite budget:
+- Lifetime policy and attempts used / limits / remaining:
 - Lifetime initial review / remediation / final review / design reset reservations:
 - Independent consequential design challenge and coordinator approval:
 - Unresolved blockers: none, or delivery remains blocked

@@ -209,14 +209,15 @@ non-goals, interfaces, explicit JSON/state impact, verification, docs, risks and
 Design, challenge and approval bind the same immutable digest and current generation.
 Classified write ownership and any concrete specialist escalation must be recorded;
 reviews exclude every implementation, remediation and verification author.
-Default budget: 120 active minutes across all work, including discovery, design,
-challenge, implementation, verification and review. Start reserves the counted slot;
-crashed open phases consume through the current time. Explicit pause records elapsed
-and resume continues the same reserved phase. No unrecorded time subtraction.
+New ledgers require `cycles-v1`. One implementation, initial review, remediation, final
+review and design reset attempt are the defaults. Start reserves the counted slot;
+elapsed time and quota waits remain audit data. Explicit pause/resume keeps the same
+reservation. Historical `timed-v1` ledgers retain their immutable events and require
+an explicit user-authorized transition to use cycle limits.
 
 At most one initial review, one remediation, one final review and one design reset
-per ticket lifetime. One implementation pass is the default. A reset consumes the
-original budget and never clears counters. Consequential design requires a separate
+per ticket lifetime. One implementation pass is the default. A reset never clears counters.
+Consequential design requires a separate
 independent challenge before coordinator approval; challenge is not code review.
 Review findings identify a concrete failure scenario and a frozen invariant or AC;
 scope expansion becomes separate work. Failed final review, unresolved challenge,
@@ -228,11 +229,11 @@ Before dispatch, run `uv run python scripts/ticket_workflow.py check --issue N -
 then append the phase_start event before starting its agent. Before delivery run the
 same check with `--phase delivery`. Append measured phase ends, acceptance evidence,
 review outcomes and blocker resolutions. One writer uses atomic validated append.
-Explicit finite user extensions append additional seconds and phase counts with named
-authority and evidence; no automatic renewal. Splits require explicit user decision,
-validated predecessor history, inherited counters and allocated remaining time;
-sibling allocations total no more than the predecessor remainder. A split retires
-its predecessor. New issue numbers cannot silently evade limits.
+Explicit finite user extensions under `cycles-v1` add positive count deltas with zero
+seconds, named authority and single-use evidence; no automatic renewal. Cycle splits
+require explicit user decision, validated predecessor history, inherited counters and
+component-wise allocated remaining attempts; siblings share the original attempt pool.
+A split retires its predecessor. New issue numbers cannot silently evade limits.
 
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on
@@ -240,6 +241,6 @@ exhaustion. Static validation cannot authenticate approval or session provenance
 is single-use despite changed display names or surrounding/internal whitespace.
 Review, verification and acceptance bind identical repository content. Delivered ledgers
 authorize only their original PR identity and that content; reruns preserve the binding.
-CI validates immutable merge-base history and current primary issue binding on PR
+CI validates immutable merge-base history, new `cycles-v1` initialization and current primary issue binding on PR
 edits. Existing historical tickets are not retrospectively adopted. Issue70 remains
 stopped pending a separate user decision; this workflow ticket changes no product code.

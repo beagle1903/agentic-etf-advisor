@@ -1,0 +1,891 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-04T17:23:34Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 84,
+        "classification": "consequential",
+        "scope": [
+          "S84"
+        ],
+        "invariants": [
+          "I84CYCLES",
+          "I84TIME",
+          "I84HISTORY",
+          "I84GATES",
+          "I84SPLIT",
+          "I84ISOLATE"
+        ],
+        "acceptance": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "Direct user policy correction; independent issue84 governance scope, preserves Issue83."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 84,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue84_implementation"
+          },
+          "rationale": "Consequential development-governance contract; independent architect/challenge required before changes to finite enforcement. New independent governance ticket, not reset of Issue83 product attempts.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: that limit should not be about completion time but about how many times we hop around review-design reset-reimplement cycle. Authorizes cycle-only governance correction, preserving attempts and history; not an Issue83 attempt extension."
+          },
+          "scope": {
+            "S84": "Replace completion/elapsed-time exhaustion with finite review/design-reset/reimplementation cycle caps; update workflow engine, tests, templates, instructions and docs; backwards-compatible append-only historical migration and split attempt conservation."
+          },
+          "non_goals": [
+            "Authentication or other application code/graph/financial contracts",
+            "Resetting consumed attempts or rewriting existing histories",
+            "Role models/access/effort/registration or CI privileges",
+            "Product verification claims for blocked Issue83"
+          ],
+          "invariants": {
+            "I84CYCLES": "Default one implementation/initial-review/remediation/final-review/design-reset lifetime attempt persists across agents/sessions/quota resets/design resets. Extra attempts require explicit named user authorization.",
+            "I84TIME": "Completion time/quota waits/open-phase elapsed time never gate new cycle-only work or require minute extensions. Timing may remain historical/audit data.",
+            "I84HISTORY": "Existing ledger prefixes/capsules/counters/content/PR bindings remain immutable and validated; explicit policy transition cannot clear attempts, review outcomes or substantive blockers.",
+            "I84GATES": "Consequential design/challenge/approval, role ownership, review independence, content-bound acceptance/verification/review and clean delivery remain enforced.",
+            "I84SPLIT": "Successor/sibling allocation conserves remaining attempt allowances and inherits consumed history; split/new issue cannot silently replenish attempts.",
+            "I84ISOLATE": "Only development-governance engine/docs/tests change; current Issue83 product work preserved."
+          },
+          "interfaces": [
+            "Workflow CLI/status/append and ledger policy/transition JSON",
+            "Split-lineage allocation and explicit cycle extensions",
+            "Instruction/validator/template contracts",
+            "Application/provider/store/financial interfaces: none"
+          ],
+          "json_state_impact": "Workflow-only ledger policy/allocation/transition fields or events as architect specifies, backwards-compatible immutable old events. Application graph/checkpoint JSON: none.",
+          "acceptance": {
+            "AC84TIME": "New cycle-only ledgers and explicitly transitioned expired/suspended legacy ledgers can resume after arbitrary waits without timing extensions; status explains remaining attempts rather than misleading minute debt.",
+            "AC84CYCLES": "Counted phase limits/failed-final-review stop still enforce across resets/handoffs/quota waits; explicit count extension cannot be replayed or impersonated.",
+            "AC84HISTORY": "Historical delivered/split/bootstrap ledgers replay without rewriting; transitions preserve prefix/capsule/counts/bindings and deny clearing substantive blockers or converting delivered tickets.",
+            "AC84SPLIT": "Split successors/siblings inherit consumed counts and validated allocated remaining allowances, cannot multiply attempts or reuse allocations; terminal predecessors remain retired.",
+            "AC84GATES": "Existing ownership/design/challenge/approval/content-bound acceptance/review/verification/PR gates and unrelated static workflow checks remain correct.",
+            "AC84DOCS": "AGENTS/CONTRIBUTING/README/templates/role bodies explain cycle-only policy; new ADR supersedes timing only; finite-workflow history remains untouched.",
+            "AC84VERIFY": "Focused engine/CLI/negative fixtures plus required offline/static/evaluation/build/Compose gates pass; independent review required; no services/product behavior changes."
+          },
+          "verification": [
+            "Focused ticket_workflow replay/CLI/CI-binding tests including long wait, expired suspended legacy, failed final review, split siblings and substantive blockers",
+            "Static validator fixtures; Ruff lint/format; strict mypy; full offline pytest; evaluations; package build; Compose config and diff checks",
+            "Independent code review against immutable invariant/AC IDs"
+          ],
+          "documentation": [
+            "New ADR0030 (0029 reserved for pending auth83) timing supersession only",
+            "Workflow iteration design/evidence record",
+            "AGENTS/CONTRIBUTING/docs/workflow/README/templates and six role instruction bodies"
+          ],
+          "risks": [
+            "Backward-compatible historical replay",
+            "Attempt multiplication across split descendants",
+            "Time-only blocker handling must not authorize unsafe delivery",
+            "Policy changes must not reset frozen contracts or review slots"
+          ],
+          "escalation_triggers": [
+            "Unresolved allocation/legacy policy ambiguity returns to architect",
+            "Concrete replay/compatibility complexity or repeated unresolved failures requires evidence-backed specialist session",
+            "Cycle exhaustion or failed final review stops for user decision"
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:23:39Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue84_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Separate architect DESIGN_READY: cycles-v1 initialization optional field preserves timed-v1 historical replay; exact-prefix user policy_transition preserves attempts/reservations/bindings with narrowly pinned Issue83 timing-blocker waiver; cycle_split component-wise remaining-count conservation and sole-successor legacy migration. No product changes; full frozen AC84 map. Handoff in coordinator chat.",
+        "session": "/root/issue84_design"
+      },
+      "at": "2026-10-04T17:26:38Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "phase": "challenge",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040"
+        },
+        "role": "code_reviewer",
+        "session": "/root/issue84_challenge"
+      },
+      "at": "2026-10-04T17:26:39Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:30:49Z",
+      "data": {
+        "outcome": "fail",
+        "evidence": "CHALLENGE_BLOCKED against I84TIME/AC84TIME: unconditional missing initialize policy=>timed-v1 lets new/manual old-template tickets silently retain time exhaustion. Need deterministic legacy-only grandfather replay and explicit cycles-v1 requirement for future append initialization, preserving83/84/73bootstrap. Other transition/waiver/split architecture has no blocker.",
+        "session": "/root/issue84_challenge"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:30:50Z",
+      "data": {
+        "role": "design_architect",
+        "capsule": {
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040",
+          "id": "issue-84-cycle-bounded-workflow"
+        },
+        "phase": "design_reset",
+        "session": "/root/issue84_design_reset"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:33:17Z",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue84_design_reset",
+        "evidence": "Fresh architect reset DESIGN_READY resolves I84TIME/AC84TIME: replay old missing-policy histories unchanged; append newinitialize always requirescycles-v1 independent of backdate; CI introduction validates all newledgers, narrow exact84 first-eventprefix+primary84 exception462e26fd. No appendexception. Original transition/waiver/countsplit preserved. Engine advancesgeneration on reset reservation; phase_start correctly boundpriorgen1, currentvalidatedgen2 digesta2f3066d governscompletedreset and challenge. No history replacement."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:33:18Z",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2",
+          "generation": 2
+        },
+        "session": "/root/issue84_challenge_reset",
+        "phase": "challenge"
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue84_challenge_reset",
+        "evidence": "Independent reset challenge CHALLENGE_PASS: explicitcycles-v1 required for newappendinitialize and allCInewledgerintroductions, historicalreplaycompatibility with exact84bootstrap+primary84exception; priorI84TIMEgapclosed. Exacttransition/83waiver/countsplitarchitecture preserves allcounts/reservations/gates. No unresolved frozenAC/invariant blocker.",
+        "outcome": "pass"
+      },
+      "at": "2026-10-04T17:36:28Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "Direct user requested cycle limits instead of completion time. Reset architect DESIGN_READY and independent challenge PASS bind gen2 exactcapsule; approvedwithin authorizedgovernancecorrection.",
+          "name": "Codex /root"
+        },
+        "evidence": "Approve complete reset architecture including explicitfutureinitialization checks/exact84bootstrapcompatibility, appendonlypolicytransition+83timeonlywaiver, conservedcycleallocations, historicalreplay and allfrozenrole/content/reviewgates.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        }
+      },
+      "at": "2026-10-04T17:36:29Z",
+      "type": "design_ready"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        },
+        "phase": "implementation"
+      },
+      "at": "2026-10-04T17:36:30Z",
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-04T17:47:19Z",
+      "data": {
+        "evidence": "Owner stopped and preserved partial workflow code/tests/docs. Confirmed CI introduction gap: preserved23/83 ledgers are untracked absentmergebase; their unchangedlegacyinitialization is denied despitepolicytransition. Approveddesign permits84exceptiononly. Newsplitfixturetimestampfixed but latestfocusedtestfinalresultunverified; nofinalverification/review/commit/PR. Architecture correction required; no unauthorizedexception implemented.",
+        "session": "/root/issue84_implementation",
+        "outcome": "fail"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-04T17:47:20Z",
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "Actual architecture correction needs additional cycle authorization after defaultdesignreset/implementation exhausted. User policy request removes completiontime limit; no implicit attempt grants.",
+          "kind": "coordinator"
+        },
+        "evidence": "BLOCKED_FOR_DECISION; phaseclosed, preservedallchanges, no activewriteagent; await explicit oneadditionaldesignreset and implementationattempt, no extra reviewslots or minutes."
+      },
+      "type": "coordination_pause"
+    },
+    {
+      "data": {
+        "authority": {
+          "name": "burha",
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: user `ok continue` explicitly approves one additional correction cycle after proposal to add one design-reset and one implementation attempt for exact preserved23/83 history compatibility, with no extra review attempts or minutes.",
+          "kind": "user"
+        },
+        "reason": "Explicit single additional architecture-reset and implementation correction cycle for preserved uncommitted23/83 histories; no time or review allowance added.",
+        "counts": {
+          "design_reset": 1,
+          "implementation": 1,
+          "initial_review": 0,
+          "remediation": 0,
+          "final_review": 0
+        },
+        "seconds": 0
+      },
+      "type": "extension",
+      "at": "2026-10-04T17:50:31Z"
+    },
+    {
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "User explicitly granted one additional correction cycle on currentturn.",
+          "kind": "coordinator"
+        },
+        "evidence": "Continue84 within existing frozen scope and original review allowance; preserve83 and all previous attempts."
+      },
+      "type": "coordination_resume",
+      "at": "2026-10-04T17:50:31Z"
+    },
+    {
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        },
+        "phase": "design_reset",
+        "session": "/root/issue84_design_correction",
+        "role": "design_architect"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T17:50:32Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Corrected architect DESIGN_READY bindsgen3 frozenS84/ACs. Add exact23 ten-event prefix edb0ea49 and83 nine-eventprefix b46ec791 lineage introduction only repo/currentprimary83, exactretired23 history+sole83 child, immediatevalid83policytransition atindex9 with priorprefixhash and pinnedtimeblockerwaiver. No newJSONfields/counters/claims; freshinitializesalwayscycles, all other intros reject, original84exceptionseparate. Readonly verified bothpreservedprefixes; no productchanges.",
+        "session": "/root/issue84_design_correction"
+      },
+      "at": "2026-10-04T17:53:29Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "code_reviewer",
+        "phase": "challenge",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_challenge_correction"
+      },
+      "at": "2026-10-04T17:53:30Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:59:23Z",
+      "data": {
+        "evidence": "Independent DESIGN_CHALLENGE_PASS: recomputed exact23/83 prefixes and timing blocker pin; canonical paired histories, actual repo/primary83, immediate valid user transition, sole lineage and later ordinary gates satisfy frozen invariants. Docs must enumerate both exceptions.",
+        "session": "/root/issue84_challenge_correction",
+        "outcome": "pass"
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-04T17:59:23Z",
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "User authorized one additional correction cycle with ok continue; approve architect corrected generation3 after independent challenge pass."
+        },
+        "evidence": "Approved precise pinned23 to83 compatibility handoff within frozen S84, no additional counts or schema fields."
+      }
+    },
+    {
+      "type": "owner_handoff",
+      "at": "2026-10-04T17:59:24Z",
+      "data": {
+        "reason": "Implement generation3 correction and complete preserved partial workflow changes.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "Same-role fresh sequential session for user-approved second implementation attempt."
+        },
+        "escalation": null,
+        "owner": {
+          "role": "implementation_worker",
+          "model": "gpt-6-sol",
+          "session": "/root/issue84_implementation_correction",
+          "effort": "medium"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction",
+        "phase": "implementation"
+      },
+      "at": "2026-10-04T17:59:25Z"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Owner READY: frozen source/docs/tests; combined ticket and static-validator focused suites passed, retained23/83 positive and thirteen negative variants passed, long-wait reservation/count/delivery checks passed; affected Ruff lint/format, static validator, ledger validate and diff check passed. No product edits.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:11:26Z"
+    },
+    {
+      "data": {
+        "time_blocker_waivers": [],
+        "authority": {
+          "evidence": "Direct policy instruction in chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: that limit should not be about completion time but about how many times we hop around review-design reset-reimplement cycle. Apply approved cycle-only governance prospectively to active Issue84, preserving all attempts.",
+          "kind": "user",
+          "name": "burha"
+        },
+        "prefix_digest": "264e9bfbf142506151f373f7fc9bffe14eafe0aebd7a2b0d9464046a120bfe95",
+        "to": "cycles-v1",
+        "from": "timed-v1",
+        "reason": "Apply tested user-authorized cycle-only policy without changing history, attempts or substantive gates."
+      },
+      "type": "policy_transition",
+      "at": "2026-10-04T18:11:27Z"
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "verification",
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:11:29Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Frozen verification PASS: serial offline pytest1261 passed41real-store deselected0skips266.66s; prior concurrent Streamlit10s timeout passed isolated then full serial. Ruff lint/format150files,mypy49sourcefiles,bothvalidators,retrieval5recall1.0,explanation14of14,sdist/wheel,main+integrationCompose,diffcheck passed. Content dbc006ff unchanged. No provider/store/product changes.",
+        "outcome": "pass"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:24:15Z"
+    },
+    {
+      "data": {
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21",
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "evidence": "All frozen AC84s covered: cycles-only longwait/resume and attempts, exacthistorical prefixes/transitions/negative intros, conserved splits, retained design/ownership/review/delivery/content gates, updated instructions/templates/ADR0030/iteration. Focused plus full offline/static/eval/build/Compose verification passed; independent review pending.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        }
+      },
+      "type": "acceptance",
+      "at": "2026-10-04T18:24:16Z"
+    },
+    {
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_final_review",
+        "role": "code_reviewer",
+        "phase": "initial_review",
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:24:17Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_final_review",
+        "evidence": "Initial independent review FAIL one concrete finding I84SPLIT/AC84CYCLES: cycle_split fails to consume normalized user evidence; child extension reuses same evidence under renamed authority and raises implementation limit1to2. In-memory reproduced. Fix within frozen capsule: consume/inherit evidence, reject reuse and regressiontests. No other concrete findings.",
+        "outcome": "fail"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:28:53Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker",
+        "phase": "remediation"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:28:54Z"
+    },
+    {
+      "at": "2026-10-05T08:07:50Z",
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Same reserved remediation resumed after quota/appupdate without newattempt; cycle_split consumes and inherits normalized approval key and denies reused sibling/child extension authority before mutation. Historical timed split untouched.103focusedtests,Rufflint/format,ledgervalidate,diffcheck pass; selfreview clean; newcontent aae99220 frozen.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-05T08:07:52Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e",
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "verification"
+      },
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Corrected frozen content aae99220 reverification PASS:1263offlinepassed41realstoredeselected0skip459.34s serial; fullRufflint/format150files,bothworkflowvalidators,diffcheck pass. Previousmypy/evaluations/build/Compose unchangedproduct evidence retained; no competinggates/sourcechanges."
+      },
+      "at": "2026-10-05T08:16:47Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "All frozen ACs satisfied on corrected content: focused split-authority regression103tests and full1263offline pass; normalized singleuse evidence inherits across split descendants, histories/time/counters/allocation/gates/docs remain covered. Final independent review pending.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e"
+      },
+      "at": "2026-10-05T08:16:48Z",
+      "type": "acceptance"
+    },
+    {
+      "data": {
+        "role": "code_reviewer",
+        "session": "/root/issue84_final_review",
+        "phase": "final_review",
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        }
+      },
+      "at": "2026-10-05T08:16:49Z",
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_final_review",
+        "outcome": "fail",
+        "evidence": "Final independent review FAIL on frozen aae99220: earlier childA stores only approvalA allocation snapshot; later siblingapprovalB can be reused in childA extension under renamed/whitespaceauthority to raise implementationlimit1to2. In-memory exactcontent ACCEPT; violates I84SPLIT/AC84CYCLES. Original ownsplitreuse fixed, crosssiblingreuse remains. No automatic furtherremediation."
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T08:19:30Z"
+    },
+    {
+      "data": {
+        "evidence": "Independent finalreview reproduced on content aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e; finalreview failed and allowance exhausted.",
+        "criterion": "I84SPLIT",
+        "scenario": "After parent cycle_split A then sibling cycle_split B, childA can reuse B approval evidence in extension to replenish implementationlimit1to2 because inherited authorization set is earlier allocation snapshot.",
+        "id": "B84-SIBLING-APPROVAL-REUSE"
+      },
+      "type": "blocker",
+      "at": "2026-10-05T08:19:30Z"
+    },
+    {
+      "data": {
+        "evidence": "BLOCKED_FOR_DECISION. Preserved frozen work and authentication checkout. No commit/push/PR/delivery. User must explicitly decide additional finite remediation and finalreview allowances or stop.",
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "AGENTS finite cycle policy failedfinalreview stops for explicituserdecision; no furtherwriteagent authorized.",
+          "name": "Codex /root"
+        }
+      },
+      "type": "coordination_pause",
+      "at": "2026-10-05T08:19:31Z"
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-05T09:33:43Z",
+      "data": {
+        "authority": {
+          "name": "burha",
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-05: after concrete failed-final-review finding and request for one additional remediation and one finalreview, user reviewed issue and said looks good bro. go ahead. Approves only that finite correction and review allowance.",
+          "kind": "user"
+        },
+        "seconds": 0,
+        "counts": {
+          "design_reset": 0,
+          "initial_review": 0,
+          "final_review": 1,
+          "remediation": 1,
+          "implementation": 0
+        },
+        "reason": "Explicit additional remediation/finalreview for cross-sibling split approval reuse; preserve all consumed attempts and frozen scope."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-05T09:33:44Z",
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "Direct user goahead approves finite remediation and finalreview after stopped failedreview.",
+          "kind": "coordinator"
+        },
+        "evidence": "Resume only approved cross-sibling approvalreuse fix in frozen I84SPLIT/AC84CYCLES; no designreset/implementation/time grants."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "phase": "remediation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:33:44Z"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Second explicitlyauthorized remediation READY: validated predecessor-root family audit rejects reused normalized cycle_split/extension/policy_transition approval across siblings/descendants in eitherappendorder; validate_all+atomicappend auditafter allcandidate replay. No schema/allocationprefix/timedreplay changes.106focusedtests,Ruff/format/validate/diffcheck,selfreview pass; frozen5f4e1cfb.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:40:00Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "Completed secondremediation implements lineage-wide duplicateapproval validation including original finalreview exploit, reverseorder and grandchildren;106focused regressions pass. Sourcefrozen5f4e1cfb; fullreverification and independentfinalreview still required.",
+        "id": "B84-SIBLING-APPROVAL-REUSE"
+      },
+      "at": "2026-10-05T09:40:01Z",
+      "type": "resolve"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:40:01Z",
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction",
+        "role": "implementation_worker",
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "phase": "verification"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-05T09:43:14Z",
+      "data": {
+        "evidence": "Secondcorrected content5f4e1cfb reverification PASS:1266offlinepassed41realstoredeselected0skips131.68s serial; fullRufflint/format150files,bothworkflowvalidators,diffcheck pass; no sourcechanges. Previousunchanged mypy/eval/build/Compose evidence retained.",
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction"
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-05T09:43:15Z",
+      "data": {
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "evidence": "All frozenACs covered on5f4e1cfb:106focusedworkflowtests plus1266offline; lineage-wide singleuse approval enforcement in bothappendorders/descendants, exacthistory/time/counters/conservedallocations/designownershipcontentgates/docs preserved. Finalreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:43:15Z",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "phase": "final_review",
+        "session": "/root/issue84_final_review"
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:55Z",
+      "type": "phase_end",
+      "data": {
+        "session": "/root/issue84_final_review",
+        "evidence": "Second authorized finalreview FAIL frozen5f4e1cfb: lineageauthorization auditignores historicaltimed split evidence. Solechild transitions with distinctapproval then reuses parentsplitapproval renamed/whitespace in cyclesextension, validation ACCEPT raisesimplementation1to2. I84SPLIT/AC84CYCLES. Priorcrosssibling exploitrejects bothorders; retained23/83timedpairvalid. No furtherautomaticattempt.",
+        "outcome": "fail"
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:56Z",
+      "type": "blocker",
+      "data": {
+        "evidence": "Independent finalreview exact5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8 in-memory validationaccept limit1to2; authorizationsingleuse failure.",
+        "criterion": "I84SPLIT",
+        "id": "B84-MIGRATED-SPLIT-APPROVAL-REUSE",
+        "scenario": "Legacytimed parent splits solechild with evidenceE. Childtransitions to cycles with distinctF, then cyclesextension reusesE to grant implementationcount; currentlineageaudit skips timed split evidences."
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:56Z",
+      "type": "coordination_pause",
+      "data": {
+        "authority": {
+          "evidence": "Failedfinalreview muststop perAGENTS finitecyclepolicy; no additionalapproval beyond consumedextra remediation/finalreview.",
+          "kind": "coordinator",
+          "name": "Codex /root"
+        },
+        "evidence": "BLOCKED_FOR_DECISION; newmigrationapprovalreuse unresolved. No activeagent/sourceedits/commit/push/PR/delivery. Preserve authcheckout and allattempts; nextfiniteextension only explicituserdecision."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-05T09:51:46Z",
+      "data": {
+        "authority": {
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-05: after summary of migratedtimedsplitapprovalreuse and decision for exactly one remediation+finalreview, user said ok continue bro, just keep in mind54percentremaining5hrquota. Approves only that finite correction/reviewpair.",
+          "name": "burha",
+          "kind": "user"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Explicit finite additional remediation and finalreview for historicalsplitapproval reuse after cycle migration; no reset/time/implementation grants.",
+        "seconds": 0
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-05T09:51:46Z",
+      "data": {
+        "evidence": "Continue narrow migratedlineage singleuse approvalfix within I84SPLIT/AC84CYCLES; preserve allattempts and histories.",
+        "authority": {
+          "evidence": "Direct user continue approves exact finite remediation/finalreview and asks quota awareness.",
+          "name": "Codex /root",
+          "kind": "coordinator"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:51:47Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker"
+      }
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Third explicitlyauthorized remediation READY: lineageaudit consumes historicaltimed split evidence only for cycleapproval checks; timedonlyduplicates accepted. Actual23/83fixtures deny reusedsplit evidence in transition/extension renamed+whitespace; distinctapprovalpasses; grandchildreuse and laterlegacy sibling reject.112focusedtests,Rufflint/format,validate,diffcheck,selfreviewpass. No schema/historychanges; frozenf9ffcec1.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T09:56:09Z"
+    },
+    {
+      "data": {
+        "id": "B84-MIGRATED-SPLIT-APPROVAL-REUSE",
+        "evidence": "Completed authorized remediation rejects exact migratedlineage splitapproval exploit and transition/grandchild variants, preserveshistoricaltimedonly replay;112focusedtests pass. Fullreverification/finalreview required on frozenf9ffcec1."
+      },
+      "type": "resolve",
+      "at": "2026-10-05T09:56:10Z"
+    },
+    {
+      "data": {
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker",
+        "session": "/root/issue84_implementation_correction",
+        "phase": "verification"
+      },
+      "type": "phase_start",
+      "at": "2026-10-05T09:56:11Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "evidence": "Migratedtimedsplitcorrected contentf9ffcec1 reverificationPASS:1272offlinepassed41realstoredeselected0skips117.67sserial; fullRufflint/format150files,bothworkflowvalidators,diffcheckpass; sourceunchanged; priorunchangedmypy/eval/build/Compose evidence retained.",
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:59:08Z"
+    },
+    {
+      "type": "acceptance",
+      "data": {
+        "evidence": "All frozenACs covered onf9ffcec1:112focusedtests +1272offline; historicaltimedsplitapproval consumed for newcycleevents, timedonly compatibility preserved; earliercrosssibling/reverseorder/descendant and exacthistory/time/counters/conservation/designownershipcontent/docs gates remain covered. Finalreviewrequired.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7"
+      },
+      "at": "2026-10-05T09:59:09Z"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:59:10Z",
+      "data": {
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+        "role": "code_reviewer",
+        "session": "/root/issue84_final_review",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "final_review"
+      }
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Independent thirdfinalreview PASS exactf9ffcec1. Probe rejects parenttimedsplitapproval reuse in migratedchildcyclesextension; distincttransition and timedonlyduplicatehistories validate. Actualrootfamily audit shared atomicappend/validateall/CI; old23/83,crosssiblingbothorders,descendantcoverage present. No remainingconcrete frozeninvariant/ACdefect.",
+        "session": "/root/issue84_final_review"
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T10:00:39Z"
+    }
+  ]
+}

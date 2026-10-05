@@ -1,6 +1,7 @@
 # Finite development ledger
 
-AGENTS and ADR 0026 define the policy. This directory stores development governance,
+AGENTS and ADR 0030 define the current policy; ADR 0026 records the historical timing policy.
+This directory stores development governance,
 outside application graph state. One issue has one canonical `tickets/issue-N.json`. Future initialization requires a complete frozen
 capsule with actual definitions (not IDs alone), pinned approved owner and named user
 authorization. Bootstrap adoption is restricted to the exact approved Issue73 prefix;
@@ -24,7 +25,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 
 | Event | Data fields |
 |---|---|
-| `initialize` | See template; default budget 7200 seconds and one of each counted phase. |
+| `initialize` | See template; new append requires `lifetime_policy: cycles-v1` and defaults to one of each counted phase. Old missing-policy ledgers replay as `timed-v1`. |
 | `phase_start` | `phase`, `session`, `role`, `capsule`; review/verification also require `content` SHA256. |
 | `phase_end` | `session`, `outcome` (`pass`, `fail`, `interrupted`), `evidence` |
 | `pause` | Same as end, with `interrupted`; preserves exact reserved session. |
@@ -35,8 +36,10 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `resolve` | `id`, `evidence`; requires a successful remediation after the finding. |
 | `acceptance` | `ids` (all frozen ACs), `evidence`, `capsule`, `content` SHA256 |
 | `charge` | `authority` (coordinator), positive additional `seconds`, `evidence`; conservative extra charge only. |
-| `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; at least one positive delta. |
-| `split` | `authority` (user), `successor` issue, positive `seconds`, `reason` |
+| `extension` | `authority` (user), `seconds: 0`, full `counts` delta map with a positive delta, `reason`; single-use approval. Timed history retains its old shape. |
+| `split` | Historical timed policy only: `authority` (user), `successor` issue, positive `seconds`, `reason`. |
+| `cycle_split` | `authority` (user), `successor`, full nonnegative `remaining_counts` map with a positive allocation, `reason`. |
+| `policy_transition` | `authority` (user), `from: timed-v1`, `to: cycles-v1`, exact prior `prefix_digest`, `reason`, `time_blocker_waivers` (normally empty). No automatic resume. |
 | `delivery` | `evidence`, original `pr` number, `repo`, `capsule`, `content` SHA256; terminal after the gate. |
 | `capsule_update` | `authority`, complete `capsule`; only during a reserved reset, frozen scope/AC/invariant definitions unchanged. |
 | `owner_handoff` | `authority`, pinned `owner`, current `capsule`, `reason`, `escalation` (required for a specialist role change); fresh session. |
@@ -47,9 +50,13 @@ not cryptographic approval. The coordinator checks that it is legitimate. Extens
 evidence is single-use, normalized for whitespace independently of display name.
 Counted phases: `implementation`, `initial_review`, `remediation`, `final_review`,
 `design_reset`. Other charged phases: `planning`, `design`, `challenge`, `verification`.
-Clock accounting includes inter-phase coordination until an explicit pause. An open
-crashed phase consumes through now; closing it late never removes elapsed time.
-The `--now` override supports deterministic tests; do not backdate operational checks.
+Cycle policy records timestamps and audit elapsed time, but arbitrary waits and open
+phases do not exhaust a completion clock. Historical timed ledgers retain their
+original accounting until an explicit user-authorized transition. A transition preserves
+counts, reservations, review flags, authors, capsule and content bindings. The only
+time-blocker waiver is the exact recorded Issue83 `B83-EXHAUSTED` event; substantive
+blockers and missing verification remain. The `--now` override supports deterministic
+tests; do not backdate operational checks.
 
 ```powershell
 uv run python scripts/ticket_workflow.py check --issue N --phase delivery
@@ -58,21 +65,33 @@ uv run python scripts/ticket_workflow.py validate
 
 Delivery requires complete acceptance, successful verification, clean required review
 and no unresolved blocker. Phase exhaustion prevents another phase, while a clean final
-review may still deliver within the time budget. Failed final review stops work until a
+review may still deliver. Failed final review stops work until a
 finite explicit user extension grants both remediation and final-review slots. Neither
-reviewer findings nor a design reset grant authority to extend a budget or change scope.
+reviewer findings nor a design reset grant authority to extend attempts or change scope.
 
-Splitting retires the predecessor. Each explicit user-approved allocation records
-remaining time and consumed counts. The successor initializes with `predecessor` equal
+Splitting retires the predecessor. Cycle allocations subtract remaining attempts
+component-wise from one shared sibling pool and inherit consumed counts. The successor
+uses the matching `cycles-v1` policy and initializes with `predecessor` equal
 to `{ "issue": N, "digest": "sha256 of predecessor ledger prefix" }`; validate with
 the predecessor ledger present. No automatic fresh implementation slot is granted.
-Sibling allocations share the original remainder. An extension is a separately approved
-finite choice before splitting, not an automatic successor budget.
+Historical timed descendants may transition only while every ancestor has exactly one
+successor; a later sibling invalidates that migrated lineage. An extension is a separate
+approved finite choice, not an automatic fresh attempt.
 
 CI fetches the current PR body and checks the event head against the current head.
 Exactly one `Primary issue: #N` line binds the PR; a changed ledger must include that
 primary issue. `edited` events rerun checks. Existing merge-base events must remain an
-identical prefix; deletion fails. Future issues (created at/after 2026-09-26T04:23:34Z)
+identical prefix; deletion fails. Every newly introduced ledger absent the merge base
+must initialize as `cycles-v1`, even if its event date is old. Two pinned historical
+introductions are accepted. Issue84's exact known initial event is bound to Primary
+issue #84. The retained Issue23 and Issue83 ledgers are accepted together only on
+Primary issue #83: Issue23's ten events must be complete and unchanged, Issue83's
+first nine events must match their fixed digest, and event ten must be a valid
+explicit `policy_transition` with the exact `B83-EXHAUSTED` timing waiver.
+Issue23 remains retired with Issue83 as its sole successor. Later Issue83 work
+still needs its original reserved implementation session, counted phase gates,
+verification, review, acceptance and delivery evidence. Future
+issues (created at/after 2026-09-26T04:23:34Z)
 require a ledger. Historical issues/PRs are exempt until adopted, but cannot serve as a
 false primary reference for changed future ledgers. Static checks cannot authenticate
 approval, stop a running agent, or detect every uncommitted local history rewrite.
@@ -85,7 +104,8 @@ not a defect-free delivery or successful completion.
 ## Capsule and content references
 
 `uv run python scripts/ticket_workflow.py status --issue N` reports the current capsule
-reference, approved owner, counters, remaining seconds and repository content digest.
+reference, approved owner, policy, counters, limits, remaining attempts, audit elapsed
+seconds and repository content digest. `remaining_seconds` is null for `cycles-v1`.
 Every future phase uses `{id, generation, digest}`. A reset advances the generation,
 clears the successful design/challenge/approval, and requires a successful fresh design.
 Only a reserved active reset may revise capsule details; frozen scope, non-goals,
