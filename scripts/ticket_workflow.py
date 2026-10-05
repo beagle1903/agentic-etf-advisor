@@ -1399,7 +1399,12 @@ def main() -> None:
                                 "counts": state.counts,
                                 "limits": state.limits,
                                 "remaining_counts": {
-                                    key: state.limits[key] - state.counts[key] for key in COUNTS
+                                    key: (
+                                        state.split_remaining_counts[key]
+                                        if state.split_remaining_counts is not None
+                                        else state.limits[key] - state.counts[key]
+                                    )
+                                    for key in COUNTS
                                 },
                                 "lifetime_policy": state.lifetime_policy,
                                 "remaining_seconds": (

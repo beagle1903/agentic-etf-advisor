@@ -639,6 +639,75 @@ def cycle_ledger(issue: int = 90) -> dict:
     return value
 
 
+def cli_status(monkeypatch, capsys, value: dict) -> dict:
+    issue = value["events"][0]["data"]["issue"]
+    monkeypatch.setattr(workflow, "validate_all", lambda *_: {issue: value})
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["ticket_workflow", "status", "--issue", str(issue), "--now", at(100)],
+    )
+    workflow.main()
+    return json.loads(capsys.readouterr().out)
+
+
+def test_status_remaining_counts_use_limits_when_no_split(monkeypatch, capsys):
+    value = cycle_ledger(220)
+    status = cli_status(monkeypatch, capsys, value)
+    assert status["remaining_counts"] == {
+        key: status["limits"][key] - status["counts"][key] for key in workflow.COUNTS
+    }
+
+
+def test_status_remaining_counts_decrease_after_multiple_splits(monkeypatch, capsys):
+    value = cycle_ledger(221)
+    first = dict.fromkeys(workflow.COUNTS, 0)
+    first["initial_review"] = 1
+    second = dict.fromkeys(workflow.COUNTS, 0)
+    second["remediation"] = 1
+    add(
+        value,
+        "cycle_split",
+        1,
+        authority=USER,
+        successor=222,
+        remaining_counts=first,
+        reason="first status allocation",
+    )
+    after_first = cli_status(monkeypatch, capsys, value)["remaining_counts"]
+    assert after_first == {key: count - first[key] for key, count in workflow.COUNTS.items()}
+    add(
+        value,
+        "cycle_split",
+        2,
+        authority={**USER, "evidence": "second status allocation"},
+        successor=223,
+        remaining_counts=second,
+        reason="second status allocation",
+    )
+    expected = workflow.COUNTS.copy()
+    expected["initial_review"] -= 1
+    expected["remediation"] -= 1
+    assert cli_status(monkeypatch, capsys, value)["remaining_counts"] == expected
+
+
+def test_status_remaining_counts_reports_exhausted_split_pool(monkeypatch, capsys):
+    value = cycle_ledger(224)
+    allocation = dict.fromkeys(workflow.COUNTS, 1)
+    add(
+        value,
+        "cycle_split",
+        1,
+        authority=USER,
+        successor=225,
+        remaining_counts=allocation,
+        reason="allocate all remaining attempts",
+    )
+    assert cli_status(monkeypatch, capsys, value)["remaining_counts"] == dict.fromkeys(
+        workflow.COUNTS, 0
+    )
+
+
 def transition(value: dict, offset: int, *, waivers: list[str] | None = None) -> None:
     add(
         value,
