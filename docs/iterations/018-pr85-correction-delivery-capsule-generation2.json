@@ -1,0 +1,381 @@
+{
+  "identity": {
+    "id": "issue-84-pr85-correction-delivery",
+    "generation": 2,
+    "repo": "beagle1903/agentic-etf-advisor",
+    "issue": 84,
+    "pr": 85,
+    "classification": "consequential",
+    "architect": {
+      "role": "design_architect",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "session": "/root/pr85_design_revision2"
+    },
+    "challenger": {
+      "role": "code_reviewer",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "session": "/root/pr85_challenge_revision2"
+    },
+    "proposed_owner": {
+      "role": "implementation_worker",
+      "model": "gpt-6-sol",
+      "effort": "medium",
+      "session": "/root/pr85_redelivery_implementation"
+    },
+    "proposed_reviewer": {
+      "role": "code_reviewer",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "session": "/root/pr85_redelivery_review"
+    },
+    "implementation_authorized": false,
+    "rejected_generation": 1,
+    "rejected_capsule_digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473",
+    "original_prefix_events": 61,
+    "original_prefix_digest": "320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6",
+    "original_capsule_id": "issue-84-cycle-bounded-workflow",
+    "original_capsule_generation": 3,
+    "original_capsule_digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9",
+    "original_delivered_content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+    "original_consumed": {
+      "implementation": 2,
+      "initial_review": 1,
+      "remediation": 3,
+      "final_review": 3,
+      "design_reset": 2
+    }
+  },
+  "specification": "Generation 2 is ready for independent challenge. It authorizes no implementation. The coordinator must freeze the complete contract below, obtain the separately authorized challenge, and request the specific implementation allowance only after a clean result.\n\nThe execution path is `main` → `validate_all`/`replay` → `State.gate`, with `append` performing candidate replay before atomic replacement. Currently, terminal replay rejects every later event, and `check_pr` compares only the original `delivery_binding`. The exception should intercept exactly one pinned certificate before the terminal rejection, preserving all other behavior. References: [replay and terminal check](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:412), [append](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1145), [content_digest](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1016), [check_prefix](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1258), [check_pr](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1305).\n\n**Capsule identity and authority**\n\n```json\n{\n  \"id\": \"issue-84-pr85-correction-delivery\",\n  \"generation\": 2,\n  \"repo\": \"beagle1903/agentic-etf-advisor\",\n  \"issue\": 84,\n  \"pr\": 85,\n  \"classification\": \"consequential\",\n  \"architect\": {\n    \"role\": \"design_architect\",\n    \"model\": \"gpt-6-astra\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_design_revision2\"\n  },\n  \"challenger\": {\n    \"role\": \"code_reviewer\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_challenge_revision2\"\n  },\n  \"proposed_owner\": {\n    \"role\": \"implementation_worker\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"medium\",\n    \"session\": \"/root/pr85_redelivery_implementation\"\n  },\n  \"proposed_reviewer\": {\n    \"role\": \"code_reviewer\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_redelivery_review\"\n  },\n  \"implementation_authorized\": false,\n  \"rejected_generation\": 1,\n  \"rejected_capsule_digest\": \"e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473\",\n  \"original_prefix_events\": 61,\n  \"original_prefix_digest\": \"320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6\",\n  \"original_capsule_id\": \"issue-84-cycle-bounded-workflow\",\n  \"original_capsule_generation\": 3,\n  \"original_capsule_digest\": \"df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9\",\n  \"original_delivered_content\": \"f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7\",\n  \"original_consumed\": {\n    \"implementation\": 2,\n    \"initial_review\": 1,\n    \"remediation\": 3,\n    \"final_review\": 3,\n    \"design_reset\": 2\n  }\n}\n```\n\nRationale: the status correction changes content after delivery. Reusing the original certificate would violate I84HISTORY/I84GATES. One certificate bound to the actual supplemental history closes this particular publication gap without reopening the ticket.\n\nScope: retained status fix, one pinned certificate validator, its replay/append/prospective-check/status/PR integrations, focused tests and workflow documentation. Permitted implementation files are `scripts/ticket_workflow.py`, `tests/test_ticket_workflow.py`, workflow guidance, the supplemental iteration records, and one new ADR.\n\nNon-goals: generic correction/reopening policy; further attempts; role changes; CI privilege changes; new content exclusions; split or migration changes; edits to Issue23/83 histories; application/authentication/provider/database/financial work.\n\n**Frozen invariants and acceptance**\n\nRetain the generation-1 invariant and acceptance IDs:\n\n| ID | Required interpretation |\n|---|---|\n| I84HISTORY / AC85C-HISTORY | Exact original 61-event prefix, capsule, counts and original binding survive. Original delivered state remains terminal. Issue23/83 files and histories are unchanged. |\n| I84CYCLES / AC85C-BOUND | One certificate; complete fixed historical import; exactly the authorized remaining slots; no retries, dropped failures, reused approvals or replacement sessions. |\n| I84GATES / AC85C-EVIDENCE | Complete generation-2 capsule, challenge and coordinator approval agree. Fresh verification, acceptance and independent review bind identical final content. |\n| I84GATES / AC85C-IDENTITY | Certificate applies only to this repository, Issue84 and PR85. |\n| I84SPLIT / AC85C-STATUS | Preserve the existing correction of unallocated split-pool reporting, including zero; allocation enforcement remains unchanged. |\n| I84ISOLATE / AC85C-ISOLATE | Workflow-only diff, documented exception, required checks and independent review. |\n\nNo application graph/checkpoint JSON change. No side-effect interface change. Workflow JSON gains the single event and a separate status projection defined below.\n\n**Exact certificate schema**\n\nThe following type notation is normative. Objects have exactly the listed keys; unknown or missing keys reject. Arrays preserve order. `int` means Python `type(x) is int`, excluding booleans. JSON duplicate keys and nonfinite numbers reject before validation.\n\n- `Text`: nonempty string, at most 4,000 characters.\n- `SHA`: lowercase hexadecimal string of exactly 64 characters.\n- `UTC`: valid `YYYY-MM-DDTHH:MM:SSZ`.\n- `Ref`: exact object `{ \"id\": Text, \"generation\": int, \"digest\": SHA }`.\n- `Evidence`: exact object `{ \"anchor\": Text, \"summary\": Text }`.\n- `Anchor` strings are compared after Unicode NFKC normalization, whitespace collapse and case folding. They must be nonempty after normalization.\n- Approval evidence additionally uses the existing `evidence_key` normalization when checking original-ledger evidence. Existing historical normalization behavior is not changed.\n\nThe only added outer event is:\n\n```text\n{\n  \"type\": \"correction_delivery\",\n  \"at\": UTC,\n  \"data\": {\n    \"version\": \"pr85-correction-v2\",\n    \"repo\": \"beagle1903/agentic-etf-advisor\",\n    \"issue\": 84,\n    \"pr\": 85,\n    \"prefix_digest\": SHA,\n    \"capsule\": object,\n    \"capsule_digest\": SHA,\n    \"historical_import\": object,\n    \"historical_import_digest\": SHA,\n    \"transcript\": [Entry, ...],\n    \"content\": SHA,\n    \"delivery_evidence\": Evidence\n  }\n}\n```\n\n`capsule` is the complete frozen generation-2 contract, including this schema, fixed historical import, validation rules and test matrix. Its canonical digest uses the existing `digest` function. The implemented exception pins that single digest. A capsule file is the complete specification, not merely the identity JSON above. No digest is placed inside the object whose digest it represents.\n\n`historical_import` must equal the capsule’s complete fixed historical-import object; its digest must equal `digest(historical_import)`. It cannot be an arbitrary caller-supplied history. The coordinator must mechanically encode the following fixed values and tables before challenge; that encoding introduces no discretionary contract decisions.\n\n**Fixed historical import**\n\nThe historical-import object has exactly these keys:\n\n```text\n{\n  \"sources\": [Source, Source, Source, Source],\n  \"authorizations\": [HistoricalAuthorization, HistoricalAuthorization, HistoricalAuthorization],\n  \"phases\": [HistoricalPhase, HistoricalPhase, HistoricalPhase,\n             HistoricalPhase, HistoricalPhase, HistoricalPhase],\n  \"observations\": [HistoricalObservation, ...],\n  \"unknowns\": {\n    \"phase_timestamps\": \"not recorded; do not fabricate\",\n    \"interruptions\": \"none recorded in the inspected sources\",\n    \"provenance\": \"recorded evidence, not authenticated live-session provenance\"\n  }\n}\n```\n\n`Source` is exactly `{ \"id\": Text, \"locator\": Text, \"sha256\": SHA, \"normalization\": \"git-blob\" | \"lf\" }`. Fixed sources:\n\n| ID | Locator | SHA256 | Normalization |\n|---|---|---|---|\n| S1 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-issue-84-pr85-status-correction.md` | `48a398f0dacbfd32f757eec5b3e88ee9396f8d4055ffd2b11b466e9048df49ae` | git-blob |\n| S2 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-redelivery-design.md` | `c6ac46549e5ace1d8832a9a85fb6c44b4b30f4c913d2c9381c176411318cbc4d` | git-blob |\n| S3 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-correction-delivery-capsule.json` | `2485d8e1264a3f8cbb3e3527d677b124d9af09580fa9ca1b89d1ececf2d93d13` | git-blob |\n| S4 | `docs/iterations/018-pr85-redelivery-design.md through the recorded revision2 phase_start, inspected 2026-10-05` | `acb180357132c078600ff8aeaf95267f24fb97034ae4f96b3f12b21191891dff` | lf |\n\nThese are documentary anchors; pure replay does not fetch Git objects or conversation data. The complete source snapshots or immutable Git objects remain inspectable by the coordinator and challenger.\n\n`HistoricalAuthorization` is exactly:\n\n```text\n{\n  \"id\": \"A1\" | \"A2\" | \"A3\",\n  \"name\": \"burha\",\n  \"anchor\": Text,\n  \"evidence\": Text,\n  \"allowances\": {\n    \"remediation\": int,\n    \"final_review\": int,\n    \"design_reset\": int,\n    \"challenge\": int,\n    \"implementation\": int,\n    \"initial_review\": int,\n    \"verification\": int\n  }\n}\n```\n\nFixed authorizations:\n\n- A1: anchor `thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10b99-c14a-7830-8ece-0698503e16c6`; evidence is the exact status-exception approval quoted in S1. Allowances: remediation 1, final_review 1, verification 1; every other field 0.\n- A2: anchor `thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10ba4-298d-7561-9e2d-99522619cd33`; evidence `go on`, with the explicitly recorded scope of one design and independent challenge. Allowances: design_reset 1, challenge 1; every other field 0.\n- A3: anchor `thread:01a10c3f-947b-7d22-9a62-18be591c6074/user-reply:ok-approved-to-additional-design-revision-and-independent-challenge`; evidence `ok approved`. Allowances: design_reset 1, challenge 1; every other field 0. This fallback anchor truthfully records that the message UUID was unavailable.\n\nThe fallback is permitted only for this fixed A3 record. Future implementation authority requires a distinct concrete message/permalink anchor recorded when received.\n\n`HistoricalPhase` is exactly:\n\n```text\n{\n  \"slot\": Text,\n  \"phase\": Text,\n  \"authorization\": \"A1\" | \"A2\" | \"A3\",\n  \"session\": Text,\n  \"role\": Text,\n  \"model\": Text,\n  \"effort\": Text,\n  \"agent_thread\": Text | null,\n  \"reservation\": Evidence,\n  \"outcome\": \"pass\" | \"fail\" | \"open\",\n  \"result\": Evidence | null,\n  \"capsule\": Ref | null,\n  \"started_at\": null,\n  \"ended_at\": null,\n  \"write_authors\": [Text, ...]\n}\n```\n\nThe six required rows, in exact order:\n\n| Slot | Phase/authority | Session and identity | Outcome |\n|---|---|---|---|\n| H1 | remediation / A1 | `/root/pr85_status_correction`; bounded_worker / gpt-6-luna / medium; agent thread `01a10b9b-f659-7541-889a-bf2c5129bc78` | pass |\n| H2 | verification / A1 | `/root`; coordinator verification; role `coordinator`, model/effort `not-recorded`, agent_thread null | pass |\n| H3 | final_review / A1 | `/root/pr85_status_review`; code_reviewer / gpt-6-sol / high; agent thread `01a10ba0-4c44-7e60-91fb-113b3ade4648` | pass |\n| H4 | design_reset / A2 | `/root/pr85_redelivery_design`; design_architect / gpt-6-astra / high; agent thread `01a10ba6-341a-7611-9ad8-7553849806d1` | pass |\n| H5 | challenge / A2 | `/root/pr85_redelivery_challenge`; code_reviewer / gpt-6-sol / high; agent thread `01a10bab-8ed6-7e10-94f0-d5e2b7f0ee68` | **fail** |\n| H6 | design_reset / A3 | `/root/pr85_design_revision2`; design_architect / gpt-6-astra / high; agent_thread null | open |\n\nH1–H3 reservation/result evidence references S1 and its corresponding named section. H4–H5 references S2. H6 reservation references S4’s actual `phase_start`; result is null. H4 and H5 capsule refs identify generation 1 and its rejected digest. H1–H3/H6 capsule fields are null: H1–H3 use the existing status capsule in S1; H6 began before the completed generation-2 digest existed.\n\nH1 `write_authors` is `[\"/root/pr85_status_correction\"]`. H2 is `[\"/root/pr85_status_correction\", \"/root\"]`, conservatively excluding both verification contributors from later review. Other rows have empty arrays.\n\nThe H2 import does **not** claim an independently recorded engine reservation or a model assignment. It preserves the actual supplemental verification sequence under the approved import exception.\n\n`HistoricalObservation` is exactly `{ \"id\": Text, \"slot\": Text, \"anchor\": Text, \"result\": \"pass\" | \"fail\" | \"rejected\", \"summary\": Text }`. Required observations are:\n\n- Failed initial Ruff format check in H1: `exec-102fdbb7-bc0a-44ff-99b0-5f150387125a`, result fail; corrected within that same implementation attempt.\n- Three H1 pytest exit-zero anchors: `exec-f3f41b4f-0ad0-4161-b804-963f70c07d3e`, `exec-5c1ab1cb-e2ae-486b-8496-8abe278da4c0`, `exec-549fc404-6449-41c1-a229-3683303c2e47`.\n- H1 final result `msg_00128a8f345bf923016ac37cd4625c87d291e9c3a8e21e4101`: 115 focused tests and subsequent checks passed.\n- H2 coordinator validator evidence `exec-ae7a1923-27a2-4289-8bed-78f98ff473ba`.\n- Required ordinary gates for H1, H3, H4, H5 and H6 were rejected as terminal, as recorded in S1/S2/S4. Each remains result `rejected`; none becomes a passed gate.\n- H5 failure explicitly retains I84CYCLES/AC85C-BOUND and I84GATES/AC85C-EVIDENCE, with the omitted-phase/reused-authority scenario.\n- Reviewed status source/test hashes from S1 remain recorded as audit-only evidence:\n  - `8ed738d2ba1e700b69b351f3d08fd039402e97cc00f2362d1d38a1cc5845cd6c`\n  - `715ca6178031196a57b9e0f1182cc8502e66fb49ceb711e26acc2c44ba65f805`\n\nObservation IDs are fixed descriptive IDs chosen once during mechanical encoding; ordering is by ID, not an invented chronological ordering of unknown tool times.\n\n**Exact future transcript**\n\nEvery `Entry` has exactly `{ \"seq\": int, \"at\": UTC, \"type\": Text, \"data\": object }`. `seq` is contiguous starting at 1. Timestamps are nondecreasing, no later than the certificate timestamp, and the certificate timestamp is no later than replay’s `now`. Elapsed duration never exhausts the attempt.\n\nAllowed variants and exact `data` keys:\n\n```text\nphase_start:\n  {slot: Text, session: Text, capsule: Ref,\n   authorization: Text, gate: Evidence, reservation: Evidence,\n   content: SHA|null, prior_digest: SHA}\n\npause:\n  {slot: Text, session: Text, evidence: Evidence, prior_digest: SHA}\n\nresume:\n  {slot: Text, session: Text, evidence: Evidence, prior_digest: SHA}\n\nphase_end:\n  {slot: Text, session: Text, outcome: \"pass\"|\"fail\",\n   capsule: Ref, evidence: Evidence,\n   observations: [Observation, ...], prior_digest: SHA}\n\nuser_authorization:\n  {id: \"A4\", name: \"burha\", anchor: Text, evidence: Text,\n   capsule: Ref, historical_import_digest: SHA,\n   allowances: {implementation: 1, verification: 1, initial_review: 1,\n                remediation: 0, final_review: 0,\n                design_reset: 0, challenge: 0},\n   prior_digest: SHA}\n\ndesign_approval:\n  {name: Text, session: \"/root\", anchor: Text, evidence: Text,\n   capsule: Ref, historical_import_digest: SHA, prior_digest: SHA}\n\nacceptance:\n  {capsule: Ref, content: SHA,\n   evidence: {\n     \"AC85C-HISTORY\": Evidence,\n     \"AC85C-BOUND\": Evidence,\n     \"AC85C-EVIDENCE\": Evidence,\n     \"AC85C-IDENTITY\": Evidence,\n     \"AC85C-STATUS\": Evidence,\n     \"AC85C-ISOLATE\": Evidence\n   }, prior_digest: SHA}\n```\n\n`Observation` is exactly `{ \"anchor\": Text, \"check\": Text, \"result\": \"pass\" | \"fail\", \"summary\": Text }`.\n\nFor every entry, `prior_digest` equals:\n\n```text\ndigest({\n  \"historical_import\": historical_import,\n  \"transcript\": transcript entries strictly before this entry\n})\n```\n\nH6 is already active from the fixed import. The only legal complete transcript is:\n\n1. Finish H6 with pass, allowing recorded H6 pause/resume pairs before its end.\n2. Start H7, the independent revision-2 challenge; finish with pass.\n3. A4 user authorization.\n4. Coordinator design approval.\n5. Start and finish H8 governance implementation with pass.\n6. Start and finish H9 verification with pass.\n7. Acceptance.\n8. Start and finish H10 independent code review with pass.\n\nEach started phase can contain zero or more alternating pause/resume pairs before its single end. No other entry ordering is allowed.\n\nFixed future slots:\n\n| Slot | Phase | Session | Authorization | Content |\n|---|---|---|---|---|\n| H7 | challenge | `/root/pr85_challenge_revision2` | A3 | null |\n| H8 | implementation | `/root/pr85_redelivery_implementation` | A4 | null |\n| H9 | verification | `/root/pr85_redelivery_implementation` | A4 | final SHA |\n| H10 | initial_review | `/root/pr85_redelivery_review` | A4 | same final SHA |\n\nRoles/models/efforts come from the frozen identities above; callers cannot supply substitutes. H7 is separate from H6, and H10 is separate from every historical/current write author. A session cannot change role.\n\nEvery future start records the required ordinary dispatch check and its actual result in `gate`. Until a successful certificate exists, that ordinary gate remains terminal-rejected. The approved bootstrap exception—not a fabricated passed gate—authorizes the supplemental reservation. The coordinator records starts before dispatch and all actual pauses, resumes, failures and outcomes in the append-only supplemental journal.\n\nThe prospective check receives that complete journal outside the repository. Imported transcript entries must equal its entries exactly. A reviewer must compare it against the actual coordinator reservations and source anchors. This journal is not an additional content-digest exclusion.\n\n**Review seal and noncircular binding**\n\nH10’s `phase_start.prior_digest` is the audit seal for all imported history and transcript through acceptance. The H10 reviewer validates that exact prefix and the final repository content. Its `phase_end.prior_digest` binds the same history plus its own start and any recorded pause/resume entries.\n\nH10’s result evidence must explicitly identify the H10 start seal and final content SHA. The validator checks these values by adding two keys **only to H10 `phase_end.data`**:\n\n```text\naudited_prefix_digest: SHA\nreviewed_content: SHA\n```\n\n`audited_prefix_digest` must equal H10 start’s `prior_digest`; `reviewed_content` must equal H9 start, acceptance, H10 start and certificate `content`.\n\nThis avoids a circular certificate digest: the reviewer seals the preceding audit prefix and repository content, not the event containing its own result. The final event is validated structurally and atomically after the review. The certificate digest is computed only after construction, for reporting; it is not an input to its own fields.\n\n**Required rejection predicates**\n\n1. Certificate allowed only as event 62 after the exact fixed prefix. There must be exactly 62 events when it is present. No second certificate or later event.\n2. Original state must replay as the expected delivered Issue84 state with fixed capsule, binding and counts, no open phase or blocker.\n3. Original state fields remain unchanged. Add a distinct `correction_binding`; do not replace `delivery_binding`, set ordinary `ready`, reopen clocks or grant ordinary phase limits.\n4. Generation-1 capsule remains unchanged and failed H5 is mandatory. A3 is the sole historical exception permitting H6 after H5’s failure.\n5. Historical import must match the pinned object and digest exactly. Missing H2, failed H5, failed formatting observation, A3, or H6 reservation rejects.\n6. All current capsule refs must equal the exact generation-2 ref. H6 success, H7 success, A4 and coordinator approval must bind it and the same historical import.\n7. All four authorization anchors are pairwise unique after normalization. Future A4 evidence cannot equal any previously consumed approval evidence after `evidence_key` normalization.\n8. Seed consumed evidence from every original authorization-bearing event, including capsule user authorization, extensions, policy transitions and split approvals. Include original coordinator approval evidence when testing attempted reuse. Then add A1/A2/A3. Changing authority display names does not affect uniqueness.\n9. A4 must identify this exact proposal, one implementation/verification/initial-review allowance and zero other allowances. It cannot reuse A3’s approval or infer implementation from “ok approved” in the current turn.\n10. Strict transcript grammar rejects omitted starts/ends, duplicate starts, extra slots, overlap, end-while-paused, resume-without-pause and different-session resume.\n11. A failed H6/H7/H8/H9/H10 outcome makes correction delivery invalid. No later entry restores eligibility. Any actual failure is retained in the journal and reported `BLOCKED_FOR_DECISION`.\n12. A failed self-check during an active implementation slot can be corrected inside that same slot. It remains an observation. A failed completed phase, independent challenge or independent review cannot.\n13. Any newly discovered unrecorded historical reservation/interruption invalidates the frozen import and stops this attempt. Do not silently append it under the challenged digest.\n14. All original write sessions plus H1/H2/H8/H9 authors are excluded from H7/H10. Normalize session identities as above; aliases referencing an already-known agent thread must map to that same identity.\n15. H9, acceptance, H10 and final certificate must share one content SHA. Documentation is frozen before H9. No subsequent tracked-file edit can retain that evidence.\n16. Prospective check validates the full candidate, journal equality and current `content_digest(root,84)`.\n17. Atomic append performs the same validation under the existing writer lock and recomputes current content immediately before `os.replace`. A changed digest rejects without replacing the ledger.\n18. `check_pr` selects `correction_binding` exclusively when present; it never falls back to the old binding. Require exact repo, PR85, Primary issue #84 and current PR-head content.\n19. `check_prefix` and existing ledger-introduction/lineage checks remain unchanged and mandatory.\n20. No expanded source exclusion, generic certificate version, arbitrary issue/PR allowance, or automatic reset is accepted.\n\nStatic validation can detect omissions against the pinned import, complete journal and reviewer seal. It cannot discover a wholly unrecorded real-world session or authenticate a fabricated conversation reference. That existing provenance limitation must remain explicit.\n\n**Counts and status interface**\n\nDo not alter existing status `counts`, `limits`, `remaining_counts`, capsule or owner fields. Add exactly one nullable `correction` field; it is null without a validated certificate.\n\nOn success:\n\n```json\n{\n  \"version\": \"pr85-correction-v2\",\n  \"binding\": {\n    \"repo\": \"beagle1903/agentic-etf-advisor\",\n    \"pr\": 85,\n    \"content\": \"<validated SHA>\"\n  },\n  \"supplemental_counts\": {\n    \"implementation\": 1,\n    \"initial_review\": 1,\n    \"remediation\": 1,\n    \"final_review\": 1,\n    \"design_reset\": 2\n  },\n  \"aggregate_counts\": {\n    \"implementation\": 3,\n    \"initial_review\": 2,\n    \"remediation\": 4,\n    \"final_review\": 4,\n    \"design_reset\": 4\n  },\n  \"supplemental_challenges\": 2,\n  \"supplemental_verifications\": 2,\n  \"remaining_counts\": {\n    \"implementation\": 0,\n    \"initial_review\": 0,\n    \"remediation\": 0,\n    \"final_review\": 0,\n    \"design_reset\": 0\n  }\n}\n```\n\nThese values are derived from validated starts, including failed H5 and both design reservations, then compared to the fixed totals. They are not caller-supplied accounting.\n\n**Focused verification matrix**\n\n| Fixture | Expected result / frozen ID |\n|---|---|\n| Complete valid certificate including failed H5 and failed in-attempt Ruff observation | Pass replay, prospective check, atomic append and PR check; AC85C-HISTORY/BOUND |\n| Remove/reorder any historical phase, observation, approval or H6 reservation | Reject; AC85C-BOUND |\n| Change H5 fail to pass, remove rejected generation 1 or replace its digest | Reject; AC85C-HISTORY/EVIDENCE |\n| Reuse original/A1/A2/A3 approval with renamed authority, whitespace/case/Unicode anchor changes | Reject; AC85C-BOUND |\n| Give A4 an extra remediation, review, reset or implementation allowance | Reject; AC85C-BOUND |\n| Fail H7/H8/H9/H10 then append a new start or a fabricated successful end | Reject; AC85C-BOUND/EVIDENCE |\n| Pause/resume same slot/session, with long quota wait | Pass without extra count; AC85C-BOUND |\n| Drop pause from imported journal, resume different session, overlapping start or unfinished phase | Reject; AC85C-BOUND |\n| Old generation challenge/approval; approval before challenge; implementation before A4 | Reject; AC85C-EVIDENCE |\n| Reviewer matches original writer, status writer, coordinator verifier or governance writer, including known alias | Reject; AC85C-EVIDENCE |\n| Change a pre-review transcript entry without updating the sealed prefix; mismatch journal and certificate | Reject; AC85C-EVIDENCE |\n| Change source/tests/docs after verification or review; simulate content change immediately before replacement | Reject without ledger replacement; AC85C-EVIDENCE |\n| Wrong repo/issue/PR, old content fallback, second certificate or post-certificate event | Reject; AC85C-IDENTITY |\n| Alter/truncate original 61-event prefix, change Issue83, weaken merge-base checks | Reject relevant existing check; AC85C-HISTORY/ISOLATE |\n| Ordinary delivered ticket unrelated to exact Issue84 prefix | Remains terminal; AC85C-BOUND |\n| Existing split-status and over-allocation regressions | Pass unchanged; AC85C-STATUS |\n\nRun focused workflow tests, both workflow validators, Ruff lint/format, mypy, full offline pytest, offline evaluations, package build, Compose configuration validation and diff checks on frozen final content. No services, provider calls or financial writes. Independent H10 review covers the governance changes; the earlier status-only review is audit evidence.\n\nDocumentation requires a new ADR for this pinned one-off exception, supplemental journal/import explanation, exact failure behavior and final-content freeze rules. Preserve accepted ADR history and the rejected generation-1 capsule.\n\nRisks are the self-modifying governance validator, incomplete historical timestamps, alias/provenance limits and content-freeze discipline. Any need for generic reopening, extra attempts, a changed scope/schema after challenge, unknown historical work, failed challenge/verification/review or a different implementation owner stops for explicit decision.\n\nNo files were changed and no tests were executed during this read-only design session.\n\nDESIGN_READY\n\n<oai-mem-citation>\n<citation_entries>\nMEMORY.md:18-22|note=[used prior approval and evidence-first workflow guidance]\n</citation_entries>\n<rollout_ids>\n</rollout_ids>\n</oai-mem-citation>\n",
+  "historical_import": {
+    "sources": [
+      {
+        "id": "S1",
+        "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-issue-84-pr85-status-correction.md",
+        "sha256": "48a398f0dacbfd32f757eec5b3e88ee9396f8d4055ffd2b11b466e9048df49ae",
+        "normalization": "git-blob"
+      },
+      {
+        "id": "S2",
+        "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-redelivery-design.md",
+        "sha256": "c6ac46549e5ace1d8832a9a85fb6c44b4b30f4c913d2c9381c176411318cbc4d",
+        "normalization": "git-blob"
+      },
+      {
+        "id": "S3",
+        "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-correction-delivery-capsule.json",
+        "sha256": "2485d8e1264a3f8cbb3e3527d677b124d9af09580fa9ca1b89d1ececf2d93d13",
+        "normalization": "git-blob"
+      },
+      {
+        "id": "S4",
+        "locator": "docs/iterations/018-pr85-redelivery-design.md through the recorded revision2 phase_start, inspected 2026-10-05",
+        "sha256": "acb180357132c078600ff8aeaf95267f24fb97034ae4f96b3f12b21191891dff",
+        "normalization": "lf"
+      }
+    ],
+    "authorizations": [
+      {
+        "id": "A1",
+        "name": "burha",
+        "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10b99-c14a-7830-8ece-0698503e16c6",
+        "evidence": "ok I approve. we have %30 left, divide the task and document the possible interruption if required.",
+        "allowances": {
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0,
+          "challenge": 0,
+          "implementation": 0,
+          "initial_review": 0,
+          "verification": 1
+        }
+      },
+      {
+        "id": "A2",
+        "name": "burha",
+        "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10ba4-298d-7561-9e2d-99522619cd33",
+        "evidence": "go on",
+        "allowances": {
+          "remediation": 0,
+          "final_review": 0,
+          "design_reset": 1,
+          "challenge": 1,
+          "implementation": 0,
+          "initial_review": 0,
+          "verification": 0
+        }
+      },
+      {
+        "id": "A3",
+        "name": "burha",
+        "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/user-reply:ok-approved-to-additional-design-revision-and-independent-challenge",
+        "evidence": "ok approved",
+        "allowances": {
+          "remediation": 0,
+          "final_review": 0,
+          "design_reset": 1,
+          "challenge": 1,
+          "implementation": 0,
+          "initial_review": 0,
+          "verification": 0
+        }
+      }
+    ],
+    "phases": [
+      {
+        "slot": "H1",
+        "phase": "remediation",
+        "authorization": "A1",
+        "session": "/root/pr85_status_correction",
+        "role": "bounded_worker",
+        "model": "gpt-6-luna",
+        "effort": "medium",
+        "agent_thread": "01a10b9b-f659-7541-889a-bf2c5129bc78",
+        "reservation": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Recorded supplemental reservation for H1; ordinary terminal gate did not pass."
+        },
+        "outcome": "pass",
+        "result": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Recorded pass outcome for /root/pr85_status_correction"
+        },
+        "capsule": null,
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": [
+          "/root/pr85_status_correction"
+        ]
+      },
+      {
+        "slot": "H2",
+        "phase": "verification",
+        "authorization": "A1",
+        "session": "/root",
+        "role": "coordinator",
+        "model": "not-recorded",
+        "effort": "not-recorded",
+        "agent_thread": null,
+        "reservation": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Actual coordinator verification sequence imported without claiming an independent engine reservation."
+        },
+        "outcome": "pass",
+        "result": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Recorded pass outcome for /root"
+        },
+        "capsule": null,
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": [
+          "/root/pr85_status_correction",
+          "/root"
+        ]
+      },
+      {
+        "slot": "H3",
+        "phase": "final_review",
+        "authorization": "A1",
+        "session": "/root/pr85_status_review",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "agent_thread": "01a10ba0-4c44-7e60-91fb-113b3ade4648",
+        "reservation": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Recorded supplemental reservation for H3; ordinary terminal gate did not pass."
+        },
+        "outcome": "pass",
+        "result": {
+          "anchor": "S1:Sequential reservations and interruption handoff",
+          "summary": "Recorded pass outcome for /root/pr85_status_review"
+        },
+        "capsule": null,
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": []
+      },
+      {
+        "slot": "H4",
+        "phase": "design_reset",
+        "authorization": "A2",
+        "session": "/root/pr85_redelivery_design",
+        "role": "design_architect",
+        "model": "gpt-6-astra",
+        "effort": "high",
+        "agent_thread": "01a10ba6-341a-7611-9ad8-7553849806d1",
+        "reservation": {
+          "anchor": "S2:Sequential phases and interruption record",
+          "summary": "Recorded supplemental reservation for H4; ordinary terminal gate did not pass."
+        },
+        "outcome": "pass",
+        "result": {
+          "anchor": "S2:Sequential phases and interruption record",
+          "summary": "Recorded pass outcome for /root/pr85_redelivery_design"
+        },
+        "capsule": {
+          "id": "issue-84-pr85-correction-delivery",
+          "generation": 1,
+          "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+        },
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": []
+      },
+      {
+        "slot": "H5",
+        "phase": "challenge",
+        "authorization": "A2",
+        "session": "/root/pr85_redelivery_challenge",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "agent_thread": "01a10bab-8ed6-7e10-94f0-d5e2b7f0ee68",
+        "reservation": {
+          "anchor": "S2:Sequential phases and interruption record",
+          "summary": "Recorded supplemental reservation for H5; ordinary terminal gate did not pass."
+        },
+        "outcome": "fail",
+        "result": {
+          "anchor": "S2:Sequential phases and interruption record",
+          "summary": "Recorded fail outcome for /root/pr85_redelivery_challenge"
+        },
+        "capsule": {
+          "id": "issue-84-pr85-correction-delivery",
+          "generation": 1,
+          "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+        },
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": []
+      },
+      {
+        "slot": "H6",
+        "phase": "design_reset",
+        "authorization": "A3",
+        "session": "/root/pr85_design_revision2",
+        "role": "design_architect",
+        "model": "gpt-6-astra",
+        "effort": "high",
+        "agent_thread": null,
+        "reservation": {
+          "anchor": "S4:Additional finite design revision approved (2026-10-05)",
+          "summary": "Recorded supplemental reservation for H6; ordinary terminal gate did not pass."
+        },
+        "outcome": "open",
+        "result": null,
+        "capsule": null,
+        "started_at": null,
+        "ended_at": null,
+        "write_authors": []
+      }
+    ],
+    "observations": [
+      {
+        "id": "H1-FORMAT-FAIL",
+        "slot": "H1",
+        "anchor": "exec-102fdbb7-bc0a-44ff-99b0-5f150387125a",
+        "result": "fail",
+        "summary": "Initial Ruff format check failed; corrected within the same mechanical attempt."
+      },
+      {
+        "id": "H1-GATE",
+        "slot": "H1",
+        "anchor": "S1:terminal-dispatch-gate:H1",
+        "result": "rejected",
+        "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+      },
+      {
+        "id": "H1-PYTEST-1",
+        "slot": "H1",
+        "anchor": "exec-f3f41b4f-0ad0-4161-b804-963f70c07d3e",
+        "result": "pass",
+        "summary": "Focused pytest exit zero."
+      },
+      {
+        "id": "H1-PYTEST-2",
+        "slot": "H1",
+        "anchor": "exec-5c1ab1cb-e2ae-486b-8496-8abe278da4c0",
+        "result": "pass",
+        "summary": "Focused pytest exit zero."
+      },
+      {
+        "id": "H1-PYTEST-3",
+        "slot": "H1",
+        "anchor": "exec-549fc404-6449-41c1-a229-3683303c2e47",
+        "result": "pass",
+        "summary": "Focused pytest exit zero."
+      },
+      {
+        "id": "H1-RESULT",
+        "slot": "H1",
+        "anchor": "msg_00128a8f345bf923016ac37cd4625c87d291e9c3a8e21e4101",
+        "result": "pass",
+        "summary": "115 focused tests and subsequent checks passed; worker changed no documentation and made no commit or push."
+      },
+      {
+        "id": "H2-VALIDATORS",
+        "slot": "H2",
+        "anchor": "exec-ae7a1923-27a2-4289-8bed-78f98ff473ba",
+        "result": "pass",
+        "summary": "Coordinator ran both workflow validators; original Issue84 ledger unchanged."
+      },
+      {
+        "id": "H3-GATE",
+        "slot": "H3",
+        "anchor": "S1:terminal-dispatch-gate:H3",
+        "result": "rejected",
+        "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+      },
+      {
+        "id": "H4-GATE",
+        "slot": "H4",
+        "anchor": "S2:terminal-dispatch-gate:H4",
+        "result": "rejected",
+        "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+      },
+      {
+        "id": "H5-FAILURE",
+        "slot": "H5",
+        "anchor": "S2:Independent challenge result and concrete failure scenario",
+        "result": "fail",
+        "summary": "I84CYCLES / AC85C-BOUND and I84GATES / AC85C-EVIDENCE: omitted supplemental phase and reused authority could falsely certify delivery; generation1 rejected."
+      },
+      {
+        "id": "H5-GATE",
+        "slot": "H5",
+        "anchor": "S2:terminal-dispatch-gate:H5",
+        "result": "rejected",
+        "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+      },
+      {
+        "id": "H6-GATE",
+        "slot": "H6",
+        "anchor": "S4:terminal-dispatch-gate:H6",
+        "result": "rejected",
+        "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+      },
+      {
+        "id": "STATUS-SOURCE-HASH",
+        "slot": "H1",
+        "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+        "result": "pass",
+        "summary": "Audit-only reviewed source SHA256 8ed738d2ba1e700b69b351f3d08fd039402e97cc00f2362d1d38a1cc5845cd6c"
+      },
+      {
+        "id": "STATUS-TEST-HASH",
+        "slot": "H1",
+        "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+        "result": "pass",
+        "summary": "Audit-only reviewed test SHA256 715ca6178031196a57b9e0f1182cc8502e66fb49ceb711e26acc2c44ba65f805"
+      }
+    ],
+    "unknowns": {
+      "phase_timestamps": "not recorded; do not fabricate",
+      "interruptions": "none recorded in the inspected sources",
+      "provenance": "recorded evidence, not authenticated live-session provenance"
+    }
+  }
+}

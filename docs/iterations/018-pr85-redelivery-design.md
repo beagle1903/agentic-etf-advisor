@@ -142,3 +142,40 @@ challenge, and record coordinator decision. Only a clean complete challenged
 proposal may be presented for the specific governance implementation allowance.
 The project rule is explicit: "unresolved challenge ... means
 BLOCKED_FOR_DECISION". No active agent is authorized to continue automatically.
+
+## Additional finite design revision approved (2026-10-05)
+
+User authorization in chat 01a10c3f-947b-7d22-9a62-18be591c6074: "ok approved", answering the explicit request for one additional design revision and one independent challenge, with no implementation allowance yet.
+
+Classification remains consequential governance/replay/delivery binding. Scope remains the single pinned PR85 correction certificate; Issue83, original Issue84 history and all consumed counts are preserved. Rejected generation1 capsule remains unchanged. New generation2 must freeze exact JSON schema, complete supplemental-history import, ordering, normalized approval uniqueness, reservations and failure predicates, and adversarial verification matrix.
+
+phase_start: design_reset supplemental revision2; role design_architect / gpt-6-astra / high; session /root/pr85_design_revision2. Dispatch check was executed and rejected terminal state; this explicit supplemental reservation records that rejection truthfully. One read-only design revision reserved; one independent challenge available sequentially. No implementation or code-review allowance. Started by coordinator on 2026-10-05. Quota interruption preserves this reservation.
+
+### Revision2 design outcome and challenge reservation
+
+phase_end: design_reset revision2 PASS (DESIGN_READY), recorded 2026-10-05T13:41:12Z. Actual architect session /root/pr85_design_revision2, agent thread 01a10c43-0fcc-73d2-9127-b52c09e8ccf1. Complete unchanged architect response saved as 018-pr85-correction-delivery-generation2.md; SHA256 a9d60d359ad627f2bd104873e230a8d4cc449df49fb17695e051fd9b5c3f6edd.
+
+Frozen complete capsule: 018-pr85-correction-delivery-capsule-generation2.json, canonical digest 138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756. Historical import canonical digest 899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1. This mechanical encoding includes the full architect specification; rejected generation1 remains unchanged. No implementation authorization.
+
+phase_start: independent challenge revision2, reserved 2026-10-05T13:41:12Z; session /root/pr85_challenge_revision2; code_reviewer / gpt-6-sol / high, read-only. Required challenge dispatch check rejected terminal state; the user's explicitly approved supplemental reservation applies, and no passed engine gate is claimed. One independent challenge reserved; no further design/challenge attempt automatically available. Challenge binds exactly the frozen generation2 capsule digest above.
+
+### Revision2 challenge capacity interruption
+
+The reserved /root/pr85_challenge_revision2 turn returned infrastructure error: "Selected model is at capacity. Please try a different model." No review finding or completed challenge outcome was produced. Preserve the same session, pinned Sol/high role and reserved challenge attempt; retry its execution without a new allowance, role/model change or phase_start. This is an interruption, not CHALLENGE_FAIL or a replenished attempt.
+
+Recorded H7 interruption boundaries from coordinator transcript:
+- pause: 2026-10-05T13:43:00Z, /root/pr85_challenge_revision2, infrastructure capacity result amsg_01a10c4d-b119-76e1-a7ec-7094f41828b1; no substantive outcome.
+- resume: 2026-10-05T13:43:27Z, same slot and session, collaboration.followup_task call; same reserved independent challenge and pinned model/effort.
+These records must be preserved in any eventual supplemental transcript. No new start, review attempt or model change.
+
+### Revision2 challenge passed; implementation decision pending
+
+phase_end: H7 independent challenge PASS, recorded 2026-10-05T13:49:39Z. Reviewer /root/pr85_challenge_revision2 / code_reviewer / gpt-6-sol / high; actual agent thread 01a10c4c-a03a-7bb3-87ed-6ee2e05b6e41. CHALLENGE_PASS binds exactly capsule digest 138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756 and historical import digest 899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1. Verified source S1-S4 hashes, original61-event prefix, delivery/PR binding and consumed starts. No concrete frozen-ID failure found. No edits or implementation authorization from reviewer.
+
+Coordinator assessment: the complete schema and deterministic imported-history predicates address the rejected generation1 findings. The reviewed frozen proposal is eligible for the exact next user decision; coordinator approval is not yet appended because the normative grammar requires A4 authorization first. Original terminal ticket, all counts and Issue23/83 histories are unchanged. Both explicitly approved read-only phases are consumed. Implementation has not begun.
+
+Append-only supplemental journal through H7 result: C:/Users/burha/.codex/pr85-correction-journal.json; canonical digest 3e230810a6cfd1cae4a685981eb0b387abe903e5169e7503eed1eb2c8386da7d. It preserves H6 end, H7 reservation, capacity pause/resume and pass outcome with digest chaining. This external journal creates no repository content exclusion. Preserve it on interruption and append only subsequently authorized events.
+
+Required next explicit decision: approve the exact generation2 pinned correction_delivery certificate, historical-import/bootstrap exception and workflow-only implementation in the frozen capsule, granting one implementation, one verification and one independent initial review. Zero additional remediation, final-review retry, design reset or challenge. Failed substantive phase stops for user decision; infrastructure pause retains same reservation. This decision does not resume Issue83 product work or authorize new attempts there. Successful implementation/review/content-bound certification would permit pushing the already reviewed status fix and correction machinery to the original PR85; no old certification may be reused.
+
+No source pushed or redelivery claimed. Resume from this record, unchanged frozen capsule and external journal. Do not repeat completed design/challenge or substitute roles. Status: WAITING_FOR_IMPLEMENTATION_AUTHORIZATION.
