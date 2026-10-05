@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import tempfile
+import unicodedata
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -314,6 +315,8 @@ class State:
     verified_content: str | None = None
     acceptance_content: str | None = None
     delivery_binding: dict | None = None
+    correction_binding: dict | None = None
+    correction: dict | None = None
     budget_seconds: int = 7200
     lifetime_policy: str = "timed-v1"
     elapsed_seconds: int = 0
@@ -425,6 +428,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
         previous = at
         kind, data = event["type"], event["data"]
         if state is not None:
+            if state.delivered and kind == "correction_delivery":
+                validate_correction_delivery(value, index, event, state, now)
+                continue
             if state.delivered or (
                 (state.split_remaining is not None or state.split_remaining_counts is not None)
                 and kind not in {"split", "cycle_split"}
@@ -964,6 +970,475 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
     return state
 
 
+CORRECTION_CAPSULE_DIGEST = "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+CORRECTION_IMPORT_DIGEST = "899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1"
+CORRECTION_PREFIX_DIGEST = "320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6"
+CORRECTION_REF = {
+    "id": "issue-84-pr85-correction-delivery",
+    "generation": 2,
+    "digest": CORRECTION_CAPSULE_DIGEST,
+}
+CORRECTION_REPO = "beagle1903/agentic-etf-advisor"
+CORRECTION_A4_ANCHOR = (
+    "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a10c56-ac1d-7582-b224-2ecdf6cc46dd"
+)
+CORRECTION_SESSIONS = {
+    "H6": ("/root/pr85_design_revision2", "A3"),
+    "H7": ("/root/pr85_challenge_revision2", "A3"),
+    "H8": ("/root/pr85_redelivery_implementation", "A4"),
+    "H9": ("/root/pr85_redelivery_implementation", "A4"),
+    "H10": ("/root/pr85_redelivery_review", "A4"),
+}
+CORRECTION_PHASES = {
+    "H7": "challenge",
+    "H8": "implementation",
+    "H9": "verification",
+    "H10": "initial_review",
+}
+CORRECTION_AC = {
+    "AC85C-HISTORY",
+    "AC85C-BOUND",
+    "AC85C-EVIDENCE",
+    "AC85C-IDENTITY",
+    "AC85C-STATUS",
+    "AC85C-ISOLATE",
+}
+
+
+def correction_anchor(value: object) -> str:
+    normalized = " ".join(unicodedata.normalize("NFKC", text(value)).split()).casefold()
+    if not normalized:
+        raise Invalid("empty normalized correction anchor")
+    return normalized
+
+
+def correction_evidence(value: object) -> dict:
+    result = keys(value, {"anchor", "summary"})
+    correction_anchor(result["anchor"])
+    text(result["summary"])
+    return result
+
+
+def correction_ref(value: object) -> None:
+    result = keys(value, {"id", "generation", "digest"})
+    text(result["id"])
+    integer(result["generation"], 1)
+    sha(result["digest"])
+    if result != CORRECTION_REF:
+        raise Invalid("correction uses stale capsule reference")
+
+
+def correction_observations(value: object) -> None:
+    if not isinstance(value, list):
+        raise Invalid("correction observations must be an array")
+    for item in value:
+        item = keys(item, {"anchor", "check", "result", "summary"})
+        correction_anchor(item["anchor"])
+        text(item["check"])
+        text(item["summary"])
+        if item["result"] not in {"pass", "fail"}:
+            raise Invalid("invalid correction observation result")
+
+
+def correction_original_evidence(events: list[dict]) -> set[str]:
+    """Collect consumed approval text without changing historical replay semantics."""
+    result: set[str] = set()
+    for event in events:
+        data = event["data"]
+        if isinstance(data, dict):
+            for key in ("authority", "authorization"):
+                item = data.get(key)
+                if isinstance(item, dict) and "evidence" in item:
+                    result.add(evidence_key(item["evidence"]))
+            cap = data.get("capsule")
+            if isinstance(cap, dict) and isinstance(cap.get("authorization"), dict):
+                result.add(evidence_key(cap["authorization"]["evidence"]))
+            if event["type"] == "design_ready" and "evidence" in data:
+                result.add(evidence_key(data["evidence"]))
+    return result
+
+
+def validate_correction_delivery(
+    ledger: dict, index: int, event: dict, state: State, now: datetime
+) -> None:
+    """Validate the one frozen PR85 certificate before ordinary terminal rejection."""
+    events = ledger["events"]
+    if (
+        index != 61
+        or len(events) != 62
+        or state.issue != 84
+        or state.repo != CORRECTION_REPO
+        or digest({"schema": 1, "events": events[:61]}) != CORRECTION_PREFIX_DIGEST
+    ):
+        raise Invalid("correction requires the exact delivered Issue84 prefix")
+    if (
+        not state.delivered
+        or state.active
+        or state.suspended
+        or state.blockers
+        or state.capsule is None
+        or capsule_ref(state.capsule)
+        != {
+            "id": "issue-84-cycle-bounded-workflow",
+            "generation": 3,
+            "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9",
+        }
+        or state.counts
+        != {
+            "implementation": 2,
+            "initial_review": 1,
+            "remediation": 3,
+            "final_review": 3,
+            "design_reset": 2,
+        }
+        or state.delivery_binding
+        != {
+            "repo": CORRECTION_REPO,
+            "pr": 85,
+            "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+        }
+    ):
+        raise Invalid("correction original state differs from frozen delivery")
+    data = keys(
+        event["data"],
+        {
+            "version",
+            "repo",
+            "issue",
+            "pr",
+            "prefix_digest",
+            "capsule",
+            "capsule_digest",
+            "historical_import",
+            "historical_import_digest",
+            "transcript",
+            "content",
+            "delivery_evidence",
+        },
+    )
+    if (
+        data["version"] != "pr85-correction-v2"
+        or data["repo"] != CORRECTION_REPO
+        or type(data["issue"]) is not int
+        or data["issue"] != 84
+        or type(data["pr"]) is not int
+        or data["pr"] != 85
+        or sha(data["prefix_digest"]) != CORRECTION_PREFIX_DIGEST
+        or sha(data["capsule_digest"]) != CORRECTION_CAPSULE_DIGEST
+        or sha(data["historical_import_digest"]) != CORRECTION_IMPORT_DIGEST
+    ):
+        raise Invalid("correction identity or digest mismatch")
+    frozen_path = ROOT / "docs/iterations/018-pr85-correction-delivery-capsule-generation2.json"
+    frozen = json.loads(frozen_path.read_text(encoding="utf-8"), object_pairs_hook=unique)
+    if (
+        digest(frozen) != CORRECTION_CAPSULE_DIGEST
+        or data["capsule"] != frozen
+        or digest(data["capsule"]) != CORRECTION_CAPSULE_DIGEST
+        or data["historical_import"] != frozen["historical_import"]
+        or digest(data["historical_import"]) != CORRECTION_IMPORT_DIGEST
+    ):
+        raise Invalid("correction capsule or historical import differs from frozen contract")
+    content = sha(data["content"])
+    correction_evidence(data["delivery_evidence"])
+    transcript = data["transcript"]
+    if not isinstance(transcript, list) or not transcript:
+        raise Invalid("complete correction transcript required")
+    imported = data["historical_import"]
+    used_evidence = correction_original_evidence(events[:61])
+    anchors: set[str] = set()
+    for authorization in imported["authorizations"]:
+        anchor = correction_anchor(authorization["anchor"])
+        approval = evidence_key(authorization["evidence"])
+        if anchor in anchors or approval in used_evidence:
+            raise Invalid("historical correction authorization reused")
+        anchors.add(anchor)
+        used_evidence.add(approval)
+    if [row["slot"] for row in imported["phases"]] != ["H1", "H2", "H3", "H4", "H5", "H6"] or [
+        row["outcome"] for row in imported["phases"]
+    ] != ["pass", "pass", "pass", "pass", "fail", "open"]:
+        raise Invalid("incomplete historical phase reservations")
+    if not any(row["slot"] == "H1" and row["result"] == "fail" for row in imported["observations"]):
+        raise Invalid("historical failed in-attempt check missing")
+
+    step = 0
+    active: str | None = "H6"
+    paused = False
+    last_at: datetime | None = None
+    starts: dict[str, dict] = {}
+    counts = {"H7": 0, "H8": 0, "H9": 0, "H10": 0}
+    a4_anchor: str | None = None
+    approval_anchor: str | None = None
+    h10_seal: str | None = None
+    for position, entry in enumerate(transcript):
+        entry = keys(entry, {"seq", "at", "type", "data"})
+        if type(entry["seq"]) is not int or entry["seq"] != position + 1:
+            raise Invalid("correction transcript sequence gap")
+        entry_at = timestamp(entry["at"])
+        if (last_at and entry_at < last_at) or entry_at > timestamp(event["at"]):
+            raise Invalid("correction transcript timestamp order")
+        last_at = entry_at
+        kind = text(entry["type"])
+        item = entry["data"]
+        if not isinstance(item, dict):
+            raise Invalid("correction entry data must be an object")
+        if sha(item.get("prior_digest")) != digest(
+            {"historical_import": imported, "transcript": transcript[:position]}
+        ):
+            raise Invalid("correction transcript digest chain broken")
+        if kind == "phase_start":
+            item = keys(
+                item,
+                {
+                    "slot",
+                    "session",
+                    "capsule",
+                    "authorization",
+                    "gate",
+                    "reservation",
+                    "content",
+                    "prior_digest",
+                },
+            )
+            slot = item["slot"]
+            if (
+                active is not None
+                or paused
+                or slot not in CORRECTION_PHASES
+                or step not in {1, 5, 7, 10}
+                or slot != {1: "H7", 5: "H8", 7: "H9", 10: "H10"}[step]
+                or item["session"] != CORRECTION_SESSIONS[slot][0]
+                or item["authorization"] != CORRECTION_SESSIONS[slot][1]
+            ):
+                raise Invalid("out-of-order or overlapping correction reservation")
+            correction_ref(item["capsule"])
+            correction_evidence(item["gate"])
+            correction_evidence(item["reservation"])
+            if "terminal" not in item["gate"]["summary"].casefold() or not any(
+                word in item["gate"]["summary"].casefold() for word in ("reject", "failed")
+            ):
+                raise Invalid("correction gate must record actual terminal rejection")
+            if slot in {"H7", "H8"}:
+                if item["content"] is not None:
+                    raise Invalid("premature correction content binding")
+            elif sha(item["content"]) != content:
+                raise Invalid("correction reservation content mismatch")
+            starts[slot] = item
+            counts[slot] += 1
+            if slot == "H10":
+                h10_seal = item["prior_digest"]
+            active = slot
+            step += 1
+        elif kind in {"pause", "resume"}:
+            item = keys(item, {"slot", "session", "evidence", "prior_digest"})
+            if (
+                active is None
+                or item["slot"] != active
+                or item["session"] != CORRECTION_SESSIONS[active][0]
+                or (kind == "pause" and paused)
+                or (kind == "resume" and not paused)
+            ):
+                raise Invalid("invalid correction pause or resume")
+            correction_evidence(item["evidence"])
+            paused = kind == "pause"
+        elif kind == "phase_end":
+            expected = {
+                "slot",
+                "session",
+                "outcome",
+                "capsule",
+                "evidence",
+                "observations",
+                "prior_digest",
+            }
+            if active == "H10":
+                expected |= {"audited_prefix_digest", "reviewed_content"}
+            item = keys(item, expected)
+            if (
+                active is None
+                or paused
+                or item["slot"] != active
+                or item["session"] != CORRECTION_SESSIONS[active][0]
+                or item["outcome"] != "pass"
+            ):
+                raise Invalid("failed, missing or wrong-session correction phase")
+            correction_ref(item["capsule"])
+            correction_evidence(item["evidence"])
+            correction_observations(item["observations"])
+            if active == "H6":
+                if step != 0:
+                    raise Invalid("revision2 design must finish first")
+                step = 1
+            elif active == "H7":
+                if step != 2:
+                    raise Invalid("revision2 challenge must finish before approval")
+                step = 3
+            elif active == "H8":
+                if step != 6:
+                    raise Invalid("governance implementation order")
+                step = 7
+            elif active == "H9":
+                if step != 8:
+                    raise Invalid("verification order")
+                step = 9
+            elif active == "H10":
+                if (
+                    step != 11
+                    or sha(item["audited_prefix_digest"]) != h10_seal
+                    or sha(item["reviewed_content"]) != content
+                    or h10_seal not in item["evidence"]["summary"]
+                    or content not in item["evidence"]["summary"]
+                ):
+                    raise Invalid("independent review seal/content mismatch")
+                step = 12
+            active = None
+        elif kind == "user_authorization":
+            item = keys(
+                item,
+                {
+                    "id",
+                    "name",
+                    "anchor",
+                    "evidence",
+                    "capsule",
+                    "historical_import_digest",
+                    "allowances",
+                    "prior_digest",
+                },
+            )
+            if step != 3 or active is not None or item["id"] != "A4" or item["name"] != "burha":
+                raise Invalid("A4 authorization requires completed challenge")
+            correction_ref(item["capsule"])
+            if sha(item["historical_import_digest"]) != CORRECTION_IMPORT_DIGEST:
+                raise Invalid("A4 historical import mismatch")
+            a4_anchor = correction_anchor(item["anchor"])
+            approval = evidence_key(item["evidence"])
+            if (
+                a4_anchor != CORRECTION_A4_ANCHOR
+                or a4_anchor in anchors
+                or approval in used_evidence
+            ):
+                raise Invalid("A4 repeats consumed authorization")
+            anchors.add(a4_anchor)
+            used_evidence.add(approval)
+            allowance = keys(
+                item["allowances"],
+                {
+                    "implementation",
+                    "verification",
+                    "initial_review",
+                    "remediation",
+                    "final_review",
+                    "design_reset",
+                    "challenge",
+                },
+            )
+            if any(
+                type(allowance[key]) is not int
+                or allowance[key]
+                != (1 if key in {"implementation", "verification", "initial_review"} else 0)
+                for key in allowance
+            ):
+                raise Invalid("A4 grants only the three frozen phase slots")
+            step = 4
+        elif kind == "design_approval":
+            item = keys(
+                item,
+                {
+                    "name",
+                    "session",
+                    "anchor",
+                    "evidence",
+                    "capsule",
+                    "historical_import_digest",
+                    "prior_digest",
+                },
+            )
+            if step != 4 or active is not None or a4_anchor is None or item["session"] != "/root":
+                raise Invalid("coordinator approval requires A4 and challenge")
+            text(item["name"])
+            text(item["evidence"])
+            correction_ref(item["capsule"])
+            if sha(item["historical_import_digest"]) != CORRECTION_IMPORT_DIGEST:
+                raise Invalid("coordinator approved another import")
+            approval_anchor = correction_anchor(item["anchor"])
+            approval = evidence_key(item["evidence"])
+            if approval_anchor in anchors or approval in used_evidence:
+                raise Invalid("coordinator approval evidence reused")
+            anchors.add(approval_anchor)
+            used_evidence.add(approval)
+            step = 5
+        elif kind == "acceptance":
+            item = keys(item, {"capsule", "content", "evidence", "prior_digest"})
+            if step != 9 or active is not None or sha(item["content"]) != content:
+                raise Invalid("acceptance requires final verified content")
+            correction_ref(item["capsule"])
+            ac = keys(item["evidence"], CORRECTION_AC)
+            for evidence in ac.values():
+                correction_evidence(evidence)
+            step = 10
+            starts["acceptance"] = item
+        else:
+            raise Invalid("unknown correction transcript entry")
+        if kind == "phase_start" and item["slot"] == "H10" and "acceptance" not in starts:
+            raise Invalid("independent review preceded acceptance")
+    if step != 12 or active is not None or paused or counts != dict.fromkeys(counts, 1):
+        raise Invalid("incomplete correction delivery cycle")
+    if a4_anchor is None or approval_anchor is None or "acceptance" not in starts:
+        raise Invalid("correction authorization, approval or acceptance missing")
+    writers = set(state.write_authors)
+    for row in imported["phases"]:
+        writers.update(row["write_authors"])
+    writers.add(CORRECTION_SESSIONS["H8"][0])
+    if any(
+        correction_anchor(CORRECTION_SESSIONS[slot][0])
+        in {correction_anchor(writer) for writer in writers}
+        for slot in ("H7", "H10")
+    ):
+        raise Invalid("correction review author is not independent")
+    state.correction_binding = {"repo": CORRECTION_REPO, "pr": 85, "content": content}
+    supplemental = dict.fromkeys(COUNTS, 0)
+    challenges = 0
+    verifications = 0
+    for row in imported["phases"]:
+        phase = row["phase"]
+        if phase in supplemental:
+            supplemental[phase] += 1
+        elif phase == "challenge":
+            challenges += 1
+        elif phase == "verification":
+            verifications += 1
+    for slot, amount in counts.items():
+        phase = CORRECTION_PHASES[slot]
+        if phase in supplemental:
+            supplemental[phase] += amount
+        elif phase == "challenge":
+            challenges += amount
+        elif phase == "verification":
+            verifications += amount
+    if (
+        supplemental
+        != {
+            "implementation": 1,
+            "initial_review": 1,
+            "remediation": 1,
+            "final_review": 1,
+            "design_reset": 2,
+        }
+        or challenges != 2
+        or verifications != 2
+    ):
+        raise Invalid("correction consumed counts differ from frozen finite allowance")
+    state.correction = {
+        "version": "pr85-correction-v2",
+        "binding": state.correction_binding,
+        "supplemental_counts": supplemental,
+        "aggregate_counts": {key: state.counts[key] + supplemental[key] for key in COUNTS},
+        "supplemental_challenges": challenges,
+        "supplemental_verifications": verifications,
+        "remaining_counts": dict.fromkeys(COUNTS, 0),
+    }
+
+
 def completed(state: State, phase: str, session: str, outcome: str) -> None:
     if phase in {"design", "design_reset"}:
         if outcome == "pass":
@@ -1142,7 +1617,35 @@ def validate_lineage_authorizations(ledgers: dict[int, dict]) -> None:
         raise Invalid("timed split authorization already consumed in cycle lineage")
 
 
-def append(root: Path, issue: int, event: dict, now: datetime) -> State:
+def correction_journal(event: dict, journal: dict) -> None:
+    journal = keys(journal, {"historical_import", "transcript"})
+    data = event.get("data")
+    if not isinstance(data, dict) or (
+        data.get("historical_import") != journal["historical_import"]
+        or data.get("transcript") != journal["transcript"]
+    ):
+        raise Invalid("correction certificate differs from external journal")
+
+
+def prospective_correction(
+    root: Path, issue: int, event: dict, journal: dict, now: datetime
+) -> State:
+    if issue != 84 or event.get("type") != "correction_delivery":
+        raise Invalid("prospective correction is pinned to Issue84")
+    correction_journal(event, journal)
+    ledgers = validate_all(root, now)
+    prior = ledgers[issue]
+    candidate = {"schema": 1, "events": [*prior["events"], event]}
+    state = replay(candidate, now, predecessors={k: v for k, v in ledgers.items() if k != issue})
+    validate_ledgers({**ledgers, issue: candidate}, now)
+    if event["data"]["content"] != content_digest(root, issue):
+        raise Invalid("correction content differs from current repository")
+    return state
+
+
+def append(
+    root: Path, issue: int, event: dict, now: datetime, *, journal: dict | None = None
+) -> State:
     """One writer, lock, validate candidate, atomic replace; never rewrite prior events."""
     path = root / DIRECTORY / f"issue-{integer(issue, 1)}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1155,6 +1658,12 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         os.close(fd)
         ledgers = read_all(root)
         value = ledgers.get(issue, {"schema": 1, "events": []})
+        if event.get("type") == "correction_delivery":
+            if journal is None or issue != 84:
+                raise Invalid("correction append requires external journal and Issue84")
+            correction_journal(event, journal)
+            if event.get("data", {}).get("content") != content_digest(root, issue):
+                raise Invalid("correction content differs from current repository")
         if (
             not value["events"]
             and event.get("type") == "initialize"
@@ -1201,6 +1710,12 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
             os.fsync(target.fileno())
             temp = Path(target.name)
         try:
+            if event.get("type") == "correction_delivery" and (
+                event["data"]["content"] != content_digest(root, issue)
+                or journal is None
+                or event["data"]["transcript"] != journal["transcript"]
+            ):
+                raise Invalid("correction content or journal changed before atomic replace")
             os.replace(temp, path)
         finally:
             temp.unlink(missing_ok=True)
@@ -1332,7 +1847,10 @@ def check_pr(
     actual_content = sha(content)
     if not state.delivered:
         raise Invalid("primary issue requires a recorded delivery event")
-    if state.delivery_binding != {
+    binding = (
+        state.correction_binding if state.correction_binding is not None else state.delivery_binding
+    )
+    if binding != {
         "pr": integer(event["number"], 1),
         "repo": state.repo,
         "content": actual_content,
@@ -1359,21 +1877,42 @@ def current_pr(event: dict, metadata: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["validate", "check", "append", "ci", "status"])
+    parser.add_argument(
+        "command", choices=["validate", "check", "append", "prospective", "ci", "status"]
+    )
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--issue", type=int)
     parser.add_argument("--phase", default="delivery")
     parser.add_argument("--event", type=Path)
+    parser.add_argument("--journal", type=Path)
     parser.add_argument("--base")
     parser.add_argument("--now", default=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"))
     args = parser.parse_args()
     try:
         now = timestamp(args.now)
-        if args.command == "append":
+        if args.command in {"append", "prospective"}:
             if args.issue is None or args.event is None:
-                raise Invalid("append requires --issue and --event")
-            event = json.loads(args.event.read_text(encoding="utf-8"), object_pairs_hook=unique)
-            append(args.root, args.issue, event, now)
+                raise Invalid("append/prospective requires --issue and --event")
+            event = json.loads(
+                args.event.read_text(encoding="utf-8"),
+                object_pairs_hook=unique,
+                parse_constant=lambda _: (_ for _ in ()).throw(Invalid("nonfinite JSON")),
+            )
+            journal = (
+                json.loads(
+                    args.journal.read_text(encoding="utf-8"),
+                    object_pairs_hook=unique,
+                    parse_constant=lambda _: (_ for _ in ()).throw(Invalid("nonfinite JSON")),
+                )
+                if args.journal is not None
+                else None
+            )
+            if args.command == "prospective":
+                if journal is None:
+                    raise Invalid("prospective correction requires --journal")
+                prospective_correction(args.root, args.issue, event, journal, now)
+            else:
+                append(args.root, args.issue, event, now, journal=journal)
         else:
             ledgers = validate_all(args.root, now)
             changed = (
@@ -1420,6 +1959,7 @@ def main() -> None:
                                 "blockers": sorted(state.blockers),
                                 "verified": state.verified,
                                 "reviewed": state.reviewed,
+                                "correction": state.correction,
                             },
                             indent=2,
                         )

@@ -244,3 +244,15 @@ authorize only their original PR identity and that content; reruns preserve the 
 CI validates immutable merge-base history, new `cycles-v1` initialization and current primary issue binding on PR
 edits. Existing historical tickets are not retrospectively adopted. Issue70 remains
 stopped pending a separate user decision; this workflow ticket changes no product code.
+
+ADR 0031 permits one pinned Issue84/PR85 correction certificate after its exact
+delivered history. The original ticket remains terminal, with its original delivery
+binding and counts intact. The certificate imports the fixed supplemental history
+and records fresh authorization, design approval, implementation, verification,
+acceptance and independent review against one final content digest. Use
+`ticket_workflow.py prospective --issue 84 --event CERTIFICATE --journal JOURNAL`
+before `append` with the same arguments. Keep the journal and candidate certificate
+outside the repository content tree. The append rechecks current content under its
+writer lock before replacement. A failed phase or changed content stops publication;
+the exception grants no reusable reopening policy or further attempts. The status
+command reports the validated supplemental accounting separately under `correction`.

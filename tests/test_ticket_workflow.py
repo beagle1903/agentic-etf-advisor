@@ -1612,6 +1612,318 @@ def test_content_digest_matches_git_tree_and_excludes_only_own_ledger(tmp_path):
     assert workflow.content_digest(tmp_path, 73) != original
 
 
+def correction_fixture():
+    root = Path(__file__).resolve().parents[1]
+    original = workflow.load(
+        (root / "docs/workflow/tickets/issue-84.json").read_text(encoding="utf-8")
+    )
+    frozen = json.loads(
+        (root / "docs/iterations/018-pr85-correction-delivery-capsule-generation2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    imported = copy.deepcopy(frozen["historical_import"])
+    transcript = []
+    ref = copy.deepcopy(workflow.CORRECTION_REF)
+    content = CONTENT
+    stamp = datetime(2026, 10, 5, 15, 0, tzinfo=UTC)
+
+    def evidence(label):
+        return {"anchor": f"test:{label}", "summary": label}
+
+    def entry(kind, **data):
+        data["prior_digest"] = workflow.digest(
+            {"historical_import": imported, "transcript": transcript}
+        )
+        transcript.append(
+            {
+                "seq": len(transcript) + 1,
+                "at": stamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "type": kind,
+                "data": data,
+            }
+        )
+        return transcript[-1]
+
+    def end(slot, *, review=False):
+        data = {
+            "slot": slot,
+            "session": workflow.CORRECTION_SESSIONS[slot][0],
+            "outcome": "pass",
+            "capsule": ref,
+            "evidence": evidence(f"{slot}-pass"),
+            "observations": [],
+        }
+        if review:
+            data["audited_prefix_digest"] = h10_start["data"]["prior_digest"]
+            data["reviewed_content"] = content
+            data["evidence"]["summary"] += (
+                f" seal {data['audited_prefix_digest']} content {content}"
+            )
+        entry("phase_end", **data)
+
+    def start(slot):
+        return entry(
+            "phase_start",
+            slot=slot,
+            session=workflow.CORRECTION_SESSIONS[slot][0],
+            capsule=ref,
+            authorization=workflow.CORRECTION_SESSIONS[slot][1],
+            gate={"anchor": f"gate:{slot}", "summary": "Ordinary gate rejected terminal ticket"},
+            reservation=evidence(f"{slot}-reservation"),
+            content=content if slot in {"H9", "H10"} else None,
+        )
+
+    end("H6")
+    start("H7")
+    entry(
+        "pause",
+        slot="H7",
+        session=workflow.CORRECTION_SESSIONS["H7"][0],
+        evidence=evidence("quota-wait"),
+    )
+    entry(
+        "resume",
+        slot="H7",
+        session=workflow.CORRECTION_SESSIONS["H7"][0],
+        evidence=evidence("quota-resume"),
+    )
+    end("H7")
+    entry(
+        "user_authorization",
+        id="A4",
+        name="burha",
+        anchor=workflow.CORRECTION_A4_ANCHOR,
+        evidence="Distinct user message authorizing generation2 implementation and review.",
+        capsule=ref,
+        historical_import_digest=workflow.CORRECTION_IMPORT_DIGEST,
+        allowances={
+            "implementation": 1,
+            "verification": 1,
+            "initial_review": 1,
+            "remediation": 0,
+            "final_review": 0,
+            "design_reset": 0,
+            "challenge": 0,
+        },
+    )
+    entry(
+        "design_approval",
+        name="coordinator",
+        session="/root",
+        anchor="coordinator:distinct-approval",
+        evidence="Approved frozen generation2 after challenge",
+        capsule=ref,
+        historical_import_digest=workflow.CORRECTION_IMPORT_DIGEST,
+    )
+    start("H8")
+    end("H8")
+    start("H9")
+    end("H9")
+    entry(
+        "acceptance",
+        capsule=ref,
+        content=content,
+        evidence={criterion: evidence(criterion) for criterion in workflow.CORRECTION_AC},
+    )
+    h10_start = start("H10")
+    end("H10", review=True)
+    journal = {"historical_import": imported, "transcript": transcript}
+    certificate = {
+        "type": "correction_delivery",
+        "at": stamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "data": {
+            "version": "pr85-correction-v2",
+            "repo": workflow.CORRECTION_REPO,
+            "issue": 84,
+            "pr": 85,
+            "prefix_digest": workflow.CORRECTION_PREFIX_DIGEST,
+            "capsule": frozen,
+            "capsule_digest": workflow.CORRECTION_CAPSULE_DIGEST,
+            "historical_import": imported,
+            "historical_import_digest": workflow.CORRECTION_IMPORT_DIGEST,
+            "transcript": transcript,
+            "content": content,
+            "delivery_evidence": evidence("fresh-correction-delivery"),
+        },
+    }
+    candidate = copy.deepcopy(original)
+    candidate["events"].append(certificate)
+    return original, candidate, journal
+
+
+def correction_rechain(candidate):
+    data = candidate["events"][-1]["data"]
+    transcript = data["transcript"]
+    for index, entry in enumerate(transcript):
+        entry["data"]["prior_digest"] = workflow.digest(
+            {"historical_import": data["historical_import"], "transcript": transcript[:index]}
+        )
+    review_start = next(
+        entry
+        for entry in transcript
+        if entry["type"] == "phase_start" and entry["data"]["slot"] == "H10"
+    )
+    review_end = transcript[-1]["data"]
+    review_end["audited_prefix_digest"] = review_start["data"]["prior_digest"]
+    review_end["evidence"]["summary"] = (
+        f"H10 pass seal {review_end['audited_prefix_digest']} content {data['content']}"
+    )
+
+
+def test_pinned_correction_certificate_replay_status_and_pr_binding():
+    original, candidate, _journal = correction_fixture()
+    now = datetime(2026, 10, 6, tzinfo=UTC)
+    old = workflow.replay(original, now)
+    with pytest.raises(workflow.Invalid, match="terminal"):
+        old.gate("delivery", now)
+    state = workflow.replay(candidate, now)
+    assert state.delivered and state.ready == old.ready
+    assert state.delivery_binding["content"] != state.correction_binding["content"]
+    assert state.correction["aggregate_counts"] == {
+        "implementation": 3,
+        "initial_review": 2,
+        "remediation": 4,
+        "final_review": 4,
+        "design_reset": 4,
+    }
+    assert set(state.correction["remaining_counts"].values()) == {0}
+    pr_event = pr("Primary issue: #84")
+    pr_event["number"] = 85
+    assert "passed" in workflow.check_pr(
+        pr_event,
+        {84: candidate},
+        workflow.ADOPTION,
+        now,
+        content=CONTENT,
+    )
+    with pytest.raises(workflow.Invalid, match="different content"):
+        workflow.check_pr(
+            pr_event,
+            {84: candidate},
+            workflow.ADOPTION,
+            now,
+            content=original["events"][-1]["data"]["content"],
+        )
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda c: c["events"][0]["data"].update(issue=85),
+        lambda c: c["events"][-1]["data"]["historical_import"]["phases"].pop(1),
+        lambda c: c["events"][-1]["data"]["historical_import"]["phases"][4].update(outcome="pass"),
+        lambda c: c["events"][-1]["data"]["capsule"].update(specification="changed"),
+        lambda c: c["events"][-1]["data"]["transcript"][5].update(
+            data={
+                **c["events"][-1]["data"]["transcript"][5]["data"],
+                "evidence": "  ok   approved  ",
+            }
+        ),
+        lambda c: c["events"][-1]["data"]["transcript"][5]["data"]["allowances"].update(
+            remediation=1
+        ),
+        lambda c: c["events"][-1]["data"]["transcript"][1]["data"].update(
+            session="/root/pr85_status_correction"
+        ),
+        lambda c: c["events"][-1]["data"]["transcript"][8]["data"].update(outcome="fail"),
+        lambda c: c["events"][-1]["data"]["transcript"].pop(2),
+        lambda c: c["events"][-1]["data"]["transcript"][-1]["data"].update(
+            reviewed_content=workflow.digest("different")
+        ),
+        lambda c: c["events"].append(copy.deepcopy(c["events"][-1])),
+    ],
+)
+def test_pinned_correction_rejects_changed_history_authority_or_phase(mutate):
+    _original, candidate, _journal = correction_fixture()
+    mutate(candidate)
+    with pytest.raises(workflow.Invalid):
+        workflow.replay(candidate, datetime(2026, 10, 6, tzinfo=UTC))
+
+
+def test_correction_prospective_append_and_content_race(tmp_path, monkeypatch):
+    original, candidate, journal = correction_fixture()
+    ticket_dir = tmp_path / workflow.DIRECTORY
+    ticket_dir.mkdir(parents=True)
+    path = ticket_dir / "issue-84.json"
+    path.write_text(json.dumps(original), encoding="utf-8")
+    now = datetime(2026, 10, 6, tzinfo=UTC)
+    monkeypatch.setattr(workflow, "content_digest", lambda *_args: CONTENT)
+    event = candidate["events"][-1]
+    assert workflow.prospective_correction(tmp_path, 84, event, journal, now).correction
+    changed = copy.deepcopy(journal)
+    changed["transcript"].pop()
+    with pytest.raises(workflow.Invalid, match="journal"):
+        workflow.prospective_correction(tmp_path, 84, event, changed, now)
+    monkeypatch.setattr(workflow, "content_digest", lambda *_args: workflow.digest("changed"))
+    with pytest.raises(workflow.Invalid, match="content"):
+        workflow.append(tmp_path, 84, event, now, journal=journal)
+    assert workflow.load(path.read_text(encoding="utf-8")) == original
+    monkeypatch.setattr(workflow, "content_digest", lambda *_args: CONTENT)
+    assert workflow.append(tmp_path, 84, event, now, journal=journal).correction
+
+
+def test_correction_atomic_pre_replace_content_recheck(tmp_path, monkeypatch):
+    original, candidate, journal = correction_fixture()
+    path = tmp_path / workflow.DIRECTORY / "issue-84.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(original), encoding="utf-8")
+    observed = iter([CONTENT, workflow.digest("changed-after-replay")])
+    monkeypatch.setattr(workflow, "content_digest", lambda *_args: next(observed))
+    with pytest.raises(workflow.Invalid, match="before atomic replace"):
+        workflow.append(
+            tmp_path,
+            84,
+            candidate["events"][-1],
+            datetime(2026, 10, 6, tzinfo=UTC),
+            journal=journal,
+        )
+    assert workflow.load(path.read_text(encoding="utf-8")) == original
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda t: t[5]["data"].update(evidence=" ok   approved "),
+        lambda t: t[5]["data"].update(
+            anchor="  "
+            + "".join(chr(ord(char) + 0xFEE0) for char in "THREAD")
+            + ":01a10c3f-947b-7d22-9a62-18be591c6074/"
+            + "user-reply:ok-approved-to-additional-design-revision-and-independent-challenge "
+        ),
+        lambda t: t[5]["data"].update(
+            evidence=(
+                "Direct user continue approves exact finite remediation/finalreview "
+                "and asks quota awareness."
+            )
+        ),
+        lambda t: t[5]["data"]["allowances"].update(initial_review=2),
+        lambda t: t[8]["data"].update(outcome="fail"),
+        lambda t: t[9]["data"].update(session="/root/pr85_status_correction"),
+        lambda t: t[12]["data"].update(content=workflow.digest("other")),
+        lambda t: t[13]["data"].update(reviewed_content=workflow.digest("other")),
+    ],
+)
+def test_correction_rejects_semantic_tampering_after_valid_digest_chain(mutate):
+    _original, candidate, _journal = correction_fixture()
+    transcript = candidate["events"][-1]["data"]["transcript"]
+    mutate(transcript)
+    correction_rechain(candidate)
+    with pytest.raises(workflow.Invalid):
+        workflow.replay(candidate, datetime(2026, 10, 6, tzinfo=UTC))
+
+
+def test_correction_rejects_review_author_alias_and_old_binding_fallback():
+    _original, candidate, _journal = correction_fixture()
+    transcript = candidate["events"][-1]["data"]["transcript"]
+    for entry in transcript:
+        if entry["data"].get("slot") == "H10":
+            entry["data"]["session"] = "/root/pr85_status_correction"
+    correction_rechain(candidate)
+    with pytest.raises(workflow.Invalid):
+        workflow.replay(candidate, datetime(2026, 10, 6, tzinfo=UTC))
+
+
 def test_capsule_boolean_generation_is_rejected_not_equal_to_one():
     value = clean(True)
     value["events"][1]["data"]["capsule"]["generation"] = True
