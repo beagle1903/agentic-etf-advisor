@@ -1,0 +1,148 @@
+{
+  "id": "issue-84-pr85-correction-delivery",
+  "generation": 1,
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 84,
+  "classification": "consequential",
+  "status": "DESIGN_READY_FOR_CHALLENGE",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/pr85_redelivery_implementation"
+  },
+  "rationale": "A delivered ticket rejects ordinary append/reopening, and its original content evidence cannot certify modified source. A single pinned certificate preserves original terminal history and validates actual supplemental work without creating a generic reopening policy.",
+  "authorization": {
+    "status_correction": "burha explicitly approved the narrowly scoped terminal-ticket exception: ok I approve. we have %30 left, divide the task and document the possible interruption if required.",
+    "design_challenge": "burha replied go on to Should I prepare that design next? This permits one read-only design and one separate independent challenge only.",
+    "implementation_review": "PENDING: user must approve the exact certificate mechanism, bootstrap reservation/import exception, one governance implementation and one independent code review. No remediation, final-review retry or additional design reset."
+  },
+  "scope": {
+    "certificate": "One correction_delivery event after the exact original Issue84 delivery, importing a strictly validated complete transcript of actual explicitly approved supplemental work.",
+    "integration": "Certificate validation in replay, atomic append, read-only prospective correction-delivery checking, status and original-PR validation.",
+    "verification": "Focused positive and adversarial tests, final-content verification, fresh independent code review, documentation and one pinned ADR.",
+    "retained_fix": "Preserve local commit771ba59 status remaining_counts correction and its focused tests."
+  },
+  "non_goals": [
+    "Generic reopening, repeated correction policy, automatic renewal or new-issue quota escape",
+    "Rewriting original events, capsules, consumed counts or delivery binding",
+    "Broader content-digest exclusions or CI privileges/bypass",
+    "Application, authentication, providers, databases, financial behavior or Issue83 changes",
+    "Role routing, split-policy or historical compatibility changes"
+  ],
+  "invariants": {
+    "I84HISTORY": "Preserve the exact 61-event original prefix and original capsule, consumed counts and delivered binding; retain original terminal status.",
+    "I84CYCLES": "Exactly one pinned supplemental certificate; preserve original counts and audit completed supplemental attempts; no retries or automatic allowances.",
+    "I84GATES": "Independent challenged design and coordinator approval bind this complete capsule; fresh verification, acceptance and independent review bind identical full content; correction certifies only original repo/PR85.",
+    "I84SPLIT": "Retain corrected status display and unchanged allocation/over-allocation enforcement.",
+    "I84ISOLATE": "Workflow-only exception; no application or financial contract change."
+  },
+  "anchor": {
+    "prefix_events": 61,
+    "prefix_digest": "320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6",
+    "repo": "beagle1903/agentic-etf-advisor",
+    "issue": 84,
+    "pr": 85,
+    "original_capsule": {
+      "id": "issue-84-cycle-bounded-workflow",
+      "generation": 3,
+      "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+    },
+    "original_delivered_content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7"
+  },
+  "interfaces": [
+    "scripts/ticket_workflow.py replay and atomic append",
+    "check --phase correction_delivery --correction-record PATH",
+    "Workflow status original/supplemental/aggregate accounting",
+    "check_pr chooses correction binding exclusively when present",
+    "check_prefix remains fully enforced"
+  ],
+  "json_state_impact": {
+    "application": "none",
+    "ledger": "Outer schema1 retained; one appended event type correction_delivery with exact validated versioned data; no modification of earlier events.",
+    "status": "Expose original/supplemental/aggregate attempt accounting separately; correction remaining attempts zero after successful certification.",
+    "replay": "Retain original delivery_binding and terminal state; add distinct validated correction binding, never fallback to original binding after certificate."
+  },
+  "certificate_data": {
+    "version": "pr85-correction-v1",
+    "identity": "prefix_digest, repo, issue, pr and exact original delivery binding",
+    "design": "Complete frozen correction capsule and its canonical digest; actual separate design/challenge reservations, outcomes and coordinator approval bind same generation/digest.",
+    "authority": "Separate named user authorizations for status exception, design/challenge and exact new implementation/review allowance; normalized evidence identities must not be reused.",
+    "prior_correction_audit": "Actual status-fix/review sessions, roles, evidence and source/test hashes; explicitly audit-only, never certification of governance changes.",
+    "phases": "Ordered actual reservations, pause/resume and outcomes for design, challenge, implementation, verification and independent review; approval precedes implementation; same reservation/session on resume; no overlap, backwards/future times, failed challenge/phase or invented successful rerun.",
+    "acceptance": "Complete frozen supplemental acceptance IDs and evidence bound to final content.",
+    "delivery": "Final content SHA256 and delivery evidence, original repository and PR85 only.",
+    "validation": "Strict exact keys, types, SHA and authority validation; reject duplicate keys, unknown fields/phases, NaN, duplicate certificate or any subsequent event."
+  },
+  "counting": {
+    "original_consumed": {
+      "implementation": 2,
+      "initial_review": 1,
+      "remediation": 3,
+      "final_review": 3,
+      "design_reset": 2
+    },
+    "prior_status_exception": {
+      "remediation": 1,
+      "final_review": 1
+    },
+    "current_design_exception": {
+      "design_reset": 1,
+      "independent_challenge": 1
+    },
+    "proposed_new_allowance": {
+      "implementation": 1,
+      "initial_review": 1,
+      "remediation": 0,
+      "final_review": 0,
+      "design_reset": 0
+    },
+    "aggregate_on_success": {
+      "implementation": 3,
+      "initial_review": 2,
+      "remediation": 4,
+      "final_review": 4,
+      "design_reset": 3
+    },
+    "interruption": "Quota waits and pauses retain original reservation/session and consume no additional attempt; no phase replacement or new allowance."
+  },
+  "content_binding": {
+    "digest": "content_digest(root,84), covering final code, tests and tracked documentation; only existing current-ledger/lock/temp exclusions remain.",
+    "verification": "Fresh final-content verification, complete acceptance and independent code review must bind identical digest.",
+    "review_independence": "Exclude all original, status-correction, governance and verification write authors.",
+    "append": "Prospective check validates full transcript/current content; atomic append checks current content immediately before replacement.",
+    "input_record": "Keep prospective event outside repository content; do not exclude another tracked file.",
+    "bootstrap": "Until support exists, actual reservations and rejected required gates are recorded truthfully in the approved supplemental document. Import completed actual transcript once, without claiming rejected engine gates passed."
+  },
+  "acceptance": {
+    "AC85C-HISTORY": "I84HISTORY/AC84HISTORY: exact prefix, original capsule/counts/binding preserved.",
+    "AC85C-BOUND": "I84CYCLES/AC84CYCLES: one certificate, exact approved finite allowance, no reused authority/extra phase/retry after failure.",
+    "AC85C-EVIDENCE": "I84GATES/AC84GATES: frozen capsule, independent challenge/coordinator approval, fresh independent review and matching verification/acceptance/review content.",
+    "AC85C-IDENTITY": "I84GATES: only original repo/PR85 and exact corrected content.",
+    "AC85C-STATUS": "I84SPLIT/AC84SPLIT: correct unallocated pool including zero; enforcement unchanged.",
+    "AC85C-ISOLATE": "I84ISOLATE/AC84DOCS/AC84VERIFY: workflow-only changes, documented exception, required checks pass."
+  },
+  "verification": [
+    "Valid certificate through replay, prospective CLI check, atomic append and CI PR validation",
+    "Reject altered/truncated prefix, wrong issue/repository/PR, duplicate certificate, ordinary postdelivery event",
+    "Reject stale/mismatched content, missing design/challenge/approval/acceptance or reviewer sharing any write-author identity",
+    "Reject changed content after reservation, duplicate normalized authority, excess/repeated/overlapping phases, failure followed by fabricated pass, interrupted-session replacement",
+    "Retain historical delivered/split/lineage and 115 current workflow regressions",
+    "Required static/offline/evaluation/build/Compose-config checks on frozen final content; no services"
+  ],
+  "documentation": [
+    "New ADR for this exact one-off exception, preserving accepted history",
+    "Workflow instructions and supplemental iteration handoff updated before final content freeze",
+    "Actual subsequent evidence in current ledger or external issue/PR record, no tracked-doc changes after content-bound verification"
+  ],
+  "risks": [
+    "Recorded governance cannot authenticate human authority or actual live-session provenance",
+    "Self-certifying engine changes need fresh independent review",
+    "The prospective event shape and transcript rules must be challenged before approval"
+  ],
+  "escalation_triggers": [
+    "Generic reopening, another PR, broader compatibility, another correction attempt or retry requires separate explicit decision",
+    "Unresolved challenge, implementation/verification/review failure stops this finite attempt"
+  ],
+  "escalation": null
+}
