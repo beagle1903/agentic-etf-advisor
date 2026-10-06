@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-06T17:28:15Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 86,
+        "classification": "consequential",
+        "scope": [
+          "S86WORKFLOW"
+        ],
+        "invariants": [
+          "I86HISTORY",
+          "I86BOUND",
+          "I86OWNER",
+          "I86CONTENT",
+          "I86ATOMIC"
+        ],
+        "acceptance": [
+          "AC86OWNER",
+          "AC86CONTINUE",
+          "AC86GATES",
+          "AC86BOUND",
+          "AC86HISTORY",
+          "AC86VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue86 user-authorized scoped consequential capsule; no implementationapproval until separate design/challenge."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 86,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/owner_workflow_implementation"
+          },
+          "rationale": "Consequential development replay and delivery contract; separate architect/challenge then one owner implementation and bounded remediation.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1123f-1708-7ea3-9b87-c691f8a161fa; user continue then authorizes separate permanent owner-led workflow/standard finite continuation issue after agreeing scope; not Issue84 retry."
+          },
+          "scope": {
+            "S86WORKFLOW": "Simplify development governance on main: owner-led routine work, same-scope owner repairs, standard finite explicitly authorized continuation after review/delivery preserving audit history. Workflow CLI/ledger/tests/instructions/templates/validator/docs only."
+          },
+          "non_goals": [
+            "No product/authentication/finance/provider/database changes",
+            "No globalmodel/access/registration or CIprivilege changes",
+            "No import/rewrite/retry of PR85 bespoke protocol",
+            "No automatic renewal or retroactive adoption"
+          ],
+          "invariants": {
+            "I86HISTORY": "Every prior event, failed outcome, count and binding remains immutable; legacy replay reproducible; Issue23/83/84 and PR85 untouched, not resumed or given attempts.",
+            "I86BOUND": "Finite lifetime reservation counters never reset through sessions/quotas/continuations/newissues/splits; only explicit positive finite user authority grants; time audit-only under new policy.",
+            "I86OWNER": "Routine complete workflow owned by one authorized session; consequential contracts use independent design challenge/approval and review; same-scope fixes stay with owner without automatic design reset.",
+            "I86CONTENT": "Fresh verification/acceptance/requiredreview bind identical current content and original ticket/repository/PR identity; prior deliveries retained but cannot certify changed content.",
+            "I86ATOMIC": "Strict schemas and one-writer atomic validated append; real on-disk history/event/evidence/content changes before replacement reject. No bespoke external-journal certificates."
+          },
+          "interfaces": [
+            "Development ticket CLI/ledger/status/CI binding",
+            "AGENTS/role instruction bodies/templates/static validator/contributor docs",
+            "Application interfaces:none"
+          ],
+          "json_state_impact": "Application graph/checkpoint JSON:none. Development ledger gains standard versioned owner-led finite policy and explicit continuation/transition metadata while preserving legacy records.",
+          "acceptance": {
+            "AC86OWNER": "Routine one-owner capsule/implementation/selfreview/verification; consequential/highrisk independent gates; same-scope review repairs do not force architect/replacement.",
+            "AC86CONTINUE": "Reusable explicitlyauthorized finite continuation on same ticket/PR retains all prior bindings/events/counts, invalidates stale success, supports new verified delivery without issue-specific certificates.",
+            "AC86GATES": "Frozen capsule and required consequential challenge/approval/ownership/review independence, currentcontent certification, strict append and exact PRidentity enforced.",
+            "AC86BOUND": "New policy gates finite attempts, elapsedtime auditonly; normalizedauthority single-use, explicit extensions and lineageallocation cannot replenish implicitly.",
+            "AC86HISTORY": "Legacy fixtures/ledgers replay unchanged; transition only explicitappend; Issue23/83/84/PR85 untouched and suspended. Newissue not successor.",
+            "AC86VERIFY": "Meaningful positive/negative routine/consequential/continuation/content/authority/file-race/finalpublication tests and required offline/static gates pass; actual final ledger tested beforepush."
+          },
+          "verification": [
+            "Focused meaningful replay/CLI/atomic on-disk race/continuation/ownership tests",
+            "Both workflow validators; Ruff lint/format; configured mypy",
+            "Full offline pytest excluding real_store; offline retrieval/explanation evaluations; build; Compose config withoutservices",
+            "Actual final publication ledger tests and exact PR/currentcontent binding beforepush"
+          ],
+          "documentation": [
+            "New ADR0033 preserving acceptedhistory",
+            "docs/iterations/018-owner-led-workflow.md",
+            "AGENTS rolebodies CONTRIBUTING workflowREADME examples andissuePRtemplates"
+          ],
+          "risks": [
+            "Self-modifying validator bootstrap and legacy compatibility",
+            "False currentcontent certification or implicit allowance reset",
+            "Staticvalidation cannot authenticate humans/live-session provenance",
+            "Available quota does not guarantee delivery"
+          ],
+          "escalation_triggers": [
+            "New scope/contract beyond frozen objectives returns coordinator",
+            "Concrete concurrency/migration ambiguity requires architecturaldecision beforewrites",
+            "Exhausted finitecounts or failedfinalreview stops foruserdecision"
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T17:28:26Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/owner_workflow_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-06T17:35:51Z",
+      "data": {
+        "session": "/root/owner_workflow_design",
+        "outcome": "pass",
+        "evidence": "Separate read-only Astra/high DESIGN_READY handoff; session01a11242-b2bf-7421-a065-df8003a0b646. Frozen normative design docs/iterations/018-owner-led-workflow-design.md SHA256 7ecb43cfaaca150ae5ffe1f270b7a41d72b125259f1812ff9a5ac7dd35ea954c binds capsule94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8; no implementation authorization before challenge/approval."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T17:36:04Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/owner_workflow_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-06T17:38:41Z",
+      "data": {
+        "session": "/root/owner_workflow_challenge",
+        "outcome": "pass",
+        "evidence": "Independent Sol/high read-only designchallenge PASS oncapsule 94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8 and LF-normalized normativehandoff SHA256 7ecb43cfaaca150ae5ffe1f270b7a41d72b125259f1812ff9a5ac7dd35ea954c. RawWindowsCRLF hash 2a5f54b6f4c3c3723fbfceaf8148ebce62d51800c7e0b212c75e9546acbc00fb; newline-onlyserialization discrepancy verified nosemanticchange. Existing coordination_resume afterpostdeliverycontinuation covered byactualsaved-ledger test. No frozen-IDblocker."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-06T17:38:41Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue86 usercontinue authorization message01a1123f-1708-7ea3-9b87-c691f8a161fa permits whole scopedworkflow change; separateAstra/highdesign andSol/highchallenge PASS; coordinatorapproval 2026-10-06T17:38:41Z"
+        },
+        "evidence": "Approved complete frozen capsule and LF-normalized normativehandoff 7ecb43cfaaca150ae5ffe1f270b7a41d72b125259f1812ff9a5ac7dd35ea954c; rawCRLF 2a5f54b6f4c3c3723fbfceaf8148ebce62d51800c7e0b212c75e9546acbc00fb. No implementationoutside frozenworkflow scope or oldticketretry.",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T17:38:53Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    }
+  ]
+}
