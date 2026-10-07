@@ -657,7 +657,7 @@ def test_owner_actual_saved_delivery_continuation_and_redelivery(tmp_path):
 )
 def test_atomic_append_rechecks_actual_disk_inputs_before_replace(tmp_path, monkeypatch, damage):
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
-    init = ledger(issue=86)["events"][0]
+    init = owner_ledger()["events"][0]
     workflow.append(tmp_path, 86, init, START)
     path = tmp_path / workflow.DIRECTORY / "issue-86.json"
     other = tmp_path / workflow.DIRECTORY / "issue-99.json"
@@ -1003,8 +1003,9 @@ def test_split_successors_validate_prefix_inherit_counts_and_share_remainder():
 def test_atomic_append_rejects_invalid_without_mutation_and_respects_lock(tmp_path):
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     init = ledger()["events"][0]
-    workflow.append(tmp_path, 73, init, START)
     path = tmp_path / workflow.DIRECTORY / "issue-73.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({"schema": 1, "events": [init]}), encoding="utf-8")
     prior = path.read_bytes()
     with pytest.raises(workflow.Invalid):
         workflow.append(
@@ -1028,6 +1029,84 @@ def test_atomic_append_rejects_invalid_without_mutation_and_respects_lock(tmp_pa
             event("design_ready", 1, authority=AUTH, evidence="ready"),
             START + timedelta(seconds=1),
         )
+
+
+@pytest.mark.parametrize("policy", [None, "unknown-v9"])
+def test_new_ticket_append_requires_explicit_owner_policy_before_write(tmp_path, policy):
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    initial = copy.deepcopy(owner_ledger()["events"][0])
+    if policy is None:
+        del initial["data"]["policy"]
+    else:
+        initial["data"]["policy"] = policy
+    path = tmp_path / workflow.DIRECTORY / "issue-86.json"
+    with pytest.raises(
+        workflow.Invalid, match="new ticket creation requires explicit owner-led-v1"
+    ):
+        workflow.append(tmp_path, 86, initial, START)
+    assert not path.exists() and not path.with_suffix(".lock").exists()
+    owner_initial = owner_ledger()["events"][0]
+    result = workflow.append(tmp_path, 86, owner_initial, START)
+    assert result.policy == "owner-led-v1"
+    assert workflow.read_all(tmp_path)[86]["events"] == [owner_initial]
+
+
+def test_existing_timed_ledger_can_append_without_policy_rewrite(tmp_path):
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    value = ledger(issue=73)
+    path = tmp_path / workflow.DIRECTORY / "issue-73.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(value), encoding="utf-8")
+    add(value, "design_ready", 1, authority=AUTH, evidence="historical legacy approval")
+    result = workflow.append(tmp_path, 73, value["events"][-1], START + timedelta(seconds=1))
+    assert result.policy == "timed-v1"
+    assert workflow.read_all(tmp_path)[73]["events"] == value["events"]
+
+
+def test_merge_base_new_policy_requirement_and_explicit_transition(tmp_path):
+    subprocess.run(["git", "init", "-b", "main"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True
+    )
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
+    (tmp_path / "baseline.txt").write_text("baseline\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"], cwd=tmp_path, check=True, capture_output=True
+    )
+    timed = ledger(issue=86)
+    with pytest.raises(
+        workflow.Invalid, match="new ledger introduction requires current owner-led-v1"
+    ):
+        workflow.check_prefix(tmp_path, "main", {86: timed}, START)
+    owner = owner_ledger()
+    assert workflow.check_prefix(tmp_path, "main", {86: owner}, START) == {86}
+    transitioned = copy.deepcopy(timed)
+    add(
+        transitioned,
+        "policy_transition",
+        1,
+        policy="owner-led-v1",
+        authority=USER,
+        capsule=workflow.capsule_ref(current_capsule(transitioned)),
+        reason="explicitly authorized owner-led policy",
+    )
+    assert workflow.check_prefix(
+        tmp_path, "main", {86: transitioned}, START + timedelta(seconds=1)
+    ) == {86}
+
+    # The same policyless prefix remains valid when it already exists at merge base.
+    path = tmp_path / workflow.DIRECTORY / "issue-86.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(timed), encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "historical timed"], cwd=tmp_path, check=True, capture_output=True
+    )
+    ready(timed, 2)
+    assert workflow.check_prefix(tmp_path, "main", {86: timed}, START + timedelta(seconds=2)) == {
+        86
+    }
 
 
 def test_merge_base_prefix_rejects_edits_and_deletion(tmp_path):
@@ -1188,7 +1267,7 @@ def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
     )
     bases = []
     monkeypatch.setattr(
-        workflow, "check_prefix", lambda _root, base, _ledgers: bases.append(base) or set()
+        workflow, "check_prefix", lambda _root, base, _ledgers, _now: bases.append(base) or set()
     )
     monkeypatch.setattr(sys, "argv", ["workflow", "ci", "--event", str(path), "--base", cli_base])
     if cli_base == "base-a":

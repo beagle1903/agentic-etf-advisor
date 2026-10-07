@@ -457,6 +457,167 @@
           "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
         }
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-07T07:38:51Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1154b-df47-76b0-a560-8b4c244f9ed9; ok fix it authorizes narrow PR87 comment4204251261 repair: require owner-led policy at new-ledger creation/introduction while preserving legacy replay, one same-owner remediation and fresh verification/finalreview, no designreset/scopeexpansion."
+        },
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "AC86BOUND/AC86GATES loophole: policy-less newledger can silentlyretaintimed-v1. Narrow boundary enforcement and regressions; currentcapsule/design/owner/history/priorbinding preserved."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-07T07:38:51Z",
+      "data": {
+        "id": "B86-NEW-TIMED-LEDGER",
+        "criterion": "AC86BOUND",
+        "scenario": "Newledger withomittedpolicy isacceptedatappendandCIintroduction, retaining120minute exhaustion contrarynewticketpolicy.",
+        "evidence": "PR87 reviewcomment4204251261; coordinator confirmed creationandcheck_prefix lack newpolicygate; userexplicitlyauthorizednarrowfix."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-07T07:38:51Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume standard finite continuation authorizedbyuser message01a1154b-df47-76b0-a560-8b4c244f9ed9"
+        },
+        "evidence": "Prior delivery stopped auditclock; explicitcoordinationresume before same-owner repair. Allpriorhistory/counts/bindings retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T07:39:06Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:44:36Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "Narrowpolicy-introductionrepair complete;104focusedtests chunk96a868,changedRufflint/format,standalonevalidator/diffcheckPASS. Newappendrequires explicitowner-led beforecreatingtarget; CIintroducedhistories requirederivedowner-ledpolicy, acceptingvalidexplicittransition andpreservingmerge-baselegacy. RealIssue86historypassesmergebase/status. Initial8fixture/mock selfcheckfailures correctedwithinthesameremediation, nolegacymanticsweakened. Onlyscript/focusedtests/READMEparagraph changed."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-07T07:44:36Z",
+      "data": {
+        "id": "B86-NEW-TIMED-LEDGER",
+        "evidence": "Completed same-owner narrowremediation;104focusedtests covercreationmissing/unknownpolicyreject, owner-ledaccept, introducedtimedreject, explicittransitionaccept, pre-existingmerge-baselegacyaccept; realIssue86historypasses; freshverification/review pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T07:44:49Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:50:27Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "FreshcontinuationverificationPASS exactcontent 8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae.344focused/static(104+240) chunk866b34/session44560;1266selectedoffline exit0 100percent chunk811f2b/session89146. Bothvalidators/realIssue86mergebaseintroductioncheck,fullRuff151format/mypy49,evals/buildTEMP/bothComposeconfigs/diffchecksPASS. Optionalportwarningsonly; noedits; status44961b confirmsdigestunchanged."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-07T07:50:27Z",
+      "data": {
+        "ids": [
+          "AC86OWNER",
+          "AC86CONTINUE",
+          "AC86GATES",
+          "AC86BOUND",
+          "AC86HISTORY",
+          "AC86VERIFY"
+        ],
+        "evidence": "AllfrozenACs retainedandverified, particularlyAC86BOUND/GATES/HISTORY: newappendrequiresowner-led, introducedhistorymustderiveowner-led, validexplicittransition/merge-baselegacy allowedwithoutrewrite.104workflow/240static/1266offline plusconfiguredgatesPASS. Previousdelivery retainedhistorically; currentfreshfinalreview/actualsavedredeliverypublicationchecks pending.",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T07:50:39Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/owner_workflow_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:51:49Z",
+      "data": {
+        "session": "/root/owner_workflow_review",
+        "outcome": "pass",
+        "evidence": "Independentreadonly continuationFINALREVIEW PASS exactcontent 8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae andfrozencapsule94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8. Newappend missing/unknownpolicyreject beforewrite; newlyintroducedhistories deriveowner-led, validexplicittransition acceptedwithoutidentityexception andmerge-baselegacy retained. Focusedsemanticboundaries covered, oldatomic/certificationpathsunchanged; history/counts/bindings retained. No newfrozen-IDblocker, no reviewerwrite/tests. Actualsavedredeliverypublicationchecks pending."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-07T07:52:06Z",
+      "data": {
+        "evidence": "Standardredelivery afterexplicitfinitecontinuation/same-ownerrepair, freshverified/accepted/independentlyreviewedidenticalcontent. OriginalPR87identity preserved andpriorbinding retainedinhistory. Actualsaved-ledgerpublicationchecks requiredbeforepush.",
+        "pr": 87,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "8d2c1fa60b755065dd9916cf737e5d790b480ccf6ce2323c1195a58d958ee8ae",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
     }
   ]
 }

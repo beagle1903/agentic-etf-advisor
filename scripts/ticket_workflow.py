@@ -1161,6 +1161,13 @@ def append(
         original_files = ledger_bytes(root)
         original_content = content_digest(root, issue)
         ledgers = read_all(root)
+        if issue not in ledgers and (
+            not isinstance(event, dict)
+            or event.get("type") != "initialize"
+            or not isinstance(event.get("data"), dict)
+            or event["data"].get("policy") != "owner-led-v1"
+        ):
+            raise Invalid("new ticket creation requires explicit owner-led-v1 policy")
         value = ledgers.get(issue, {"schema": 1, "events": []})
         if (
             event.get("type") == "phase_start"
@@ -1217,7 +1224,9 @@ def append(
         lock.unlink(missing_ok=True)
 
 
-def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
+def check_prefix(
+    root: Path, base: str, ledgers: dict[int, dict], now: datetime | None = None
+) -> set[int]:
     merge_base = subprocess.check_output(
         ["git", "merge-base", base, "HEAD"], cwd=root, text=True
     ).strip()
@@ -1238,6 +1247,15 @@ def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
         current = ledgers.get(issue)
         if current is None or current["events"][: len(old["events"])] != old["events"]:
             raise Invalid("merge-base ledger history edited or deleted")
+    checked_at = now or datetime.now(UTC)
+    for issue in ledgers.keys() - originals.keys():
+        state = replay(
+            ledgers[issue],
+            checked_at,
+            predecessors={key: value for key, value in ledgers.items() if key != issue},
+        )
+        if state.policy != "owner-led-v1":
+            raise Invalid("new ledger introduction requires current owner-led-v1 policy")
     return {issue for issue, value in ledgers.items() if originals.get(issue) != value}
 
 
@@ -1323,7 +1341,7 @@ def main() -> None:
         else:
             ledgers = validate_all(args.root, now)
             changed = (
-                check_prefix(args.root, args.base, ledgers)
+                check_prefix(args.root, args.base, ledgers, now)
                 if args.base and args.command != "ci"
                 else set()
             )
@@ -1392,7 +1410,9 @@ def main() -> None:
                     event = current_pr(event, json.load(response))
                 if args.base != event["pull_request"]["base"]["sha"]:
                     raise Invalid("prefix base differs from validated PR base SHA")
-                changed = check_prefix(args.root, event["pull_request"]["base"]["sha"], ledgers)
+                changed = check_prefix(
+                    args.root, event["pull_request"]["base"]["sha"], ledgers, now
+                )
                 body = event["pull_request"].get("body") or ""
                 historical = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
                 if historical and not re.search(r"^Primary issue:", body, re.MULTILINE):

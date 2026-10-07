@@ -24,7 +24,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 
 | Event | Data fields |
 |---|---|
-| `initialize` | See template; `policy: owner-led-v1` for new tickets, or omit for legacy `timed-v1`; one of each counted phase. |
+| `initialize` | See template; new tickets must explicitly use `policy: owner-led-v1`; existing policyless history remains legacy `timed-v1`; one of each counted phase. |
 | `phase_start` | `phase`, `session`, `role`, `capsule`; review/verification also require `content` SHA256. |
 | `phase_end` | `session`, `outcome` (`pass`, `fail`, `interrupted`), `evidence` |
 | `pause` | Same as end, with `interrupted`; preserves exact reserved session. |
@@ -90,6 +90,10 @@ Sibling allocations share the original remainder. An extension is a separately a
 finite choice before splitting, not an automatic successor budget.
 
 CI fetches the current PR body and checks the event head against the current head.
+New ledger introduction must derive the current `owner-led-v1` policy. An existing
+timed prefix with an explicit authorized transition may be introduced; a newly
+introduced history that remains timed is rejected. Merge-base legacy ledgers remain
+valid without a retroactive policy rewrite.
 Exactly one `Primary issue: #N` line binds the PR; a changed ledger must include that
 primary issue. `edited` events rerun checks. Existing merge-base events must remain an
 identical prefix; deletion fails. Future issues (created at/after 2026-09-26T04:23:34Z)
