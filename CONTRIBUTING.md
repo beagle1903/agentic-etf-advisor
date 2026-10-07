@@ -44,6 +44,19 @@ while preserving consumed counts and historical bindings. A changed contract sti
 uses the bounded design path or separate scope. The legacy `timed-v1` rules remain
 unchanged for their recorded prefixes.
 
+ADR 0034 requires bounded coordinator arbitration before another dependent handoff
+when a concern returns after a substantive response or a proposed requirement,
+success condition, or remedy shifts beyond the frozen capsule. Record the existing
+roles' concrete scenarios and evidence against frozen IDs in the
+[arbitration template](docs/workflow/templates/coordinator-arbitration.md), then
+classify each as a demonstrated defect, contract ambiguity, preference, or outside
+scope. The coordinator makes one accountable decision and focused closure condition,
+records disagreements and rationale, and applies the existing checked/reserved phase,
+owner, independent review, finite count, and content gates. A demonstrated defect
+requires repair and verification or an explicit stop; a failed check stays failed.
+Agreement is not a gate, and arbitration supplies no automatic reset or allowance.
+Finish the record before content-bound certification.
+
 The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
 no-project-model-override, and no-concurrency-scalar compatibility policy still applies.
 `scripts/validate_codex_workflow.py` checks static contracts in CI; it cannot prove live-session
@@ -223,8 +236,10 @@ non-goals, interfaces, explicit JSON/state impact, verification, docs, risks and
 Design, challenge and approval bind the same immutable digest and current generation.
 Classified write ownership and any concrete specialist escalation must be recorded;
 reviews exclude every implementation, remediation and verification author.
-Default budget: 120 active minutes across all work, including discovery, design,
-challenge, implementation, verification and review. Start reserves the counted slot;
+Historical `timed-v1` tickets have a 120 active minutes budget across discovery,
+design, challenge, implementation, verification and review. New `owner-led-v1`
+tickets record elapsed seconds for audit, while finite phase counts govern dispatch.
+Start reserves the counted slot;
 crashed open phases consume through the current time. Explicit pause records elapsed
 and resume continues the same reserved phase. No unrecorded time subtraction.
 
@@ -242,8 +257,9 @@ Before dispatch, run `uv run python scripts/ticket_workflow.py check --issue N -
 then append the phase_start event before starting its agent. Before delivery run the
 same check with `--phase delivery`. Append measured phase ends, acceptance evidence,
 review outcomes and blocker resolutions. One writer uses atomic validated append.
-Explicit finite user extensions append additional seconds and phase counts with named
-authority and evidence; no automatic renewal. Splits require explicit user decision,
+Explicit finite user extensions append named authority and evidence; owner-led grants
+add count deltas with zero seconds, while timed grants retain seconds-and-counts rules.
+No automatic renewal. Historical timed splits require explicit user decision,
 validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.

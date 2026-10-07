@@ -411,3 +411,88 @@ def test_runtime_ledger_validation_rejects_bad_json(repository: Path) -> None:
         '{"schema":1,"schema":1,"events":[]}', encoding="utf-8"
     )
     reject(repository, "invalid recorded ticket workflow")
+
+
+@pytest.mark.parametrize("role", ROLES)
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "underlying concern returns after a substantive answer, repair or review response",
+        "proposed requirement, success condition or remedy shifts",
+        "stop dependent handoffs and return scenarios and evidence",
+        "frozen invariant/AC IDs",
+        "demonstrated defect, contract ambiguity, preference and outside scope",
+        "defect needs repair and verification or explicit stop; keep failed checks",
+        "one accountable decision, disagreements, rationale",
+        "one focused closure condition; unanimity is unnecessary",
+        "Same-scope repair stays with",
+        "no slot, automatic design reset or ledger",
+        "existing checked/reserved phases, independent gates",
+        "finite counts and content binding",
+        "dispatch hold as an offline",
+        "new material evidence to the same episode",
+    ],
+)
+def test_role_arbitration_boundary_required(repository: Path, role: str, clause: str) -> None:
+    replace(repository / f".codex/agents/{role}.toml", clause, "weakened boundary")
+    reject(repository, "missing coordinator arbitration boundaries")
+
+
+@pytest.mark.parametrize(
+    "clause",
+    [
+        "- Issue / episode ID / UTC opened:",
+        "- Coordinator / authority evidence:",
+        "- Frozen capsule ID / generation / digest / repository content identity:",
+        "- Current phase / reservation / dispatch hold / remaining counted allowances:",
+        "| Role and session | Frozen invariant/AC ID | Concrete path or disputed reading | "
+        "Expected and actual result | Evidence | Classification |",
+        "- One primary accountable decision: narrow repair / contract clarification /",
+        "- Rejected alternatives, disagreements, and coordinator rationale:",
+        "- One focused observable closure condition: frozen ID, responsible owner, expected",
+        "- New material evidence appended to this episode, its effect, accountable revision",
+        "grants no authority",
+        "repeated assertions without new evidence",
+        "Demonstrated defects require repair and verification or explicit stop",
+        "Same-scope repair stays with the approved owner",
+        "Unanimity is unnecessary",
+        "BLOCKED_FOR_DECISION",
+        "requires fresh content-bound certification",
+    ],
+)
+def test_arbitration_template_boundary_required(repository: Path, clause: str) -> None:
+    replace(repository / "docs/workflow/templates/coordinator-arbitration.md", clause, "omitted")
+    reject(repository, "missing required workflow")
+
+
+@pytest.mark.parametrize("damage", ["missing", "encoding"])
+def test_arbitration_template_unreadable(repository: Path, damage: str) -> None:
+    path = repository / "docs/workflow/templates/coordinator-arbitration.md"
+    if damage == "missing":
+        path.unlink()
+    else:
+        path.write_bytes(b"\xff")
+    reject(repository, "unreadable workflow document")
+
+
+@pytest.mark.parametrize(
+    "relative,clause",
+    [
+        ("AGENTS.md", "same underlying concern returns after a substantive answer"),
+        ("AGENTS.md", "success condition, or remedy shifts"),
+        ("AGENTS.md", "Stop new dependent handoffs"),
+        ("AGENTS.md", "one primary accountable decision"),
+        ("AGENTS.md", "Never waive a demonstrated defect"),
+        ("AGENTS.md", "unanimous agreement is not required"),
+        ("AGENTS.md", "reset design automatically"),
+        ("CONTRIBUTING.md", "failed check stays failed"),
+        ("CONTRIBUTING.md", "arbitration supplies no automatic reset or allowance"),
+        ("docs/workflow/README.md", "no event, allowance"),
+        ("docs/workflow/README.md", "failed checks remain failed"),
+    ],
+)
+def test_arbitration_governance_clause_required(
+    repository: Path, relative: str, clause: str
+) -> None:
+    replace(repository / relative, clause, "weakened boundary")
+    reject(repository, "missing required workflow markers")
