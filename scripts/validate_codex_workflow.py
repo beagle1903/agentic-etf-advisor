@@ -10,6 +10,36 @@ from ticket_workflow import Invalid, validate_all
 
 ROOT = Path(__file__).resolve().parents[1]
 
+ARBITRATION_ROLE_MARKERS = (
+    "underlying concern returns after a substantive answer, repair or review response",
+    "proposed requirement, success condition or remedy shifts",
+    "stop dependent handoffs and return scenarios and evidence",
+    "frozen invariant/AC IDs",
+    "demonstrated defect, contract ambiguity, preference and outside scope",
+    "defect needs repair and verification or explicit stop; keep failed checks",
+    "one accountable decision, disagreements, rationale",
+    "one focused closure condition; unanimity is unnecessary",
+    "Same-scope repair stays with",
+    "no slot, automatic design reset or ledger",
+    "existing checked/reserved phases, independent gates",
+    "finite counts and content binding",
+    "dispatch hold as an offline",
+    "new material evidence to the same episode",
+)
+
+ARBITRATION_TEMPLATE_LINES = (
+    "- Issue / episode ID / UTC opened:",
+    "- Coordinator / authority evidence:",
+    "- Frozen capsule ID / generation / digest / repository content identity:",
+    "- Current phase / reservation / dispatch hold / remaining counted allowances:",
+    "| Role and session | Frozen invariant/AC ID | Concrete path or disputed reading | "
+    "Expected and actual result | Evidence | Classification |",
+    "- One primary accountable decision: narrow repair / contract clarification /",
+    "- Rejected alternatives, disagreements, and coordinator rationale:",
+    "- One focused observable closure condition: frozen ID, responsible owner, expected",
+    "- New material evidence appended to this episode, its effect, accountable revision",
+)
+
 
 def require_equal(data: dict[str, object], key: str, expected: object, path: Path) -> None:
     actual = data.get(key)
@@ -245,6 +275,13 @@ def main() -> None:
         ]
         if missing:
             raise SystemExit(f"{path}: missing instruction boundaries: {missing}")
+        absent_arbitration = [
+            marker for marker in ARBITRATION_ROLE_MARKERS if marker not in instructions
+        ]
+        if absent_arbitration:
+            raise SystemExit(
+                f"{path}: missing coordinator arbitration boundaries: {absent_arbitration}"
+            )
 
     routing_table_rows = tuple(
         "| `{name}` | `{model}` | {effort} | {access} |".format(
@@ -286,6 +323,21 @@ def main() -> None:
             "owner-led-v1",
             "continuation",
             "elapsed seconds for audit",
+            "Bounded coordinator arbitration (ADR 0034)",
+            "same underlying concern returns after a substantive answer, repair, or "
+            "review response",
+            "success condition, or remedy shifts",
+            "Stop new dependent handoffs",
+            "demonstrated defect",
+            "contract ambiguity",
+            "preference",
+            "outside scope",
+            "one primary accountable decision",
+            "one observable focused",
+            "Same-scope repairs stay with",
+            "unanimous agreement is not required",
+            "Never waive a demonstrated defect",
+            "reset design automatically",
         ),
     )
     require_markers(
@@ -332,11 +384,40 @@ def main() -> None:
             "multiple files, integration tests, or unfamiliarity alone are insufficient",
             "owner-led-v1",
             "continuation",
+            "ADR 0034 requires bounded coordinator arbitration",
+            "demonstrated defect, contract ambiguity, preference, or outside",
+            "one accountable decision and focused closure condition",
+            "failed check stays failed",
+            "arbitration supplies no automatic reset or allowance",
         ),
     )
     require_markers(
         ROOT / "docs/workflow/README.md",
-        ("owner-led-v1", "policy_transition", "continuation", "actual saved delivered"),
+        (
+            "owner-led-v1",
+            "policy_transition",
+            "continuation",
+            "actual saved delivered",
+            "ADR 0034 adds a coordinator dispatch hold",
+            "classify concerns",
+            "one observable",
+            "no event, allowance",
+            "failed checks remain failed",
+        ),
+    )
+    template = ROOT / "docs/workflow/templates/coordinator-arbitration.md"
+    require_lines(template, ARBITRATION_TEMPLATE_LINES)
+    require_markers(
+        template,
+        (
+            "grants no authority",
+            "repeated assertions without new evidence",
+            "Demonstrated defects require repair and verification or explicit stop",
+            "Same-scope repair stays with the approved owner",
+            "Unanimity is unnecessary",
+            "BLOCKED_FOR_DECISION",
+            "requires fresh content-bound certification",
+        ),
     )
     require_markers(
         ROOT / "docs/workflow/templates/initialize.example.json",

@@ -7,6 +7,20 @@ authorization. Bootstrap adoption is restricted to the exact approved Issue73 pr
 future adoption cannot invent past phases.
 Templates live under `templates/`, never under the live ticket directory.
 
+ADR 0034 adds a coordinator dispatch hold when the same substantive concern returns
+or a requirement, success condition, or remedy shifts beyond the frozen capsule.
+Use [`templates/coordinator-arbitration.md`](templates/coordinator-arbitration.md)
+to consolidate role evidence against frozen IDs, classify concerns, record one
+accountable disposition with disagreements and rationale, and set one observable
+closure condition. The hold itself is not `coordination_pause`. An active phase
+stops through the existing truthful interruption/pause path; further work requires
+its ordinary checked and reserved phase. Arbitration creates no event, allowance,
+owner replacement, automatic design reset, or certification. Actual defects require
+repair and verification or a stop; failed checks remain failed. Finish the record
+before content-bound review. Later outcomes use the excluded ticket ledger evidence
+or linked external evidence; editing certified documentation requires fresh
+certification.
+
 Use UTC seconds timestamps and meaningful evidence references. Fill the initialization
 template with the actual repository, issue, classification, frozen contract IDs and
 named coordinator authorization. Consequential classification requires review and a

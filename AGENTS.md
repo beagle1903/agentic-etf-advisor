@@ -89,6 +89,49 @@ accepted ADRs remain history.
 Any one-off workflow exception must be explicitly approved and recorded in the issue and PR.
 Static validation checks configuration and markers, not actual live-session provenance.
 
+## Bounded coordinator arbitration (ADR 0034)
+
+Before another dependent handoff, the coordinator must open one arbitration episode when
+the same underlying concern returns after a substantive answer, repair, or review response
+(even when reworded), or when a proposed requirement, success condition, or remedy shifts
+beyond or conflicts with the frozen capsule or an earlier closure condition. Compare the
+scenario and frozen criterion, not message count. New material defect evidence always
+receives attention. Stop new dependent handoffs, consolidate existing designer, owner,
+and reviewer scenarios and evidence, and record the current phase, reservation, and
+remaining allowances. A running phase that must stop uses the existing truthful
+interruption or pause procedure. A dispatch hold alone is not an offline
+`coordination_pause`; record elapsed time under the applicable policy. Further
+investigation needs a checked and reserved permitted phase; do not dispatch agents
+just to obtain agreement.
+
+Classify each concern against frozen invariant/AC IDs as a demonstrated defect
+(concrete path, expected and actual result, evidence), contract ambiguity
+(incompatible readings and effect), preference (no demonstrated frozen-contract
+failure), or outside scope (absent criterion or explicit non-goal). A demonstrated
+defect requires narrow repair and verification or an explicit stop. Explain clear
+contract text with citations; unresolved consequential ambiguity returns to the
+separate architect, challenge, and coordinator approval gates within remaining
+allowances. Preferences may be accepted or deferred with rationale but cannot silently
+add acceptance criteria. Outside-scope concerns go to separately authorized work;
+a current frozen safety or correctness defect still blocks delivery. Missing evidence
+does not prove correctness or defect absence; material acceptance uncertainty stops.
+
+Record one primary accountable decision: narrow repair, contract clarification,
+deferral, or explicit stop. Include rejected alternatives, disagreements, evidence,
+and rationale; unanimous agreement is not required. Set one observable focused
+closure condition tied to frozen IDs, an owner, verification, and the next permitted
+gate. Closure ends the episode, not ticket acceptance. Same-scope repairs stay with
+the approved owner. Never waive a demonstrated defect, turn a failed check or review
+into a pass, replace an owner merely because of disagreement, grant a phase slot,
+or reset design automatically. Repeated assertions without material new evidence
+refer to the existing decision; append genuinely new evidence and an accountable
+revision to that episode. Existing independent review, finite counts, content binding,
+and BLOCKED_FOR_DECISION gates remain authoritative. Use
+`docs/workflow/templates/coordinator-arbitration.md` for the record and complete it
+before content-bound certification; later outcomes belong in the excluded ticket
+ledger evidence or linked external evidence. Editing certified documentation requires
+fresh certification. No new ledger event is introduced.
+
 ## Finite ticket lifetime (ADR 0026; ADR 0033 for owner-led tickets)
 
 Every future agents-lab ticket has one durable ledger at
