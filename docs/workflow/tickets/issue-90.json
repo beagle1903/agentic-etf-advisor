@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-07T17:30:18Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 90,
+        "classification": "mechanical",
+        "scope": [
+          "S90"
+        ],
+        "invariants": [
+          "I90SCOPE",
+          "I90HISTORY",
+          "I90AUTH"
+        ],
+        "acceptance": [
+          "AC90REMOVE",
+          "AC90ORDER",
+          "AC90PRESERVE",
+          "AC90VERIFY"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "chat01a11682-286e-7500-a4ce-24bff6b2c093/user-2026-10-07: we dont need wishlist.md anymore; separate documentation retirement, not Issue84 continuation"
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 90,
+          "classification": "mechanical",
+          "owner": {
+            "role": "bounded_worker",
+            "model": "gpt-6-luna",
+            "effort": "medium",
+            "session": "/root/wishlist_retirement"
+          },
+          "rationale": "User-authorized removal of obsolete raw-intent document and four active references; established documentation contracts determine the change. No workflow authority or product behavior changes.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "chat01a11682-286e-7500-a4ce-24bff6b2c093/user-2026-10-07: we dont need wishlist.md anymore; separate documentation retirement, not Issue84 continuation"
+          },
+          "scope": {
+            "S90": "Delete wishlist.md; remove its AGENTS read-order and long-term-memory references, CONTRIBUTING source-of-truth bullet, README layout bullet; renumber remaining read order."
+          },
+          "non_goals": [
+            "Issue84 successor, bootstrap, allowances, replay or publication disposition",
+            "Product scope, architecture, accepted ADRs and historical review rewrites",
+            "Product code, dependencies, tests, CI and role settings",
+            "Changes to unrelated primary checkout or preserved ticket histories"
+          ],
+          "invariants": {
+            "I90SCOPE": "Only wishlist.md, AGENTS.md, CONTRIBUTING.md, README.md and new current-ticket ledger may change.",
+            "I90HISTORY": "Existing product/architecture/accepted history and ticket ledgers remain unchanged; historical wishlist references stay truthful.",
+            "I90AUTH": "No Issue23/83/84 authority, phase allowance, status or certification changes; cleanup is a separate direct user request."
+          },
+          "interfaces": [
+            "none: documentation-only"
+          ],
+          "json_state_impact": "none: no product or existing ledger schema/state changes",
+          "acceptance": {
+            "AC90REMOVE": "wishlist.md is removed and its four active references are absent.",
+            "AC90ORDER": "AGENTS read order starts with docs/product/vision.md followed by system, relevant ADRs and active iteration.",
+            "AC90PRESERVE": "All non-scope tracked files and historical ticket ledgers remain unchanged.",
+            "AC90VERIFY": "Focused documentation inspection, standard local gates and ordinary content-bound ledger/delivery gates pass; no behavior test is added."
+          },
+          "verification": [
+            "Inspect actual diff, assert file absence and active references absent, confirm ordered sources and scope",
+            "Both workflow validators; standard local Ruff lint/format, mypy, offline pytest, evaluation/build/Compose/diff gates; no live integration required for documentation-only change",
+            "Content-bound verification and acceptance before ordinary delivery; independent review not required for mechanical scope"
+          ],
+          "documentation": [
+            "AGENTS.md",
+            "CONTRIBUTING.md",
+            "README.md",
+            "Issue90 ledger evidence"
+          ],
+          "risks": [
+            "Accidental removal of historical review references",
+            "Unrelated workflow instructions altered while renumbering"
+          ],
+          "escalation_triggers": [
+            "Any product, authority/replay or accepted-history change stops as out of scope",
+            "Concrete frozen-criterion failure records blocker and follows finite mechanical owner gates"
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-07T17:30:35Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct user 2026-10-07 wishlist retirement authorization, Issue90 mechanical classified capsule"
+        },
+        "evidence": "DESIGN_READY: bounded documentation retirement determined by established docs; complete capsule frozen before edits; no consequential contract change or separate design/review prerequisite.",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "digest": "081d5e1b0495a4a79fb2cb95102dacc34e4f46253194c0afe94b7d3a8930d939"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T17:36:15Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/wishlist_retirement",
+        "role": "bounded_worker",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "digest": "081d5e1b0495a4a79fb2cb95102dacc34e4f46253194c0afe94b7d3a8930d939"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T17:38:31Z",
+      "data": {
+        "session": "/root/wishlist_retirement",
+        "outcome": "pass",
+        "evidence": "Implemented only frozen S90 documentation edits; reviewed exact diff, asserted wishlist.md absent and active refs absent, read order preserved, and git diff --check passed."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T17:39:24Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/wishlist_retirement",
+        "role": "bounded_worker",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "digest": "081d5e1b0495a4a79fb2cb95102dacc34e4f46253194c0afe94b7d3a8930d939"
+        },
+        "content": "0816083a2466f9af63e78db1fd7418d651a8f9035dff8b033cf06e7a3aa0e424"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T17:43:46Z",
+      "data": {
+        "session": "/root/wishlist_retirement",
+        "outcome": "pass",
+        "evidence": "Content-bound verification passed: documentation assertions; Ruff lint and format; mypy; pytest 1373 passed, 47 skipped; uv build; docker compose config; Codex and ticket workflow validators; git diff --check. No live-store suite required for documentation-only scope."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-07T17:43:46Z",
+      "data": {
+        "ids": [
+          "AC90REMOVE",
+          "AC90ORDER",
+          "AC90PRESERVE",
+          "AC90VERIFY"
+        ],
+        "evidence": "AC90REMOVE/ORDER asserted after diff; AC90PRESERVE confirmed scope in diff/status and historical references untouched; AC90VERIFY all standard gates passed once against the bound content.",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "digest": "081d5e1b0495a4a79fb2cb95102dacc34e4f46253194c0afe94b7d3a8930d939"
+        },
+        "content": "0816083a2466f9af63e78db1fd7418d651a8f9035dff8b033cf06e7a3aa0e424"
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-07T17:45:03Z",
+      "data": {
+        "evidence": "Ordinary delivery gate passed for saved PR #91. PR https://github.com/beagle1903/agentic-etf-advisor/pull/91 targets main from codex/retire-wishlist at commit 415ba742621f419dfd2b358977bf64cd66c0dee9; verified and accepted content digest matches the frozen Issue90 content identity.",
+        "pr": 91,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "0816083a2466f9af63e78db1fd7418d651a8f9035dff8b033cf06e7a3aa0e424",
+        "capsule": {
+          "id": "issue-90-retire-wishlist",
+          "generation": 1,
+          "digest": "081d5e1b0495a4a79fb2cb95102dacc34e4f46253194c0afe94b7d3a8930d939"
+        }
+      }
+    }
+  ]
+}

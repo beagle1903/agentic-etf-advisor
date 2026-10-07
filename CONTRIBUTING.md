@@ -6,7 +6,6 @@ architecture, execution, and verification knowledge.
 
 ## Sources of truth
 
-- `wishlist.md` retains raw user intent and is not silently normalized.
 - `docs/product/vision.md` defines stable scope and non-goals.
 - `docs/product/roadmap.md` defines directional sequencing.
 - The highest-numbered file under `docs/iterations/` is the current delivery contract.

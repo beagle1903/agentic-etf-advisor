@@ -261,7 +261,6 @@ licensing decision.
 
 ## Repository guide
 
-- `wishlist.md`: raw, user-owned ideas and requests.
 - `AGENTS.md`: operating rules for coding agents.
 - `docs/product/`: stable product intent, scope, and the directional roadmap.
 - `docs/architecture/`: current architecture and immutable decisions.

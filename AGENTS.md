@@ -4,11 +4,10 @@
 
 Before changing the project, read these files in order:
 
-1. `wishlist.md` for raw user intent.
-2. `docs/product/vision.md` for stable scope and non-goals.
-3. `docs/architecture/system.md` for the current system shape.
-4. Relevant records under `docs/architecture/decisions/`.
-5. The active file under `docs/iterations/`.
+1. `docs/product/vision.md` for stable scope and non-goals.
+2. `docs/architecture/system.md` for the current system shape.
+3. Relevant records under `docs/architecture/decisions/`.
+4. The active file under `docs/iterations/`.
 
 ## Ticket design and implementation workflow
 
@@ -208,4 +207,3 @@ stopped pending a separate user decision; this workflow ticket changes no produc
 - Update the current design in `docs/architecture/system.md`.
 - Record consequential decisions as a new ADR; do not rewrite accepted history.
 - Record iteration-specific choices and evidence under `docs/iterations/`.
-- Keep `wishlist.md` as raw input; do not silently normalize or delete its contents.
