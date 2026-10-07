@@ -22,6 +22,7 @@
     },
     "adoption": null,
     "predecessor": null,
+    "policy": "owner-led-v1",
     "capsule": {
       "id": "issue-1-example",
       "generation": 1,

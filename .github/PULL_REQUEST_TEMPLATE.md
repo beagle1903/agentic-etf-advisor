@@ -69,8 +69,11 @@ Claim boundaries:
 ## Finite ticket lifetime
 
 - Ledger: `docs/workflow/tickets/issue-N.json`
+- Policy: `owner-led-v1` for new tickets, or recorded `timed-v1` history
 - Frozen acceptance/invariant IDs and coverage:
 - Active seconds used / finite budget:
+- Counted lifetime limits and consumed reservations:
+- Finite continuation authority, same-scope repair and fresh review evidence, or none:
 - Lifetime initial review / remediation / final review / design reset reservations:
 - Independent consequential design challenge and coordinator approval:
 - Unresolved blockers: none, or delivery remains blocked
@@ -81,3 +84,5 @@ Claim boundaries:
 - Complete capsule ID / generation / SHA256 binding:
 - Reviewed, verified and accepted repository content SHA256:
 - Original delivery PR identity and content binding (for CI reruns):
+- Historical delivery bindings and current binding after continuation:
+- Actual saved delivered ledger, immutable-prefix and exact PR/content publication checks:

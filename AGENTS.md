@@ -39,9 +39,11 @@ selected role, model, effort, rationale, authorization, and any escalation evide
    ambiguity may require `implementation_specialist`. The coordinator records the trigger and
    starts a fresh separate sequential session. Multiple files, integration tests, or unfamiliarity alone do not require escalation.
    Architectural ambiguity returns to `design_architect`.
-6. **Bound the ticket lifetime:** follow ADR 0026 and the finite ledger policy below.
-   Exhaustion and failed final review stop work for explicit user decision. No automatic
-   design reset, replacement agent or quota reset replenishes limits.
+6. **Bound the ticket lifetime:** follow ADR 0026 for historical `timed-v1` tickets and
+   ADR 0033 for `owner-led-v1`. A new ticket records counted reservations and elapsed audit
+   time. Time alone does not exhaust a new-policy ticket; consumed phase slots remain finite.
+   A same-scope finding stays with the approved owner when an authorized remediation slot exists.
+   A failed final review stops until explicit finite repair and review allowances are granted.
 
 | Role | Model | Effort | Access |
 | --- | --- | --- | --- |
@@ -87,7 +89,7 @@ accepted ADRs remain history.
 Any one-off workflow exception must be explicitly approved and recorded in the issue and PR.
 Static validation checks configuration and markers, not actual live-session provenance.
 
-## Finite ticket lifetime (ADR 0026)
+## Finite ticket lifetime (ADR 0026; ADR 0033 for owner-led tickets)
 
 Every future agents-lab ticket has one durable ledger at
 `docs/workflow/tickets/issue-N.json`, initialized before any phase. The frozen scope,
@@ -97,14 +99,17 @@ non-goals, interfaces, explicit JSON/state impact, verification, docs, risks and
 Design, challenge and approval bind the same immutable digest and current generation.
 Classified write ownership and any concrete specialist escalation must be recorded;
 reviews exclude every implementation, remediation and verification author.
-Default budget: 120 active minutes across all work, including discovery, design,
-challenge, implementation, verification and review. Start reserves the counted slot;
-crashed open phases consume through the current time. Explicit pause records elapsed
-and resume continues the same reserved phase. No unrecorded time subtraction.
+Historical `timed-v1` tickets retain the default budget of 120 active minutes across
+discovery, design, challenge, implementation, verification and review. New
+`owner-led-v1` tickets record the same elapsed seconds for audit but time alone never
+blocks a phase or delivery. Start reserves the counted slot; crashed open phases
+continue accumulating audit time. Explicit pause records elapsed and resume continues
+the same reserved phase. No unrecorded time subtraction.
 
 At most one initial review, one remediation, one final review and one design reset
-per ticket lifetime. One implementation pass is the default. A reset consumes the
-original budget and never clears counters. Consequential design requires a separate
+are the default lifetime limits. One implementation pass is the default. Extensions
+add only explicit finite count deltas for the new policy; no reset clears counters.
+Consequential design requires a separate
 independent challenge before coordinator approval; challenge is not code review.
 Review findings identify a concrete failure scenario and a frozen invariant or AC;
 scope expansion becomes separate work. Failed final review, unresolved challenge,
@@ -116,8 +121,15 @@ Before dispatch, run `uv run python scripts/ticket_workflow.py check --issue N -
 then append the phase_start event before starting its agent. Before delivery run the
 same check with `--phase delivery`. Append measured phase ends, acceptance evidence,
 review outcomes and blocker resolutions. One writer uses atomic validated append.
-Explicit finite user extensions append additional seconds and phase counts with named
-authority and evidence; no automatic renewal. Splits require explicit user decision,
+Explicit finite user extensions append authorized phase counts for `owner-led-v1`
+with zero additional seconds; `timed-v1` preserves its original seconds-and-counts
+rules. `continuation` grants finite remediation and required final-review slots after
+implementation, including after delivery. It preserves all original events, consumed
+counts and delivery bindings while clearing only current certification and marking
+repair pending. Repair, verification, acceptance and independent review bind the new
+content; later delivery must use the original repository and PR. A distinct explicit
+`policy_transition` may move an unsplit timed ticket to owner-led policy without
+granting slots. New-policy splits are unsupported. Historical timed splits require explicit user decision,
 validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.
@@ -128,7 +140,8 @@ exhaustion. Static validation cannot authenticate approval or session provenance
 is single-use despite changed display names or surrounding/internal whitespace.
 Review, verification and acceptance bind identical repository content. Delivered ledgers
 authorize only their original PR identity and that content; reruns preserve the binding.
-CI validates immutable merge-base history and current primary issue binding on PR
+Atomic append rereads the real event file, every ledger file, candidate temp and repository
+content immediately before replacement. CI validates immutable merge-base history and current primary issue binding on PR
 edits. Existing historical tickets are not retrospectively adopted. Issue70 remains
 stopped pending a separate user decision; this workflow ticket changes no product code.
 

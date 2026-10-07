@@ -42,6 +42,8 @@ def repository(tmp_path: Path) -> Path:
         shutil.copytree(SOURCE / relative, root / relative)
     shutil.copyfile(SOURCE / "AGENTS.md", root / "AGENTS.md")
     shutil.copyfile(SOURCE / "CONTRIBUTING.md", root / "CONTRIBUTING.md")
+    shutil.copytree(SOURCE / "docs/workflow/templates", root / "docs/workflow/templates")
+    shutil.copyfile(SOURCE / "docs/workflow/README.md", root / "docs/workflow/README.md")
     (root / "scripts").mkdir()
     shutil.copyfile(
         SOURCE / "scripts/validate_codex_workflow.py",
@@ -199,6 +201,8 @@ def test_role_contract_drift(repository: Path, role: str, key: str) -> None:
     [
         ("AGENTS.md", "DESIGN_READY"),
         (".github/PULL_REQUEST_TEMPLATE.md", "Design handoff"),
+        ("docs/workflow/README.md", "owner-led-v1"),
+        ("docs/workflow/templates/initialize.example.json", '"policy": "owner-led-v1"'),
         *[
             (f".github/ISSUE_TEMPLATE/{name}.yml", "execution-workflow")
             for name in ("work-item", "bug", "verification", "iteration")

@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import tempfile
+import unicodedata
 import urllib.request
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -270,6 +271,10 @@ def evidence_key(value: object) -> str:
     return " ".join(text(value).split())
 
 
+def normalized_evidence(value: object) -> str:
+    return " ".join(unicodedata.normalize("NFKC", text(value)).split()).casefold()
+
+
 @dataclass
 class State:
     repo: str
@@ -315,6 +320,12 @@ class State:
     split_remaining: int | None = None
     splits: dict = field(default_factory=dict)
     extension_authorizations: set[str] = field(default_factory=set)
+    policy: str = "timed-v1"
+    predecessor: bool = False
+    authorization_history: set[str] = field(default_factory=set)
+    delivery_history: list[dict] = field(default_factory=list)
+    pending_repair: bool = False
+    verification_repair_count: int | None = None
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -327,12 +338,18 @@ class State:
             raise Invalid("complete frozen capsule binding required")
         if self.delivered or self.split_remaining is not None:
             raise Invalid("terminal ticket; explicit user decision required")
-        if self.elapsed(now) >= self.budget_seconds:
+        if self.policy == "timed-v1" and self.elapsed(now) >= self.budget_seconds:
             raise Invalid("active-time budget exhausted; stop for user decision")
         if operation == "delivery":
             if not self.clock_running:
                 raise Invalid("explicit coordination resume required before delivery")
-            if self.active or self.suspended or self.blockers or self.final_failed:
+            if (
+                self.active
+                or self.suspended
+                or self.blockers
+                or self.final_failed
+                or self.pending_repair
+            ):
                 raise Invalid("open phase or unresolved blocker denies delivery")
             if not self.ready or not self.verified or not self.accepted:
                 raise Invalid("incomplete design, verification or acceptance")
@@ -373,10 +390,44 @@ class State:
             raise Invalid("approved DESIGN_READY required")
         if operation == "initial_review" and not self.author_session:
             raise Invalid("implementation has not completed")
-        if operation == "remediation" and not self.initial_failed:
+        if self.policy == "owner-led-v1" and operation == "remediation" and not self.author_session:
+            raise Invalid("remediation requires completed implementation")
+        if operation == "remediation" and not (
+            self.initial_failed
+            or self.pending_repair
+            or (self.policy == "owner-led-v1" and self.blockers)
+        ):
             raise Invalid("remediation requires initial review findings")
         if operation == "final_review" and not self.remediated:
             raise Invalid("final review requires completed remediation")
+        if (
+            self.policy == "owner-led-v1"
+            and operation == "remediation"
+            and self.verification_repair_count is not None
+            and not self.blockers
+        ):
+            raise Invalid("failed verification requires frozen-criterion blocker")
+        if (
+            self.policy == "owner-led-v1"
+            and operation == "verification"
+            and self.verification_repair_count is not None
+            and (
+                self.counts["remediation"] < self.verification_repair_count
+                or not self.remediated
+                or self.blockers
+            )
+        ):
+            raise Invalid("failed verification requires completed bounded remediation")
+        if self.policy == "owner-led-v1" and operation in {"initial_review", "final_review"}:
+            if operation == "initial_review" and self.counts["remediation"]:
+                raise Invalid("remediation requires final review")
+            if (
+                not self.verified
+                or not self.accepted
+                or not self.verified_content
+                or self.verified_content != self.acceptance_content
+            ):
+                raise Invalid("review requires current matching verification and acceptance")
 
 
 def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None = None) -> State:
@@ -395,7 +446,11 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
         previous = at
         kind, data = event["type"], event["data"]
         if state is not None:
-            if state.delivered or (state.split_remaining is not None and kind != "split"):
+            if (
+                state.delivered
+                and not (state.policy == "owner-led-v1" and kind == "continuation")
+                and kind != "policy_transition"
+            ) or (state.split_remaining is not None and kind != "split"):
                 raise Invalid("terminal history cannot be reopened")
             state.elapsed_seconds = state.elapsed(at)
             state.last = at
@@ -414,10 +469,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 "adoption",
                 "predecessor",
             }
-            data = keys(
-                data,
-                initial_fields if bootstrap else initial_fields | {"capsule"},
-            )
+            expected_initial = initial_fields if bootstrap else initial_fields | {"capsule"}
+            if not bootstrap and isinstance(data, dict) and data.get("policy") == "owner-led-v1":
+                expected_initial = expected_initial | {"policy"}
+            data = keys(data, expected_initial)
             repo = text(data["repo"])
             if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
                 raise Invalid("invalid repository identity")
@@ -449,6 +504,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 data["review_required"],
             )
             state.scope = scope
+            state.policy = data.get("policy", "timed-v1")
+            if state.policy == "owner-led-v1" and data["predecessor"] is not None:
+                raise Invalid("owner-led predecessor is unsupported")
             if not bootstrap:
                 if data["adoption"] is not None:
                     raise Invalid(
@@ -458,6 +516,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 if state.capsule["generation"] != 1:
                     raise Invalid("future initialization starts at capsule generation one")
                 state.approved_owner = state.capsule["owner"]
+                state.authorization_history.add(
+                    normalized_evidence(state.capsule["authorization"]["evidence"])
+                )
             if data["adoption"] is not None:
                 adoption = keys(data["adoption"], {"from", "phases", "evidence"})
                 start = timestamp(adoption["from"])
@@ -477,6 +538,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                         state.counts[phase["phase"]] += 1
                     completed(state, phase["phase"], session, "pass")
             if data["predecessor"] is not None:
+                state.predecessor = True
                 pred = keys(data["predecessor"], {"issue", "digest"})
                 pred_issue = integer(pred["issue"], 1)
                 if pred_issue == issue or not predecessors or pred_issue not in predecessors:
@@ -538,6 +600,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                     "historical bootstrap owner/generation differs from known approved session"
                 )
             state.approved_owner = state.capsule["owner"]
+            state.authorization_history.add(
+                normalized_evidence(state.capsule["authorization"]["evidence"])
+            )
             state.design_ref = state.challenge_ref = state.approved_ref = capsule_ref(state.capsule)
             state.accepted = state.verified = state.reviewed = False
             if state.active:
@@ -549,20 +614,32 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 expected.add("capsule")
                 if data.get("phase") in {"initial_review", "final_review", "verification"}:
                     expected.add("content")
+                if state.policy == "owner-led-v1" and data.get("phase") == "design_reset":
+                    expected.update({"criterion", "reason"})
             data = keys(data, expected)
             phase, session = text(data["phase"]), text(data["session"])
+            if state.policy == "owner-led-v1" and phase == "design_reset":
+                if data["criterion"] not in {*state.invariants, *state.acceptance}:
+                    raise Invalid("design reset requires frozen criterion")
+                text(data["reason"])
             state.gate(phase, at, allow_bootstrap=historical)
             if not historical:
                 require_capsule(data["capsule"], state)
                 if "content" in data:
                     sha(data["content"])
+                if (
+                    state.policy == "owner-led-v1"
+                    and phase in {"initial_review", "final_review"}
+                    and (
+                        data["content"] != state.verified_content
+                        or data["content"] != state.acceptance_content
+                    )
+                ):
+                    raise Invalid("review reservation differs from verified accepted content")
             if data["role"] not in ROLES[phase]:
                 raise Invalid("phase role mismatch")
             if phase == "design_reset" and session in state.sessions:
                 raise Invalid("design reset requires a fresh architect session")
-            if session in state.sessions and state.sessions[session] != data["role"]:
-                raise Invalid("role change requires a fresh separate session")
-            state.sessions[session] = data["role"]
             if phase in {"challenge", "initial_review", "final_review"} and session in {
                 state.design_session,
                 *state.write_authors,
@@ -573,6 +650,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 state.challenge_session,
             }:
                 raise Invalid("separate write-capable session required")
+            if session in state.sessions and state.sessions[session] != data["role"]:
+                raise Invalid("role change requires a fresh separate session")
+            state.sessions[session] = data["role"]
             if phase in {"implementation", "remediation", "verification"}:
                 if not historical and (data["role"], session) != (
                     state.approved_owner["role"],
@@ -596,6 +676,13 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 state.design_started = True
             if phase in {"implementation", "remediation", "design_reset"}:
                 state.accepted = state.verified = state.reviewed = False
+                if state.policy == "owner-led-v1":
+                    state.acceptance_content = state.verified_content = state.review_content = None
+            if state.policy == "owner-led-v1" and phase == "verification":
+                state.verified = state.accepted = state.reviewed = False
+                state.verified_content = state.acceptance_content = state.review_content = None
+            if state.policy == "owner-led-v1" and phase == "remediation":
+                state.remediated = False
             state.active = {**data, "at": event["at"]}
         elif kind == "capsule_update":
             data = keys(data, {"authority", "capsule"})
@@ -616,6 +703,9 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 if revised[key] != state.capsule[key]:
                     raise Invalid("reset cannot change frozen scope, definitions or ownership")
             state.capsule = revised
+            state.authorization_history.add(
+                normalized_evidence(revised["authorization"]["evidence"])
+            )
             state.active["capsule"] = capsule_ref(revised)
         elif kind == "owner_handoff":
             data = keys(data, {"authority", "owner", "capsule", "reason", "escalation"})
@@ -639,7 +729,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             if state.active or not state.suspended or data["session"] != state.suspended["session"]:
                 raise Invalid("no matching interrupted session")
             if (
-                state.elapsed(at) >= state.budget_seconds
+                (state.policy == "timed-v1" and state.elapsed(at) >= state.budget_seconds)
                 or state.delivered
                 or state.split_remaining is not None
             ):
@@ -678,7 +768,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             running = kind == "coordination_resume"
             if state.clock_running == running:
                 raise Invalid("duplicate coordination pause/resume")
-            if running and state.elapsed(at) >= state.budget_seconds:
+            if running and state.policy == "timed-v1" and state.elapsed(at) >= state.budget_seconds:
                 raise Invalid("coordination resume budget exhausted")
             state.clock_running = running
         elif kind == "design_ready":
@@ -719,6 +809,10 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             text(data["evidence"])
             if state.active or not state.author_session:
                 raise Invalid("acceptance requires completed implementation")
+            if state.policy == "owner-led-v1" and (
+                not state.verified or data["content"] != state.verified_content
+            ):
+                raise Invalid("acceptance requires current matching verification")
             if not historical:
                 require_capsule(data["capsule"], state)
                 state.acceptance_content = sha(data["content"])
@@ -748,16 +842,83 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             ):
                 raise Invalid("blocker resolution requires completed remediation evidence")
             del state.blockers[data["id"]]
+        elif kind == "policy_transition":
+            data = keys(data, {"policy", "authority", "capsule", "reason"})
+            authority(data["authority"], "user")
+            text(data["reason"])
+            require_capsule(data["capsule"], state)
+            if (
+                data["policy"] != "owner-led-v1"
+                or state.policy != "timed-v1"
+                or state.active
+                or state.suspended
+                or state.predecessor
+                or state.splits
+                or state.split_remaining is not None
+            ):
+                raise Invalid("invalid owner-led policy transition")
+            normalized = normalized_evidence(data["authority"]["evidence"])
+            capsule_authority = normalized_evidence(state.capsule["authorization"]["evidence"])
+            if normalized in state.authorization_history and normalized != capsule_authority:
+                raise Invalid("policy transition authorization already consumed")
+            state.policy = "owner-led-v1"
+            state.authorization_history.update(
+                normalized_evidence(item) for item in state.extension_authorizations
+            )
+            state.authorization_history.add(normalized)
+        elif kind == "continuation":
+            data = keys(data, {"authority", "capsule", "counts", "reason"})
+            authority(data["authority"], "user")
+            require_capsule(data["capsule"], state)
+            text(data["reason"])
+            counts = keys(data["counts"], set(COUNTS))
+            deltas = {phase: integer(delta) for phase, delta in counts.items()}
+            normalized = normalized_evidence(data["authority"]["evidence"])
+            if normalized in state.authorization_history:
+                raise Invalid("continuation authorization already consumed")
+            if (
+                state.policy != "owner-led-v1"
+                or state.active
+                or state.suspended
+                or state.predecessor
+                or state.splits
+                or state.split_remaining is not None
+                or not state.author_session
+                or not state.ready
+                or not deltas["remediation"]
+                or (
+                    (
+                        state.review_required
+                        or state.counts["initial_review"]
+                        or state.counts["final_review"]
+                    )
+                    and not deltas["final_review"]
+                )
+            ):
+                raise Invalid("invalid finite continuation")
+            state.authorization_history.add(normalized)
+            for phase, delta in deltas.items():
+                state.limits[phase] += delta
+            state.delivered = False
+            state.verified = state.accepted = state.reviewed = state.remediated = False
+            state.verified_content = state.acceptance_content = state.review_content = None
+            state.final_failed = False
+            state.pending_repair = True
         elif kind == "extension":
             data = keys(data, {"authority", "seconds", "counts", "reason"})
             authority(data["authority"], "user")
             authorization = evidence_key(data["authority"]["evidence"])
-            if authorization in state.extension_authorizations:
+            normalized = normalized_evidence(data["authority"]["evidence"])
+            if authorization in state.extension_authorizations or (
+                state.policy == "owner-led-v1" and normalized in state.authorization_history
+            ):
                 raise Invalid("finite extension authorization already consumed")
             text(data["reason"])
             seconds = integer(data["seconds"])
             counts = keys(data["counts"], set(COUNTS))
             deltas = {k: integer(v) for k, v in counts.items()}
+            if state.policy == "owner-led-v1" and (seconds != 0 or not any(deltas.values())):
+                raise Invalid("owner-led extension requires count grant and zero seconds")
             if (
                 state.active
                 or state.delivered
@@ -767,6 +928,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 raise Invalid("invalid extension or terminal/active ticket")
             state.budget_seconds += seconds
             state.extension_authorizations.add(authorization)
+            state.authorization_history.add(normalized)
             for phase, delta in deltas.items():
                 state.limits[phase] += delta
             if state.final_failed:
@@ -776,12 +938,18 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                     )
                 state.final_failed = False
                 state.remediated = False
+                if state.policy == "owner-led-v1":
+                    state.verified = state.accepted = state.reviewed = False
+                    state.verified_content = state.acceptance_content = state.review_content = None
+                    state.pending_repair = True
         elif kind == "charge":
             data = keys(data, {"authority", "seconds", "evidence"})
             authority(data["authority"], "coordinator")
             text(data["evidence"])
             state.elapsed_seconds += integer(data["seconds"], 1)
         elif kind == "split":
+            if state.policy == "owner-led-v1":
+                raise Invalid("owner-led split is unsupported")
             data = keys(data, {"authority", "successor", "seconds", "reason"})
             authority(data["authority"], "user")
             text(data["reason"])
@@ -814,6 +982,11 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             require_capsule(data["capsule"], state)
             if data["repo"] != state.repo or sha(data["content"]) != state.verified_content:
                 raise Invalid("delivery identity/content mismatch")
+            if state.delivery_history and (data["repo"], data["pr"]) != (
+                state.delivery_history[0]["repo"],
+                state.delivery_history[0]["pr"],
+            ):
+                raise Invalid("continuation must use original repository and PR")
             state.gate("delivery", at)
             state.delivered = True
             state.delivery_binding = {
@@ -821,6 +994,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 "repo": data["repo"],
                 "content": data["content"],
             }
+            state.delivery_history.append(state.delivery_binding.copy())
             state.clock_running = False
         else:
             raise Invalid("unknown or repeated initialization event")
@@ -849,6 +1023,10 @@ def completed(state: State, phase: str, session: str, outcome: str) -> None:
         state.verified_content = (
             state.active.get("content") if outcome == "pass" and state.active else None
         )
+        if state.policy == "owner-led-v1":
+            state.verification_repair_count = (
+                None if outcome == "pass" else state.counts["remediation"] + 1
+            )
     elif phase == "initial_review":
         state.reviewed = outcome == "pass"
         state.initial_failed = outcome != "pass"
@@ -857,6 +1035,8 @@ def completed(state: State, phase: str, session: str, outcome: str) -> None:
         )
     elif phase == "remediation":
         state.remediated = outcome == "pass"
+        if state.policy == "owner-led-v1" and outcome == "pass":
+            state.pending_repair = False
     elif phase == "final_review":
         state.reviewed = outcome == "pass"
         state.final_failed = outcome != "pass"
@@ -951,7 +1131,13 @@ def validate_all(root: Path, now: datetime) -> dict[int, dict]:
     return ledgers
 
 
-def append(root: Path, issue: int, event: dict, now: datetime) -> State:
+def ledger_bytes(root: Path) -> dict[str, bytes]:
+    return {path.name: path.read_bytes() for path in sorted((root / DIRECTORY).glob("*.json"))}
+
+
+def append(
+    root: Path, issue: int, event: dict, now: datetime, source_path: Path | None = None
+) -> State:
     """One writer, lock, validate candidate, atomic replace; never rewrite prior events."""
     path = root / DIRECTORY / f"issue-{integer(issue, 1)}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -962,7 +1148,26 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         raise Invalid("another writer or abandoned lock; coordinator must inspect") from exc
     try:
         os.close(fd)
+        event = json.loads(json.dumps(event, allow_nan=False), object_pairs_hook=unique)
+        source_bytes = source_path.read_bytes() if source_path is not None else None
+        if source_bytes is not None:
+            source_event = json.loads(
+                source_bytes.decode("utf-8"),
+                object_pairs_hook=unique,
+                parse_constant=lambda _: (_ for _ in ()).throw(Invalid("nonfinite JSON")),
+            )
+            if digest(source_event) != digest(event):
+                raise Invalid("event source differs from supplied event")
+        original_files = ledger_bytes(root)
+        original_content = content_digest(root, issue)
         ledgers = read_all(root)
+        if issue not in ledgers and (
+            not isinstance(event, dict)
+            or event.get("type") != "initialize"
+            or not isinstance(event.get("data"), dict)
+            or event["data"].get("policy") != "owner-led-v1"
+        ):
+            raise Invalid("new ticket creation requires explicit owner-led-v1 policy")
         value = ledgers.get(issue, {"schema": 1, "events": []})
         if (
             event.get("type") == "phase_start"
@@ -972,7 +1177,7 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
                 "final_review",
                 "verification",
             }
-            and event["data"].get("content") != content_digest(root, issue)
+            and event["data"].get("content") != original_content
         ):
             raise Invalid("phase reservation does not match current repository content")
         if event.get("type") in {"phase_end", "acceptance", "delivery"} and value["events"]:
@@ -987,7 +1192,7 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
                 and prior.active["phase"] in {"initial_review", "final_review", "verification"}
             ):
                 expected = prior.active.get("content")
-            if expected is not None and expected != content_digest(root, issue):
+            if expected is not None and expected != original_content:
                 raise Invalid("repository content changed after recorded verification/review")
         candidate = {"schema": 1, "events": [*value["events"], event]}
         state = replay(
@@ -995,14 +1200,22 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         )
         if state.issue != issue:
             raise Invalid("requested issue differs from initialized issue")
+        expected_temp = (json.dumps(candidate, indent=2, allow_nan=False) + "\n").encode("utf-8")
         with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp"
+            mode="wb", dir=path.parent, delete=False, suffix=".tmp"
         ) as target:
-            target.write(json.dumps(candidate, indent=2, allow_nan=False) + "\n")
+            target.write(expected_temp)
             target.flush()
             os.fsync(target.fileno())
             temp = Path(target.name)
         try:
+            if (
+                (source_path is not None and source_path.read_bytes() != source_bytes)
+                or ledger_bytes(root) != original_files
+                or temp.read_bytes() != expected_temp
+                or content_digest(root, issue) != original_content
+            ):
+                raise Invalid("append input changed before atomic replace")
             os.replace(temp, path)
         finally:
             temp.unlink(missing_ok=True)
@@ -1011,7 +1224,9 @@ def append(root: Path, issue: int, event: dict, now: datetime) -> State:
         lock.unlink(missing_ok=True)
 
 
-def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
+def check_prefix(
+    root: Path, base: str, ledgers: dict[int, dict], now: datetime | None = None
+) -> set[int]:
     merge_base = subprocess.check_output(
         ["git", "merge-base", base, "HEAD"], cwd=root, text=True
     ).strip()
@@ -1032,6 +1247,15 @@ def check_prefix(root: Path, base: str, ledgers: dict[int, dict]) -> set[int]:
         current = ledgers.get(issue)
         if current is None or current["events"][: len(old["events"])] != old["events"]:
             raise Invalid("merge-base ledger history edited or deleted")
+    checked_at = now or datetime.now(UTC)
+    for issue in ledgers.keys() - originals.keys():
+        state = replay(
+            ledgers[issue],
+            checked_at,
+            predecessors={key: value for key, value in ledgers.items() if key != issue},
+        )
+        if state.policy != "owner-led-v1":
+            raise Invalid("new ledger introduction requires current owner-led-v1 policy")
     return {issue for issue, value in ledgers.items() if originals.get(issue) != value}
 
 
@@ -1113,11 +1337,11 @@ def main() -> None:
             if args.issue is None or args.event is None:
                 raise Invalid("append requires --issue and --event")
             event = json.loads(args.event.read_text(encoding="utf-8"), object_pairs_hook=unique)
-            append(args.root, args.issue, event, now)
+            append(args.root, args.issue, event, now, source_path=args.event)
         else:
             ledgers = validate_all(args.root, now)
             changed = (
-                check_prefix(args.root, args.base, ledgers)
+                check_prefix(args.root, args.base, ledgers, now)
                 if args.base and args.command != "ci"
                 else set()
             )
@@ -1136,11 +1360,29 @@ def main() -> None:
                                 "capsule": capsule_ref(state.capsule) if state.capsule else None,
                                 "content": content_digest(args.root, args.issue),
                                 "owner": state.approved_owner,
+                                "policy": state.policy,
                                 "counts": state.counts,
-                                "remaining_seconds": state.budget_seconds - state.elapsed(now),
+                                "limits": state.limits,
+                                "remaining_counts": {
+                                    phase: state.limits[phase] - state.counts[phase]
+                                    for phase in COUNTS
+                                },
+                                "elapsed_seconds": state.elapsed(now),
+                                "remaining_seconds": (
+                                    state.budget_seconds - state.elapsed(now)
+                                    if state.policy == "timed-v1"
+                                    else None
+                                ),
                                 "active_phase": state.active["phase"] if state.active else None,
                                 "verified": state.verified,
                                 "reviewed": state.reviewed,
+                                "accepted": state.accepted,
+                                "pending_repair": state.pending_repair,
+                                "delivered": state.delivered,
+                                "delivery_binding": state.delivery_binding,
+                                "delivery_history": state.delivery_history,
+                                "retired": state.split_remaining is not None,
+                                "split_remaining_seconds": state.split_remaining,
                             },
                             indent=2,
                         )
@@ -1168,7 +1410,9 @@ def main() -> None:
                     event = current_pr(event, json.load(response))
                 if args.base != event["pull_request"]["base"]["sha"]:
                     raise Invalid("prefix base differs from validated PR base SHA")
-                changed = check_prefix(args.root, event["pull_request"]["base"]["sha"], ledgers)
+                changed = check_prefix(
+                    args.root, event["pull_request"]["base"]["sha"], ledgers, now
+                )
                 body = event["pull_request"].get("body") or ""
                 historical = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
                 if historical and not re.search(r"^Primary issue:", body, re.MULTILINE):

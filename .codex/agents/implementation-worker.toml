@@ -39,4 +39,8 @@ failure scenarios against frozen IDs; do not expand scope. Stop on exhaustion, f
 final review or unresolved serious blockers (BLOCKED_FOR_DECISION). No automatic renewal;
 only explicit finite user extensions. Pause/resume retains reservations. Recorded
 ledger evidence is not a runtime kill switch or authenticated live-session provenance.
+For owner-led-v1, 120 active minutes are audit-only; counted reservations remain finite.
+Keep same-scope implementation, self-review, verification and authorized repair with
+this approved owner session. A finite continuation after delivery preserves history
+and requires fresh verification, acceptance and independent review of corrected content.
 """
