@@ -36,12 +36,26 @@ the evidence and start a fresh separate sequential session for any escalation or
 change. The PR links the capsule, approval, actual routing evidence, and any exception.
 
 ADR 0026 replaces automatic repeated design resets with a finite ticket lifetime.
-See the operating policy below; every reset consumes the original counters and time.
+ADR 0033 sets `owner-led-v1` as the new-ticket policy. One approved owner keeps routine
+implementation, self-review, verification and authorized same-scope repair together.
+Consequential design and review retain independent sessions. An explicit standard
+`continuation` can grant bounded repair and review after implementation or delivery,
+while preserving consumed counts and historical bindings. A changed contract still
+uses the bounded design path or separate scope. The legacy `timed-v1` rules remain
+unchanged for their recorded prefixes.
 
 The six named roles are registered with relative `config_file` paths. ADR 0018's no-defaults,
 no-project-model-override, and no-concurrency-scalar compatibility policy still applies.
 `scripts/validate_codex_workflow.py` checks static contracts in CI; it cannot prove live-session
 role, model, effort, or sandbox provenance.
+
+For the Finite ticket lifetime, historical tickets retain their 120 active minutes
+limit. New owner-led tickets retain elapsed audit seconds but use finite counted phase
+reservations instead of time exhaustion. Explicit finite user extensions add phase
+counts only. A delivered ticket needs a fresh finite continuation and new matching
+verification, acceptance and independent review before redelivery on its original PR.
+Publication checks read the actual saved delivered ledger before pushing; the ledger
+and event file are reread immediately before atomic append replacement.
 
 Every iteration parent issue must link its canonical iteration file. The issue may summarize the
 goal and acceptance gate, but detailed scope and durable evidence belong in the repository. At

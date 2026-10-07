@@ -184,6 +184,279 @@
           "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
         }
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-06T17:59:12Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "Implementation andselfreview complete in sameSol/mediumsession.97focused workflowtests,240staticfixtures, changedPythonRufflint/format, standalonevalidator anddiffcheckPASS. Actualsavedledger two-continuation/redelivery tests and7distinct on-disk races pass. R3selfcheck failures retained: non-Git fixture corrected; expectedrejection assertions corrected; twoSIM102style findings corrected. No unresolvedfinding; nofullverificationyet."
+      }
+    },
+    {
+      "type": "policy_transition",
+      "at": "2026-10-06T17:59:12Z",
+      "data": {
+        "policy": "owner-led-v1",
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1123f-1708-7ea3-9b87-c691f8a161fa; user continue then authorizes separate permanent owner-led workflow/standard finite continuation issue after agreeing scope; not Issue84 retry."
+        },
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "reason": "User-authorized Issue86 implements this exact standard owner-led finite policy; transition removes only future time enforcement, retains alloriginalevents/counts/limits/capsule/designapproval/owner/evidence. No finiteallowancegrant oroldticketretry."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T17:59:29Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "604582689cedb5fbd213532b9d3bcfe2d2f0372a1ca1930557e9fe6f053a8c61"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-06T18:06:35Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "R4configured fullverificationPASS oncontent 604582689cedb5fbd213532b9d3bcfe2d2f0372a1ca1930557e9fe6f053a8c61. Focused/static337passed (97workflow+240static), chunk861da4/session24097. Fullnot_real_store offline1259selected completed100percentexit0 nofailures/errors/skips, chunk13b6d5/session38260. Bothworkflowvalidators,fullRufflint/format151files,configuredmypy49sourcefiles, offlineevalretrieval5cases metrics1.0/explanation14of14, source/wheelbuildTEMP, bothComposeconfigs anddiffcheckPASS. OnlyoptionalComposeportenvwarnings. No trackededits afterfreeze; currentdigestunchanged."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-06T18:06:35Z",
+      "data": {
+        "ids": [
+          "AC86OWNER",
+          "AC86CONTINUE",
+          "AC86GATES",
+          "AC86BOUND",
+          "AC86HISTORY",
+          "AC86VERIFY"
+        ],
+        "evidence": "AC86OWNER oneowner plus requiredindependent consequentialgates; AC86CONTINUE two standard finitecontinuations/redeliveries actualsavedfixture; AC86GATES staleevidence/identity/realfileatomic tests; AC86BOUND noautorenewal andauditonlytime,legacytimeunchanged; AC86HISTORY historicalledgers unchanged andnewsplitsrejected; AC86VERIFY337focused/static+1259offline andallconfiguredgatespassed. ActualIssue86delivered-ledger publicationchecks mandatorypendingafterreview/ordinarydelivery, notclaimedcomplete.",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "604582689cedb5fbd213532b9d3bcfe2d2f0372a1ca1930557e9fe6f053a8c61"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T18:06:47Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/owner_workflow_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "604582689cedb5fbd213532b9d3bcfe2d2f0372a1ca1930557e9fe6f053a8c61"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-06T18:10:32Z",
+      "data": {
+        "session": "/root/owner_workflow_review",
+        "outcome": "fail",
+        "evidence": "Initial independentread-onlyreview FAIL onfrozencontent604582689cedb5fbd213532b9d3bcfe2d2f0372a1ca1930557e9fe6f053a8c61: I86ATOMIC temp expectedbytes readfrommutablefile afterwrite allowsfirst-readtampering; I86OWNER remediation blocker bypassescompletedimplementation requirement; I86CONTENT reviewreservationcontentnotcomparedtoverified/acceptedcontent so consumesreviewslot onuncertifiedsource. Threefocused same-scope repairs; no designambiguity/reset."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-06T18:10:32Z",
+      "data": {
+        "id": "B86-TEMP-FIRST-READ",
+        "criterion": "I86ATOMIC",
+        "scenario": "Temp candidatechangedbeforefirstread becomesexpectedbytes; finalcomparisoncanpublish tampered candidate.",
+        "evidence": "Independentinitialreview /root/owner_workflow_review; frozenAC86VERIFY/AC86GATES; same-scope bounded ownerremediation required."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-06T18:10:32Z",
+      "data": {
+        "id": "B86-REMEDIATION-BEFORE-IMPLEMENTATION",
+        "criterion": "I86OWNER",
+        "scenario": "DESIGN_READY ticketwithblocker canuse remediationasfirstwritephase withoutsuccessfulimplementation.",
+        "evidence": "Independentinitialreview /root/owner_workflow_review; frozenAC86VERIFY/AC86GATES; same-scope bounded ownerremediation required."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-06T18:10:32Z",
+      "data": {
+        "id": "B86-REVIEW-STALE-CONTENT",
+        "criterion": "I86CONTENT",
+        "scenario": "Sourcechangedafteracceptance canreserveindependentreviewonnewcontent whileverification/acceptance remainold, wastingfinite reviewslot.",
+        "evidence": "Independentinitialreview /root/owner_workflow_review; frozenAC86VERIFY/AC86GATES; same-scope bounded ownerremediation required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-06T18:10:44Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-06T18:21:02Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "interrupted",
+        "evidence": "User explicitly requested halt. Coordinator interrupted same owner remediation; agent also reported usage-limit infrastructure interruption. Source/tests staged+unstaged edits preserved; no phase completed, slot reset, new agent, delivery or implementationpush. Resume requires explicit user instruction and same reservedsession."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-07T07:09:17Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:10:52Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "Same-owner consolidatedremediation complete:100focusedtests andchanged-fileRufflint/formatPASS. ImmutableUTF8candidatebytes computedbeforebinarytempwrite; successfulimplementationrequiredforowner-led remediation; initial/finalreviewreservation mustmatchverified/acceptedcontent beforecountreserved. Real on-disk sourcemutationafteracceptance rejectsreservation withoutledger/countchange. Style selfcheckfailures correctedwithin same reservedremediation; interruption/resume preserved, noreset/replacement."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-07T07:11:10Z",
+      "data": {
+        "id": "B86-TEMP-FIRST-READ",
+        "evidence": "Completed same-owner remediation; focused100tests pass including exact failure regression, selfreviewclean. Coordinator initially used nonexistent resolve_blocker command; engine rejected withoutappend, corrected to standard resolve event. Freshverification/finalreview pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-07T07:11:10Z",
+      "data": {
+        "id": "B86-REMEDIATION-BEFORE-IMPLEMENTATION",
+        "evidence": "Completed same-owner remediation; focused100tests pass including exact failure regression, selfreviewclean. Coordinator initially used nonexistent resolve_blocker command; engine rejected withoutappend, corrected to standard resolve event. Freshverification/finalreview pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-07T07:11:10Z",
+      "data": {
+        "id": "B86-REVIEW-STALE-CONTENT",
+        "evidence": "Completed same-owner remediation; focused100tests pass including exact failure regression, selfreviewclean. Coordinator initially used nonexistent resolve_blocker command; engine rejected withoutappend, corrected to standard resolve event. Freshverification/finalreview pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T07:11:19Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/owner_workflow_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:17:36Z",
+      "data": {
+        "session": "/root/owner_workflow_implementation",
+        "outcome": "pass",
+        "evidence": "Freshconfiguredverification aftersame-ownerremediation PASS oncontent 57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef. Fullnotreal_store1262selected tests exit0 100percent chunk66ed34/session72786;340focused/static(100+240) chunkacba9e/session42798; bothvalidators,fullRufflint/format151files,mypy49files,offlineevalretrieval5cases/explanation14of14,buildTEMP,bothComposeconfigs,diffchecksPASS. Optionalunsetportwarningsonly; contentunchanged status3552d8. No trackededits duringverification."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-07T07:17:36Z",
+      "data": {
+        "ids": [
+          "AC86OWNER",
+          "AC86CONTINUE",
+          "AC86GATES",
+          "AC86BOUND",
+          "AC86HISTORY",
+          "AC86VERIFY"
+        ],
+        "evidence": "AllAC86OWNER/CONTINUE/GATES/BOUND/HISTORY/VERIFY demonstratedby100focused+240static+1262offline andconfiguredgates onidenticalcontent. Threeinitialreviewblockers repaired/resolvedwithfocusedregressions; immutablecandidatebytes, completedimplementation prerequisite, reviewreservationcontent rejection beforecountconsumption. ActualIssue86saved-deliverypublicationchecks stillmandatorypendingafterindependentfinalreview.",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T07:17:48Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/owner_workflow_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        },
+        "content": "57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T07:19:30Z",
+      "data": {
+        "session": "/root/owner_workflow_review",
+        "outcome": "pass",
+        "evidence": "Independentread-only FINALREVIEW PASS exactcontent 57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef andfrozencapsule94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8. Allthreeinitialfindings closedwithmeaningfulregressions; no newfrozen-IDblocker inreplay/continuation/independence/identity/legacyboundary. No reviewerwrite/testexecution. Ordinarydelivery andactualsaved-ledgerpublicationchecks pending."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-07T07:25:20Z",
+      "data": {
+        "evidence": "OrdinarydeliverycheckPASS afterfreshfullverification/acceptance andindependentfinalreview onidenticalcontent; allblockersresolved. RealPR87 identity reserved. Actualsaved-ledgerpublicationchecks mandatorybeforeimplementationpush; no claimthosefuturecheckscomplete.",
+        "pr": 87,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "57ba6a1a9d56ec9b1ef2ad172d757e8d6bbbb3c22163cc9497fd36b7efd4f9ef",
+        "capsule": {
+          "id": "issue-86-owner-led-workflow",
+          "generation": 1,
+          "digest": "94b135a551b96d9e2af8a8321488aac343d5d5d38c8bc9e661d9bf7e2bfafbc8"
+        }
+      }
     }
   ]
 }

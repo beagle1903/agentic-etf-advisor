@@ -173,6 +173,8 @@ def main() -> None:
             "Do not silently redesign",
             "separate sequential session",
             "Do not execute trades or external financial writes",
+            "owner-led-v1",
+            "continuation",
         )
         boundary = (
             ("Do not edit source", "execute mutating commands")
@@ -281,6 +283,9 @@ def main() -> None:
             "only a separate read-only `design_architect` session",
             "Review findings cannot authorize implementation or contract changes",
             "Multiple files, integration tests, or unfamiliarity alone do not require escalation",
+            "owner-led-v1",
+            "continuation",
+            "elapsed seconds for audit",
         ),
     )
     require_markers(
@@ -305,6 +310,8 @@ def main() -> None:
             "Escalations:",
             "DESIGN_READY",
             "separate sequential session",
+            "owner-led-v1",
+            "Finite continuation authority",
         ),
     )
     require_markers(
@@ -323,7 +330,17 @@ def main() -> None:
             "before implementation edits",
             "Review findings cannot authorize implementation or contract changes",
             "multiple files, integration tests, or unfamiliarity alone are insufficient",
+            "owner-led-v1",
+            "continuation",
         ),
+    )
+    require_markers(
+        ROOT / "docs/workflow/README.md",
+        ("owner-led-v1", "policy_transition", "continuation", "actual saved delivered"),
+    )
+    require_markers(
+        ROOT / "docs/workflow/templates/initialize.example.json",
+        ('"policy": "owner-led-v1"',),
     )
     for template_name in (
         "work-item.yml",
@@ -355,6 +372,8 @@ def main() -> None:
                 "separate sequential session",
                 "capsule precedes implementation edits",
                 "reviewer findings do not authorize changes",
+                "owner-led-v1",
+                "Continuation:",
             ),
         )
     require_markers(

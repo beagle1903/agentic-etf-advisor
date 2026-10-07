@@ -1,6 +1,6 @@
 # Finite development ledger
 
-AGENTS and ADR 0026 define the policy. This directory stores development governance,
+AGENTS, ADR 0026 and ADR 0033 define the policy. This directory stores development governance,
 outside application graph state. One issue has one canonical `tickets/issue-N.json`. Future initialization requires a complete frozen
 capsule with actual definitions (not IDs alone), pinned approved owner and named user
 authorization. Bootstrap adoption is restricted to the exact approved Issue73 prefix;
@@ -24,7 +24,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 
 | Event | Data fields |
 |---|---|
-| `initialize` | See template; default budget 7200 seconds and one of each counted phase. |
+| `initialize` | See template; `policy: owner-led-v1` for new tickets, or omit for legacy `timed-v1`; one of each counted phase. |
 | `phase_start` | `phase`, `session`, `role`, `capsule`; review/verification also require `content` SHA256. |
 | `phase_end` | `session`, `outcome` (`pass`, `fail`, `interrupted`), `evidence` |
 | `pause` | Same as end, with `interrupted`; preserves exact reserved session. |
@@ -35,7 +35,9 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `resolve` | `id`, `evidence`; requires a successful remediation after the finding. |
 | `acceptance` | `ids` (all frozen ACs), `evidence`, `capsule`, `content` SHA256 |
 | `charge` | `authority` (coordinator), positive additional `seconds`, `evidence`; conservative extra charge only. |
-| `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; at least one positive delta. |
+| `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; owner-led requires zero seconds and positive count delta. |
+| `policy_transition` | `policy: owner-led-v1`, user `authority`, current `capsule`, `reason`; unsplit timed ticket only and grants no slot. |
+| `continuation` | New user `authority`, current `capsule`, full finite `counts`, `reason`; completed implementation and positive remediation grant, plus final review when required. |
 | `split` | `authority` (user), `successor` issue, positive `seconds`, `reason` |
 | `delivery` | `evidence`, original `pr` number, `repo`, `capsule`, `content` SHA256; terminal after the gate. |
 | `capsule_update` | `authority`, complete `capsule`; only during a reserved reset, frozen scope/AC/invariant definitions unchanged. |
@@ -48,7 +50,14 @@ evidence is single-use, normalized for whitespace independently of display name.
 Counted phases: `implementation`, `initial_review`, `remediation`, `final_review`,
 `design_reset`. Other charged phases: `planning`, `design`, `challenge`, `verification`.
 Clock accounting includes inter-phase coordination until an explicit pause. An open
-crashed phase consumes through now; closing it late never removes elapsed time.
+crashed phase consumes through now; closing it late never removes elapsed audit time.
+For `timed-v1`, 120 active minutes can exhaust the ticket. For `owner-led-v1`, time is
+audit-only; counted slots and explicit finite grants govern attempts. Routine work
+stays with its approved owner through implementation, self-review, verification and
+authorized same-scope remediation. Consequential design/challenge and independent
+review remain separate. Review after remediation requires current matching verification
+and acceptance. Failed verification retains its failure and needs a recorded blocker
+and bounded remediation outside the completed implementation phase.
 The `--now` override supports deterministic tests; do not backdate operational checks.
 
 ```powershell
@@ -58,9 +67,20 @@ uv run python scripts/ticket_workflow.py validate
 
 Delivery requires complete acceptance, successful verification, clean required review
 and no unresolved blocker. Phase exhaustion prevents another phase, while a clean final
-review may still deliver within the time budget. Failed final review stops work until a
-finite explicit user extension grants both remediation and final-review slots. Neither
+review may still deliver within the historical timed budget or the owner-led counted
+limits. Failed final review stops work until a finite explicit user grant supplies both
+remediation and final-review slots. Neither
 reviewer findings nor a design reset grant authority to extend a budget or change scope.
+
+For owner-led tickets, delivery may be followed by an explicitly authorized finite
+`continuation`. The old binding remains in ordered history but is no longer currently
+eligible. The same owner completes the repair and fresh certification; a new ordinary
+delivery binds the original repository and PR to the new content. After delivered
+coordination stops the clock, record `coordination_resume` before the next phase.
+New-policy authority identities use NFKC, collapsed whitespace and case folding;
+display-name changes cannot authorize the same grant twice. New-policy splits are
+unsupported. Legacy timed histories, including splits and exhaustion, retain their
+original outcomes.
 
 Splitting retires the predecessor. Each explicit user-approved allocation records
 remaining time and consumed counts. The successor initializes with `predecessor` equal
@@ -93,6 +113,10 @@ invariant/AC definitions, classification and initial owner cannot silently chang
 Explicit owner handoffs record fresh sessions and concrete specialist escalation.
 
 Store event files outside the repository (for example in the OS temporary directory).
+Append checks the event file's actual bytes when supplied, the ledger-file set and
+bytes, candidate temporary bytes and repository content again just before atomic
+replace. Keep the workspace quiescent through certification and publication. Static
+checks cannot authenticate the referenced human authorization.
 Review/verification reservations and successful outcomes are checked against actual
 repository content by append. Acceptance and delivery carry that same content digest.
 Content covers Git tracked and unignored untracked files, canonical LF text and file
@@ -103,3 +127,5 @@ head tree, not a queued obsolete event. Delivered state binds original repo/PR n
 and content; a different PR or later content cannot reuse it. Original unchanged CI
 reruns remain valid. Finish reviewable documentation before final verification/review;
 record later outcomes in the excluded ledger rather than editing reviewed content.
+Before pushing, run read-only publication checks against the actual saved delivered
+ledger, its immutable prefix and exact current PR/content binding.

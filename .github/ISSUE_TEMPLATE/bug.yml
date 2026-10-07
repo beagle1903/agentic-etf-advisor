@@ -71,6 +71,9 @@ body:
         Independent review: high-risk/disputed trigger and findings, or not used
         Escalations: concrete evidence and fresh separate sequential session, or none
         Finite ticket lifetime: ledger docs/workflow/tickets/issue-N.json; default 120 active minutes
+        Policy: owner-led-v1 for new tickets; elapsed audit only, finite counted slots; timed-v1 history unchanged
+        Continuation: explicit finite same-scope repair grant after implementation/delivery, or none
+        Historical delivery binding: preserve old bindings; redelivery must use original repository and PR
         Frozen acceptance/invariant IDs: complete definitions plus capsule ID/generation/SHA256 before implementation
         Content binding: review, verification, acceptance and original delivery PR share one digest
         Lifetime reservations: initial review 1; remediation 1; final review 1; design reset 1
