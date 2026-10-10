@@ -1306,19 +1306,60 @@ def check_pr(
 
 
 def current_pr(event: dict, metadata: dict) -> dict:
-    """Reject stale queued head/base identity before validating the live PR body."""
-    recorded = event["pull_request"]
-    if (
-        metadata.get("number") != event["number"]
-        or metadata["head"]["sha"] != recorded["head"]["sha"]
-    ):
-        raise Invalid("queued PR event has stale head or identity")
-    for key in ("sha", "ref"):
-        if text(metadata["base"][key]) != text(recorded["base"][key]):
-            raise Invalid("queued PR event has stale base SHA or ref")
-    if text(metadata["base"]["repo"]["full_name"]) != text(recorded["base"]["repo"]["full_name"]):
+    """Validate complete queued/live identity, then return the live PR snapshot."""
+
+    def invalid_char(value: str) -> bool:
+        return any(char.isspace() or unicodedata.category(char) in {"Cc", "Cf"} for char in value)
+
+    def name(value: object) -> str:
+        if (
+            not isinstance(value, str)
+            or len(value.split("/")) != 2
+            or any(not part or invalid_char(part) for part in value.split("/"))
+        ):
+            raise Invalid("invalid PR repository full_name")
+        return value
+
+    def branch(value: object) -> tuple[str, str, str]:
+        if not isinstance(value, dict):
+            raise Invalid("invalid PR branch")
+        sha = value.get("sha")
+        ref = value.get("ref")
+        repo = value.get("repo")
+        if not isinstance(sha, str) or not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", sha):
+            raise Invalid("invalid PR SHA")
+        if not isinstance(ref, str) or not ref or invalid_char(ref):
+            raise Invalid("invalid PR ref")
+        if not isinstance(repo, dict):
+            raise Invalid("invalid PR repository")
+        return sha, ref, name(repo.get("full_name"))
+
+    def identity(value: object) -> tuple[int, str, tuple[str, str, str], tuple[str, str, str]]:
+        if not isinstance(value, dict):
+            raise Invalid("invalid pull_request object")
+        number = integer(value.get("number"), 1)
+        created_at = value.get("created_at")
+        timestamp(created_at)
+        if "body" in value and value["body"] is not None and not isinstance(value["body"], str):
+            raise Invalid("invalid PR body")
+        return number, created_at, branch(value.get("head")), branch(value.get("base"))
+
+    if not isinstance(event, dict) or not isinstance(metadata, dict):
+        raise Invalid("invalid queued or live PR envelope")
+    number = integer(event.get("number"), 1)
+    repository = event.get("repository")
+    if not isinstance(repository, dict):
+        raise Invalid("invalid event repository")
+    event_repo = name(repository.get("full_name"))
+    queued = identity(event.get("pull_request"))
+    live = identity(metadata)
+    if queued[0] != number or live[0] != number:
+        raise Invalid("queued PR event has stale number")
+    if queued[3][2] != event_repo or live[3][2] != event_repo:
         raise Invalid("queued PR event has stale base repository")
-    return {**event, "pull_request": {**recorded, "body": metadata.get("body")}}
+    if queued != live:
+        raise Invalid("queued PR event has stale identity")
+    return {**event, "pull_request": metadata.copy()}
 
 
 def main() -> None:
