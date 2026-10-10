@@ -1,0 +1,41 @@
+{
+  "schema": "issue92-recovery-failed-review-closeout-v1",
+  "at": "2026-10-09T17:14:02Z",
+  "outcome": "BLOCKED_FOR_DECISION",
+  "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87",
+  "review_session": "/root/issue92_recovered_initial_review",
+  "review_start": "2026-10-09T10:33:28Z",
+  "review_end": "2026-10-09T17:13:55Z",
+  "measured_review_seconds": 24027,
+  "startup_wait_included": true,
+  "blocker": "B92-LIVE-PR-HEAD-IDENTITY",
+  "frozen_invariant": "I84GATES",
+  "criterion": "AC84GATES",
+  "report_sha256": "3c99f27005ee1c9ef3d918d3a1d5ab9f3e08120bad6dfa4ef788f14707d0373d",
+  "delivery_gate": {
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: Issue92 completed recovery failure stops further phases\n"
+  },
+  "counts": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "limits": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "verified": true,
+  "accepted": true,
+  "reviewed": false,
+  "delivered": false,
+  "committed": false,
+  "pushed": false,
+  "pr_created": false,
+  "followup_authorized": false
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "issue92-single-recovery-grant-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "authority": {
+    "kind": "user",
+    "name": "burha",
+    "evidence": "Direct user reply ok continue on 2026-10-09 approves proposed-finite-repair-decision.md after R92D1 DESIGN_READY, R92C1 CHALLENGE_PASS and coordinator technical approval, binding proposal 2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b and closeout cceaadefea56843630f0156d83f7c13a0a7172c7a6fa44858d85be21ef2b7d48: one same-owner counted remediation, one fresh verification, conserved review/PR, explicit bootstrap exception and one actual-saved-delivery check sequence."
+  },
+  "authority_anchor": "chat:01a11788-6350-7da0-a55a-b6e5a56551ce/user-2026-10-09/approved-issue92-single-repair-after-recovery-closeout",
+  "at": "2026-10-09T10:12:25Z",
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+  "stop_ledger_digest": "290ffe7e16d19de8c7e67df54cbf06c517e6313778a377da20877af9490a967a",
+  "failed_content": "a69779793820e624eb12f66f0fb6f243db7f7fc14940161b984a46ec5c6e5d4f",
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "closeout_digest": "cceaadefea56843630f0156d83f7c13a0a7172c7a6fa44858d85be21ef2b7d48",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "count_deltas": {
+    "implementation": 0,
+    "initial_review": 0,
+    "remediation": 1,
+    "final_review": 0,
+    "design_reset": 0
+  },
+  "supplemental_deltas": {
+    "verification": 1,
+    "design": 0,
+    "challenge": 0,
+    "design_revision": 0
+  },
+  "review_disposition": "retain-unused-initial-review-after-single-pre-review-repair",
+  "publication": {
+    "mode": "retain-original-unused-one-new-pr",
+    "original_grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+    "additional_count": 0,
+    "total_count": 1,
+    "repo": "beagle1903/agentic-etf-advisor",
+    "primary_issue": 92,
+    "head": "codex/issue-92-issue84-remainder",
+    "base": "main",
+    "excluded_prs": [
+      85
+    ],
+    "actual_saved_delivery_check_runs": 1
+  },
+  "bootstrap_exception": "append-one-recovery-and-one-remediation-start",
+  "seconds": 0,
+  "merging": false,
+  "reason": "User approved the exact saved finite repair decision. Repair only B92-LIVE-LEDGER-FIXTURE-DRIFT and challenged pinned gate support; preserve all histories, consumed counts, authorities/authors and bindings. Completed failure or mismatch stops; no replacement, new implementation, automatic retry, successor or merge."
+}

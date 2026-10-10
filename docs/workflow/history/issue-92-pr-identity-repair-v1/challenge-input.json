@@ -1,0 +1,19 @@
+{
+  "schema": "issue92-pr-identity-challenge-input-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+  "source_manifest_digest": "5822263871b4914246a1e380daae766abf98c162b092dc74002c569b7af27007",
+  "supplemental_prefix_digest": "bd53173960f1028bae57e93f1bc28957087b8d679096675154d45dbaa74b506b",
+  "supplemental_event_count": 3
+}

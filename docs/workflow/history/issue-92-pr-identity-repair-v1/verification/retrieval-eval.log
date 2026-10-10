@@ -1,0 +1,48 @@
+{
+  "dataset": {
+    "dataset_id": "retrieval-baseline",
+    "version": 3,
+    "document_count": 7,
+    "sources": [
+      "Yahoo Finance"
+    ],
+    "observation_start": "2026-08-26T20:00:00Z",
+    "observation_end": "2026-08-28T20:00:00Z"
+  },
+  "limit": 3,
+  "semantic_only": {
+    "case_count": 5,
+    "result_count": 15,
+    "hit_rate_at_k": 1.0,
+    "recall_at_k": 1.0,
+    "mean_reciprocal_rank": 0.9,
+    "source_attribution_rate": 1.0,
+    "graph_context_recall": 0.0,
+    "graph_context_field_accuracy": 0.0,
+    "sector_context_coverage": 0.0,
+    "sector_constraint_exact_match_rate": 0.0
+  },
+  "graph_enriched": {
+    "case_count": 5,
+    "result_count": 15,
+    "hit_rate_at_k": 1.0,
+    "recall_at_k": 1.0,
+    "mean_reciprocal_rank": 0.9,
+    "source_attribution_rate": 1.0,
+    "graph_context_recall": 1.0,
+    "graph_context_field_accuracy": 1.0,
+    "sector_context_coverage": 1.0,
+    "sector_constraint_exact_match_rate": 1.0
+  },
+  "deltas": {
+    "hit_rate_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "mean_reciprocal_rank": 0.0,
+    "source_attribution_rate": 0.0,
+    "graph_context_recall": 1.0,
+    "graph_context_field_accuracy": 1.0,
+    "sector_context_coverage": 1.0,
+    "sector_constraint_exact_match_rate": 1.0
+  },
+  "conclusion": "Source-linked sector relationships add complete structured sector context and exact threshold-match verification without changing semantic ranking. Retain the sector projection; defer other graph expansions until they demonstrate comparable value."
+}

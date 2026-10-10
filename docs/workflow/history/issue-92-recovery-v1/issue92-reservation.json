@@ -1,0 +1,48 @@
+{
+  "schema": "issue92-bootstrap-reservation-v1",
+  "at": "2026-10-08T09:07:36Z",
+  "issue": 92,
+  "classification": "consequential",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+  "closeout_digest": "a161bebe339b8c8ad97fc934896089a501d3f6756ff3102843d539c702ec6eb8",
+  "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+  "ledger_digest": "b43fb7a3df8e01e474aa3ebe40ccc0897d13e5dcbdc368ce524600fe75b41c2e",
+  "gate": {
+    "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase implementation",
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: requested issue ledger missing"
+  },
+  "source_gate": {
+    "command": "uv run python scripts/ticket_workflow.py --root C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab check --issue 84 --phase implementation",
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: expected fields ['authority', 'capsule', 'policy', 'reason']"
+  },
+  "exception": "Explicit finite user authority grants the first bootstrap implementation start only. New engine must validate saved bootstrap/start natively before success or next phase. No fabricated gate pass.",
+  "consumed_counts": {
+    "implementation": 5,
+    "initial_review": 3,
+    "remediation": 4,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "limits": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 4,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "verification_available": 1,
+  "publication_available": 1
+}

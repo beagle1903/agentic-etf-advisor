@@ -171,10 +171,35 @@ counts and delivery bindings while clearing only current certification and marki
 repair pending. Repair, verification, acceptance and independent review bind the new
 content; later delivery must use the original repository and PR. A distinct explicit
 `policy_transition` may move an unsplit timed ticket to owner-led policy without
-granting slots. New-policy splits are unsupported. Historical timed splits require explicit user decision,
-validated predecessor history, inherited counters and allocated remaining time;
-sibling allocations total no more than the predecessor remainder. A split retires
-its predecessor. New issue numbers cannot silently evade limits.
+granting slots. Owner-led splits require distinct finite user grants, inherit
+consumed counts and conserve the parent's remaining count pool across siblings.
+Historical timed splits retain allocated seconds, including unspent residuals. A
+split retires its predecessor, and whole-lineage validation rejects approval reuse.
+ADR 0035 pins the exact Issue23/83 transition and Issue92 exhausted-source bootstrap;
+neither grants product resume or generic adoption. Issue92 requires a new publication
+target and fresh certification. New issue numbers cannot silently evade limits.
+ADR 0036 binds the sole Issue92 fixture recovery to its exact failed six-event
+prefix, immutable challenge/closeout and later finite user grant. The saved recovery
+and counted remediation start used the explicitly approved pre-validator exception;
+native replay must validate both. One remediation count and one fresh verification
+are added, while the unused initial review and new-PR allowance are conserved.
+The single pre-review repair may proceed to independent initial review only after
+successful blocker resolution, fresh verification and acceptance on repaired content.
+Immutable historical fixtures must not read the mutable current Issue92 ledger.
+ADR 0037 binds one later Issue92 PR-identity repair to the exact failed-review
+sixteen-event prefix and immutable grant. Its event-17 disposition and event-18
+counted remediation start preserve the failed recovery and consumed initial
+review. Remediation 6, verification 3 and independent final review 5 are the
+only added allowances. CI validates complete queued/live head and base identity;
+Issue92 also requires its granted head repository and branch. The original
+unused single-PR and saved-delivery-check permissions remain conserved.
+ADR 0038 binds the subsequent stage-aware Issue92 test repair to its exact
+23-event failed-verification stop. Event 24 grants only remediation 7 and
+verification 4; event 25 starts the same owner's remediation. The prior failures
+remain historical and the unused independent final review limit remains 5.
+Actual-ledger tests derive expected stages and counts from saved event facts,
+while historical fixtures read immutable archives. Native replay must validate
+the saved disposition and package before any dependent phase.
 
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on

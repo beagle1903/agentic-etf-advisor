@@ -42,7 +42,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `phase_start` | `phase`, `session`, `role`, `capsule`; review/verification also require `content` SHA256. |
 | `phase_end` | `session`, `outcome` (`pass`, `fail`, `interrupted`), `evidence` |
 | `pause` | Same as end, with `interrupted`; preserves exact reserved session. |
-| `phase_resume` | `session`; resumes the interrupted phase without another slot. |
+| `phase_resume` | `session`; the exact transitioned Issue83 suspension additionally requires distinct user `authority`, current `capsule`, and `reason`. |
 | `coordination_pause`, `coordination_resume` | `authority` (coordinator), `evidence`; explicit between-phase offline interval. |
 | `design_ready` | `authority` (coordinator), `evidence`, exact current `capsule` reference. |
 | `blocker` | `id`, `criterion` (frozen AC/invariant ID), `scenario`, `evidence` |
@@ -51,8 +51,13 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `charge` | `authority` (coordinator), positive additional `seconds`, `evidence`; conservative extra charge only. |
 | `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; owner-led requires zero seconds and positive count delta. |
 | `policy_transition` | `policy: owner-led-v1`, user `authority`, current `capsule`, `reason`; unsplit timed ticket only and grants no slot. |
+| `lineage_policy_transition` | Only the fixed Issue23/83 histories: time-only transition of Issue83's existing suspended implementation; no resume or new slot. |
 | `continuation` | New user `authority`, current `capsule`, full finite `counts`, `reason`; completed implementation and positive remediation grant, plus final review when required. |
-| `split` | `authority` (user), `successor` issue, positive `seconds`, `reason` |
+| `split` | Timed tickets: user `authority`, `successor`, positive `seconds`, `reason`. Owner-led tickets: user `authority`, current `capsule`, `successor`, `successor_capsule`, complete allocated `counts`, `reason`. |
+| `publication_target` | Only Issue92: `repo`, new `pr`, fixed `grant_digest`, `evidence`; one target after clean review and before delivery. |
+| `issue92_recovery` | Only the exact seventh event after the frozen failed Issue92 six-event prefix: fixed proposal/closeout/grant, exact user authority, one counted remediation and one extra local verification. |
+| `issue92_pr_identity_repair` | Only event 17 after the exact sixteen-event failed-review prefix and pinned 43-source/eight-closeout grant; event 18 is the same-owner counted remediation start. |
+| `issue92_stage_fixture_repair` | Only event 24 after the exact 23-event failed-verification prefix and pinned 10-source/eight-closeout grant; event 25 is the same-owner counted seventh remediation start. |
 | `delivery` | `evidence`, original `pr` number, `repo`, `capsule`, `content` SHA256; terminal after the gate. |
 | `capsule_update` | `authority`, complete `capsule`; only during a reserved reset, frozen scope/AC/invariant definitions unchanged. |
 | `owner_handoff` | `authority`, pinned `owner`, current `capsule`, `reason`, `escalation` (required for a specialist role change); fresh session. |
@@ -92,22 +97,47 @@ eligible. The same owner completes the repair and fresh certification; a new ord
 delivery binds the original repository and PR to the new content. After delivered
 coordination stops the clock, record `coordination_resume` before the next phase.
 New-policy authority identities use NFKC, collapsed whitespace and case folding;
-display-name changes cannot authorize the same grant twice. New-policy splits are
-unsupported. Legacy timed histories, including splits and exhaustion, retain their
-original outcomes.
+display-name changes cannot authorize the same grant twice. Owner-led splits allocate
+only remaining counted slots and inherit all consumed counts. Whole-lineage validation
+checks siblings in both orders. Legacy timed histories, including splits and exhaustion,
+retain their original outcomes.
 
-Splitting retires the predecessor. Each explicit user-approved allocation records
-remaining time and consumed counts. The successor initializes with `predecessor` equal
+Splitting retires the predecessor. Historical timed allocations retain seconds; new
+owner-led allocations debit the parent's remaining count pool across siblings. The
+successor initializes with `predecessor` equal
 to `{ "issue": N, "digest": "sha256 of predecessor ledger prefix" }`; validate with
 the predecessor ledger present. No automatic fresh implementation slot is granted.
-Sibling allocations share the original remainder. An extension is a separately approved
-finite choice before splitting, not an automatic successor budget.
+Sibling allocations share the original remainder. Child extensions need separate
+approval and cannot replenish a retired parent or sibling.
 
 CI fetches the current PR body and checks the event head against the current head.
-New ledger introduction must derive the current `owner-led-v1` policy. An existing
-timed prefix with an explicit authorized transition may be introduced; a newly
-introduced history that remains timed is rejected. Merge-base legacy ledgers remain
+New ledger introduction requires `owner-led-v1` at initialization. The exact complete
+Issue23/83 pair with its immediately following Issue83 lineage transition is the only
+timed introduction exception. Issue23 retains five historical timed seconds; Issue83
+retains its suspended reservation, interrupted outcome and blocker. The pinned Issue92
+bootstrap derives exhausted Issue84 history from complete immutable archived sources,
+and its new PR receives only fresh certification. Merge-base legacy ledgers remain
 valid without a retroactive policy rewrite.
+ADR 0036 adds one exact Issue92 recovery after its failed full-suite verification.
+The saved recovery/remediation pair was appended under the finite user-approved
+pre-validator exception and must validate natively before completion. Remediation
+consumes count 5/5; local verification may start once more (limit 2/2). The unused
+initial review and one new-PR allowance are conserved. That initial review follows
+the successful repair, exact blocker resolution, fresh verification and complete
+acceptance on the same repaired content. Tests use archived two- and six-event
+fixtures; the actual current ledger and eventual delivery are checked separately.
+ADR 0037 preserves that failed recovery and consumed initial review. Its
+event-17/18 bootstrap grants only remediation 6/6, local verification 3/3
+and independent final review 5/5 after fresh acceptance. CI compares complete
+queued/live PR identities and evaluates Issue92's granted head repository and
+branch against the validated live snapshot. The original single new-PR and
+actual-saved-delivery-check allowances remain conserved.
+ADR 0038 retains the failed third verification and earlier failed recovery/review
+histories. The exact event-24/25 disposition grants remediation 7/7 and one
+fresh local verification 4/4, with independent final review limit 5 unchanged.
+Actual-ledger tests derive their expected stage and counters from saved events;
+archived 2-, 6-, 16-, 18- and 23-event baselines remain immutable. Native replay
+validates the saved 25-event bootstrap and all 109 archived source files.
 Exactly one `Primary issue: #N` line binds the PR; a changed ledger must include that
 primary issue. `edited` events rerun checks. Existing merge-base events must remain an
 identical prefix; deletion fails. Future issues (created at/after 2026-09-26T04:23:34Z)

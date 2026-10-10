@@ -1,0 +1,22 @@
+{
+  "type": "acceptance",
+  "at": "2026-10-09T10:33:26Z",
+  "data": {
+    "ids": [
+      "AC84TIME",
+      "AC84CYCLES",
+      "AC84HISTORY",
+      "AC84SPLIT",
+      "AC84GATES",
+      "AC84DOCS",
+      "AC84VERIFY"
+    ],
+    "evidence": "All seven frozen ACs satisfied by focused175 workflow/14static mutation positives and precise negatives, full1450pass47skip offline suite and required gates at identical content. AC84TIME/CYCLES/HISTORY/SPLIT/GATES: cycle-only/migration/conservation/history/authorship/content/recovery/PR controls tested; exact native savedbootstrap and activeverification validate, original failure/capsules/grants/prefixes/counts/bindings retained. AC84DOCS: approved instructions/docs/ADR0035 preserved and0036/iteration020 explain sole recovery; AC84VERIFY: recorded formal PASS and all required offline/eval/build/Compose gates; independent initial review still required before delivery.36 archive roundtrip and primary23/83 isolation verified. No product/services or actual23/83 execution.",
+    "capsule": {
+      "id": "issue-92-issue84-remainder",
+      "generation": 1,
+      "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+    },
+    "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87"
+  }
+}

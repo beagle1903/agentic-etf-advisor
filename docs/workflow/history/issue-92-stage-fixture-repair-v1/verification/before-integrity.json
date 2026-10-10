@@ -1,0 +1,11 @@
+{
+  "archive_files": 89,
+  "git_blob_roundtrip_mismatches": [],
+  "primary_raw_sha256": {
+    "23": "724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0",
+    "83": "0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c"
+  },
+  "primary_matches": true,
+  "new_source_descriptors": 43,
+  "new_closeout_descriptors": 8
+}

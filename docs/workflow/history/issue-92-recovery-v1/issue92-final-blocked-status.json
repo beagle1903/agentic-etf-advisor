@@ -1,0 +1,314 @@
+{
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "content": "a69779793820e624eb12f66f0fb6f243db7f7fc14940161b984a46ec5c6e5d4f",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "policy": "owner-led-v1",
+  "counts": {
+    "implementation": 5,
+    "initial_review": 3,
+    "remediation": 4,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "inherited_counts": {
+    "implementation": 4,
+    "initial_review": 3,
+    "remediation": 4,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "local_counts": {
+    "implementation": 1,
+    "initial_review": 0,
+    "remediation": 0,
+    "final_review": 0,
+    "design_reset": 0
+  },
+  "limits": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 4,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "remaining_counts": {
+    "implementation": 0,
+    "initial_review": 1,
+    "remediation": 0,
+    "final_review": 0,
+    "design_reset": 0
+  },
+  "elapsed_seconds": 32410,
+  "remaining_seconds": null,
+  "active_phase": null,
+  "verified": false,
+  "reviewed": false,
+  "accepted": false,
+  "pending_repair": false,
+  "delivered": false,
+  "delivery_binding": null,
+  "delivery_history": [],
+  "historical_delivery_history": [
+    {
+      "repo": "beagle1903/agentic-etf-advisor",
+      "pr": 85,
+      "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7"
+    },
+    {
+      "repo": "beagle1903/agentic-etf-advisor",
+      "pr": 85,
+      "content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d"
+    }
+  ],
+  "historical_reservation_count": 38,
+  "historical_outcomes": [
+    {
+      "source": "L84",
+      "session": "/root/issue84_design",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_challenge",
+      "outcome": "fail"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_design_reset",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_challenge_reset",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation",
+      "outcome": "fail"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_design_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_challenge_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_final_review",
+      "outcome": "fail"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_final_review",
+      "outcome": "fail"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_final_review",
+      "outcome": "fail"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_implementation_correction",
+      "outcome": "pass"
+    },
+    {
+      "source": "L84",
+      "session": "/root/issue84_final_review",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H1",
+      "session": "/root/pr85_status_correction",
+      "imported_outcome": "pass",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H2",
+      "session": "/root",
+      "imported_outcome": "pass",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H3",
+      "session": "/root/pr85_status_review",
+      "imported_outcome": "pass",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H4",
+      "session": "/root/pr85_redelivery_design",
+      "imported_outcome": "pass",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H5",
+      "session": "/root/pr85_redelivery_challenge",
+      "imported_outcome": "fail",
+      "outcome": "fail"
+    },
+    {
+      "source": "H",
+      "slot": "H6",
+      "session": "/root/pr85_design_revision2",
+      "imported_outcome": "open",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H7",
+      "session": "/root/pr85_challenge_revision2",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H8",
+      "session": "/root/pr85_redelivery_implementation",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H9",
+      "session": "/root/pr85_redelivery_implementation",
+      "outcome": "pass"
+    },
+    {
+      "source": "H",
+      "slot": "H10",
+      "session": "/root/pr85_redelivery_review",
+      "outcome": "pass"
+    },
+    {
+      "source": "R",
+      "slot": "R1",
+      "session": "/root/pr85_last_recovery_design",
+      "outcome": "pass"
+    },
+    {
+      "source": "R",
+      "slot": "R2",
+      "session": "/root/pr85_last_recovery_challenge",
+      "outcome": "pass"
+    },
+    {
+      "source": "R",
+      "slot": "R3",
+      "session": "/root/pr85_last_recovery_implementation",
+      "outcome": "pass"
+    },
+    {
+      "source": "R",
+      "slot": "R4",
+      "session": "/root/pr85_last_recovery_implementation",
+      "outcome": "pass"
+    },
+    {
+      "source": "R",
+      "slot": "R5",
+      "session": "/root/pr85_last_recovery_review",
+      "outcome": "fail"
+    },
+    {
+      "source": "supplemental",
+      "reservation": "D1",
+      "session": "/root/issue84_remainder_design",
+      "outcome": "blocked"
+    },
+    {
+      "source": "supplemental",
+      "reservation": "C1",
+      "session": "/root/issue84_remainder_challenge",
+      "outcome": "fail"
+    },
+    {
+      "source": "supplemental",
+      "reservation": "D2",
+      "session": "/root/issue84_correction_design",
+      "outcome": "DESIGN_READY"
+    },
+    {
+      "source": "supplemental",
+      "reservation": "C2",
+      "session": "/root/issue84_correction_challenge",
+      "outcome": "CHALLENGE_PASS"
+    }
+  ],
+  "historical_findings": [
+    {
+      "source": "L84",
+      "id": "B84-SIBLING-APPROVAL-REUSE"
+    },
+    {
+      "source": "L84",
+      "id": "B84-MIGRATED-SPLIT-APPROVAL-REUSE"
+    },
+    {
+      "source": "R5",
+      "id": "B85-EXTERNAL-JOURNAL-FILE-RACE",
+      "result": "fail"
+    }
+  ],
+  "local_verification_starts": 1,
+  "publication_target": null,
+  "retired": false,
+  "split_remaining_seconds": null,
+  "split_remaining_counts": null,
+  "suspended_phase": null,
+  "timing_barrier_transitioned": false,
+  "ancestor_split_remaining_seconds": null,
+  "historical_timed_debt_seconds": null
+}

@@ -1,0 +1,46 @@
+{
+  "schema": "issue84-remainder-finite-disposition-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "source_issue": 84,
+  "target_issue": 92,
+  "authority": {
+    "name": "burha",
+    "evidence": "2026-10-08 direct user approved in this chat answering the exact proposed finite authorization for one successor implementation/verification/independent initial review/new PR; zero retries and no merge.",
+    "kind": "user"
+  },
+  "authority_anchor": "chat:01a11788-6350-7da0-a55a-b6e5a56551ce/user:2026-10-08/approved-finite-successor",
+  "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+  "closeout_digest": "a161bebe339b8c8ad97fc934896089a501d3f6756ff3102843d539c702ec6eb8",
+  "execution_capsule_digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "counts": {
+    "remediation": 0,
+    "final_review": 0,
+    "implementation": 1,
+    "design_reset": 0,
+    "initial_review": 1
+  },
+  "supplemental": {
+    "challenge": 0,
+    "design": 0,
+    "verification": 1,
+    "design_revision": 0
+  },
+  "seconds": 0,
+  "publication": {
+    "mode": "one-new-pr",
+    "repo": "beagle1903/agentic-etf-advisor",
+    "primary_issue": 92,
+    "count": 1,
+    "excluded_prs": [
+      85
+    ]
+  },
+  "bootstrap_exception": true,
+  "reason": "Direct user approved the exact finite decision and creation of one successor; returned Issue92 identity is bound once. Inherit all exhaustion, consumed authors/identities/failures/bindings; no old certificate or product resume."
+}

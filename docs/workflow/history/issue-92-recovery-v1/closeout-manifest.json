@@ -1,0 +1,68 @@
+{
+  "schema": "issue92-recovery-closeout-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "source_manifest_digest": "6451c9e60e8782a88b7b5135d4acf83c46f7993dc7e143725ca15032b531d374",
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "challenge_input_digest": "d184e89d2313216e6fe495421816dd1a9d66be730f6a7354bdbd32bb64260634",
+  "sources": {
+    "source_manifest": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/source-manifest.json",
+      "kind": "json",
+      "raw_sha256": "cc50eb1f2f053a06b9d7b9bbd9f402fc080b7979e224059d5887ff53c2328f06",
+      "canonical_sha256": "6451c9e60e8782a88b7b5135d4acf83c46f7993dc7e143725ca15032b531d374"
+    },
+    "proposal": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/design-proposal.md",
+      "kind": "text",
+      "raw_sha256": "54f5218b83a72de0ba3f87fb03609a29a7f989e4b93147781e2ed6e2127d04a3",
+      "canonical_sha256": null
+    },
+    "challenge_input": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/challenge-input.json",
+      "kind": "json",
+      "raw_sha256": "cf3678e83ccbc04b1a6cb06aaaa17f911cf35267619fe1b570347a1957cbb6c1",
+      "canonical_sha256": "d184e89d2313216e6fe495421816dd1a9d66be730f6a7354bdbd32bb64260634"
+    },
+    "challenged_supplemental": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/challenged-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "ab75f2ddafe6ed8d0732406cee3269735ea2405035e8035e593870f8c4ebf3fc",
+      "canonical_sha256": "2aad93aa364b3709d1a4799f2172c0a2754a14cceb831d8bfd986430a5041213"
+    },
+    "completed_supplemental": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/completed-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "4ef890b862c5fe67a5158d096777701d900de6a2097db5a76ac6e67bff33bae3",
+      "canonical_sha256": "fbec425b3065960f8a62884ea7ca30523e5279c304819ecd1725f3fb2a34b7ec"
+    },
+    "challenge_result": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/challenge-result.json",
+      "kind": "json",
+      "raw_sha256": "b28346ca88660d250f0390017d4f6a057c1ce1851a687d0ec48ab9166ab325e3",
+      "canonical_sha256": "5b8581744c09fe5641ab3da2a3854db251f3fff82c9ed41352a6664d898a82ee"
+    },
+    "challenge_report": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/challenge-result.md",
+      "kind": "text",
+      "raw_sha256": "29c57f346c2bc4eefc8f3ed399c8fdbfda13341e358f7426087fdf2703602eab",
+      "canonical_sha256": null
+    },
+    "coordinator_decision": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/coordinator-decision.json",
+      "kind": "json",
+      "raw_sha256": "85dbdbd872ee6dd074c742b64533261c3da69f8c6ac17be9b79bf83a00f14085",
+      "canonical_sha256": "1bc927f1ebd78ec7475b21a23bb25dda96c2b67c4a2cf5e53eca2a1898cf8714"
+    }
+  }
+}

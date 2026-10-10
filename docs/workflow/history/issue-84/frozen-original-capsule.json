@@ -1,0 +1,74 @@
+{
+  "id": "issue-84-cycle-bounded-workflow",
+  "generation": 3,
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 84,
+  "classification": "consequential",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_implementation"
+  },
+  "rationale": "Consequential development-governance contract; independent architect/challenge required before changes to finite enforcement. New independent governance ticket, not reset of Issue83 product attempts.",
+  "authorization": {
+    "kind": "user",
+    "name": "burha",
+    "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: that limit should not be about completion time but about how many times we hop around review-design reset-reimplement cycle. Authorizes cycle-only governance correction, preserving attempts and history; not an Issue83 attempt extension."
+  },
+  "scope": {
+    "S84": "Replace completion/elapsed-time exhaustion with finite review/design-reset/reimplementation cycle caps; update workflow engine, tests, templates, instructions and docs; backwards-compatible append-only historical migration and split attempt conservation."
+  },
+  "non_goals": [
+    "Authentication or other application code/graph/financial contracts",
+    "Resetting consumed attempts or rewriting existing histories",
+    "Role models/access/effort/registration or CI privileges",
+    "Product verification claims for blocked Issue83"
+  ],
+  "invariants": {
+    "I84CYCLES": "Default one implementation/initial-review/remediation/final-review/design-reset lifetime attempt persists across agents/sessions/quota resets/design resets. Extra attempts require explicit named user authorization.",
+    "I84TIME": "Completion time/quota waits/open-phase elapsed time never gate new cycle-only work or require minute extensions. Timing may remain historical/audit data.",
+    "I84HISTORY": "Existing ledger prefixes/capsules/counters/content/PR bindings remain immutable and validated; explicit policy transition cannot clear attempts, review outcomes or substantive blockers.",
+    "I84GATES": "Consequential design/challenge/approval, role ownership, review independence, content-bound acceptance/verification/review and clean delivery remain enforced.",
+    "I84SPLIT": "Successor/sibling allocation conserves remaining attempt allowances and inherits consumed history; split/new issue cannot silently replenish attempts.",
+    "I84ISOLATE": "Only development-governance engine/docs/tests change; current Issue83 product work preserved."
+  },
+  "interfaces": [
+    "Workflow CLI/status/append and ledger policy/transition JSON",
+    "Split-lineage allocation and explicit cycle extensions",
+    "Instruction/validator/template contracts",
+    "Application/provider/store/financial interfaces: none"
+  ],
+  "json_state_impact": "Workflow-only ledger policy/allocation/transition fields or events as architect specifies, backwards-compatible immutable old events. Application graph/checkpoint JSON: none.",
+  "acceptance": {
+    "AC84TIME": "New cycle-only ledgers and explicitly transitioned expired/suspended legacy ledgers can resume after arbitrary waits without timing extensions; status explains remaining attempts rather than misleading minute debt.",
+    "AC84CYCLES": "Counted phase limits/failed-final-review stop still enforce across resets/handoffs/quota waits; explicit count extension cannot be replayed or impersonated.",
+    "AC84HISTORY": "Historical delivered/split/bootstrap ledgers replay without rewriting; transitions preserve prefix/capsule/counts/bindings and deny clearing substantive blockers or converting delivered tickets.",
+    "AC84SPLIT": "Split successors/siblings inherit consumed counts and validated allocated remaining allowances, cannot multiply attempts or reuse allocations; terminal predecessors remain retired.",
+    "AC84GATES": "Existing ownership/design/challenge/approval/content-bound acceptance/review/verification/PR gates and unrelated static workflow checks remain correct.",
+    "AC84DOCS": "AGENTS/CONTRIBUTING/README/templates/role bodies explain cycle-only policy; new ADR supersedes timing only; finite-workflow history remains untouched.",
+    "AC84VERIFY": "Focused engine/CLI/negative fixtures plus required offline/static/evaluation/build/Compose gates pass; independent review required; no services/product behavior changes."
+  },
+  "verification": [
+    "Focused ticket_workflow replay/CLI/CI-binding tests including long wait, expired suspended legacy, failed final review, split siblings and substantive blockers",
+    "Static validator fixtures; Ruff lint/format; strict mypy; full offline pytest; evaluations; package build; Compose config and diff checks",
+    "Independent code review against immutable invariant/AC IDs"
+  ],
+  "documentation": [
+    "New ADR0030 (0029 reserved for pending auth83) timing supersession only",
+    "Workflow iteration design/evidence record",
+    "AGENTS/CONTRIBUTING/docs/workflow/README/templates and six role instruction bodies"
+  ],
+  "risks": [
+    "Backward-compatible historical replay",
+    "Attempt multiplication across split descendants",
+    "Time-only blocker handling must not authorize unsafe delivery",
+    "Policy changes must not reset frozen contracts or review slots"
+  ],
+  "escalation_triggers": [
+    "Unresolved allocation/legacy policy ambiguity returns to architect",
+    "Concrete replay/compatibility complexity or repeated unresolved failures requires evidence-backed specialist session",
+    "Cycle exhaustion or failed final review stops for user decision"
+  ],
+  "escalation": null
+}

@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-08T09:07:36Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 92,
+        "classification": "consequential",
+        "scope": [
+          "S84"
+        ],
+        "invariants": [
+          "I84CYCLES",
+          "I84TIME",
+          "I84HISTORY",
+          "I84GATES",
+          "I84SPLIT",
+          "I84ISOLATE"
+        ],
+        "acceptance": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct finite user approval recorded; D2 technical contract approved after independent C2 PASS. Narrow pre-validator bootstrap exception; ordinary target check rejected requested issue ledger missing, source check rejected legacy fields."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-92-issue84-remainder",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 92,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue84_remainder_implementation"
+          },
+          "rationale": "Consequential governance remainder inherits exhausted Issue84 history. Separate D2 design and independent C2 PASS with coordinator approval precede this explicitly finite user-authorized instance; D2 proposal digest is an additional scope bound.",
+          "authorization": {
+            "name": "burha",
+            "evidence": "2026-10-08 direct user approved in this chat answering the exact proposed finite authorization for one successor implementation/verification/independent initial review/new PR; zero retries and no merge.",
+            "kind": "user"
+          },
+          "scope": {
+            "S84": "Replace completion/elapsed-time exhaustion with finite review/design-reset/reimplementation cycle caps; update workflow engine, tests, templates, instructions and docs; backwards-compatible append-only historical migration and split attempt conservation."
+          },
+          "non_goals": [
+            "Authentication/product work and actual Issue23/83 introduction/transition/resume",
+            "Financial/provider/database/application graph-state changes",
+            "Changing old ledgers, prefixes, capsules, outcomes, counts or accepted ADRs",
+            "PR85 correction/recovery execution machinery, generic adoption and transported certification",
+            "Default-budget successor, automatic retries/replacement/renewal or merging",
+            "Role pins, access, effort, registration and CI privilege changes",
+            "Reviving wishlist.md"
+          ],
+          "invariants": {
+            "I84CYCLES": "Default one implementation/initial-review/remediation/final-review/design-reset lifetime attempt persists across agents/sessions/quota resets/design resets. Extra attempts require explicit named user authorization.",
+            "I84TIME": "Completion time/quota waits/open-phase elapsed time never gate new cycle-only work or require minute extensions. Timing may remain historical/audit data.",
+            "I84HISTORY": "Existing ledger prefixes/capsules/counters/content/PR bindings remain immutable and validated; explicit policy transition cannot clear attempts, review outcomes or substantive blockers.",
+            "I84GATES": "Consequential design/challenge/approval, role ownership, review independence, content-bound acceptance/verification/review and clean delivery remain enforced.",
+            "I84SPLIT": "Successor/sibling allocation conserves remaining attempt allowances and inherits consumed history; split/new issue cannot silently replenish attempts.",
+            "I84ISOLATE": "Only development-governance engine/docs/tests change; current Issue83 product work preserved."
+          },
+          "interfaces": [
+            "Workflow replay, State.gate/status and strict initialization/split/exact lineage transition",
+            "Whole-lineage allocation, normalized authority and unique exhausted-source claim validation",
+            "Atomic append, source acquisition and repository-wide writer lock",
+            "Merge-base history, primary issue, publication target and PR/content bindings",
+            "Workflow documentation, templates and static validation",
+            "Application/provider/store/financial interfaces: none"
+          ],
+          "json_state_impact": "Workflow-only JSON-serializable inherited counters, local prerequisites, conserved pools, history/authority/author provenance, pinned bootstrap and publication target. Application graph/checkpoint state: none.",
+          "acceptance": {
+            "AC84TIME": "New cycle-only ledgers and explicitly transitioned expired/suspended legacy ledgers can resume after arbitrary waits without timing extensions; status explains remaining attempts rather than misleading minute debt.",
+            "AC84CYCLES": "Counted phase limits/failed-final-review stop still enforce across resets/handoffs/quota waits; explicit count extension cannot be replayed or impersonated.",
+            "AC84HISTORY": "Historical delivered/split/bootstrap ledgers replay without rewriting; transitions preserve prefix/capsule/counts/bindings and deny clearing substantive blockers or converting delivered tickets.",
+            "AC84SPLIT": "Split successors/siblings inherit consumed counts and validated allocated remaining allowances, cannot multiply attempts or reuse allocations; terminal predecessors remain retired.",
+            "AC84GATES": "Existing ownership/design/challenge/approval/content-bound acceptance/review/verification/PR gates and unrelated static workflow checks remain correct.",
+            "AC84DOCS": "AGENTS/CONTRIBUTING/README/templates/role bodies explain cycle-only policy; new ADR supersedes timing only; finite-workflow history remains untouched.",
+            "AC84VERIFY": "Focused engine/CLI/negative fixtures plus required offline/static/evaluation/build/Compose gates pass; independent review required; no services/product behavior changes."
+          },
+          "verification": [
+            "Immutable positive/precise-negative engine/CLI/CI fixtures for all D2 focused acceptance scenarios",
+            "Saved bootstrap/start native replay before successful completion; actual saved delivered-ledger/current-PR/content checks",
+            "Ruff lint/format, configured mypy, full offline pytest, both workflow validators, offline evaluations, package build, Compose configuration and diff checks",
+            "One content-bound verification and one independent initial review; no remediation/review/design retry"
+          ],
+          "documentation": [
+            "New ADR narrowly extending ADR0033; accepted history untouched",
+            "docs/iterations/020-issue84-remainder.md with capsule/design/challenge/approval/exception and finite evidence",
+            "AGENTS/CONTRIBUTING/workflow README/templates/instructions affected by D2",
+            "Immutable docs/workflow/history/issue-84 sources and closeout/grant; current Issue92 ledger"
+          ],
+          "risks": [
+            "Incomplete or double-counted inheritance and omitted reservations/outcomes",
+            "Approval aliases or reuse across siblings in either temporal order including timed ancestors",
+            "Confusing historical failure/binding with current certification",
+            "Cross-ticket writer and real source/archive/content races",
+            "Pinned bootstrap becoming generic adoption or silent renewal"
+          ],
+          "escalation_triggers": [
+            "Concrete frozen-ID or D2-contract failure returns to coordinator arbitration",
+            "Consequential ambiguity or source/grant/bootstrap mismatch blocks; no design retry authorized",
+            "Failed completed verification/review or serious blocker stops BLOCKED_FOR_DECISION",
+            "No replacement, specialist or new attempt without separate finite user decision"
+          ],
+          "escalation": null
+        },
+        "issue84_remainder": {
+          "version": "issue84-remainder-inheritance-v1",
+          "source_issue": 84,
+          "history_manifest_digest": "a161bebe339b8c8ad97fc934896089a501d3f6756ff3102843d539c702ec6eb8",
+          "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+          "grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-08T09:07:36Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue84_remainder_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-92-issue84-remainder",
+          "generation": 1,
+          "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+        }
+      }
+    }
+  ]
+}

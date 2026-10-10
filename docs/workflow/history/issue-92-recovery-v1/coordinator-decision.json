@@ -1,0 +1,13 @@
+{
+  "schema": "issue92-recovery-coordinator-decision-v1",
+  "authority": {
+    "kind": "coordinator",
+    "name": "/root",
+    "evidence": "2026-10-09 coordinator approves exact complete recovery technical contract after R92C1 independent PASS under scoped read-only user authority."
+  },
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "challenge_input_digest": "d184e89d2313216e6fe495421816dd1a9d66be730f6a7354bdbd32bb64260634",
+  "challenge_result_digest": "5b8581744c09fe5641ab3da2a3854db251f3fff82c9ed41352a6664d898a82ee",
+  "outcome": "approved",
+  "evidence": "B92 fixture-drift recovery specification complete. One counted same-owner remediation and fresh verification proposed; unused initial review/PR conserved. Original prefix/capsule/grant/counts/failures and author/authority exclusions/bindings preserved. Technical approval only; separate explicit finite repair grant required. Issue92 remains BLOCKED_FOR_DECISION."
+}

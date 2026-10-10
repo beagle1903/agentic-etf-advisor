@@ -1,0 +1,21 @@
+{
+  "schema": "issue84-d2-challenge-input-v1",
+  "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+  "frozen_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "fixed_sources": {
+    "L84": "e941ecb38388154683e01f982a9397dec8a54d801b634bb56c25e7d1d52551e5",
+    "H": "743aec3b11e23638bc7e6e4c5180775cbd790cee18575c7af4167f12e2bf70df",
+    "R": "2a2ac80fabc45f00a7dbefc52e46baf82cb8a6d1270a4622cf02b825b6e82fe2",
+    "S0": "33fee8d76801460432d6b2542299cecbc8a8f385c002f76c5f7e578212a4ebc9",
+    "D1": "86cd40b398c9b8bb2a2b4dfb535710a2d1841b9095ce5acf70cccfa672db9c00",
+    "C1": "39aaf227e64caad23457c7b2931dffbbe3e1b8e82261b622179aa0dc8461dc53",
+    "E1": "69226227c74e03cd33e56bbe033097b5590a004d45ad77340249311a28f718d7",
+    "failure_handoff": "14c1e463f0ad8edfc19826ff8e53dea6e1d0877790e90e66f73f9b6af9f68a13"
+  },
+  "supplemental_prefix_digest": "a499052bdd433369ae550b0507f24d9d42086f4713e474c78491825b05b486de",
+  "supplemental_event_count": 13
+}

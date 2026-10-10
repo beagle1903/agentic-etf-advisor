@@ -1,0 +1,229 @@
+{
+  "schema": "coordinator-local-reservation-record-v1",
+  "issue": 84,
+  "chat": "01a11682-286e-7500-a4ce-24bff6b2c093",
+  "authority": {
+    "name": "burha",
+    "evidence": "2026-10-07 user approved + we dont need wishlist.md anymore, answering exact request for one read-only design revision, one independent challenge and supplemental reservation because ordinary Issue84 dispatch rejects."
+  },
+  "limits": {
+    "design_revision": 1,
+    "challenge": 1,
+    "implementation": 0,
+    "remediation": 0,
+    "code_review": 0,
+    "publication": 0
+  },
+  "scope": [
+    "AC84SPLIT/I84SPLIT owner-led split allowance conservation and inherited approval identities",
+    "AC84TIME/AC84HISTORY exact preserved Issue23 to Issue83 introduction and transition",
+    "Proposed Issue84 lineage/publication disposition preserving counts, failures, frozen definitions and original content/PR bindings"
+  ],
+  "non_goals": [
+    "Changing prior ledgers or frozen capsules",
+    "Resuming old phases",
+    "PR85 recovery or special recertification machinery",
+    "Authentication/product implementation or verification claims",
+    "Automatic renewal or new issue to evade inherited limits"
+  ],
+  "separate_user_request": "Retire wishlist.md and active instruction references; explicitly authorized but separate from frozen Issue84 requirements; no file deletion or reference edits in read-only design/challenge.",
+  "events": [
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T16:29:59Z",
+      "phase": "design_revision",
+      "reservation": "D1",
+      "session": "/root/issue84_remainder_design",
+      "role": "design_architect",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "classification": "consequential",
+      "rationale": "Finite allowance lineage and historical introduction alter replay/governance contracts; separate architect is mandatory.",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py --root C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab check --issue 84 --phase design_reset",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: expected fields ['authority', 'capsule', 'policy', 'reason']"
+      },
+      "exception": "Explicitly approved supplemental reservation applies only to this read-only design and subsequent independent challenge. This record is not a ledger event, engine extension or implementation authorization."
+    },
+    {
+      "type": "capacity_interruption_observation",
+      "at": "2026-10-07T17:15:45Z",
+      "reservation": "D1",
+      "session": "/root/issue84_remainder_design",
+      "evidence": "Original design agent errored with account usage limit before producing a handoff. Exact interruption time was not recorded; this is the later coordinator observation time, not an invented phase end. No substantive design outcome, challenge dispatch or extra reservation occurred. Audit elapsed time is retained; no unrecorded subtraction."
+    },
+    {
+      "type": "same_reservation_resume",
+      "at": "2026-10-07T17:15:45Z",
+      "reservation": "D1",
+      "session": "/root/issue84_remainder_design",
+      "authority_evidence": "User continue in this chat after capacity interruption; resume the existing reserved read-only design only. No new grant, replacement agent, design retry or implementation allowance."
+    },
+    {
+      "type": "checkout_relocation_observation",
+      "at": "2026-10-07T17:17:10Z",
+      "reservation": "D1",
+      "evidence": "Former coordinator-arbitration worktree was externally removed during interruption. New managed issue84-remainder worktree created and verified clean at same merged main commit 10b4a4e67cf8abec7d20243d6a642e690a2c0e08; primary authentication checkout and ab84/cycle-bounded-workflow preserved. This creates no phase, count or authority.",
+      "path": "C:/Users/burha/.codex/worktrees/issue84-remainder/agents-lab"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T17:27:20Z",
+      "reservation": "D1",
+      "session": "/root/issue84_remainder_design",
+      "outcome": "blocked",
+      "evidence": "Architect returned DESIGN_BLOCKED. Technical split/exact-transition contracts proposed; complete executable Issue84 bootstrap/publication disposition missing. No implementation grant or project edits. Same reservation resumed after capacity interruption; full elapsed audit retained.",
+      "proposal_path": "C:/Users/burha/.codex/issue84-remainder/design-proposal.md",
+      "proposal_file_sha256": "86cd40b398c9b8bb2a2b4dfb535710a2d1841b9095ce5acf70cccfa672db9c00",
+      "proposal_canonical_digest": "e1b992cc6e0766270307c66a1b982aad0a9598d497059314bcd15d98ce9c9206",
+      "canonicalization": "SHA256 of json.dumps({schema:issue84-remainder-frozen-proposal-v1,proposal_markdown:UTF8_text},sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-07T17:27:20Z",
+      "phase": "challenge",
+      "reservation": "C1",
+      "session": "/root/issue84_remainder_challenge",
+      "role": "code_reviewer",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "proposal_canonical_digest": "e1b992cc6e0766270307c66a1b982aad0a9598d497059314bcd15d98ce9c9206",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py --root C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab check --issue 84 --phase challenge",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: expected fields ['authority', 'capsule', 'policy', 'reason']"
+      },
+      "exception": "Approved supplemental read-only independent challenge reservation only. Challenge evaluates the DESIGN_BLOCKED proposal and may not relabel missing bootstrap as ready or authorize implementation."
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-07T17:35:19Z",
+      "reservation": "C1",
+      "session": "/root/issue84_remainder_challenge",
+      "outcome": "fail",
+      "proposal_canonical_digest": "e1b992cc6e0766270307c66a1b982aad0a9598d497059314bcd15d98ce9c9206",
+      "evidence": "CHALLENGE_FAIL: exact saved Issue83 suspension contradicts transition precondition; parent five-second residual ambiguous; executable Issue84 bootstrap absent. Counts4/3/4/4/4 source-verified. Read-only review, no tests.",
+      "result_path": "C:/Users/burha/.codex/issue84-remainder/challenge-result.md"
+    },
+    {
+      "type": "coordinator_stop",
+      "at": "2026-10-07T17:35:19Z",
+      "status": "BLOCKED_FOR_DECISION",
+      "arbitration_path": "C:/Users/burha/.codex/issue84-remainder/coordinator-arbitration.md",
+      "evidence": "D1 and C1 consumed. No additional design/challenge or write allowance. New concrete complete challenged contract and explicit finite disposition needed; no automatic retry. Separate wishlist retirement Issue90 does not replenish Issue84."
+    },
+    {
+      "type": "elapsed_audit_summary",
+      "at": "2026-10-07T17:37:48Z",
+      "D1_seconds": 3441,
+      "C1_seconds": 479,
+      "evidence": "Measured from recorded start/end timestamps. D1 capacity interruption interval retained without subtraction; no additional reservation. Exact canonical proposal digest rechecked unchanged after C1."
+    },
+    {
+      "type": "supplemental_authority",
+      "at": "2026-10-08T08:33:12Z",
+      "chat": "01a11788-6350-7da0-a55a-b6e5a56551ce",
+      "authority": {
+        "kind": "user",
+        "name": "burha",
+        "evidence": "2026-10-08 direct user continue in this waiting chat approves exactly one additional read-only design revision D2 and one independent challenge C2 for the three recorded gaps."
+      },
+      "limits": {
+        "challenge": 1,
+        "design_revision": 1,
+        "publication": 0,
+        "remediation": 0,
+        "implementation": 0,
+        "code_review": 0
+      },
+      "preservation": "All prior history, consumed counts and failed outcomes retained. No timed extension/default successor/product resume/ledger mutation. Elapsed audit retained; no invented time limit or subtraction."
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-08T08:33:12Z",
+      "phase": "design_revision",
+      "reservation": "D2",
+      "session": "/root/issue84_correction_design",
+      "role": "design_architect",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "classification": "consequential",
+      "rationale": "Exact historical replay, lineage conservation and exhausted bootstrap governance contracts require separate architect.",
+      "gate": {
+        "exit_code": 1,
+        "command": "uv run python scripts/ticket_workflow.py --root C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab check --issue 84 --phase design_reset",
+        "output": "Ticket workflow blocked: expected fields ['authority', 'capsule', 'policy', 'reason']"
+      },
+      "exception": "Direct supplemental read-only authority only; local record is not an engine-accepted event or implementation grant.",
+      "source": "67b93e77cc3a2c665fb902e44508ff693f877e43",
+      "worktree": "C:/Users/burha/.codex/worktrees/issue84-design-correction/agents-lab"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-08T08:51:11Z",
+      "reservation": "D2",
+      "session": "/root/issue84_correction_design",
+      "outcome": "DESIGN_READY",
+      "elapsed_audit_seconds": 1079,
+      "proposal_path": "C:\\Users\\burha\\.codex\\issue84-remainder\\design-proposal-D2.md",
+      "proposal_canonical_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+      "proposal_file_sha256": "c9ff9c29fb80c706ce212c9a55e0b9b96574772ea47efaaaac219633850d2046",
+      "evidence": "Complete read-only architect handoff received and transcribed. Audit includes coordinator close/transcription overhead; no time subtracted. No implementation or tests."
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-08T08:51:11Z",
+      "phase": "challenge",
+      "reservation": "C2",
+      "session": "/root/issue84_correction_challenge",
+      "role": "code_reviewer",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "proposal_canonical_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py --root C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab check --issue 84 --phase challenge",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: expected fields ['authority', 'capsule', 'policy', 'reason']"
+      },
+      "exception": "2026-10-08 direct user continue grants C2 independent read-only challenge only; not an engine event or write authority."
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-08T08:58:39Z",
+      "reservation": "C2",
+      "session": "/root/issue84_correction_challenge",
+      "outcome": "CHALLENGE_PASS",
+      "elapsed_audit_seconds": 448,
+      "proposal_canonical_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+      "challenge_input_digest": "304f1a52b6fb80b705448d7c70fc17a14563f19fc8253efbd206b442ab544938",
+      "result_path": "C:\\Users\\burha\\.codex\\issue84-remainder\\challenge-result-C2.md",
+      "result_file_sha256": "4f3352e863c14dc30dabe35ffe4b3908900076b6285185fd09e311f01369f270",
+      "evidence": "Independent read-only challenge passed; coordinator transcription/close overhead retained in elapsed audit. No tests/implementation."
+    },
+    {
+      "type": "coordinator_decision",
+      "at": "2026-10-08T08:58:39Z",
+      "authority": {
+        "kind": "coordinator",
+        "name": "/root",
+        "evidence": "2026-10-08 coordinator approves exact complete D2 technical contract after independent C2 PASS under direct supplemental read-only user authority."
+      },
+      "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+      "challenge_input_digest": "304f1a52b6fb80b705448d7c70fc17a14563f19fc8253efbd206b442ab544938",
+      "outcome": "approved",
+      "evidence": "E1 technical closure conditions satisfied. Original D1 blocked/C1 failed outcomes retained. Issue84 OPEN/BLOCKED_FOR_DECISION; no write/publication grant.",
+      "status": "BLOCKED_FOR_DECISION",
+      "arbitration_path": "C:\\Users\\burha\\.codex\\issue84-remainder\\coordinator-arbitration-E2.md",
+      "remaining_supplemental_allowances": {
+        "design_revision": 0,
+        "challenge": 0,
+        "implementation": 0,
+        "verification": 0,
+        "remediation": 0,
+        "code_review": 0,
+        "publication": 0
+      }
+    }
+  ]
+}

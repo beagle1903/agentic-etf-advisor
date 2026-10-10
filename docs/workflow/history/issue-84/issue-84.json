@@ -1,0 +1,2153 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-04T17:23:34Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 84,
+        "classification": "consequential",
+        "scope": [
+          "S84"
+        ],
+        "invariants": [
+          "I84CYCLES",
+          "I84TIME",
+          "I84HISTORY",
+          "I84GATES",
+          "I84SPLIT",
+          "I84ISOLATE"
+        ],
+        "acceptance": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "Direct user policy correction; independent issue84 governance scope, preserves Issue83."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 84,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue84_implementation"
+          },
+          "rationale": "Consequential development-governance contract; independent architect/challenge required before changes to finite enforcement. New independent governance ticket, not reset of Issue83 product attempts.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: that limit should not be about completion time but about how many times we hop around review-design reset-reimplement cycle. Authorizes cycle-only governance correction, preserving attempts and history; not an Issue83 attempt extension."
+          },
+          "scope": {
+            "S84": "Replace completion/elapsed-time exhaustion with finite review/design-reset/reimplementation cycle caps; update workflow engine, tests, templates, instructions and docs; backwards-compatible append-only historical migration and split attempt conservation."
+          },
+          "non_goals": [
+            "Authentication or other application code/graph/financial contracts",
+            "Resetting consumed attempts or rewriting existing histories",
+            "Role models/access/effort/registration or CI privileges",
+            "Product verification claims for blocked Issue83"
+          ],
+          "invariants": {
+            "I84CYCLES": "Default one implementation/initial-review/remediation/final-review/design-reset lifetime attempt persists across agents/sessions/quota resets/design resets. Extra attempts require explicit named user authorization.",
+            "I84TIME": "Completion time/quota waits/open-phase elapsed time never gate new cycle-only work or require minute extensions. Timing may remain historical/audit data.",
+            "I84HISTORY": "Existing ledger prefixes/capsules/counters/content/PR bindings remain immutable and validated; explicit policy transition cannot clear attempts, review outcomes or substantive blockers.",
+            "I84GATES": "Consequential design/challenge/approval, role ownership, review independence, content-bound acceptance/verification/review and clean delivery remain enforced.",
+            "I84SPLIT": "Successor/sibling allocation conserves remaining attempt allowances and inherits consumed history; split/new issue cannot silently replenish attempts.",
+            "I84ISOLATE": "Only development-governance engine/docs/tests change; current Issue83 product work preserved."
+          },
+          "interfaces": [
+            "Workflow CLI/status/append and ledger policy/transition JSON",
+            "Split-lineage allocation and explicit cycle extensions",
+            "Instruction/validator/template contracts",
+            "Application/provider/store/financial interfaces: none"
+          ],
+          "json_state_impact": "Workflow-only ledger policy/allocation/transition fields or events as architect specifies, backwards-compatible immutable old events. Application graph/checkpoint JSON: none.",
+          "acceptance": {
+            "AC84TIME": "New cycle-only ledgers and explicitly transitioned expired/suspended legacy ledgers can resume after arbitrary waits without timing extensions; status explains remaining attempts rather than misleading minute debt.",
+            "AC84CYCLES": "Counted phase limits/failed-final-review stop still enforce across resets/handoffs/quota waits; explicit count extension cannot be replayed or impersonated.",
+            "AC84HISTORY": "Historical delivered/split/bootstrap ledgers replay without rewriting; transitions preserve prefix/capsule/counts/bindings and deny clearing substantive blockers or converting delivered tickets.",
+            "AC84SPLIT": "Split successors/siblings inherit consumed counts and validated allocated remaining allowances, cannot multiply attempts or reuse allocations; terminal predecessors remain retired.",
+            "AC84GATES": "Existing ownership/design/challenge/approval/content-bound acceptance/review/verification/PR gates and unrelated static workflow checks remain correct.",
+            "AC84DOCS": "AGENTS/CONTRIBUTING/README/templates/role bodies explain cycle-only policy; new ADR supersedes timing only; finite-workflow history remains untouched.",
+            "AC84VERIFY": "Focused engine/CLI/negative fixtures plus required offline/static/evaluation/build/Compose gates pass; independent review required; no services/product behavior changes."
+          },
+          "verification": [
+            "Focused ticket_workflow replay/CLI/CI-binding tests including long wait, expired suspended legacy, failed final review, split siblings and substantive blockers",
+            "Static validator fixtures; Ruff lint/format; strict mypy; full offline pytest; evaluations; package build; Compose config and diff checks",
+            "Independent code review against immutable invariant/AC IDs"
+          ],
+          "documentation": [
+            "New ADR0030 (0029 reserved for pending auth83) timing supersession only",
+            "Workflow iteration design/evidence record",
+            "AGENTS/CONTRIBUTING/docs/workflow/README/templates and six role instruction bodies"
+          ],
+          "risks": [
+            "Backward-compatible historical replay",
+            "Attempt multiplication across split descendants",
+            "Time-only blocker handling must not authorize unsafe delivery",
+            "Policy changes must not reset frozen contracts or review slots"
+          ],
+          "escalation_triggers": [
+            "Unresolved allocation/legacy policy ambiguity returns to architect",
+            "Concrete replay/compatibility complexity or repeated unresolved failures requires evidence-backed specialist session",
+            "Cycle exhaustion or failed final review stops for user decision"
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:23:39Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue84_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Separate architect DESIGN_READY: cycles-v1 initialization optional field preserves timed-v1 historical replay; exact-prefix user policy_transition preserves attempts/reservations/bindings with narrowly pinned Issue83 timing-blocker waiver; cycle_split component-wise remaining-count conservation and sole-successor legacy migration. No product changes; full frozen AC84 map. Handoff in coordinator chat.",
+        "session": "/root/issue84_design"
+      },
+      "at": "2026-10-04T17:26:38Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "phase": "challenge",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040"
+        },
+        "role": "code_reviewer",
+        "session": "/root/issue84_challenge"
+      },
+      "at": "2026-10-04T17:26:39Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:30:49Z",
+      "data": {
+        "outcome": "fail",
+        "evidence": "CHALLENGE_BLOCKED against I84TIME/AC84TIME: unconditional missing initialize policy=>timed-v1 lets new/manual old-template tickets silently retain time exhaustion. Need deterministic legacy-only grandfather replay and explicit cycles-v1 requirement for future append initialization, preserving83/84/73bootstrap. Other transition/waiver/split architecture has no blocker.",
+        "session": "/root/issue84_challenge"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:30:50Z",
+      "data": {
+        "role": "design_architect",
+        "capsule": {
+          "generation": 1,
+          "digest": "4a2785fbcc6021d6a756cbdf570f8bde59f17b1868e755be6b63ed5838d02040",
+          "id": "issue-84-cycle-bounded-workflow"
+        },
+        "phase": "design_reset",
+        "session": "/root/issue84_design_reset"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:33:17Z",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue84_design_reset",
+        "evidence": "Fresh architect reset DESIGN_READY resolves I84TIME/AC84TIME: replay old missing-policy histories unchanged; append newinitialize always requirescycles-v1 independent of backdate; CI introduction validates all newledgers, narrow exact84 first-eventprefix+primary84 exception462e26fd. No appendexception. Original transition/waiver/countsplit preserved. Engine advancesgeneration on reset reservation; phase_start correctly boundpriorgen1, currentvalidatedgen2 digesta2f3066d governscompletedreset and challenge. No history replacement."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-04T17:33:18Z",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2",
+          "generation": 2
+        },
+        "session": "/root/issue84_challenge_reset",
+        "phase": "challenge"
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue84_challenge_reset",
+        "evidence": "Independent reset challenge CHALLENGE_PASS: explicitcycles-v1 required for newappendinitialize and allCInewledgerintroductions, historicalreplaycompatibility with exact84bootstrap+primary84exception; priorI84TIMEgapclosed. Exacttransition/83waiver/countsplitarchitecture preserves allcounts/reservations/gates. No unresolved frozenAC/invariant blocker.",
+        "outcome": "pass"
+      },
+      "at": "2026-10-04T17:36:28Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "Direct user requested cycle limits instead of completion time. Reset architect DESIGN_READY and independent challenge PASS bind gen2 exactcapsule; approvedwithin authorizedgovernancecorrection.",
+          "name": "Codex /root"
+        },
+        "evidence": "Approve complete reset architecture including explicitfutureinitialization checks/exact84bootstrapcompatibility, appendonlypolicytransition+83timeonlywaiver, conservedcycleallocations, historicalreplay and allfrozenrole/content/reviewgates.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        }
+      },
+      "at": "2026-10-04T17:36:29Z",
+      "type": "design_ready"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        },
+        "phase": "implementation"
+      },
+      "at": "2026-10-04T17:36:30Z",
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-04T17:47:19Z",
+      "data": {
+        "evidence": "Owner stopped and preserved partial workflow code/tests/docs. Confirmed CI introduction gap: preserved23/83 ledgers are untracked absentmergebase; their unchangedlegacyinitialization is denied despitepolicytransition. Approveddesign permits84exceptiononly. Newsplitfixturetimestampfixed but latestfocusedtestfinalresultunverified; nofinalverification/review/commit/PR. Architecture correction required; no unauthorizedexception implemented.",
+        "session": "/root/issue84_implementation",
+        "outcome": "fail"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-04T17:47:20Z",
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "Actual architecture correction needs additional cycle authorization after defaultdesignreset/implementation exhausted. User policy request removes completiontime limit; no implicit attempt grants.",
+          "kind": "coordinator"
+        },
+        "evidence": "BLOCKED_FOR_DECISION; phaseclosed, preservedallchanges, no activewriteagent; await explicit oneadditionaldesignreset and implementationattempt, no extra reviewslots or minutes."
+      },
+      "type": "coordination_pause"
+    },
+    {
+      "data": {
+        "authority": {
+          "name": "burha",
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: user `ok continue` explicitly approves one additional correction cycle after proposal to add one design-reset and one implementation attempt for exact preserved23/83 history compatibility, with no extra review attempts or minutes.",
+          "kind": "user"
+        },
+        "reason": "Explicit single additional architecture-reset and implementation correction cycle for preserved uncommitted23/83 histories; no time or review allowance added.",
+        "counts": {
+          "design_reset": 1,
+          "implementation": 1,
+          "initial_review": 0,
+          "remediation": 0,
+          "final_review": 0
+        },
+        "seconds": 0
+      },
+      "type": "extension",
+      "at": "2026-10-04T17:50:31Z"
+    },
+    {
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "User explicitly granted one additional correction cycle on currentturn.",
+          "kind": "coordinator"
+        },
+        "evidence": "Continue84 within existing frozen scope and original review allowance; preserve83 and all previous attempts."
+      },
+      "type": "coordination_resume",
+      "at": "2026-10-04T17:50:31Z"
+    },
+    {
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 2,
+          "digest": "a2f3066daae5586f374c6628858ebbc796a40087b54036f37fa0c7242276a1a2"
+        },
+        "phase": "design_reset",
+        "session": "/root/issue84_design_correction",
+        "role": "design_architect"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T17:50:32Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Corrected architect DESIGN_READY bindsgen3 frozenS84/ACs. Add exact23 ten-event prefix edb0ea49 and83 nine-eventprefix b46ec791 lineage introduction only repo/currentprimary83, exactretired23 history+sole83 child, immediatevalid83policytransition atindex9 with priorprefixhash and pinnedtimeblockerwaiver. No newJSONfields/counters/claims; freshinitializesalwayscycles, all other intros reject, original84exceptionseparate. Readonly verified bothpreservedprefixes; no productchanges.",
+        "session": "/root/issue84_design_correction"
+      },
+      "at": "2026-10-04T17:53:29Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "code_reviewer",
+        "phase": "challenge",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_challenge_correction"
+      },
+      "at": "2026-10-04T17:53:30Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-04T17:59:23Z",
+      "data": {
+        "evidence": "Independent DESIGN_CHALLENGE_PASS: recomputed exact23/83 prefixes and timing blocker pin; canonical paired histories, actual repo/primary83, immediate valid user transition, sole lineage and later ordinary gates satisfy frozen invariants. Docs must enumerate both exceptions.",
+        "session": "/root/issue84_challenge_correction",
+        "outcome": "pass"
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-04T17:59:23Z",
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "User authorized one additional correction cycle with ok continue; approve architect corrected generation3 after independent challenge pass."
+        },
+        "evidence": "Approved precise pinned23 to83 compatibility handoff within frozen S84, no additional counts or schema fields."
+      }
+    },
+    {
+      "type": "owner_handoff",
+      "at": "2026-10-04T17:59:24Z",
+      "data": {
+        "reason": "Implement generation3 correction and complete preserved partial workflow changes.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "authority": {
+          "kind": "coordinator",
+          "name": "Codex /root",
+          "evidence": "Same-role fresh sequential session for user-approved second implementation attempt."
+        },
+        "escalation": null,
+        "owner": {
+          "role": "implementation_worker",
+          "model": "gpt-6-sol",
+          "session": "/root/issue84_implementation_correction",
+          "effort": "medium"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction",
+        "phase": "implementation"
+      },
+      "at": "2026-10-04T17:59:25Z"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Owner READY: frozen source/docs/tests; combined ticket and static-validator focused suites passed, retained23/83 positive and thirteen negative variants passed, long-wait reservation/count/delivery checks passed; affected Ruff lint/format, static validator, ledger validate and diff check passed. No product edits.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:11:26Z"
+    },
+    {
+      "data": {
+        "time_blocker_waivers": [],
+        "authority": {
+          "evidence": "Direct policy instruction in chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-04: that limit should not be about completion time but about how many times we hop around review-design reset-reimplement cycle. Apply approved cycle-only governance prospectively to active Issue84, preserving all attempts.",
+          "kind": "user",
+          "name": "burha"
+        },
+        "prefix_digest": "264e9bfbf142506151f373f7fc9bffe14eafe0aebd7a2b0d9464046a120bfe95",
+        "to": "cycles-v1",
+        "from": "timed-v1",
+        "reason": "Apply tested user-authorized cycle-only policy without changing history, attempts or substantive gates."
+      },
+      "type": "policy_transition",
+      "at": "2026-10-04T18:11:27Z"
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "verification",
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:11:29Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Frozen verification PASS: serial offline pytest1261 passed41real-store deselected0skips266.66s; prior concurrent Streamlit10s timeout passed isolated then full serial. Ruff lint/format150files,mypy49sourcefiles,bothvalidators,retrieval5recall1.0,explanation14of14,sdist/wheel,main+integrationCompose,diffcheck passed. Content dbc006ff unchanged. No provider/store/product changes.",
+        "outcome": "pass"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:24:15Z"
+    },
+    {
+      "data": {
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21",
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "evidence": "All frozen AC84s covered: cycles-only longwait/resume and attempts, exacthistorical prefixes/transitions/negative intros, conserved splits, retained design/ownership/review/delivery/content gates, updated instructions/templates/ADR0030/iteration. Focused plus full offline/static/eval/build/Compose verification passed; independent review pending.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        }
+      },
+      "type": "acceptance",
+      "at": "2026-10-04T18:24:16Z"
+    },
+    {
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_final_review",
+        "role": "code_reviewer",
+        "phase": "initial_review",
+        "content": "dbc006ff96b1d07503631fc126a0ba1bf29bb50157b4ff98087d46a605eb5f21"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:24:17Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_final_review",
+        "evidence": "Initial independent review FAIL one concrete finding I84SPLIT/AC84CYCLES: cycle_split fails to consume normalized user evidence; child extension reuses same evidence under renamed authority and raises implementation limit1to2. In-memory reproduced. Fix within frozen capsule: consume/inherit evidence, reject reuse and regressiontests. No other concrete findings.",
+        "outcome": "fail"
+      },
+      "type": "phase_end",
+      "at": "2026-10-04T18:28:53Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker",
+        "phase": "remediation"
+      },
+      "type": "phase_start",
+      "at": "2026-10-04T18:28:54Z"
+    },
+    {
+      "at": "2026-10-05T08:07:50Z",
+      "data": {
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Same reserved remediation resumed after quota/appupdate without newattempt; cycle_split consumes and inherits normalized approval key and denies reused sibling/child extension authority before mutation. Historical timed split untouched.103focusedtests,Rufflint/format,ledgervalidate,diffcheck pass; selfreview clean; newcontent aae99220 frozen.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-05T08:07:52Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e",
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "verification"
+      },
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction",
+        "evidence": "Corrected frozen content aae99220 reverification PASS:1263offlinepassed41realstoredeselected0skip459.34s serial; fullRufflint/format150files,bothworkflowvalidators,diffcheck pass. Previousmypy/evaluations/build/Compose unchangedproduct evidence retained; no competinggates/sourcechanges."
+      },
+      "at": "2026-10-05T08:16:47Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "All frozen ACs satisfied on corrected content: focused split-authority regression103tests and full1263offline pass; normalized singleuse evidence inherits across split descendants, histories/time/counters/allocation/gates/docs remain covered. Final independent review pending.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e"
+      },
+      "at": "2026-10-05T08:16:48Z",
+      "type": "acceptance"
+    },
+    {
+      "data": {
+        "role": "code_reviewer",
+        "session": "/root/issue84_final_review",
+        "phase": "final_review",
+        "content": "aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        }
+      },
+      "at": "2026-10-05T08:16:49Z",
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "session": "/root/issue84_final_review",
+        "outcome": "fail",
+        "evidence": "Final independent review FAIL on frozen aae99220: earlier childA stores only approvalA allocation snapshot; later siblingapprovalB can be reused in childA extension under renamed/whitespaceauthority to raise implementationlimit1to2. In-memory exactcontent ACCEPT; violates I84SPLIT/AC84CYCLES. Original ownsplitreuse fixed, crosssiblingreuse remains. No automatic furtherremediation."
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T08:19:30Z"
+    },
+    {
+      "data": {
+        "evidence": "Independent finalreview reproduced on content aae99220c2172d62ecb4f6fbd9630c2bb5d6a7d8258c2b87a0ee59bc7c0cea0e; finalreview failed and allowance exhausted.",
+        "criterion": "I84SPLIT",
+        "scenario": "After parent cycle_split A then sibling cycle_split B, childA can reuse B approval evidence in extension to replenish implementationlimit1to2 because inherited authorization set is earlier allocation snapshot.",
+        "id": "B84-SIBLING-APPROVAL-REUSE"
+      },
+      "type": "blocker",
+      "at": "2026-10-05T08:19:30Z"
+    },
+    {
+      "data": {
+        "evidence": "BLOCKED_FOR_DECISION. Preserved frozen work and authentication checkout. No commit/push/PR/delivery. User must explicitly decide additional finite remediation and finalreview allowances or stop.",
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "AGENTS finite cycle policy failedfinalreview stops for explicituserdecision; no furtherwriteagent authorized.",
+          "name": "Codex /root"
+        }
+      },
+      "type": "coordination_pause",
+      "at": "2026-10-05T08:19:31Z"
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-05T09:33:43Z",
+      "data": {
+        "authority": {
+          "name": "burha",
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-05: after concrete failed-final-review finding and request for one additional remediation and one finalreview, user reviewed issue and said looks good bro. go ahead. Approves only that finite correction and review allowance.",
+          "kind": "user"
+        },
+        "seconds": 0,
+        "counts": {
+          "design_reset": 0,
+          "initial_review": 0,
+          "final_review": 1,
+          "remediation": 1,
+          "implementation": 0
+        },
+        "reason": "Explicit additional remediation/finalreview for cross-sibling split approval reuse; preserve all consumed attempts and frozen scope."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-05T09:33:44Z",
+      "data": {
+        "authority": {
+          "name": "Codex /root",
+          "evidence": "Direct user goahead approves finite remediation and finalreview after stopped failedreview.",
+          "kind": "coordinator"
+        },
+        "evidence": "Resume only approved cross-sibling approvalreuse fix in frozen I84SPLIT/AC84CYCLES; no designreset/implementation/time grants."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "phase": "remediation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:33:44Z"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Second explicitlyauthorized remediation READY: validated predecessor-root family audit rejects reused normalized cycle_split/extension/policy_transition approval across siblings/descendants in eitherappendorder; validate_all+atomicappend auditafter allcandidate replay. No schema/allocationprefix/timedreplay changes.106focusedtests,Ruff/format/validate/diffcheck,selfreview pass; frozen5f4e1cfb.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:40:00Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "Completed secondremediation implements lineage-wide duplicateapproval validation including original finalreview exploit, reverseorder and grandchildren;106focused regressions pass. Sourcefrozen5f4e1cfb; fullreverification and independentfinalreview still required.",
+        "id": "B84-SIBLING-APPROVAL-REUSE"
+      },
+      "at": "2026-10-05T09:40:01Z",
+      "type": "resolve"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:40:01Z",
+      "data": {
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "session": "/root/issue84_implementation_correction",
+        "role": "implementation_worker",
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "phase": "verification"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-05T09:43:14Z",
+      "data": {
+        "evidence": "Secondcorrected content5f4e1cfb reverification PASS:1266offlinepassed41realstoredeselected0skips131.68s serial; fullRufflint/format150files,bothworkflowvalidators,diffcheck pass; no sourcechanges. Previousunchanged mypy/eval/build/Compose evidence retained.",
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction"
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-05T09:43:15Z",
+      "data": {
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "evidence": "All frozenACs covered on5f4e1cfb:106focusedworkflowtests plus1266offline; lineage-wide singleuse approval enforcement in bothappendorders/descendants, exacthistory/time/counters/conservedallocations/designownershipcontentgates/docs preserved. Finalreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:43:15Z",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "content": "5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8",
+        "phase": "final_review",
+        "session": "/root/issue84_final_review"
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:55Z",
+      "type": "phase_end",
+      "data": {
+        "session": "/root/issue84_final_review",
+        "evidence": "Second authorized finalreview FAIL frozen5f4e1cfb: lineageauthorization auditignores historicaltimed split evidence. Solechild transitions with distinctapproval then reuses parentsplitapproval renamed/whitespace in cyclesextension, validation ACCEPT raisesimplementation1to2. I84SPLIT/AC84CYCLES. Priorcrosssibling exploitrejects bothorders; retained23/83timedpairvalid. No furtherautomaticattempt.",
+        "outcome": "fail"
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:56Z",
+      "type": "blocker",
+      "data": {
+        "evidence": "Independent finalreview exact5f4e1cfbae76a9f0381a61e282498fa88429909190827ad909664737ecb49ee8 in-memory validationaccept limit1to2; authorizationsingleuse failure.",
+        "criterion": "I84SPLIT",
+        "id": "B84-MIGRATED-SPLIT-APPROVAL-REUSE",
+        "scenario": "Legacytimed parent splits solechild with evidenceE. Childtransitions to cycles with distinctF, then cyclesextension reusesE to grant implementationcount; currentlineageaudit skips timed split evidences."
+      }
+    },
+    {
+      "at": "2026-10-05T09:46:56Z",
+      "type": "coordination_pause",
+      "data": {
+        "authority": {
+          "evidence": "Failedfinalreview muststop perAGENTS finitecyclepolicy; no additionalapproval beyond consumedextra remediation/finalreview.",
+          "kind": "coordinator",
+          "name": "Codex /root"
+        },
+        "evidence": "BLOCKED_FOR_DECISION; newmigrationapprovalreuse unresolved. No activeagent/sourceedits/commit/push/PR/delivery. Preserve authcheckout and allattempts; nextfiniteextension only explicituserdecision."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-05T09:51:46Z",
+      "data": {
+        "authority": {
+          "evidence": "Chat01a1031a-7a25-77d0-90d6-c9839f8d0803 on2026-10-05: after summary of migratedtimedsplitapprovalreuse and decision for exactly one remediation+finalreview, user said ok continue bro, just keep in mind54percentremaining5hrquota. Approves only that finite correction/reviewpair.",
+          "name": "burha",
+          "kind": "user"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Explicit finite additional remediation and finalreview for historicalsplitapproval reuse after cycle migration; no reset/time/implementation grants.",
+        "seconds": 0
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-05T09:51:46Z",
+      "data": {
+        "evidence": "Continue narrow migratedlineage singleuse approvalfix within I84SPLIT/AC84CYCLES; preserve allattempts and histories.",
+        "authority": {
+          "evidence": "Direct user continue approves exact finite remediation/finalreview and asks quota awareness.",
+          "name": "Codex /root",
+          "kind": "coordinator"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:51:47Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue84_implementation_correction",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker"
+      }
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Third explicitlyauthorized remediation READY: lineageaudit consumes historicaltimed split evidence only for cycleapproval checks; timedonlyduplicates accepted. Actual23/83fixtures deny reusedsplit evidence in transition/extension renamed+whitespace; distinctapprovalpasses; grandchildreuse and laterlegacy sibling reject.112focusedtests,Rufflint/format,validate,diffcheck,selfreviewpass. No schema/historychanges; frozenf9ffcec1.",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T09:56:09Z"
+    },
+    {
+      "data": {
+        "id": "B84-MIGRATED-SPLIT-APPROVAL-REUSE",
+        "evidence": "Completed authorized remediation rejects exact migratedlineage splitapproval exploit and transition/grandchild variants, preserveshistoricaltimedonly replay;112focusedtests pass. Fullreverification/finalreview required on frozenf9ffcec1."
+      },
+      "type": "resolve",
+      "at": "2026-10-05T09:56:10Z"
+    },
+    {
+      "data": {
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "role": "implementation_worker",
+        "session": "/root/issue84_implementation_correction",
+        "phase": "verification"
+      },
+      "type": "phase_start",
+      "at": "2026-10-05T09:56:11Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "evidence": "Migratedtimedsplitcorrected contentf9ffcec1 reverificationPASS:1272offlinepassed41realstoredeselected0skips117.67sserial; fullRufflint/format150files,bothworkflowvalidators,diffcheckpass; sourceunchanged; priorunchangedmypy/eval/build/Compose evidence retained.",
+        "outcome": "pass",
+        "session": "/root/issue84_implementation_correction"
+      },
+      "at": "2026-10-05T09:59:08Z"
+    },
+    {
+      "type": "acceptance",
+      "data": {
+        "evidence": "All frozenACs covered onf9ffcec1:112focusedtests +1272offline; historicaltimedsplitapproval consumed for newcycleevents, timedonly compatibility preserved; earliercrosssibling/reverseorder/descendant and exacthistory/time/counters/conservation/designownershipcontent/docs gates remain covered. Finalreviewrequired.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "ids": [
+          "AC84TIME",
+          "AC84CYCLES",
+          "AC84HISTORY",
+          "AC84SPLIT",
+          "AC84GATES",
+          "AC84DOCS",
+          "AC84VERIFY"
+        ],
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7"
+      },
+      "at": "2026-10-05T09:59:09Z"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-05T09:59:10Z",
+      "data": {
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+        "role": "code_reviewer",
+        "session": "/root/issue84_final_review",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "phase": "final_review"
+      }
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "evidence": "Independent thirdfinalreview PASS exactf9ffcec1. Probe rejects parenttimedsplitapproval reuse in migratedchildcyclesextension; distincttransition and timedonlyduplicatehistories validate. Actualrootfamily audit shared atomicappend/validateall/CI; old23/83,crosssiblingbothorders,descendantcoverage present. No remainingconcrete frozeninvariant/ACdefect.",
+        "session": "/root/issue84_final_review"
+      },
+      "type": "phase_end",
+      "at": "2026-10-05T10:00:39Z"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-05T10:01:33Z",
+      "data": {
+        "evidence": "Delivered verified accepted independentlyreviewed workflow-only content via originalPR85; allfrozenACs covered, cleanfinalreview, unresolvedblockersnone, historicalattempts preserved.1272offlinepassed41deselected0skips and static/type/eval/build/compose evidence recorded. Noauthchanges/mergerequest.",
+        "capsule": {
+          "id": "issue-84-cycle-bounded-workflow",
+          "generation": 3,
+          "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+        },
+        "pr": 85,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7"
+      }
+    },
+    {
+      "type": "correction_delivery",
+      "at": "2026-10-05T14:38:14Z",
+      "data": {
+        "version": "pr85-correction-v2",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 84,
+        "pr": 85,
+        "prefix_digest": "320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6",
+        "capsule": {
+          "identity": {
+            "id": "issue-84-pr85-correction-delivery",
+            "generation": 2,
+            "repo": "beagle1903/agentic-etf-advisor",
+            "issue": 84,
+            "pr": 85,
+            "classification": "consequential",
+            "architect": {
+              "role": "design_architect",
+              "model": "gpt-6-astra",
+              "effort": "high",
+              "session": "/root/pr85_design_revision2"
+            },
+            "challenger": {
+              "role": "code_reviewer",
+              "model": "gpt-6-sol",
+              "effort": "high",
+              "session": "/root/pr85_challenge_revision2"
+            },
+            "proposed_owner": {
+              "role": "implementation_worker",
+              "model": "gpt-6-sol",
+              "effort": "medium",
+              "session": "/root/pr85_redelivery_implementation"
+            },
+            "proposed_reviewer": {
+              "role": "code_reviewer",
+              "model": "gpt-6-sol",
+              "effort": "high",
+              "session": "/root/pr85_redelivery_review"
+            },
+            "implementation_authorized": false,
+            "rejected_generation": 1,
+            "rejected_capsule_digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473",
+            "original_prefix_events": 61,
+            "original_prefix_digest": "320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6",
+            "original_capsule_id": "issue-84-cycle-bounded-workflow",
+            "original_capsule_generation": 3,
+            "original_capsule_digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9",
+            "original_delivered_content": "f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7",
+            "original_consumed": {
+              "implementation": 2,
+              "initial_review": 1,
+              "remediation": 3,
+              "final_review": 3,
+              "design_reset": 2
+            }
+          },
+          "specification": "Generation 2 is ready for independent challenge. It authorizes no implementation. The coordinator must freeze the complete contract below, obtain the separately authorized challenge, and request the specific implementation allowance only after a clean result.\n\nThe execution path is `main` \u2192 `validate_all`/`replay` \u2192 `State.gate`, with `append` performing candidate replay before atomic replacement. Currently, terminal replay rejects every later event, and `check_pr` compares only the original `delivery_binding`. The exception should intercept exactly one pinned certificate before the terminal rejection, preserving all other behavior. References: [replay and terminal check](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:412), [append](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1145), [content_digest](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1016), [check_prefix](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1258), [check_pr](C:/Users/burha/.codex/worktrees/cycle-bounded-workflow/agents-lab/scripts/ticket_workflow.py:1305).\n\n**Capsule identity and authority**\n\n```json\n{\n  \"id\": \"issue-84-pr85-correction-delivery\",\n  \"generation\": 2,\n  \"repo\": \"beagle1903/agentic-etf-advisor\",\n  \"issue\": 84,\n  \"pr\": 85,\n  \"classification\": \"consequential\",\n  \"architect\": {\n    \"role\": \"design_architect\",\n    \"model\": \"gpt-6-astra\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_design_revision2\"\n  },\n  \"challenger\": {\n    \"role\": \"code_reviewer\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_challenge_revision2\"\n  },\n  \"proposed_owner\": {\n    \"role\": \"implementation_worker\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"medium\",\n    \"session\": \"/root/pr85_redelivery_implementation\"\n  },\n  \"proposed_reviewer\": {\n    \"role\": \"code_reviewer\",\n    \"model\": \"gpt-6-sol\",\n    \"effort\": \"high\",\n    \"session\": \"/root/pr85_redelivery_review\"\n  },\n  \"implementation_authorized\": false,\n  \"rejected_generation\": 1,\n  \"rejected_capsule_digest\": \"e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473\",\n  \"original_prefix_events\": 61,\n  \"original_prefix_digest\": \"320737ce852729b2fc75b19c9a06c5d072c1149059b9fc023e88891aa0b8d4a6\",\n  \"original_capsule_id\": \"issue-84-cycle-bounded-workflow\",\n  \"original_capsule_generation\": 3,\n  \"original_capsule_digest\": \"df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9\",\n  \"original_delivered_content\": \"f9ffcec169e992a677214253f486e022203785fac2a54184be5cb4198b6fc6f7\",\n  \"original_consumed\": {\n    \"implementation\": 2,\n    \"initial_review\": 1,\n    \"remediation\": 3,\n    \"final_review\": 3,\n    \"design_reset\": 2\n  }\n}\n```\n\nRationale: the status correction changes content after delivery. Reusing the original certificate would violate I84HISTORY/I84GATES. One certificate bound to the actual supplemental history closes this particular publication gap without reopening the ticket.\n\nScope: retained status fix, one pinned certificate validator, its replay/append/prospective-check/status/PR integrations, focused tests and workflow documentation. Permitted implementation files are `scripts/ticket_workflow.py`, `tests/test_ticket_workflow.py`, workflow guidance, the supplemental iteration records, and one new ADR.\n\nNon-goals: generic correction/reopening policy; further attempts; role changes; CI privilege changes; new content exclusions; split or migration changes; edits to Issue23/83 histories; application/authentication/provider/database/financial work.\n\n**Frozen invariants and acceptance**\n\nRetain the generation-1 invariant and acceptance IDs:\n\n| ID | Required interpretation |\n|---|---|\n| I84HISTORY / AC85C-HISTORY | Exact original 61-event prefix, capsule, counts and original binding survive. Original delivered state remains terminal. Issue23/83 files and histories are unchanged. |\n| I84CYCLES / AC85C-BOUND | One certificate; complete fixed historical import; exactly the authorized remaining slots; no retries, dropped failures, reused approvals or replacement sessions. |\n| I84GATES / AC85C-EVIDENCE | Complete generation-2 capsule, challenge and coordinator approval agree. Fresh verification, acceptance and independent review bind identical final content. |\n| I84GATES / AC85C-IDENTITY | Certificate applies only to this repository, Issue84 and PR85. |\n| I84SPLIT / AC85C-STATUS | Preserve the existing correction of unallocated split-pool reporting, including zero; allocation enforcement remains unchanged. |\n| I84ISOLATE / AC85C-ISOLATE | Workflow-only diff, documented exception, required checks and independent review. |\n\nNo application graph/checkpoint JSON change. No side-effect interface change. Workflow JSON gains the single event and a separate status projection defined below.\n\n**Exact certificate schema**\n\nThe following type notation is normative. Objects have exactly the listed keys; unknown or missing keys reject. Arrays preserve order. `int` means Python `type(x) is int`, excluding booleans. JSON duplicate keys and nonfinite numbers reject before validation.\n\n- `Text`: nonempty string, at most 4,000 characters.\n- `SHA`: lowercase hexadecimal string of exactly 64 characters.\n- `UTC`: valid `YYYY-MM-DDTHH:MM:SSZ`.\n- `Ref`: exact object `{ \"id\": Text, \"generation\": int, \"digest\": SHA }`.\n- `Evidence`: exact object `{ \"anchor\": Text, \"summary\": Text }`.\n- `Anchor` strings are compared after Unicode NFKC normalization, whitespace collapse and case folding. They must be nonempty after normalization.\n- Approval evidence additionally uses the existing `evidence_key` normalization when checking original-ledger evidence. Existing historical normalization behavior is not changed.\n\nThe only added outer event is:\n\n```text\n{\n  \"type\": \"correction_delivery\",\n  \"at\": UTC,\n  \"data\": {\n    \"version\": \"pr85-correction-v2\",\n    \"repo\": \"beagle1903/agentic-etf-advisor\",\n    \"issue\": 84,\n    \"pr\": 85,\n    \"prefix_digest\": SHA,\n    \"capsule\": object,\n    \"capsule_digest\": SHA,\n    \"historical_import\": object,\n    \"historical_import_digest\": SHA,\n    \"transcript\": [Entry, ...],\n    \"content\": SHA,\n    \"delivery_evidence\": Evidence\n  }\n}\n```\n\n`capsule` is the complete frozen generation-2 contract, including this schema, fixed historical import, validation rules and test matrix. Its canonical digest uses the existing `digest` function. The implemented exception pins that single digest. A capsule file is the complete specification, not merely the identity JSON above. No digest is placed inside the object whose digest it represents.\n\n`historical_import` must equal the capsule\u2019s complete fixed historical-import object; its digest must equal `digest(historical_import)`. It cannot be an arbitrary caller-supplied history. The coordinator must mechanically encode the following fixed values and tables before challenge; that encoding introduces no discretionary contract decisions.\n\n**Fixed historical import**\n\nThe historical-import object has exactly these keys:\n\n```text\n{\n  \"sources\": [Source, Source, Source, Source],\n  \"authorizations\": [HistoricalAuthorization, HistoricalAuthorization, HistoricalAuthorization],\n  \"phases\": [HistoricalPhase, HistoricalPhase, HistoricalPhase,\n             HistoricalPhase, HistoricalPhase, HistoricalPhase],\n  \"observations\": [HistoricalObservation, ...],\n  \"unknowns\": {\n    \"phase_timestamps\": \"not recorded; do not fabricate\",\n    \"interruptions\": \"none recorded in the inspected sources\",\n    \"provenance\": \"recorded evidence, not authenticated live-session provenance\"\n  }\n}\n```\n\n`Source` is exactly `{ \"id\": Text, \"locator\": Text, \"sha256\": SHA, \"normalization\": \"git-blob\" | \"lf\" }`. Fixed sources:\n\n| ID | Locator | SHA256 | Normalization |\n|---|---|---|---|\n| S1 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-issue-84-pr85-status-correction.md` | `48a398f0dacbfd32f757eec5b3e88ee9396f8d4055ffd2b11b466e9048df49ae` | git-blob |\n| S2 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-redelivery-design.md` | `c6ac46549e5ace1d8832a9a85fb6c44b4b30f4c913d2c9381c176411318cbc4d` | git-blob |\n| S3 | `d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-correction-delivery-capsule.json` | `2485d8e1264a3f8cbb3e3527d677b124d9af09580fa9ca1b89d1ececf2d93d13` | git-blob |\n| S4 | `docs/iterations/018-pr85-redelivery-design.md through the recorded revision2 phase_start, inspected 2026-10-05` | `acb180357132c078600ff8aeaf95267f24fb97034ae4f96b3f12b21191891dff` | lf |\n\nThese are documentary anchors; pure replay does not fetch Git objects or conversation data. The complete source snapshots or immutable Git objects remain inspectable by the coordinator and challenger.\n\n`HistoricalAuthorization` is exactly:\n\n```text\n{\n  \"id\": \"A1\" | \"A2\" | \"A3\",\n  \"name\": \"burha\",\n  \"anchor\": Text,\n  \"evidence\": Text,\n  \"allowances\": {\n    \"remediation\": int,\n    \"final_review\": int,\n    \"design_reset\": int,\n    \"challenge\": int,\n    \"implementation\": int,\n    \"initial_review\": int,\n    \"verification\": int\n  }\n}\n```\n\nFixed authorizations:\n\n- A1: anchor `thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10b99-c14a-7830-8ece-0698503e16c6`; evidence is the exact status-exception approval quoted in S1. Allowances: remediation 1, final_review 1, verification 1; every other field 0.\n- A2: anchor `thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10ba4-298d-7561-9e2d-99522619cd33`; evidence `go on`, with the explicitly recorded scope of one design and independent challenge. Allowances: design_reset 1, challenge 1; every other field 0.\n- A3: anchor `thread:01a10c3f-947b-7d22-9a62-18be591c6074/user-reply:ok-approved-to-additional-design-revision-and-independent-challenge`; evidence `ok approved`. Allowances: design_reset 1, challenge 1; every other field 0. This fallback anchor truthfully records that the message UUID was unavailable.\n\nThe fallback is permitted only for this fixed A3 record. Future implementation authority requires a distinct concrete message/permalink anchor recorded when received.\n\n`HistoricalPhase` is exactly:\n\n```text\n{\n  \"slot\": Text,\n  \"phase\": Text,\n  \"authorization\": \"A1\" | \"A2\" | \"A3\",\n  \"session\": Text,\n  \"role\": Text,\n  \"model\": Text,\n  \"effort\": Text,\n  \"agent_thread\": Text | null,\n  \"reservation\": Evidence,\n  \"outcome\": \"pass\" | \"fail\" | \"open\",\n  \"result\": Evidence | null,\n  \"capsule\": Ref | null,\n  \"started_at\": null,\n  \"ended_at\": null,\n  \"write_authors\": [Text, ...]\n}\n```\n\nThe six required rows, in exact order:\n\n| Slot | Phase/authority | Session and identity | Outcome |\n|---|---|---|---|\n| H1 | remediation / A1 | `/root/pr85_status_correction`; bounded_worker / gpt-6-luna / medium; agent thread `01a10b9b-f659-7541-889a-bf2c5129bc78` | pass |\n| H2 | verification / A1 | `/root`; coordinator verification; role `coordinator`, model/effort `not-recorded`, agent_thread null | pass |\n| H3 | final_review / A1 | `/root/pr85_status_review`; code_reviewer / gpt-6-sol / high; agent thread `01a10ba0-4c44-7e60-91fb-113b3ade4648` | pass |\n| H4 | design_reset / A2 | `/root/pr85_redelivery_design`; design_architect / gpt-6-astra / high; agent thread `01a10ba6-341a-7611-9ad8-7553849806d1` | pass |\n| H5 | challenge / A2 | `/root/pr85_redelivery_challenge`; code_reviewer / gpt-6-sol / high; agent thread `01a10bab-8ed6-7e10-94f0-d5e2b7f0ee68` | **fail** |\n| H6 | design_reset / A3 | `/root/pr85_design_revision2`; design_architect / gpt-6-astra / high; agent_thread null | open |\n\nH1\u2013H3 reservation/result evidence references S1 and its corresponding named section. H4\u2013H5 references S2. H6 reservation references S4\u2019s actual `phase_start`; result is null. H4 and H5 capsule refs identify generation 1 and its rejected digest. H1\u2013H3/H6 capsule fields are null: H1\u2013H3 use the existing status capsule in S1; H6 began before the completed generation-2 digest existed.\n\nH1 `write_authors` is `[\"/root/pr85_status_correction\"]`. H2 is `[\"/root/pr85_status_correction\", \"/root\"]`, conservatively excluding both verification contributors from later review. Other rows have empty arrays.\n\nThe H2 import does **not** claim an independently recorded engine reservation or a model assignment. It preserves the actual supplemental verification sequence under the approved import exception.\n\n`HistoricalObservation` is exactly `{ \"id\": Text, \"slot\": Text, \"anchor\": Text, \"result\": \"pass\" | \"fail\" | \"rejected\", \"summary\": Text }`. Required observations are:\n\n- Failed initial Ruff format check in H1: `exec-102fdbb7-bc0a-44ff-99b0-5f150387125a`, result fail; corrected within that same implementation attempt.\n- Three H1 pytest exit-zero anchors: `exec-f3f41b4f-0ad0-4161-b804-963f70c07d3e`, `exec-5c1ab1cb-e2ae-486b-8496-8abe278da4c0`, `exec-549fc404-6449-41c1-a229-3683303c2e47`.\n- H1 final result `msg_00128a8f345bf923016ac37cd4625c87d291e9c3a8e21e4101`: 115 focused tests and subsequent checks passed.\n- H2 coordinator validator evidence `exec-ae7a1923-27a2-4289-8bed-78f98ff473ba`.\n- Required ordinary gates for H1, H3, H4, H5 and H6 were rejected as terminal, as recorded in S1/S2/S4. Each remains result `rejected`; none becomes a passed gate.\n- H5 failure explicitly retains I84CYCLES/AC85C-BOUND and I84GATES/AC85C-EVIDENCE, with the omitted-phase/reused-authority scenario.\n- Reviewed status source/test hashes from S1 remain recorded as audit-only evidence:\n  - `8ed738d2ba1e700b69b351f3d08fd039402e97cc00f2362d1d38a1cc5845cd6c`\n  - `715ca6178031196a57b9e0f1182cc8502e66fb49ceb711e26acc2c44ba65f805`\n\nObservation IDs are fixed descriptive IDs chosen once during mechanical encoding; ordering is by ID, not an invented chronological ordering of unknown tool times.\n\n**Exact future transcript**\n\nEvery `Entry` has exactly `{ \"seq\": int, \"at\": UTC, \"type\": Text, \"data\": object }`. `seq` is contiguous starting at 1. Timestamps are nondecreasing, no later than the certificate timestamp, and the certificate timestamp is no later than replay\u2019s `now`. Elapsed duration never exhausts the attempt.\n\nAllowed variants and exact `data` keys:\n\n```text\nphase_start:\n  {slot: Text, session: Text, capsule: Ref,\n   authorization: Text, gate: Evidence, reservation: Evidence,\n   content: SHA|null, prior_digest: SHA}\n\npause:\n  {slot: Text, session: Text, evidence: Evidence, prior_digest: SHA}\n\nresume:\n  {slot: Text, session: Text, evidence: Evidence, prior_digest: SHA}\n\nphase_end:\n  {slot: Text, session: Text, outcome: \"pass\"|\"fail\",\n   capsule: Ref, evidence: Evidence,\n   observations: [Observation, ...], prior_digest: SHA}\n\nuser_authorization:\n  {id: \"A4\", name: \"burha\", anchor: Text, evidence: Text,\n   capsule: Ref, historical_import_digest: SHA,\n   allowances: {implementation: 1, verification: 1, initial_review: 1,\n                remediation: 0, final_review: 0,\n                design_reset: 0, challenge: 0},\n   prior_digest: SHA}\n\ndesign_approval:\n  {name: Text, session: \"/root\", anchor: Text, evidence: Text,\n   capsule: Ref, historical_import_digest: SHA, prior_digest: SHA}\n\nacceptance:\n  {capsule: Ref, content: SHA,\n   evidence: {\n     \"AC85C-HISTORY\": Evidence,\n     \"AC85C-BOUND\": Evidence,\n     \"AC85C-EVIDENCE\": Evidence,\n     \"AC85C-IDENTITY\": Evidence,\n     \"AC85C-STATUS\": Evidence,\n     \"AC85C-ISOLATE\": Evidence\n   }, prior_digest: SHA}\n```\n\n`Observation` is exactly `{ \"anchor\": Text, \"check\": Text, \"result\": \"pass\" | \"fail\", \"summary\": Text }`.\n\nFor every entry, `prior_digest` equals:\n\n```text\ndigest({\n  \"historical_import\": historical_import,\n  \"transcript\": transcript entries strictly before this entry\n})\n```\n\nH6 is already active from the fixed import. The only legal complete transcript is:\n\n1. Finish H6 with pass, allowing recorded H6 pause/resume pairs before its end.\n2. Start H7, the independent revision-2 challenge; finish with pass.\n3. A4 user authorization.\n4. Coordinator design approval.\n5. Start and finish H8 governance implementation with pass.\n6. Start and finish H9 verification with pass.\n7. Acceptance.\n8. Start and finish H10 independent code review with pass.\n\nEach started phase can contain zero or more alternating pause/resume pairs before its single end. No other entry ordering is allowed.\n\nFixed future slots:\n\n| Slot | Phase | Session | Authorization | Content |\n|---|---|---|---|---|\n| H7 | challenge | `/root/pr85_challenge_revision2` | A3 | null |\n| H8 | implementation | `/root/pr85_redelivery_implementation` | A4 | null |\n| H9 | verification | `/root/pr85_redelivery_implementation` | A4 | final SHA |\n| H10 | initial_review | `/root/pr85_redelivery_review` | A4 | same final SHA |\n\nRoles/models/efforts come from the frozen identities above; callers cannot supply substitutes. H7 is separate from H6, and H10 is separate from every historical/current write author. A session cannot change role.\n\nEvery future start records the required ordinary dispatch check and its actual result in `gate`. Until a successful certificate exists, that ordinary gate remains terminal-rejected. The approved bootstrap exception\u2014not a fabricated passed gate\u2014authorizes the supplemental reservation. The coordinator records starts before dispatch and all actual pauses, resumes, failures and outcomes in the append-only supplemental journal.\n\nThe prospective check receives that complete journal outside the repository. Imported transcript entries must equal its entries exactly. A reviewer must compare it against the actual coordinator reservations and source anchors. This journal is not an additional content-digest exclusion.\n\n**Review seal and noncircular binding**\n\nH10\u2019s `phase_start.prior_digest` is the audit seal for all imported history and transcript through acceptance. The H10 reviewer validates that exact prefix and the final repository content. Its `phase_end.prior_digest` binds the same history plus its own start and any recorded pause/resume entries.\n\nH10\u2019s result evidence must explicitly identify the H10 start seal and final content SHA. The validator checks these values by adding two keys **only to H10 `phase_end.data`**:\n\n```text\naudited_prefix_digest: SHA\nreviewed_content: SHA\n```\n\n`audited_prefix_digest` must equal H10 start\u2019s `prior_digest`; `reviewed_content` must equal H9 start, acceptance, H10 start and certificate `content`.\n\nThis avoids a circular certificate digest: the reviewer seals the preceding audit prefix and repository content, not the event containing its own result. The final event is validated structurally and atomically after the review. The certificate digest is computed only after construction, for reporting; it is not an input to its own fields.\n\n**Required rejection predicates**\n\n1. Certificate allowed only as event 62 after the exact fixed prefix. There must be exactly 62 events when it is present. No second certificate or later event.\n2. Original state must replay as the expected delivered Issue84 state with fixed capsule, binding and counts, no open phase or blocker.\n3. Original state fields remain unchanged. Add a distinct `correction_binding`; do not replace `delivery_binding`, set ordinary `ready`, reopen clocks or grant ordinary phase limits.\n4. Generation-1 capsule remains unchanged and failed H5 is mandatory. A3 is the sole historical exception permitting H6 after H5\u2019s failure.\n5. Historical import must match the pinned object and digest exactly. Missing H2, failed H5, failed formatting observation, A3, or H6 reservation rejects.\n6. All current capsule refs must equal the exact generation-2 ref. H6 success, H7 success, A4 and coordinator approval must bind it and the same historical import.\n7. All four authorization anchors are pairwise unique after normalization. Future A4 evidence cannot equal any previously consumed approval evidence after `evidence_key` normalization.\n8. Seed consumed evidence from every original authorization-bearing event, including capsule user authorization, extensions, policy transitions and split approvals. Include original coordinator approval evidence when testing attempted reuse. Then add A1/A2/A3. Changing authority display names does not affect uniqueness.\n9. A4 must identify this exact proposal, one implementation/verification/initial-review allowance and zero other allowances. It cannot reuse A3\u2019s approval or infer implementation from \u201cok approved\u201d in the current turn.\n10. Strict transcript grammar rejects omitted starts/ends, duplicate starts, extra slots, overlap, end-while-paused, resume-without-pause and different-session resume.\n11. A failed H6/H7/H8/H9/H10 outcome makes correction delivery invalid. No later entry restores eligibility. Any actual failure is retained in the journal and reported `BLOCKED_FOR_DECISION`.\n12. A failed self-check during an active implementation slot can be corrected inside that same slot. It remains an observation. A failed completed phase, independent challenge or independent review cannot.\n13. Any newly discovered unrecorded historical reservation/interruption invalidates the frozen import and stops this attempt. Do not silently append it under the challenged digest.\n14. All original write sessions plus H1/H2/H8/H9 authors are excluded from H7/H10. Normalize session identities as above; aliases referencing an already-known agent thread must map to that same identity.\n15. H9, acceptance, H10 and final certificate must share one content SHA. Documentation is frozen before H9. No subsequent tracked-file edit can retain that evidence.\n16. Prospective check validates the full candidate, journal equality and current `content_digest(root,84)`.\n17. Atomic append performs the same validation under the existing writer lock and recomputes current content immediately before `os.replace`. A changed digest rejects without replacing the ledger.\n18. `check_pr` selects `correction_binding` exclusively when present; it never falls back to the old binding. Require exact repo, PR85, Primary issue #84 and current PR-head content.\n19. `check_prefix` and existing ledger-introduction/lineage checks remain unchanged and mandatory.\n20. No expanded source exclusion, generic certificate version, arbitrary issue/PR allowance, or automatic reset is accepted.\n\nStatic validation can detect omissions against the pinned import, complete journal and reviewer seal. It cannot discover a wholly unrecorded real-world session or authenticate a fabricated conversation reference. That existing provenance limitation must remain explicit.\n\n**Counts and status interface**\n\nDo not alter existing status `counts`, `limits`, `remaining_counts`, capsule or owner fields. Add exactly one nullable `correction` field; it is null without a validated certificate.\n\nOn success:\n\n```json\n{\n  \"version\": \"pr85-correction-v2\",\n  \"binding\": {\n    \"repo\": \"beagle1903/agentic-etf-advisor\",\n    \"pr\": 85,\n    \"content\": \"<validated SHA>\"\n  },\n  \"supplemental_counts\": {\n    \"implementation\": 1,\n    \"initial_review\": 1,\n    \"remediation\": 1,\n    \"final_review\": 1,\n    \"design_reset\": 2\n  },\n  \"aggregate_counts\": {\n    \"implementation\": 3,\n    \"initial_review\": 2,\n    \"remediation\": 4,\n    \"final_review\": 4,\n    \"design_reset\": 4\n  },\n  \"supplemental_challenges\": 2,\n  \"supplemental_verifications\": 2,\n  \"remaining_counts\": {\n    \"implementation\": 0,\n    \"initial_review\": 0,\n    \"remediation\": 0,\n    \"final_review\": 0,\n    \"design_reset\": 0\n  }\n}\n```\n\nThese values are derived from validated starts, including failed H5 and both design reservations, then compared to the fixed totals. They are not caller-supplied accounting.\n\n**Focused verification matrix**\n\n| Fixture | Expected result / frozen ID |\n|---|---|\n| Complete valid certificate including failed H5 and failed in-attempt Ruff observation | Pass replay, prospective check, atomic append and PR check; AC85C-HISTORY/BOUND |\n| Remove/reorder any historical phase, observation, approval or H6 reservation | Reject; AC85C-BOUND |\n| Change H5 fail to pass, remove rejected generation 1 or replace its digest | Reject; AC85C-HISTORY/EVIDENCE |\n| Reuse original/A1/A2/A3 approval with renamed authority, whitespace/case/Unicode anchor changes | Reject; AC85C-BOUND |\n| Give A4 an extra remediation, review, reset or implementation allowance | Reject; AC85C-BOUND |\n| Fail H7/H8/H9/H10 then append a new start or a fabricated successful end | Reject; AC85C-BOUND/EVIDENCE |\n| Pause/resume same slot/session, with long quota wait | Pass without extra count; AC85C-BOUND |\n| Drop pause from imported journal, resume different session, overlapping start or unfinished phase | Reject; AC85C-BOUND |\n| Old generation challenge/approval; approval before challenge; implementation before A4 | Reject; AC85C-EVIDENCE |\n| Reviewer matches original writer, status writer, coordinator verifier or governance writer, including known alias | Reject; AC85C-EVIDENCE |\n| Change a pre-review transcript entry without updating the sealed prefix; mismatch journal and certificate | Reject; AC85C-EVIDENCE |\n| Change source/tests/docs after verification or review; simulate content change immediately before replacement | Reject without ledger replacement; AC85C-EVIDENCE |\n| Wrong repo/issue/PR, old content fallback, second certificate or post-certificate event | Reject; AC85C-IDENTITY |\n| Alter/truncate original 61-event prefix, change Issue83, weaken merge-base checks | Reject relevant existing check; AC85C-HISTORY/ISOLATE |\n| Ordinary delivered ticket unrelated to exact Issue84 prefix | Remains terminal; AC85C-BOUND |\n| Existing split-status and over-allocation regressions | Pass unchanged; AC85C-STATUS |\n\nRun focused workflow tests, both workflow validators, Ruff lint/format, mypy, full offline pytest, offline evaluations, package build, Compose configuration validation and diff checks on frozen final content. No services, provider calls or financial writes. Independent H10 review covers the governance changes; the earlier status-only review is audit evidence.\n\nDocumentation requires a new ADR for this pinned one-off exception, supplemental journal/import explanation, exact failure behavior and final-content freeze rules. Preserve accepted ADR history and the rejected generation-1 capsule.\n\nRisks are the self-modifying governance validator, incomplete historical timestamps, alias/provenance limits and content-freeze discipline. Any need for generic reopening, extra attempts, a changed scope/schema after challenge, unknown historical work, failed challenge/verification/review or a different implementation owner stops for explicit decision.\n\nNo files were changed and no tests were executed during this read-only design session.\n\nDESIGN_READY\n\n<oai-mem-citation>\n<citation_entries>\nMEMORY.md:18-22|note=[used prior approval and evidence-first workflow guidance]\n</citation_entries>\n<rollout_ids>\n</rollout_ids>\n</oai-mem-citation>\n",
+          "historical_import": {
+            "sources": [
+              {
+                "id": "S1",
+                "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-issue-84-pr85-status-correction.md",
+                "sha256": "48a398f0dacbfd32f757eec5b3e88ee9396f8d4055ffd2b11b466e9048df49ae",
+                "normalization": "git-blob"
+              },
+              {
+                "id": "S2",
+                "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-redelivery-design.md",
+                "sha256": "c6ac46549e5ace1d8832a9a85fb6c44b4b30f4c913d2c9381c176411318cbc4d",
+                "normalization": "git-blob"
+              },
+              {
+                "id": "S3",
+                "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-correction-delivery-capsule.json",
+                "sha256": "2485d8e1264a3f8cbb3e3527d677b124d9af09580fa9ca1b89d1ececf2d93d13",
+                "normalization": "git-blob"
+              },
+              {
+                "id": "S4",
+                "locator": "docs/iterations/018-pr85-redelivery-design.md through the recorded revision2 phase_start, inspected 2026-10-05",
+                "sha256": "acb180357132c078600ff8aeaf95267f24fb97034ae4f96b3f12b21191891dff",
+                "normalization": "lf"
+              }
+            ],
+            "authorizations": [
+              {
+                "id": "A1",
+                "name": "burha",
+                "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10b99-c14a-7830-8ece-0698503e16c6",
+                "evidence": "ok I approve. we have %30 left, divide the task and document the possible interruption if required.",
+                "allowances": {
+                  "remediation": 1,
+                  "final_review": 1,
+                  "design_reset": 0,
+                  "challenge": 0,
+                  "implementation": 0,
+                  "initial_review": 0,
+                  "verification": 1
+                }
+              },
+              {
+                "id": "A2",
+                "name": "burha",
+                "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10ba4-298d-7561-9e2d-99522619cd33",
+                "evidence": "go on",
+                "allowances": {
+                  "remediation": 0,
+                  "final_review": 0,
+                  "design_reset": 1,
+                  "challenge": 1,
+                  "implementation": 0,
+                  "initial_review": 0,
+                  "verification": 0
+                }
+              },
+              {
+                "id": "A3",
+                "name": "burha",
+                "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/user-reply:ok-approved-to-additional-design-revision-and-independent-challenge",
+                "evidence": "ok approved",
+                "allowances": {
+                  "remediation": 0,
+                  "final_review": 0,
+                  "design_reset": 1,
+                  "challenge": 1,
+                  "implementation": 0,
+                  "initial_review": 0,
+                  "verification": 0
+                }
+              }
+            ],
+            "phases": [
+              {
+                "slot": "H1",
+                "phase": "remediation",
+                "authorization": "A1",
+                "session": "/root/pr85_status_correction",
+                "role": "bounded_worker",
+                "model": "gpt-6-luna",
+                "effort": "medium",
+                "agent_thread": "01a10b9b-f659-7541-889a-bf2c5129bc78",
+                "reservation": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Recorded supplemental reservation for H1; ordinary terminal gate did not pass."
+                },
+                "outcome": "pass",
+                "result": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Recorded pass outcome for /root/pr85_status_correction"
+                },
+                "capsule": null,
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": [
+                  "/root/pr85_status_correction"
+                ]
+              },
+              {
+                "slot": "H2",
+                "phase": "verification",
+                "authorization": "A1",
+                "session": "/root",
+                "role": "coordinator",
+                "model": "not-recorded",
+                "effort": "not-recorded",
+                "agent_thread": null,
+                "reservation": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Actual coordinator verification sequence imported without claiming an independent engine reservation."
+                },
+                "outcome": "pass",
+                "result": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Recorded pass outcome for /root"
+                },
+                "capsule": null,
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": [
+                  "/root/pr85_status_correction",
+                  "/root"
+                ]
+              },
+              {
+                "slot": "H3",
+                "phase": "final_review",
+                "authorization": "A1",
+                "session": "/root/pr85_status_review",
+                "role": "code_reviewer",
+                "model": "gpt-6-sol",
+                "effort": "high",
+                "agent_thread": "01a10ba0-4c44-7e60-91fb-113b3ade4648",
+                "reservation": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Recorded supplemental reservation for H3; ordinary terminal gate did not pass."
+                },
+                "outcome": "pass",
+                "result": {
+                  "anchor": "S1:Sequential reservations and interruption handoff",
+                  "summary": "Recorded pass outcome for /root/pr85_status_review"
+                },
+                "capsule": null,
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": []
+              },
+              {
+                "slot": "H4",
+                "phase": "design_reset",
+                "authorization": "A2",
+                "session": "/root/pr85_redelivery_design",
+                "role": "design_architect",
+                "model": "gpt-6-astra",
+                "effort": "high",
+                "agent_thread": "01a10ba6-341a-7611-9ad8-7553849806d1",
+                "reservation": {
+                  "anchor": "S2:Sequential phases and interruption record",
+                  "summary": "Recorded supplemental reservation for H4; ordinary terminal gate did not pass."
+                },
+                "outcome": "pass",
+                "result": {
+                  "anchor": "S2:Sequential phases and interruption record",
+                  "summary": "Recorded pass outcome for /root/pr85_redelivery_design"
+                },
+                "capsule": {
+                  "id": "issue-84-pr85-correction-delivery",
+                  "generation": 1,
+                  "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+                },
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": []
+              },
+              {
+                "slot": "H5",
+                "phase": "challenge",
+                "authorization": "A2",
+                "session": "/root/pr85_redelivery_challenge",
+                "role": "code_reviewer",
+                "model": "gpt-6-sol",
+                "effort": "high",
+                "agent_thread": "01a10bab-8ed6-7e10-94f0-d5e2b7f0ee68",
+                "reservation": {
+                  "anchor": "S2:Sequential phases and interruption record",
+                  "summary": "Recorded supplemental reservation for H5; ordinary terminal gate did not pass."
+                },
+                "outcome": "fail",
+                "result": {
+                  "anchor": "S2:Sequential phases and interruption record",
+                  "summary": "Recorded fail outcome for /root/pr85_redelivery_challenge"
+                },
+                "capsule": {
+                  "id": "issue-84-pr85-correction-delivery",
+                  "generation": 1,
+                  "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+                },
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": []
+              },
+              {
+                "slot": "H6",
+                "phase": "design_reset",
+                "authorization": "A3",
+                "session": "/root/pr85_design_revision2",
+                "role": "design_architect",
+                "model": "gpt-6-astra",
+                "effort": "high",
+                "agent_thread": null,
+                "reservation": {
+                  "anchor": "S4:Additional finite design revision approved (2026-10-05)",
+                  "summary": "Recorded supplemental reservation for H6; ordinary terminal gate did not pass."
+                },
+                "outcome": "open",
+                "result": null,
+                "capsule": null,
+                "started_at": null,
+                "ended_at": null,
+                "write_authors": []
+              }
+            ],
+            "observations": [
+              {
+                "id": "H1-FORMAT-FAIL",
+                "slot": "H1",
+                "anchor": "exec-102fdbb7-bc0a-44ff-99b0-5f150387125a",
+                "result": "fail",
+                "summary": "Initial Ruff format check failed; corrected within the same mechanical attempt."
+              },
+              {
+                "id": "H1-GATE",
+                "slot": "H1",
+                "anchor": "S1:terminal-dispatch-gate:H1",
+                "result": "rejected",
+                "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+              },
+              {
+                "id": "H1-PYTEST-1",
+                "slot": "H1",
+                "anchor": "exec-f3f41b4f-0ad0-4161-b804-963f70c07d3e",
+                "result": "pass",
+                "summary": "Focused pytest exit zero."
+              },
+              {
+                "id": "H1-PYTEST-2",
+                "slot": "H1",
+                "anchor": "exec-5c1ab1cb-e2ae-486b-8496-8abe278da4c0",
+                "result": "pass",
+                "summary": "Focused pytest exit zero."
+              },
+              {
+                "id": "H1-PYTEST-3",
+                "slot": "H1",
+                "anchor": "exec-549fc404-6449-41c1-a229-3683303c2e47",
+                "result": "pass",
+                "summary": "Focused pytest exit zero."
+              },
+              {
+                "id": "H1-RESULT",
+                "slot": "H1",
+                "anchor": "msg_00128a8f345bf923016ac37cd4625c87d291e9c3a8e21e4101",
+                "result": "pass",
+                "summary": "115 focused tests and subsequent checks passed; worker changed no documentation and made no commit or push."
+              },
+              {
+                "id": "H2-VALIDATORS",
+                "slot": "H2",
+                "anchor": "exec-ae7a1923-27a2-4289-8bed-78f98ff473ba",
+                "result": "pass",
+                "summary": "Coordinator ran both workflow validators; original Issue84 ledger unchanged."
+              },
+              {
+                "id": "H3-GATE",
+                "slot": "H3",
+                "anchor": "S1:terminal-dispatch-gate:H3",
+                "result": "rejected",
+                "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+              },
+              {
+                "id": "H4-GATE",
+                "slot": "H4",
+                "anchor": "S2:terminal-dispatch-gate:H4",
+                "result": "rejected",
+                "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+              },
+              {
+                "id": "H5-FAILURE",
+                "slot": "H5",
+                "anchor": "S2:Independent challenge result and concrete failure scenario",
+                "result": "fail",
+                "summary": "I84CYCLES / AC85C-BOUND and I84GATES / AC85C-EVIDENCE: omitted supplemental phase and reused authority could falsely certify delivery; generation1 rejected."
+              },
+              {
+                "id": "H5-GATE",
+                "slot": "H5",
+                "anchor": "S2:terminal-dispatch-gate:H5",
+                "result": "rejected",
+                "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+              },
+              {
+                "id": "H6-GATE",
+                "slot": "H6",
+                "anchor": "S4:terminal-dispatch-gate:H6",
+                "result": "rejected",
+                "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+              },
+              {
+                "id": "STATUS-SOURCE-HASH",
+                "slot": "H1",
+                "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+                "result": "pass",
+                "summary": "Audit-only reviewed source SHA256 8ed738d2ba1e700b69b351f3d08fd039402e97cc00f2362d1d38a1cc5845cd6c"
+              },
+              {
+                "id": "STATUS-TEST-HASH",
+                "slot": "H1",
+                "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+                "result": "pass",
+                "summary": "Audit-only reviewed test SHA256 715ca6178031196a57b9e0f1182cc8502e66fb49ceb711e26acc2c44ba65f805"
+              }
+            ],
+            "unknowns": {
+              "phase_timestamps": "not recorded; do not fabricate",
+              "interruptions": "none recorded in the inspected sources",
+              "provenance": "recorded evidence, not authenticated live-session provenance"
+            }
+          }
+        },
+        "capsule_digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756",
+        "historical_import": {
+          "sources": [
+            {
+              "id": "S1",
+              "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-issue-84-pr85-status-correction.md",
+              "sha256": "48a398f0dacbfd32f757eec5b3e88ee9396f8d4055ffd2b11b466e9048df49ae",
+              "normalization": "git-blob"
+            },
+            {
+              "id": "S2",
+              "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-redelivery-design.md",
+              "sha256": "c6ac46549e5ace1d8832a9a85fb6c44b4b30f4c913d2c9381c176411318cbc4d",
+              "normalization": "git-blob"
+            },
+            {
+              "id": "S3",
+              "locator": "d1611e70db24c665770220fd6d9045e9fe5769a8:docs/iterations/018-pr85-correction-delivery-capsule.json",
+              "sha256": "2485d8e1264a3f8cbb3e3527d677b124d9af09580fa9ca1b89d1ececf2d93d13",
+              "normalization": "git-blob"
+            },
+            {
+              "id": "S4",
+              "locator": "docs/iterations/018-pr85-redelivery-design.md through the recorded revision2 phase_start, inspected 2026-10-05",
+              "sha256": "acb180357132c078600ff8aeaf95267f24fb97034ae4f96b3f12b21191891dff",
+              "normalization": "lf"
+            }
+          ],
+          "authorizations": [
+            {
+              "id": "A1",
+              "name": "burha",
+              "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10b99-c14a-7830-8ece-0698503e16c6",
+              "evidence": "ok I approve. we have %30 left, divide the task and document the possible interruption if required.",
+              "allowances": {
+                "remediation": 1,
+                "final_review": 1,
+                "design_reset": 0,
+                "challenge": 0,
+                "implementation": 0,
+                "initial_review": 0,
+                "verification": 1
+              }
+            },
+            {
+              "id": "A2",
+              "name": "burha",
+              "anchor": "thread:01a10b8b-adae-7d61-89cb-0ce57ca1c9f4/message:01a10ba4-298d-7561-9e2d-99522619cd33",
+              "evidence": "go on",
+              "allowances": {
+                "remediation": 0,
+                "final_review": 0,
+                "design_reset": 1,
+                "challenge": 1,
+                "implementation": 0,
+                "initial_review": 0,
+                "verification": 0
+              }
+            },
+            {
+              "id": "A3",
+              "name": "burha",
+              "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/user-reply:ok-approved-to-additional-design-revision-and-independent-challenge",
+              "evidence": "ok approved",
+              "allowances": {
+                "remediation": 0,
+                "final_review": 0,
+                "design_reset": 1,
+                "challenge": 1,
+                "implementation": 0,
+                "initial_review": 0,
+                "verification": 0
+              }
+            }
+          ],
+          "phases": [
+            {
+              "slot": "H1",
+              "phase": "remediation",
+              "authorization": "A1",
+              "session": "/root/pr85_status_correction",
+              "role": "bounded_worker",
+              "model": "gpt-6-luna",
+              "effort": "medium",
+              "agent_thread": "01a10b9b-f659-7541-889a-bf2c5129bc78",
+              "reservation": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Recorded supplemental reservation for H1; ordinary terminal gate did not pass."
+              },
+              "outcome": "pass",
+              "result": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Recorded pass outcome for /root/pr85_status_correction"
+              },
+              "capsule": null,
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": [
+                "/root/pr85_status_correction"
+              ]
+            },
+            {
+              "slot": "H2",
+              "phase": "verification",
+              "authorization": "A1",
+              "session": "/root",
+              "role": "coordinator",
+              "model": "not-recorded",
+              "effort": "not-recorded",
+              "agent_thread": null,
+              "reservation": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Actual coordinator verification sequence imported without claiming an independent engine reservation."
+              },
+              "outcome": "pass",
+              "result": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Recorded pass outcome for /root"
+              },
+              "capsule": null,
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": [
+                "/root/pr85_status_correction",
+                "/root"
+              ]
+            },
+            {
+              "slot": "H3",
+              "phase": "final_review",
+              "authorization": "A1",
+              "session": "/root/pr85_status_review",
+              "role": "code_reviewer",
+              "model": "gpt-6-sol",
+              "effort": "high",
+              "agent_thread": "01a10ba0-4c44-7e60-91fb-113b3ade4648",
+              "reservation": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Recorded supplemental reservation for H3; ordinary terminal gate did not pass."
+              },
+              "outcome": "pass",
+              "result": {
+                "anchor": "S1:Sequential reservations and interruption handoff",
+                "summary": "Recorded pass outcome for /root/pr85_status_review"
+              },
+              "capsule": null,
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": []
+            },
+            {
+              "slot": "H4",
+              "phase": "design_reset",
+              "authorization": "A2",
+              "session": "/root/pr85_redelivery_design",
+              "role": "design_architect",
+              "model": "gpt-6-astra",
+              "effort": "high",
+              "agent_thread": "01a10ba6-341a-7611-9ad8-7553849806d1",
+              "reservation": {
+                "anchor": "S2:Sequential phases and interruption record",
+                "summary": "Recorded supplemental reservation for H4; ordinary terminal gate did not pass."
+              },
+              "outcome": "pass",
+              "result": {
+                "anchor": "S2:Sequential phases and interruption record",
+                "summary": "Recorded pass outcome for /root/pr85_redelivery_design"
+              },
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 1,
+                "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+              },
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": []
+            },
+            {
+              "slot": "H5",
+              "phase": "challenge",
+              "authorization": "A2",
+              "session": "/root/pr85_redelivery_challenge",
+              "role": "code_reviewer",
+              "model": "gpt-6-sol",
+              "effort": "high",
+              "agent_thread": "01a10bab-8ed6-7e10-94f0-d5e2b7f0ee68",
+              "reservation": {
+                "anchor": "S2:Sequential phases and interruption record",
+                "summary": "Recorded supplemental reservation for H5; ordinary terminal gate did not pass."
+              },
+              "outcome": "fail",
+              "result": {
+                "anchor": "S2:Sequential phases and interruption record",
+                "summary": "Recorded fail outcome for /root/pr85_redelivery_challenge"
+              },
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 1,
+                "digest": "e21925dd0c39c9642d29798fc0353bcb6135182c5c470ae23f647316f5233473"
+              },
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": []
+            },
+            {
+              "slot": "H6",
+              "phase": "design_reset",
+              "authorization": "A3",
+              "session": "/root/pr85_design_revision2",
+              "role": "design_architect",
+              "model": "gpt-6-astra",
+              "effort": "high",
+              "agent_thread": null,
+              "reservation": {
+                "anchor": "S4:Additional finite design revision approved (2026-10-05)",
+                "summary": "Recorded supplemental reservation for H6; ordinary terminal gate did not pass."
+              },
+              "outcome": "open",
+              "result": null,
+              "capsule": null,
+              "started_at": null,
+              "ended_at": null,
+              "write_authors": []
+            }
+          ],
+          "observations": [
+            {
+              "id": "H1-FORMAT-FAIL",
+              "slot": "H1",
+              "anchor": "exec-102fdbb7-bc0a-44ff-99b0-5f150387125a",
+              "result": "fail",
+              "summary": "Initial Ruff format check failed; corrected within the same mechanical attempt."
+            },
+            {
+              "id": "H1-GATE",
+              "slot": "H1",
+              "anchor": "S1:terminal-dispatch-gate:H1",
+              "result": "rejected",
+              "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+            },
+            {
+              "id": "H1-PYTEST-1",
+              "slot": "H1",
+              "anchor": "exec-f3f41b4f-0ad0-4161-b804-963f70c07d3e",
+              "result": "pass",
+              "summary": "Focused pytest exit zero."
+            },
+            {
+              "id": "H1-PYTEST-2",
+              "slot": "H1",
+              "anchor": "exec-5c1ab1cb-e2ae-486b-8496-8abe278da4c0",
+              "result": "pass",
+              "summary": "Focused pytest exit zero."
+            },
+            {
+              "id": "H1-PYTEST-3",
+              "slot": "H1",
+              "anchor": "exec-549fc404-6449-41c1-a229-3683303c2e47",
+              "result": "pass",
+              "summary": "Focused pytest exit zero."
+            },
+            {
+              "id": "H1-RESULT",
+              "slot": "H1",
+              "anchor": "msg_00128a8f345bf923016ac37cd4625c87d291e9c3a8e21e4101",
+              "result": "pass",
+              "summary": "115 focused tests and subsequent checks passed; worker changed no documentation and made no commit or push."
+            },
+            {
+              "id": "H2-VALIDATORS",
+              "slot": "H2",
+              "anchor": "exec-ae7a1923-27a2-4289-8bed-78f98ff473ba",
+              "result": "pass",
+              "summary": "Coordinator ran both workflow validators; original Issue84 ledger unchanged."
+            },
+            {
+              "id": "H3-GATE",
+              "slot": "H3",
+              "anchor": "S1:terminal-dispatch-gate:H3",
+              "result": "rejected",
+              "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+            },
+            {
+              "id": "H4-GATE",
+              "slot": "H4",
+              "anchor": "S2:terminal-dispatch-gate:H4",
+              "result": "rejected",
+              "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+            },
+            {
+              "id": "H5-FAILURE",
+              "slot": "H5",
+              "anchor": "S2:Independent challenge result and concrete failure scenario",
+              "result": "fail",
+              "summary": "I84CYCLES / AC85C-BOUND and I84GATES / AC85C-EVIDENCE: omitted supplemental phase and reused authority could falsely certify delivery; generation1 rejected."
+            },
+            {
+              "id": "H5-GATE",
+              "slot": "H5",
+              "anchor": "S2:terminal-dispatch-gate:H5",
+              "result": "rejected",
+              "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+            },
+            {
+              "id": "H6-GATE",
+              "slot": "H6",
+              "anchor": "S4:terminal-dispatch-gate:H6",
+              "result": "rejected",
+              "summary": "Ordinary dispatch check rejected terminal state; explicit supplemental reservation recorded truthfully."
+            },
+            {
+              "id": "STATUS-SOURCE-HASH",
+              "slot": "H1",
+              "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+              "result": "pass",
+              "summary": "Audit-only reviewed source SHA256 8ed738d2ba1e700b69b351f3d08fd039402e97cc00f2362d1d38a1cc5845cd6c"
+            },
+            {
+              "id": "STATUS-TEST-HASH",
+              "slot": "H1",
+              "anchor": "S1:Resume point: BLOCKED_FOR_DECISION, correction complete",
+              "result": "pass",
+              "summary": "Audit-only reviewed test SHA256 715ca6178031196a57b9e0f1182cc8502e66fb49ceb711e26acc2c44ba65f805"
+            }
+          ],
+          "unknowns": {
+            "phase_timestamps": "not recorded; do not fabricate",
+            "interruptions": "none recorded in the inspected sources",
+            "provenance": "recorded evidence, not authenticated live-session provenance"
+          }
+        },
+        "historical_import_digest": "899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1",
+        "transcript": [
+          {
+            "seq": 1,
+            "at": "2026-10-05T13:41:12Z",
+            "type": "phase_end",
+            "data": {
+              "slot": "H6",
+              "session": "/root/pr85_design_revision2",
+              "outcome": "pass",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "evidence": {
+                "anchor": "agent-thread:01a10c43-0fcc-73d2-9127-b52c09e8ccf1/final",
+                "summary": "DESIGN_READY complete generation2 specification; frozen unchanged by coordinator."
+              },
+              "observations": [],
+              "prior_digest": "656b57a0ee4bcf5e971faffebe2101c21684af767a2f1fdad6a54208917c9691"
+            }
+          },
+          {
+            "seq": 2,
+            "at": "2026-10-05T13:41:12Z",
+            "type": "phase_start",
+            "data": {
+              "slot": "H7",
+              "session": "/root/pr85_challenge_revision2",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "authorization": "A3",
+              "gate": {
+                "anchor": "coordinator:issue84-challenge-check-2026-10-05T13:41:12Z",
+                "summary": "Ordinary challenge gate rejected terminal ticket; explicitly authorized supplemental reservation applies."
+              },
+              "reservation": {
+                "anchor": "docs/iterations/018-pr85-redelivery-design.md:Revision2 design outcome and challenge reservation",
+                "summary": "Separate Sol/high read-only challenge reserved before agent dispatch."
+              },
+              "content": null,
+              "prior_digest": "66721ae2d31768dee888b5a090261ec02f10e3b5d85dfa7a9131d3f9b060be5d"
+            }
+          },
+          {
+            "seq": 3,
+            "at": "2026-10-05T13:43:00Z",
+            "type": "pause",
+            "data": {
+              "slot": "H7",
+              "session": "/root/pr85_challenge_revision2",
+              "evidence": {
+                "anchor": "amsg_01a10c4d-b119-76e1-a7ec-7094f41828b1",
+                "summary": "Pinned model capacity error; no substantive challenge outcome."
+              },
+              "prior_digest": "f1da29b7b3ff9c85ab1a91271d15792bbd51d1cb153e9ffeab244f70c23648e3"
+            }
+          },
+          {
+            "seq": 4,
+            "at": "2026-10-05T13:43:27Z",
+            "type": "resume",
+            "data": {
+              "slot": "H7",
+              "session": "/root/pr85_challenge_revision2",
+              "evidence": {
+                "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/collaboration.followup_task:2026-10-05T13:43:27Z",
+                "summary": "Same reserved session and pinned model resumed; no new allowance."
+              },
+              "prior_digest": "6a5b8fab870af69bd6c2da4792eb346ed84389b3be4c69eec079fe8e90ae6271"
+            }
+          },
+          {
+            "seq": 5,
+            "at": "2026-10-05T13:49:39Z",
+            "type": "phase_end",
+            "data": {
+              "slot": "H7",
+              "session": "/root/pr85_challenge_revision2",
+              "outcome": "pass",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "evidence": {
+                "anchor": "agent-thread:01a10c4c-a03a-7bb3-87ed-6ee2e05b6e41/final",
+                "summary": "CHALLENGE_PASS for exact generation2 digest; no implementation authorization."
+              },
+              "observations": [
+                {
+                  "anchor": "agent-thread:01a10c4c-a03a-7bb3-87ed-6ee2e05b6e41/challenge-result",
+                  "check": "Frozen import, schema, content and history binding",
+                  "result": "pass",
+                  "summary": "Verified capsule/import digests, S1-S4 hashes, original61-event prefix/counts, failed prior challenge, authority uniqueness, interruption, H10 seal and PR identity; no concrete frozen-criteria failure."
+                }
+              ],
+              "prior_digest": "53cd1ca96fbc028c2256222d2ffbf0d565b8cb21a5fba1c99668c7a24928d502"
+            }
+          },
+          {
+            "seq": 6,
+            "at": "2026-10-05T13:53:22Z",
+            "type": "user_authorization",
+            "data": {
+              "id": "A4",
+              "name": "burha",
+              "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a10c56-ac1d-7582-b224-2ecdf6cc46dd",
+              "evidence": "User message 01a10c56-ac1d-7582-b224-2ecdf6cc46dd: \"ok approved\", answering the summary of the generation2 pinned PR85 correction certificate, fresh delivery evidence, one workflow-only implementation, one verification and one independent review, no retry allowances; Issue83 remains suspended.",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "historical_import_digest": "899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1",
+              "allowances": {
+                "implementation": 1,
+                "verification": 1,
+                "initial_review": 1,
+                "remediation": 0,
+                "final_review": 0,
+                "design_reset": 0,
+                "challenge": 0
+              },
+              "prior_digest": "3e230810a6cfd1cae4a685981eb0b387abe903e5169e7503eed1eb2c8386da7d"
+            }
+          },
+          {
+            "seq": 7,
+            "at": "2026-10-05T13:53:22Z",
+            "type": "design_approval",
+            "data": {
+              "name": "coordinator",
+              "session": "/root",
+              "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/coordinator-approval:2026-10-05T13:53:22Z",
+              "evidence": "Coordinator approves complete unchanged generation2 after CHALLENGE_PASS and distinct A4 user authorization. Exact capsule and import digest bind this approval.",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "historical_import_digest": "899985eb7c493e901c8c4a9036772492341718edbe188308acedeb549ea781c1",
+              "prior_digest": "acba2b548f50617383f2232b59189415076fad91dcfb31b98cfcfb573dbb1215"
+            }
+          },
+          {
+            "seq": 8,
+            "at": "2026-10-05T13:53:22Z",
+            "type": "phase_start",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "authorization": "A4",
+              "gate": {
+                "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/implementation-gate:2026-10-05T13:53:22Z",
+                "summary": "Ordinary implementation check rejected terminal state; approved supplemental bootstrap exception records actual rejection."
+              },
+              "reservation": {
+                "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/H8-reservation:2026-10-05T13:53:22Z",
+                "summary": "One implementation reserved before separate implementation_worker Sol/medium dispatch; no retries or replacement owner."
+              },
+              "content": null,
+              "prior_digest": "4a237ce298c43b94a8677e41212655c8d0f25bed7616e9ed8461a18870500d84"
+            }
+          },
+          {
+            "seq": 9,
+            "at": "2026-10-05T13:57:51Z",
+            "type": "pause",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "amsg_01a10c5b-4782-72f0-b711-46f317c4640f",
+                "summary": "Owner paused H8 to clarify actual A4 evidence representation; no source edits or completed phase failure."
+              },
+              "prior_digest": "e70212b1f89379fe5d77f1ea8f2f435e878a955fd80bcf0c8e200e570004229b"
+            }
+          },
+          {
+            "seq": 10,
+            "at": "2026-10-05T13:58:19Z",
+            "type": "resume",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "amsg_01a10c5b-b784-7d80-b663-60c526ad9d42",
+                "summary": "Owner confirmed actual contextual A4 evidence differs from A3, retracted concern and resumed same H8 without schema changes."
+              },
+              "prior_digest": "e2686e8329ebb11706b7c195793423465b37d039d1f8ff53e7558267bcb4f6b0"
+            }
+          },
+          {
+            "seq": 11,
+            "at": "2026-10-05T14:11:47Z",
+            "type": "pause",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "coordinator:H8-capacity-error:2026-10-05T14:11:47Z",
+                "summary": "Pinned model capacity error during reserved H8; existing partial implementation and test results retained, no completed phase outcome."
+              },
+              "prior_digest": "83efb41adf2a982212faa299fbbafd2dc70aee978b74a134e08ffdf2db5c7a86"
+            }
+          },
+          {
+            "seq": 12,
+            "at": "2026-10-05T14:12:04Z",
+            "type": "resume",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "coordinator:H8-capacity-resume:2026-10-05T14:12:04Z",
+                "summary": "Resume same reserved implementation session and pinned Sol/medium after infrastructure interruption; no new allowance."
+              },
+              "prior_digest": "a117519e7617198d030f0a3909d338e1bed1a86efd8315faf294b840758d1b17"
+            }
+          },
+          {
+            "seq": 13,
+            "at": "2026-10-05T14:19:43Z",
+            "type": "phase_end",
+            "data": {
+              "slot": "H8",
+              "session": "/root/pr85_redelivery_implementation",
+              "outcome": "pass",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "evidence": {
+                "anchor": "agent:/root/pr85_redelivery_implementation:READY_FOR_H9",
+                "summary": "Implementation/self-review complete; exact files staged; no further tracked edits before H9."
+              },
+              "observations": [
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H8-first-focused-run",
+                  "check": "Focused workflow fixture",
+                  "result": "fail",
+                  "summary": "Fixture incorrectly called pr(number=85); TypeError corrected within H8."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H8-approval-fixture",
+                  "check": "Adversarial approval fixture",
+                  "result": "fail",
+                  "summary": "Fixture expected rejection of a nonexisting consumed evidence string; replaced with actual consumed approval."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H8-Ruff-initial",
+                  "check": "Ruff lint and format",
+                  "result": "fail",
+                  "summary": "Fullwidth literal characters and one long line corrected within H8."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:READY_FOR_H9",
+                  "check": "Focused tests, lint, workflow validator and diff",
+                  "result": "pass",
+                  "summary": "138 ticket-workflow tests and23 correction tests pass; Ruff lint/format and ticket validator pass; diff check passes. No original ledger changes; final docs complete."
+                }
+              ],
+              "prior_digest": "ff7f1d0351ced2a4773c98afaa7d2e758eef679cfbf0944bcddbc0884d20144e"
+            }
+          },
+          {
+            "seq": 14,
+            "at": "2026-10-05T14:19:43Z",
+            "type": "phase_start",
+            "data": {
+              "slot": "H9",
+              "session": "/root/pr85_redelivery_implementation",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "authorization": "A4",
+              "gate": {
+                "anchor": "coordinator:issue84-verification-gate:2026-10-05T14:19:43Z",
+                "summary": "Ordinary verification gate rejected terminal state; user-approved supplemental reservation applies."
+              },
+              "reservation": {
+                "anchor": "coordinator:H9-reservation:2026-10-05T14:19:43Z",
+                "summary": "One verification reserved on frozen content with same implementation owner; no source/doc edits authorized."
+              },
+              "content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d",
+              "prior_digest": "a23717645bb792dd72054f1b22921854ab0aa1753b0773a87d05d01281eda594"
+            }
+          },
+          {
+            "seq": 15,
+            "at": "2026-10-05T14:26:47Z",
+            "type": "pause",
+            "data": {
+              "slot": "H9",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "coordinator:H9-capacity-error:2026-10-05T14:26:47Z",
+                "summary": "Pinned model capacity infrastructure interruption during serial offline suite; no substantive phase outcome. Preserve running process and completed checks."
+              },
+              "prior_digest": "584955318646ef8f1bfc26bcc7279d88fbee074a4fac449a9d8ccbf84ec36202"
+            }
+          },
+          {
+            "seq": 16,
+            "at": "2026-10-05T14:27:05Z",
+            "type": "resume",
+            "data": {
+              "slot": "H9",
+              "session": "/root/pr85_redelivery_implementation",
+              "evidence": {
+                "anchor": "coordinator:H9-capacity-resume:2026-10-05T14:27:05Z",
+                "summary": "Same pinned owner and existing verification reservation resumed; poll existing full-suite process and retain all completed passes."
+              },
+              "prior_digest": "5ba6ee4c87b42096e9a7965f8ad997f0da0764d8eb3549acfb8cb6d2ed293465"
+            }
+          },
+          {
+            "seq": 17,
+            "at": "2026-10-05T14:29:01Z",
+            "type": "phase_end",
+            "data": {
+              "slot": "H9",
+              "session": "/root/pr85_redelivery_implementation",
+              "outcome": "pass",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "evidence": {
+                "anchor": "agent:/root/pr85_redelivery_implementation:H9_PASS",
+                "summary": "All required gates passed on unchanged frozen content; infrastructure interruption retained. No source/docs/ledger edits."
+              },
+              "observations": [
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:1",
+                  "check": "Focused workflow tests",
+                  "result": "pass",
+                  "summary": "138 passed; chunk2c1b31."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:2",
+                  "check": "Workflow configuration validator",
+                  "result": "pass",
+                  "summary": "uv run python scripts/validate_codex_workflow.py exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:3",
+                  "check": "Ticket ledger validator",
+                  "result": "pass",
+                  "summary": "uv run python scripts/ticket_workflow.py validate exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:4",
+                  "check": "Ruff lint",
+                  "result": "pass",
+                  "summary": "uv run ruff check . exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:5",
+                  "check": "Ruff format",
+                  "result": "pass",
+                  "summary": "uv run ruff format --check . exit0;155 files."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:6",
+                  "check": "Strict types",
+                  "result": "pass",
+                  "summary": "uv run mypy exit0;49 source files."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:7",
+                  "check": "Full offline tests",
+                  "result": "pass",
+                  "summary": "Serial uv run pytest -m not_real_store (actual expression not real_store) -q -ra exit0;1298 selected from collection chunk628388, run chunks5677fa through4b92b0 reached100% only dots, no skips/failures shown."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:8",
+                  "check": "Retrieval evaluation",
+                  "result": "pass",
+                  "summary": "5 cases, source attribution1.0 and graph context recall1.0; exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:9",
+                  "check": "Explanation evaluation",
+                  "result": "pass",
+                  "summary": "14/14 cases; passed true; exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:10",
+                  "check": "Package build",
+                  "result": "pass",
+                  "summary": "uv build with out-dir outside repository; sdist and wheel built; exit0."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:11",
+                  "check": "Compose configurations",
+                  "result": "pass",
+                  "summary": "compose.yaml and compose.integration.yaml config --quiet exit0; optional unset REAL_STORE port warnings only; no services started."
+                },
+                {
+                  "anchor": "agent:/root/pr85_redelivery_implementation:H9:12",
+                  "check": "Diff and content freeze",
+                  "result": "pass",
+                  "summary": "Working/staged diff checks exit0; final content SHA256 unchanged."
+                }
+              ],
+              "prior_digest": "1e1676dbbf609728acee1557fafdaf5633887a7a4a1b859bed056c9f784350b8"
+            }
+          },
+          {
+            "seq": 18,
+            "at": "2026-10-05T14:29:01Z",
+            "type": "acceptance",
+            "data": {
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d",
+              "evidence": {
+                "AC85C-HISTORY": {
+                  "anchor": "coordinator:retained-prefix-and-history-diff",
+                  "summary": "Original61-event Issue84 ledger and Issue23/83 histories unchanged; frozen source hashes/import verified; original state/counts/binding covered by focused regressions."
+                },
+                "AC85C-BOUND": {
+                  "anchor": "H8/H9:focused-correction-regressions",
+                  "summary": "23 correction tests plus existing workflow tests pass; finite transcript reservations, reuse rejection and terminal scope enforced; all actual pauses and failed self-checks retained."
+                },
+                "AC85C-EVIDENCE": {
+                  "anchor": "journal:H6-H9-and-approval",
+                  "summary": "Separate architect and independent challenge passed same capsule/import; A4 and coordinator approval bound exact capsule; fresh verification passed this content; independent H10 reserved next."
+                },
+                "AC85C-IDENTITY": {
+                  "anchor": "H8/H9:pinned-certificate-identity-tests",
+                  "summary": "Only original repo/Issue84/PR85 accepted; correction binding exclusive; current final content must match."
+                },
+                "AC85C-STATUS": {
+                  "anchor": "H8/H9:focused-status-regressions",
+                  "summary": "Unallocated split pool including zero remains correct; existing over-allocation and lineage regressions pass unchanged."
+                },
+                "AC85C-ISOLATE": {
+                  "anchor": "H9:all-required-gates-and-scope",
+                  "summary": "Only approved workflow source/tests/guidance/ADR/iteration files changed; all required offline/static/evaluation/build/Compose gates pass; no application or external-service changes."
+                }
+              },
+              "prior_digest": "5368b1c8c5d686570c8797e499e540cef737d2d16c721a74cce31cf8c0850725"
+            }
+          },
+          {
+            "seq": 19,
+            "at": "2026-10-05T14:29:01Z",
+            "type": "phase_start",
+            "data": {
+              "slot": "H10",
+              "session": "/root/pr85_redelivery_review",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "authorization": "A4",
+              "gate": {
+                "anchor": "coordinator:issue84-initial-review-gate:2026-10-05T14:29:01Z",
+                "summary": "Ordinary initial-review dispatch gate rejected terminal state; approved supplemental reservation applies."
+              },
+              "reservation": {
+                "anchor": "coordinator:H10-reservation:2026-10-05T14:29:01Z",
+                "summary": "Single independent code_reviewer Sol/high reserved after final verification/acceptance; exclude all original/supplemental write and verification authors."
+              },
+              "content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d",
+              "prior_digest": "a0f23e5f51802de5ac221a04b5ac5d3d7a9e12a2a08e898aff13df940b7278bd"
+            }
+          },
+          {
+            "seq": 20,
+            "at": "2026-10-05T14:38:14Z",
+            "type": "phase_end",
+            "data": {
+              "slot": "H10",
+              "session": "/root/pr85_redelivery_review",
+              "outcome": "pass",
+              "capsule": {
+                "id": "issue-84-pr85-correction-delivery",
+                "generation": 2,
+                "digest": "138a10fa473e67274dde59d484510582b7c4ad5d53c79dbb5fa36fb3d241e756"
+              },
+              "evidence": {
+                "anchor": "agent:/root/pr85_redelivery_review:REVIEW_PASS",
+                "summary": "Independent read-only REVIEW_PASS: exact content7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d and audit prefix a0f23e5f51802de5ac221a04b5ac5d3d7a9e12a2a08e898aff13df940b7278bd; no edits or test runs."
+              },
+              "observations": [
+                {
+                  "anchor": "agent:/root/pr85_redelivery_review:final",
+                  "check": "Independent code/spec/test-gap and audit review",
+                  "result": "pass",
+                  "summary": "No concrete frozen-ID violation; exact history/capsule/import and phase grammar, authority uniqueness, reviewer seal, content recheck and exclusive PR binding reviewed; actual failures/pauses retained."
+                }
+              ],
+              "prior_digest": "cb85290cd600961696b70e5bcf25c1ddad452bf1f5514a5864e2a6da54308efc",
+              "audited_prefix_digest": "a0f23e5f51802de5ac221a04b5ac5d3d7a9e12a2a08e898aff13df940b7278bd",
+              "reviewed_content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d"
+            }
+          }
+        ],
+        "content": "7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d",
+        "delivery_evidence": {
+          "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074:PR85-correction-delivery",
+          "summary": "Exact user-approved pinned correction certificate; fresh verification, acceptance and independent review share final content; original history/count/binding preserved. Required ordinary delivery gate remained terminal-rejected; prospective certificate path is the approved exception."
+        }
+      }
+    }
+  ]
+}

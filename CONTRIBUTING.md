@@ -258,10 +258,32 @@ same check with `--phase delivery`. Append measured phase ends, acceptance evide
 review outcomes and blocker resolutions. One writer uses atomic validated append.
 Explicit finite user extensions append named authority and evidence; owner-led grants
 add count deltas with zero seconds, while timed grants retain seconds-and-counts rules.
-No automatic renewal. Historical timed splits require explicit user decision,
-validated predecessor history, inherited counters and allocated remaining time;
-sibling allocations total no more than the predecessor remainder. A split retires
-its predecessor. New issue numbers cannot silently evade limits.
+No automatic renewal. Owner-led splits require distinct finite user grants, inherit
+consumed counts and conserve the parent's remaining count pool across siblings.
+Historical timed splits retain allocated seconds, including unspent residuals. A
+split retires its predecessor. Whole-lineage validation rejects approval reuse.
+ADR 0035 pins the exact Issue23/83 transition and Issue92 exhausted-source bootstrap;
+neither grants product resume or generic adoption. Issue92 requires a new publication
+target and fresh certification. New issue numbers cannot silently evade limits.
+ADR 0036 records one approved Issue92 fixture repair after the failed formal suite.
+Its exact recovery event and ordinary remediation reservation consume the fifth
+remediation start; only one additional verification is allowed. The unused initial
+review and new-PR allowance are conserved, and the initial review follows complete
+repair, blocker resolution, fresh verification and acceptance on identical content.
+The exact saved recovery pair is validated natively; historical tests load immutable
+archived baselines, never a slice of the mutable current Issue92 ledger.
+ADR 0037 records the exact later Issue92 live PR identity repair. Event 17 and
+the immediately counted event-18 remediation preserve the failed initial review;
+only remediation 6, fresh verification 3 and independent final review 5 are
+added. CI compares full queued/live head and base identity and checks Issue92's
+granted head repository and branch. The original unused PR and post-delivery
+check allowances remain single-use.
+ADR 0038 records the exact later Issue92 stage-aware actual-ledger test repair.
+The immutable 23-event stopped prefix remains failed; event 24 adds one counted
+remediation and one local verification, event 25 starts remediation 7/7, and
+final review 5 remains unused. Saved-state tests derive stage, counters and
+current certification from events, including verification and review starts;
+historical fixtures come from frozen archives. No general retry is granted.
 
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on

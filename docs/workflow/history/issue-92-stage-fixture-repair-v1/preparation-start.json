@@ -1,0 +1,59 @@
+{
+  "schema": "issue92-stage-fixture-preparation-v1",
+  "issue": 92,
+  "repo": "beagle1903/agentic-etf-advisor",
+  "at": "2026-10-09T19:05:43Z",
+  "authority": {
+    "name": "human user",
+    "evidence": "Human user message approved authorizes the proposed stage-aware Issue92 test repair, one fresh full verification and conserved unused final review, following the explanation of 1failed1509passed47skipped and the exhausted second finite repair on 2026-10-09."
+  },
+  "authority_anchor": "human-approved-stage-aware-fixture-repair-2026-10-09-after-third-verification-failure",
+  "classification": "consequential finite-ledger resumption; test defect mechanical within frozen AC84VERIFY",
+  "arbitration": {
+    "decision": "demonstrated defect, same scope; no contract dispute about expected repairing vs verifying",
+    "invariant": "I84GATES",
+    "criterion": "AC84VERIFY",
+    "expected": "Immutable18 assertion remains repairing; actual saved ledger follows latest recorded phase and rejects inconsistent replay",
+    "actual": "Mutable actual saved21 is verifying but test hardcodes repairing",
+    "closure": "One same-owner counted test/finite-state repair, one new full verification and conserved unused final review; all completed failures stop. No product work, extra PR, merge, replacement owner or generic renewal."
+  },
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "stopped_content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+  "stop_ledger_digest": "f3e67a49ac9ee5df4ed9ec6ff0fd4573c813fe3e8f6dee0329d2ba37d16ca32d",
+  "native_gate": {
+    "args": [
+      "check",
+      "--issue",
+      "92",
+      "--phase",
+      "design_reset"
+    ],
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase\n"
+  },
+  "preparation_authority": "Explicit new human decision permits one sequential supplemental read-only design and independent challenge before coordinator approval. No native reset consumed or pass invented. Exact finite resume disposition must preserve23-event stop and failed history.",
+  "limits": {
+    "design": 1,
+    "challenge": 1,
+    "design_revision": 0
+  },
+  "events": [
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T19:05:43Z",
+      "data": {
+        "reservation": "R92SD1",
+        "session": "/root/issue92_stage_fixture_design",
+        "role": "design_architect",
+        "model": "gpt-6-astra",
+        "effort": "high",
+        "access": "read-only",
+        "scope": "Design exact same-scope finite repair after third verification failure; no implementation/ledger/publication"
+      }
+    }
+  ]
+}

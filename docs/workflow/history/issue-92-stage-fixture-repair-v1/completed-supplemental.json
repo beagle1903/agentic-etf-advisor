@@ -1,0 +1,136 @@
+{
+  "schema": "issue92-stage-fixture-preparation-v1",
+  "issue": 92,
+  "repo": "beagle1903/agentic-etf-advisor",
+  "at": "2026-10-09T19:05:43Z",
+  "authority": {
+    "name": "human user",
+    "evidence": "Human user message approved authorizes the proposed stage-aware Issue92 test repair, one fresh full verification and conserved unused final review, following the explanation of 1failed1509passed47skipped and the exhausted second finite repair on 2026-10-09."
+  },
+  "authority_anchor": "human-approved-stage-aware-fixture-repair-2026-10-09-after-third-verification-failure",
+  "classification": "consequential finite-ledger resumption; test defect mechanical within frozen AC84VERIFY",
+  "arbitration": {
+    "decision": "demonstrated defect, same scope; no contract dispute about expected repairing vs verifying",
+    "invariant": "I84GATES",
+    "criterion": "AC84VERIFY",
+    "expected": "Immutable18 assertion remains repairing; actual saved ledger follows latest recorded phase and rejects inconsistent replay",
+    "actual": "Mutable actual saved21 is verifying but test hardcodes repairing",
+    "closure": "One same-owner counted test/finite-state repair, one new full verification and conserved unused final review; all completed failures stop. No product work, extra PR, merge, replacement owner or generic renewal."
+  },
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "stopped_content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+  "stop_ledger_digest": "f3e67a49ac9ee5df4ed9ec6ff0fd4573c813fe3e8f6dee0329d2ba37d16ca32d",
+  "native_gate": {
+    "args": [
+      "check",
+      "--issue",
+      "92",
+      "--phase",
+      "design_reset"
+    ],
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase\n"
+  },
+  "preparation_authority": "Explicit new human decision permits one sequential supplemental read-only design and independent challenge before coordinator approval. No native reset consumed or pass invented. Exact finite resume disposition must preserve23-event stop and failed history.",
+  "limits": {
+    "design": 1,
+    "challenge": 1,
+    "design_revision": 0
+  },
+  "events": [
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T19:05:43Z",
+      "data": {
+        "reservation": "R92SD1",
+        "session": "/root/issue92_stage_fixture_design",
+        "role": "design_architect",
+        "model": "gpt-6-astra",
+        "effort": "high",
+        "access": "read-only",
+        "scope": "Design exact same-scope finite repair after third verification failure; no implementation/ledger/publication"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-09T19:11:47Z",
+      "data": {
+        "reservation": "R92SD1",
+        "session": "/root/issue92_stage_fixture_design",
+        "role": "design_architect",
+        "model": "gpt-6-astra",
+        "effort": "high",
+        "outcome": "DESIGN_READY",
+        "elapsed_seconds": 364,
+        "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+        "evidence": "Separate read-only completed handoff copied verbatim; two actual-ledger defects and exact finite remedy identified. No source edits, tests, ledger events or publication."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T19:11:48Z",
+      "data": {
+        "reservation": "R92SC1",
+        "session": "/root/issue92_stage_fixture_challenge",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "access": "read-only",
+        "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+        "source_manifest_digest": "54b6afa3afa54b2eaba81f469da285c54c7658d90c6a97abfb2855a95b4e271c",
+        "challenge_input_path": "challenge-input.json",
+        "gate": {
+          "args": [
+            "check",
+            "--issue",
+            "92",
+            "--phase",
+            "challenge"
+          ],
+          "exit_code": 1,
+          "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase\n"
+        },
+        "exception": "One supplemental independent read-only challenge under latest explicit user approval; native stop unchanged, no native pass invented. Input binding is by fixed path and external reservation digest to avoid a hash cycle with this challenged prefix."
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-09T19:15:01Z",
+      "data": {
+        "reservation": "R92SC1",
+        "session": "/root/issue92_stage_fixture_challenge",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "outcome": "CHALLENGE_PASS",
+        "elapsed_seconds": 193,
+        "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+        "challenge_input_digest": "d36cf3b360228d3b38cefd082d642691cd6346d48cff4642d5d4689b6fbdec07",
+        "challenge_result_digest": "afaacec59320255a0e003f4ba6693507820e5324a4596d2cb0697dc531c0d80b",
+        "report_raw_sha256": "4dd73ac0e2ac3de5a9fca5be9792ab18224e32e09ae8fcb2247bc34faca706a2",
+        "evidence": "Single independent read-only challenge passed exact proposal/source/input/prefix; complete report copied verbatim. All elapsed through transcription retained."
+      }
+    },
+    {
+      "type": "coordinator_decision",
+      "at": "2026-10-09T19:15:01Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Coordinator technical approval of R92SD1 after independent R92SC1 PASS on 2026-10-09; latest human approved already authorizes same-scope stage-aware test repair, fresh verification and conserved final review."
+        },
+        "outcome": "approved",
+        "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+        "challenge_input_digest": "d36cf3b360228d3b38cefd082d642691cd6346d48cff4642d5d4689b6fbdec07",
+        "challenge_result_digest": "afaacec59320255a0e003f4ba6693507820e5324a4596d2cb0697dc531c0d80b",
+        "decision_digest": "14376e5c5386a7f84441d4faf533e1fb6a9cfb4d045f8f3a9e52d8cf360a3f9b",
+        "evidence": "Demonstrated AC84VERIFY mutable-stage defect and adjacent count assumption remain within frozen S84. Exact23prefix, separate current disposition, count7/verification4/final5 unchanged, independent oracle and complete progression closure are bounded. Preserve all89oldarchives and failures; no genericrenewal, product/authwork, replacementowner, extraPR or merge. User approval in initial preparation and grant represents one issuance."
+      }
+    }
+  ]
+}

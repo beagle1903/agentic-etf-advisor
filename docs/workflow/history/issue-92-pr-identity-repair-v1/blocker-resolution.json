@@ -1,0 +1,8 @@
+{
+  "type": "resolve",
+  "at": "2026-10-09T10:27:32Z",
+  "data": {
+    "id": "B92-LIVE-LEDGER-FIXTURE-DRIFT",
+    "evidence": "Successful fifth counted remediation by original owner recorded. Six failed live-ledger fixtures now use immutable exact archived2/6 baselines with fresh copies and deterministic timestamps; all6 pass, complete workflow175/175 and static14/14 pass. Archive-race positive controls reach intended append gates and reject injected byte changes without replacement. Native actual saved8 source/grant/capsule/prefix validation passes, all36 archives raw roundtrip unchanged. Resolve named defect only; earlier failed verification/blocker events remain history; fresh verification required at 6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87."
+  }
+}

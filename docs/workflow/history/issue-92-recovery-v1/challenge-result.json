@@ -1,0 +1,12 @@
+{
+  "schema": "issue92-recovery-challenge-result-v1",
+  "reservation": "R92C1",
+  "session": "/root/issue92_recovery_challenge",
+  "role": "code_reviewer",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "challenge_input_digest": "d184e89d2313216e6fe495421816dd1a9d66be730f6a7354bdbd32bb64260634",
+  "outcome": "CHALLENGE_PASS",
+  "evidence": "Independent source inspection found no concrete frozen-ID failure. Exact proposal/input, all9 recovery snapshots,14 original closeout sources, original grant, six-event stop and unchanged failed-content digest verified. Same-owner counted remediation and second verification, conserved unused initial review/PR, immutable fixtures and actual saved-delivery checks are executable and preserve all prior histories/failures/identities/bindings. No tests/writes or execution grant."
+}

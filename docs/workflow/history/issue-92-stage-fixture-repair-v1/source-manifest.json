@@ -1,0 +1,81 @@
+{
+  "schema": "issue92-stage-fixture-sources-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "failed_content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+  "stop_ledger_digest": "f3e67a49ac9ee5df4ed9ec6ff0fd4573c813fe3e8f6dee0329d2ba37d16ca32d",
+  "prior_grant_digest": "0dd602e87bd79c779877ad92cbcd4c3bfd0771b771f1522bbce68d0ae841253f",
+  "prior_closeout_digest": "a5218d6ae86412b9699ba29f597e95069b68450acbab1e726e861d457c4adb03",
+  "sources": {
+    "stop_ledger": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/stop-ledger.json",
+      "kind": "json",
+      "raw_sha256": "574af94846f38a4c5865b8c5f47141dd4bf4e53867334658a9522af73294015c",
+      "canonical_sha256": "f3e67a49ac9ee5df4ed9ec6ff0fd4573c813fe3e8f6dee0329d2ba37d16ca32d"
+    },
+    "preparation_start": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/preparation-start.json",
+      "kind": "json",
+      "raw_sha256": "d8315af122d8cecf01bca2ed23e035f3833ba23247b94e1f87d5e321a6543661",
+      "canonical_sha256": "07918709a767109134c18b71af066a1bb6451271869456ad0b831172e0a10afb"
+    },
+    "before_integrity": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/before-integrity.json",
+      "kind": "json",
+      "raw_sha256": "b9e8ee91490a3410518dc9a0f6bb6d02915ed696a9e4f8b0a2b81fe61466c520",
+      "canonical_sha256": "cc32f5adb3f6e588bc44acf1d9a71f754c56d6ecd10ac7465634b6a53fa9cf67"
+    },
+    "before_status": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/before-status.json",
+      "kind": "json",
+      "raw_sha256": "03edf30341c142f1b503043bee8ad8a86ddb4ec6f6d116f0714c23a6f9f66ecd",
+      "canonical_sha256": "4279426dc327344b326014601874af5acee6bbf5202e0f8c40b1e061b8bfbb20"
+    },
+    "current_status": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/current-status.json",
+      "kind": "json",
+      "raw_sha256": "80c6b790530faa7ada7e55f322224bef6ad28d301f4dd97e3c53f03c4b532743",
+      "canonical_sha256": "671d518b23ab26d0e66cfba8402e293bb7619724d614628d32ac0ab4427989e3"
+    },
+    "verification_summary": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/summary.json",
+      "kind": "json",
+      "raw_sha256": "985d06b7d0ea3126c686734e67d9a5977189eaa779aaa31edf3c5a3702da08e0",
+      "canonical_sha256": "4aaee227444a54ed737cd8ece0c9a37e95890a9c9e56c009b43e78ee24852137"
+    },
+    "ruff_check": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/ruff-check.log",
+      "kind": "text",
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "canonical_sha256": null
+    },
+    "ruff_format": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/ruff-format.log",
+      "kind": "text",
+      "raw_sha256": "5b710ff7a343c343abc56cf2b5696345f93c98eaa7cdb109d868922d25c3084b",
+      "canonical_sha256": null
+    },
+    "mypy": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/mypy.log",
+      "kind": "text",
+      "raw_sha256": "d118a4201f267325695bdc581e6b10cc8bd325c8bd311be8db6a62db052e092f",
+      "canonical_sha256": null
+    },
+    "pytest": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/verification/pytest-full.log",
+      "kind": "text",
+      "raw_sha256": "38fab8973d7d9713860027a2cbcb87757565540811f71fc451913da90b253493",
+      "canonical_sha256": null
+    }
+  }
+}

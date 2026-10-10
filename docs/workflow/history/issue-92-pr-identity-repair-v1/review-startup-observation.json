@@ -1,0 +1,12 @@
+{
+  "schema": "issue92-review-startup-observation-v1",
+  "at": "2026-10-09T17:09:49Z",
+  "session": "/root/issue92_recovered_initial_review",
+  "reservation_at": "2026-10-09T10:33:28Z",
+  "role": "code_reviewer",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "observed_status": "pending_init",
+  "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87",
+  "evidence": "collaboration.list_agents reports same review session pending_init; no review output received. Followup sent to same session, no replacement/new slot/no time subtraction; publication remains blocked."
+}

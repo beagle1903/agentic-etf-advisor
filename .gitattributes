@@ -1,1 +1,5 @@
 * text=auto eol=lf
+docs/workflow/history/issue-84/** -text
+docs/workflow/history/issue-92-recovery-v1/** -text
+docs/workflow/history/issue-92-pr-identity-repair-v1/** -text
+docs/workflow/history/issue-92-stage-fixture-repair-v1/** -text

@@ -1,0 +1,74 @@
+{
+  "schema": "issue92-recovery-sources-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "failed_content": "a69779793820e624eb12f66f0fb6f243db7f7fc14940161b984a46ec5c6e5d4f",
+  "original_manifest_digest": "a161bebe339b8c8ad97fc934896089a501d3f6756ff3102843d539c702ec6eb8",
+  "original_grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+  "sources": {
+    "stop_ledger": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-ledger-at-stop.json",
+      "kind": "json",
+      "raw_sha256": "382fe647e24fcaf6dd8e5a006bed7fbb32389cdab7af9b134f37bb83c099ce0f",
+      "canonical_sha256": "290ffe7e16d19de8c7e67df54cbf06c517e6313778a377da20877af9490a967a"
+    },
+    "bootstrap_ledger": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-bootstrap-ledger.json",
+      "kind": "json",
+      "raw_sha256": "1b3bdb6c23c76ad22d2363b863b6b2da8e6d276cade160250d8f5531213d4b71",
+      "canonical_sha256": "b43fb7a3df8e01e474aa3ebe40ccc0897d13e5dcbdc368ce524600fe75b41c2e"
+    },
+    "failure_handoff": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-verification-failure-handoff.md",
+      "kind": "text",
+      "raw_sha256": "78230649554f63f858bd78abbaebbdff35a318994bc27be99362de967b5adc50",
+      "canonical_sha256": null
+    },
+    "original_reservation": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-reservation.json",
+      "kind": "json",
+      "raw_sha256": "899f971853d051c3bda8c7ef5bc493308363336677da952cc01d50326f2a2640",
+      "canonical_sha256": "f2170bb189d6d2b8cadf22ae29a34a032df061edb8dda9890840bca42ea90850"
+    },
+    "original_dispatch": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-dispatch-observation.json",
+      "kind": "json",
+      "raw_sha256": "f826b39f83c8bc13afebc06513eca495feec46f0c7c4a1f305dffd6df1c97f0c",
+      "canonical_sha256": "2ac1eb961196c673b009ab8eb7af22d5369d49dd2978bd8da05d409c2cdeacf5"
+    },
+    "capacity_resume": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-capacity-resume.json",
+      "kind": "json",
+      "raw_sha256": "18e4022c43034b419b56330146c6c066ba55b08a10a0239d93be724dafb84bad",
+      "canonical_sha256": "34cfc7970b9a03de6d0151276d491545efba9350589cdc13fe696b9b96fab8af"
+    },
+    "blocked_status": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/issue92-final-blocked-status.json",
+      "kind": "json",
+      "raw_sha256": "26c1699b6774d069b070dc1ad4d8e91d24eaab1505f2e2d48911715f11152b8d",
+      "canonical_sha256": "8c26c14d1f3f841afed69956fa13ef626c63b2c12813e4b84f3ee69188afd72d"
+    },
+    "original_user_approval": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/user-finite-approval.json",
+      "kind": "json",
+      "raw_sha256": "b7cd9d78d6c53466810f7b6d2722b27f9adcfe0d2a2b98f7604d9715a28f1280",
+      "canonical_sha256": "23f0fa56c9f0979391513cc3db4666a53ea16748de09106f6c9173e2985153e0"
+    },
+    "recovery_start": {
+      "path": "docs/workflow/history/issue-92-recovery-v1/recovery-design-start.json",
+      "kind": "json",
+      "raw_sha256": "bf51e07685879a7820de83f7552a02ecccfe37da82a8da7f33610df4563eccc0",
+      "canonical_sha256": "2ea019109e52165958be7301c72d31eb470e2c66d0ba4df3411eb8e3efa24eb9"
+    }
+  }
+}

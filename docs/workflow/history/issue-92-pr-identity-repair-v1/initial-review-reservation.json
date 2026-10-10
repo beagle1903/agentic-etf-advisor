@@ -1,0 +1,47 @@
+{
+  "schema": "issue92-recovered-initial-review-reservation-v1",
+  "at": "2026-10-09T10:33:28Z",
+  "session": "/root/issue92_recovered_initial_review",
+  "role": "code_reviewer",
+  "model": "gpt-6-sol",
+  "effort": "high",
+  "access": "read-only",
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87",
+  "gate": {
+    "args": [
+      "check",
+      "--issue",
+      "92",
+      "--phase",
+      "initial_review"
+    ],
+    "exit_code": 0,
+    "output": "Recorded ticket workflow validation passed; no runtime kill switch is implied.\n"
+  },
+  "classification": "high-risk consequential governance output",
+  "trigger": "Independent review required by frozen consequential Issue92 capsule and R92D1 approved recovery after original verification failure. Review excludes every historical/current writer/verifier and all D2/C2/R92D1/R92C1 participants.",
+  "counted_phase": "initial_review",
+  "consumed_counts": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "limit_counts": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "grant_digest": "ecba220c1e266721d5e199a8d8c5b3e0d0ae7722a2b430b182d6b4019fa369b0",
+  "verification_start": "2026-10-09T10:27:33Z",
+  "verification_end": "2026-10-09T10:33:25Z",
+  "verification_elapsed_seconds": 352
+}

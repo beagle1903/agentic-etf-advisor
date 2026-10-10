@@ -1,0 +1,13 @@
+{
+  "schema": "issue92-pr-identity-coordinator-decision-v1",
+  "authority": {
+    "kind": "coordinator",
+    "name": "/root",
+    "evidence": "2026-10-09 coordinator approves exact R92PD1 technical proposal after single independent R92PC1 PASS; no finite write authority inferred from continuation intent."
+  },
+  "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+  "challenge_input_digest": "764f7396f6e038ec87930118c421c19ea8d9df6deeef774c2b774b8a40e8d1de",
+  "challenge_result_digest": "a3cd1b11a98e356eefd6f5c9ba1d17b742a8e0df4f6ec510114c78e40590e40e",
+  "outcome": "approved",
+  "evidence": "Exact live PR branch/repository defect and realistic negative/integration closure are within frozen I84GATES/AC84GATES/AC84VERIFY. One prospective sameowner counted remediation+freshverification+FINALreview is bounded separately after failedinitialreview; oldfailures/counts/grants/certifications/bindings preserved, no extraPR/postdelivery run/genericretry/productwork/merge. Technical approval only; separate explicit finite user grant required."
+}

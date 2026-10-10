@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-08T17:30:49Z",
+  "flags": {
+    "verified": false,
+    "reviewed": false,
+    "delivered": false,
+    "accepted": false
+  },
+  "counts": {
+    "design_reset": 4,
+    "implementation": 5,
+    "initial_review": 3,
+    "remediation": 4,
+    "final_review": 4
+  },
+  "observation": "Implementation owner reported account usage limit before IMPLEMENTATION_READY. Exact interruption time was not durably recorded. Current saved ledger still has same active phase; observed elapsed30141 seconds includes interruption with no subtraction.",
+  "session": "/root/issue84_remainder_implementation",
+  "time_subtraction": 0,
+  "authority": "Direct user continue in this chat after capacity interruption; resume same reserved owner only",
+  "action": "followup_task to exact existing /root/issue84_remainder_implementation; no new spawn, start/count or replacement",
+  "reservation_start": "2026-10-08T09:07:36Z",
+  "schema": "issue92-same-reservation-capacity-resume-v1",
+  "issue": 92
+}

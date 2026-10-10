@@ -1,0 +1,68 @@
+{
+  "schema": "issue92-pr-identity-closeout-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "source_manifest_digest": "5822263871b4914246a1e380daae766abf98c162b092dc74002c569b7af27007",
+  "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+  "challenge_input_digest": "764f7396f6e038ec87930118c421c19ea8d9df6deeef774c2b774b8a40e8d1de",
+  "sources": {
+    "source_manifest": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/source-manifest.json",
+      "kind": "json",
+      "raw_sha256": "40249a585f389a0f4c849228728c38907b5268c92ba25682f761b0ab48459d5f",
+      "canonical_sha256": "5822263871b4914246a1e380daae766abf98c162b092dc74002c569b7af27007"
+    },
+    "proposal": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/design-proposal.md",
+      "kind": "text",
+      "raw_sha256": "008c8d138fa84f98eca0fdbe993fb43c3f1386a461787c144e9bb3ed792fbf75",
+      "canonical_sha256": null
+    },
+    "challenge_input": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/challenge-input.json",
+      "kind": "json",
+      "raw_sha256": "a4cedc9d0713f8888517f1653df998acbdf1b3af2a0001ddd0e384d492268c7c",
+      "canonical_sha256": "764f7396f6e038ec87930118c421c19ea8d9df6deeef774c2b774b8a40e8d1de"
+    },
+    "challenged_supplemental": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/challenged-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "56db129853b380b11d7e2b86d547a14ba68a4aa01e9d699f2ef8ab5e26a23cc4",
+      "canonical_sha256": "bd53173960f1028bae57e93f1bc28957087b8d679096675154d45dbaa74b506b"
+    },
+    "completed_supplemental": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/completed-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "3d90eac4173e6926ef01b431203b0d92b7d902c2519ae6a9981cf359df6780a3",
+      "canonical_sha256": "87d59a856d85d1040c7a48cce6b342e50b6424c5c79c859bfa5221087b835ef2"
+    },
+    "challenge_result": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/challenge-result.json",
+      "kind": "json",
+      "raw_sha256": "78bfb8ac979ae23c44b04fe8539304658921a58a0bb8ba70927f7d44b827bff7",
+      "canonical_sha256": "a3cd1b11a98e356eefd6f5c9ba1d17b742a8e0df4f6ec510114c78e40590e40e"
+    },
+    "challenge_report": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/challenge-result.md",
+      "kind": "text",
+      "raw_sha256": "7fe1210c3eee4703d924d01a9848a92fca3a7036a3f9738ff7f184adcabc5dd9",
+      "canonical_sha256": null
+    },
+    "coordinator_decision": {
+      "path": "docs/workflow/history/issue-92-pr-identity-repair-v1/coordinator-decision.json",
+      "kind": "json",
+      "raw_sha256": "d9d4a57ac045dc886086f436fb4d2667dd4857ba871c17262c4dbd547e9dda68",
+      "canonical_sha256": "45ff2b55587c0310eda14d51ec8e76843e3e6e29831c5fb079b27e6a552ee50d"
+    }
+  }
+}

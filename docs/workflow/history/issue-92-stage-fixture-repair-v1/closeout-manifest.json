@@ -1,0 +1,68 @@
+{
+  "schema": "issue92-stage-fixture-closeout-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "source_manifest_digest": "54b6afa3afa54b2eaba81f469da285c54c7658d90c6a97abfb2855a95b4e271c",
+  "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+  "challenge_input_digest": "d36cf3b360228d3b38cefd082d642691cd6346d48cff4642d5d4689b6fbdec07",
+  "sources": {
+    "source_manifest": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/source-manifest.json",
+      "kind": "json",
+      "raw_sha256": "93f66e4433d12458132c326387b526047fffa2c680b2bdef3bb780765b6762f3",
+      "canonical_sha256": "54b6afa3afa54b2eaba81f469da285c54c7658d90c6a97abfb2855a95b4e271c"
+    },
+    "proposal": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/design-proposal.md",
+      "kind": "text",
+      "raw_sha256": "1d36aea0161666a4d2e1f5f21d4a8a62cf99bd535307411cc36ad58f697e4e61",
+      "canonical_sha256": null
+    },
+    "challenge_input": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/challenge-input.json",
+      "kind": "json",
+      "raw_sha256": "3360e1fe19b2c171bafca9ec61f1ddc73f096dbdd69fd6031d90bb9a2d7997c1",
+      "canonical_sha256": "d36cf3b360228d3b38cefd082d642691cd6346d48cff4642d5d4689b6fbdec07"
+    },
+    "challenged_supplemental": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/challenged-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "0af3d407855ee2f214bf2a4b53f35c168a11c80ae72963cd609280721b6be94a",
+      "canonical_sha256": "23e7d471414f62e326a99f89c6742b7d5ed361ef71bdf709c694efef7b160e4c"
+    },
+    "completed_supplemental": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/completed-supplemental.json",
+      "kind": "json",
+      "raw_sha256": "6d069fa2c424d224a559c38a9ca767df7bf32cd3b273d1f545b7071134279ff3",
+      "canonical_sha256": "4a0a6913c4f5760388a2b7a4d8e8eb6bdfc3e921babd3d882ee226c7ab1a8acf"
+    },
+    "challenge_result": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/challenge-result.json",
+      "kind": "json",
+      "raw_sha256": "9c15008e0ceaf5bf7372b01fac164d95b62f53d86e82eb72c6209e005f803e3b",
+      "canonical_sha256": "afaacec59320255a0e003f4ba6693507820e5324a4596d2cb0697dc531c0d80b"
+    },
+    "challenge_report": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/challenge-result.md",
+      "kind": "text",
+      "raw_sha256": "4dd73ac0e2ac3de5a9fca5be9792ab18224e32e09ae8fcb2247bc34faca706a2",
+      "canonical_sha256": null
+    },
+    "coordinator_decision": {
+      "path": "docs/workflow/history/issue-92-stage-fixture-repair-v1/coordinator-decision.json",
+      "kind": "json",
+      "raw_sha256": "f7c2966122c0828c087741cd2564c4941e169f9de134f31d5af03447f3a89475",
+      "canonical_sha256": "14376e5c5386a7f84441d4faf533e1fb6a9cfb4d045f8f3a9e52d8cf360a3f9b"
+    }
+  }
+}

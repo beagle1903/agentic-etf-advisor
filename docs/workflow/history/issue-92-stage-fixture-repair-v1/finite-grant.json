@@ -1,0 +1,65 @@
+{
+  "schema": "issue92-stage-fixture-repair-grant-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "authority": {
+    "kind": "user",
+    "name": "human user",
+    "evidence": "Human user message approved authorizes the proposed stage-aware Issue92 test repair, one fresh full verification and conserved unused final review, following the explanation of 1failed1509passed47skipped and the exhausted second finite repair on 2026-10-09."
+  },
+  "authority_anchor": "human-approved-stage-aware-fixture-repair-2026-10-09-after-third-verification-failure",
+  "at": "2026-10-09T19:16:25Z",
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+  "prior_recovery_grant_digest": "ecba220c1e266721d5e199a8d8c5b3e0d0ae7722a2b430b182d6b4019fa369b0",
+  "prior_pr_identity_grant_digest": "0dd602e87bd79c779877ad92cbcd4c3bfd0771b771f1522bbce68d0ae841253f",
+  "stop_ledger_digest": "f3e67a49ac9ee5df4ed9ec6ff0fd4573c813fe3e8f6dee0329d2ba37d16ca32d",
+  "failed_content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+  "source_manifest_digest": "54b6afa3afa54b2eaba81f469da285c54c7658d90c6a97abfb2855a95b4e271c",
+  "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+  "closeout_digest": "9662aae856187b67bb8ba24ba4c12080aeb5f9a92d8a7dbd63c6dcbec6d3f393",
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "count_deltas": {
+    "implementation": 0,
+    "initial_review": 0,
+    "remediation": 1,
+    "final_review": 0,
+    "design_reset": 0
+  },
+  "supplemental_deltas": {
+    "verification": 1,
+    "design": 0,
+    "challenge": 0,
+    "design_revision": 0
+  },
+  "review_disposition": "conserve-unused-final-review-after-stage-fixture-repair",
+  "publication": {
+    "mode": "retain-original-unused-one-new-pr",
+    "original_grant_digest": "76f78ac061f9e2c69b6a3aba6e4e89f4b7875321facce3e79b3c6dbdc1f53c2d",
+    "prior_recovery_grant_digest": "ecba220c1e266721d5e199a8d8c5b3e0d0ae7722a2b430b182d6b4019fa369b0",
+    "additional_count": 0,
+    "total_count": 1,
+    "repo": "beagle1903/agentic-etf-advisor",
+    "primary_issue": 92,
+    "head": "codex/issue-92-issue84-remainder",
+    "base": "main",
+    "excluded_prs": [
+      85
+    ],
+    "actual_saved_delivery_check_runs": 1,
+    "additional_actual_saved_delivery_check_runs": 0
+  },
+  "bootstrap_exception": "append-one-stage-fixture-disposition-and-one-remediation-start",
+  "seconds": 0,
+  "merging": false,
+  "reason": "Latest direct human approved authorizes the proposed same-scope stage-aware actual-ledger test repair, one fresh full verification and conserved unused final review. Independent R92SD1/R92SC1 handoff passed and coordinator approved. One counted seventh remediation and fourth verification; final-review limit5 unchanged. Preserve23-event stop, prior failures, capsule, authorities, authors, counts, original PR/check permissions and all89oldarchives. Sole pre-validator event24+ordinary remediation25 bootstrap under writer lock; native actual25 validation required before completion. No newimplementation/initialreview/reset/replacementowner/genericrenewal/successor/productwork/extraPR/merge. Any completed failure or mismatch stops."
+}

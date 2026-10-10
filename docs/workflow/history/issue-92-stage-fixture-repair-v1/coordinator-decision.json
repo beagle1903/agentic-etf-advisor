@@ -1,0 +1,13 @@
+{
+  "schema": "issue92-stage-fixture-coordinator-decision-v1",
+  "authority": {
+    "kind": "coordinator",
+    "name": "/root",
+    "evidence": "Coordinator technical approval of R92SD1 after independent R92SC1 PASS on 2026-10-09; latest human approved already authorizes same-scope stage-aware test repair, fresh verification and conserved final review."
+  },
+  "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+  "challenge_input_digest": "d36cf3b360228d3b38cefd082d642691cd6346d48cff4642d5d4689b6fbdec07",
+  "challenge_result_digest": "afaacec59320255a0e003f4ba6693507820e5324a4596d2cb0697dc531c0d80b",
+  "outcome": "approved",
+  "evidence": "Demonstrated AC84VERIFY mutable-stage defect and adjacent count assumption remain within frozen S84. Exact23prefix, separate current disposition, count7/verification4/final5 unchanged, independent oracle and complete progression closure are bounded. Preserve all89oldarchives and failures; no genericrenewal, product/authwork, replacementowner, extraPR or merge. User approval in initial preparation and grant represents one issuance."
+}

@@ -1,0 +1,145 @@
+{
+  "schema": "issue92-pr-identity-preparation-v1",
+  "issue": 92,
+  "authority": {
+    "kind": "user",
+    "name": "burha",
+    "evidence": "Direct user ok continue on 2026-10-09 after explanation of B92-LIVE-PR-HEAD-IDENTITY and explicit stop for finite decision. Coordinator bounds continuation to one read-only design and one independent challenge of a concrete finite repair proposal; no write, native allowance renewal or publication grant inferred."
+  },
+  "authority_anchor": "chat/user-2026-10-09/continue-after-live-pr-head-identity-explanation",
+  "classification": "consequential",
+  "rationale": "Live PR metadata repair implements frozen I84GATES/AC84GATES. Executable follow-on allowance after failed initial review changes consequential exhausted workflow gates and needs separate architect/challenge before concrete finite write decision.",
+  "limits": {
+    "design_revision": 1,
+    "challenge": 1,
+    "implementation": 0,
+    "remediation": 0,
+    "verification": 0,
+    "code_review": 0,
+    "publication": 0
+  },
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "source": {
+    "worktree": "C:\\Users\\burha\\.codex\\worktrees\\issue84-design-correction\\agents-lab",
+    "branch": "codex/issue-92-issue84-remainder",
+    "base": "67b93e77cc3a2c665fb902e44508ff693f877e43",
+    "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87",
+    "ledger_digest": "61532d8802dc4a19a0b2b15d5bbbb35fa5b163ebdaa92ee15fdf860789154f2e",
+    "ledger_raw_sha256": "910929a9a2d3b51bd4261d7173ff3d97cd91e253870db8f4cc24add0047094a8",
+    "event_count": 16
+  },
+  "preserved_state": {
+    "counts": {
+      "implementation": 5,
+      "initial_review": 4,
+      "remediation": 5,
+      "final_review": 4,
+      "design_reset": 4
+    },
+    "limits": {
+      "implementation": 5,
+      "initial_review": 4,
+      "remediation": 5,
+      "final_review": 4,
+      "design_reset": 4
+    },
+    "local_verification_starts": 2,
+    "local_verification_limit": 2,
+    "status": "BLOCKED_FOR_DECISION",
+    "recovery_stage": "failed",
+    "verified": true,
+    "accepted": true,
+    "reviewed": false,
+    "delivered": false,
+    "publication_target": null
+  },
+  "scope": [
+    "Exact failed-review blocker B92-LIVE-PR-HEAD-IDENTITY against I84GATES/AC84GATES/AC84VERIFY",
+    "Actual live head ref/repository/SHA and existing base/PR/body/content checks fail closed; immutable fixtures and precise live-metadata mismatch/fork negatives",
+    "One complete noncircular prospective same-owner finite remediation/verification/final-review disposition preserving every past failure, consumed count, approval/author and source/PR binding"
+  ],
+  "non_goals": [
+    "No implementation/source/test/doc/archive/ledger edits, tests, code review, commit/push/PR or merge during preparation",
+    "No generic recovery, successor/new issue/default budget/new implementation/owner replacement or reused grant",
+    "No actual Issue23/83 product/auth/transition/resume or config/CIprivilege change",
+    "No erasure/relabeling of failed initial review or original failed verification"
+  ],
+  "events": [
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T17:24:47Z",
+      "phase": "design_revision",
+      "reservation": "R92PD1",
+      "session": "/root/issue92_pr_identity_design",
+      "role": "design_architect",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase design_reset",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase"
+      },
+      "exception": "Bounded user-requested read-only proposal preparation recorded locally only; native ledger and exhausted counters unchanged; gate rejection remains real, no fabricated native pass. Concrete write allowance requires later user approval after independent challenge."
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-09T17:50:24Z",
+      "phase": "design_revision",
+      "reservation": "R92PD1",
+      "session": "/root/issue92_pr_identity_design",
+      "outcome": "DESIGN_READY",
+      "elapsed_seconds": 1537,
+      "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+      "evidence": "Complete separate read-only architect handoff transcribed verbatim; real paths traced, exact16stop/all36oldarchive sources inspected, scope frozen. No source/native ledger/test/verification/review/publication actions. All elapsed through transcription retained; future write grant absent."
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T17:50:25Z",
+      "phase": "challenge",
+      "reservation": "R92PC1",
+      "session": "/root/issue92_pr_identity_challenge",
+      "role": "code_reviewer",
+      "model": "gpt-6-sol",
+      "effort": "high",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase challenge",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase"
+      },
+      "exception": "One independent supplemental read-only challenge under bounded continuation intent; local reservation only, native stop/counters unchanged and no gate pass invented."
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-09T17:59:11Z",
+      "phase": "challenge",
+      "reservation": "R92PC1",
+      "session": "/root/issue92_pr_identity_challenge",
+      "outcome": "CHALLENGE_PASS",
+      "elapsed_seconds": 526,
+      "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+      "challenge_input_digest": "764f7396f6e038ec87930118c421c19ea8d9df6deeef774c2b774b8a40e8d1de",
+      "challenge_result_digest": "a3cd1b11a98e356eefd6f5c9ba1d17b742a8e0df4f6ec510114c78e40590e40e",
+      "report_raw_sha256": "7fe1210c3eee4703d924d01a9848a92fca3a7036a3f9738ff7f184adcabc5dd9",
+      "evidence": "Single independent read-only challenge PASS at exact saved proposal/input; all elapsed through transcription retained; no implementation/native grant."
+    },
+    {
+      "type": "coordinator_decision",
+      "at": "2026-10-09T17:59:11Z",
+      "authority": {
+        "kind": "coordinator",
+        "name": "/root",
+        "evidence": "2026-10-09 coordinator approves exact R92PD1 technical proposal after single independent R92PC1 PASS; no finite write authority inferred from continuation intent."
+      },
+      "outcome": "approved",
+      "proposal_digest": "0704db76d635bc2a3132c492e250e70bd2f03f349735e38fe8847427efd9ad4e",
+      "challenge_input_digest": "764f7396f6e038ec87930118c421c19ea8d9df6deeef774c2b774b8a40e8d1de",
+      "challenge_result_digest": "a3cd1b11a98e356eefd6f5c9ba1d17b742a8e0df4f6ec510114c78e40590e40e",
+      "decision_digest": "45ff2b55587c0310eda14d51ec8e76843e3e6e29831c5fb079b27e6a552ee50d",
+      "evidence": "Exact live PR branch/repository defect and realistic negative/integration closure are within frozen I84GATES/AC84GATES/AC84VERIFY. One prospective sameowner counted remediation+freshverification+FINALreview is bounded separately after failedinitialreview; oldfailures/counts/grants/certifications/bindings preserved, no extraPR/postdelivery run/genericretry/productwork/merge. Technical approval only; separate explicit finite user grant required."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "phase_start",
+  "at": "2026-10-09T10:33:28Z",
+  "data": {
+    "phase": "initial_review",
+    "session": "/root/issue92_recovered_initial_review",
+    "role": "code_reviewer",
+    "capsule": {
+      "id": "issue-92-issue84-remainder",
+      "generation": 1,
+      "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+    },
+    "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87"
+  }
+}

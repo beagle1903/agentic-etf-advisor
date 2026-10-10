@@ -1,0 +1,16 @@
+{
+  "effort": "medium",
+  "schema": "issue92-dispatch-observation-v1",
+  "session": "/root/issue84_remainder_implementation",
+  "saved_bootstrap_gate": {
+    "output": "Ticket workflow blocked: expected fields ['acceptance', 'adoption', 'authority', 'capsule', 'classification', 'invariants', 'issue', 'policy', 'predecessor', 'repo', 'review_required', 'scope']",
+    "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase implementation",
+    "exit_code": 1
+  },
+  "issue_record": "https://github.com/beagle1903/agentic-etf-advisor/issues/92#issuecomment-6056552260",
+  "reservation_at": "2026-10-08T09:07:36Z",
+  "model": "gpt-6-sol",
+  "at": "2026-10-08T09:09:57Z",
+  "role": "implementation_worker",
+  "exception": "Direct user-approved bootstrap first-start exception only; no successful gate invented. Owner must validate saved native bootstrap/start before completion."
+}

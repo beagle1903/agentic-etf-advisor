@@ -1,0 +1,53 @@
+...............................s.........................s.............. [  4%]
+........................................................................ [  9%]
+........................................................................ [ 13%]
+........................................................................ [ 18%]
+........................................................................ [ 23%]
+........................................................................ [ 27%]
+.................................s.s.................................... [ 32%]
+........................................................................ [ 36%]
+...............................................ss....................... [ 41%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 55%]
+..........................................ssssssssssssssssssssssssssssss [ 60%]
+ssssssssss.............................................................. [ 64%]
+........................................................................ [ 69%]
+........................................................................ [ 73%]
+.....................s...........................F...................... [ 78%]
+........................................................................ [ 83%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+.............................................                            [100%]
+================================== FAILURES ===================================
+__________ test_issue92_actual_saved_recovery_and_portable_baselines __________
+
+    def test_issue92_actual_saved_recovery_and_portable_baselines():
+        root = Path(__file__).resolve().parents[1]
+        current = workflow.read_all(root)[92]
+        stop = issue92_fixture("stop_ledger")
+        bootstrap = issue92_fixture()
+        assert stop["events"][:2] == bootstrap["events"]
+        assert current["events"][:6] == stop["events"]
+        assert current["events"][6:8] == issue92_recovery_fixture()["events"][6:8]
+        assert workflow.digest({"schema": 1, "events": current["events"][:6]}) == workflow.RECOVERY_STOP
+        state = workflow.replay(current, datetime.now(UTC), root=root)
+        assert state.issue92_recovery_ref == {
+            "grant_digest": workflow.RECOVERY_GRANT,
+            "proposal_digest": workflow.RECOVERY_PROPOSAL,
+            "closeout_digest": workflow.RECOVERY_CLOSEOUT,
+        }
+        assert state.counts["remediation"] >= 5
+        assert state.local_verification_limit in {2, 3}
+        if len(current["events"]) >= 18:
+>           assert state.issue92_pr_identity_stage == "repairing"
+E           AssertionError: assert 'verifying' == 'repairing'
+E             
+E             - repairing
+E             + verifying
+
+tests\test_ticket_workflow.py:1289: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_ticket_workflow.py::test_issue92_actual_saved_recovery_and_portable_baselines
+1 failed, 1509 passed, 47 skipped in 497.06s (0:08:17)

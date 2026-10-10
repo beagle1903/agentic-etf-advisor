@@ -1,0 +1,83 @@
+{
+  "schema": "issue92-recovery-coordinator-local-reservations-v1",
+  "issue": 92,
+  "chat": "01a11788-6350-7da0-a55a-b6e5a56551ce",
+  "authority": {
+    "kind": "user",
+    "name": "burha",
+    "evidence": "2026-10-09 direct user ok continue answering the 100-word scoped approval summary: first one read-only recovery design revision and one independent challenge; later approval required for concrete repair/verification/review/publication allowances."
+  },
+  "limits": {
+    "design_revision": 1,
+    "challenge": 1,
+    "implementation": 0,
+    "remediation": 0,
+    "verification": 0,
+    "code_review": 0,
+    "publication": 0
+  },
+  "classification": "consequential",
+  "rationale": "Fixture repair itself is bounded; executable recovery allowance and native gates for pinned exhausted Issue92 are consequential replay/governance contracts and require separate design and independent challenge.",
+  "frozen_capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "scope": [
+    "One complete executable finite same-owner Issue92 recovery disposition for B92-LIVE-LEDGER-FIXTURE-DRIFT/AC84VERIFY/I84GATES",
+    "Immutable baseline fixtures stable after legitimate current-ledger phase advance, with actual saved-delivery/current-PR checks retained",
+    "Preserve all current/ancestral counts, failures, authority identities, author exclusions, original content/PR bindings, and original Issue92 grant/capsule/prefix"
+  ],
+  "non_goals": [
+    "Any repair, source/test/doc edit, test execution, review, publication or product/authentication resume now",
+    "Default-budget successor, generic recovery/adoption, automatic renewal/retry, replacement owner or merging",
+    "Changing frozen IDs/definitions or erasing/relabeling past outcomes"
+  ],
+  "preserved_state": {
+    "counts": {
+      "implementation": 5,
+      "initial_review": 3,
+      "remediation": 4,
+      "final_review": 4,
+      "design_reset": 4
+    },
+    "local_verification_starts": 1,
+    "verified": false,
+    "accepted": false,
+    "reviewed": false,
+    "delivered": false,
+    "publication_target": null,
+    "status": "BLOCKED_FOR_DECISION"
+  },
+  "source": {
+    "worktree": "C:\\Users\\burha\\.codex\\worktrees\\issue84-design-correction\\agents-lab",
+    "branch": "codex/issue-92-issue84-remainder",
+    "base": "67b93e77cc3a2c665fb902e44508ff693f877e43",
+    "failed_content": "a69779793820e624eb12f66f0fb6f243db7f7fc14940161b984a46ec5c6e5d4f",
+    "ledger_digest": "290ffe7e16d19de8c7e67df54cbf06c517e6313778a377da20877af9490a967a",
+    "ledger_raw_sha256": "382fe647e24fcaf6dd8e5a006bed7fbb32389cdab7af9b134f37bb83c099ce0f"
+  },
+  "events": [
+    {
+      "type": "phase_start",
+      "at": "2026-10-09T09:50:08Z",
+      "phase": "design_revision",
+      "reservation": "R92D1",
+      "session": "/root/issue92_recovery_design",
+      "role": "design_architect",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "gate": {
+        "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase design_reset",
+        "exit_code": 1,
+        "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase"
+      },
+      "exception": "Direct user supplemental read-only authority; local coordinator reservation only, not engine event/extension or write grant. No successful gate invented; original failure and counters remain."
+    }
+  ]
+}

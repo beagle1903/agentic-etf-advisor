@@ -1,0 +1,19 @@
+{
+  "schema": "issue92-stage-fixture-challenge-input-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "proposal_digest": "2fef66708e07eb7366b4f2c80360426030004ec5fae5100c442eb3c5c4b2f947",
+  "source_manifest_digest": "54b6afa3afa54b2eaba81f469da285c54c7658d90c6a97abfb2855a95b4e271c",
+  "supplemental_prefix_digest": "23e7d471414f62e326a99f89c6742b7d5ed361ef71bdf709c694efef7b160e4c",
+  "supplemental_event_count": 3
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "issue92-recovery-challenge-input-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "issue": 92,
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "original_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "source_manifest_digest": "6451c9e60e8782a88b7b5135d4acf83c46f7993dc7e143725ca15032b531d374",
+  "supplemental_prefix_digest": "2aad93aa364b3709d1a4799f2172c0a2754a14cceb831d8bfd986430a5041213",
+  "supplemental_event_count": 3
+}

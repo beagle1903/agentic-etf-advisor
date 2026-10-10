@@ -1,0 +1,109 @@
+{
+  "schema": "issue84-remainder-closeout-v1",
+  "repo": "beagle1903/agentic-etf-advisor",
+  "source_issue": 84,
+  "frozen_capsule": {
+    "id": "issue-84-cycle-bounded-workflow",
+    "generation": 3,
+    "digest": "df870f205cc3a8053c152699ce16030a1cedc518fdda0588ae16d3cbcd95fda9"
+  },
+  "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+  "challenge_input_digest": "304f1a52b6fb80b705448d7c70fc17a14563f19fc8253efbd206b442ab544938",
+  "sources": {
+    "L84": {
+      "path": "docs/workflow/history/issue-84/issue-84.json",
+      "kind": "json",
+      "raw_sha256": "6ee4fae0cf99cb2211d3fb8ee2df0857fc6be051613a7d8b9fb87fd67abcbbec",
+      "canonical_sha256": "e941ecb38388154683e01f982a9397dec8a54d801b634bb56c25e7d1d52551e5"
+    },
+    "H": {
+      "path": "docs/workflow/history/issue-84/correction-journal.json",
+      "kind": "json",
+      "raw_sha256": "ce0a56d952cb1209dadfb3667c8f9b03ac0e6e0853f4212a21c5f018d60d644e",
+      "canonical_sha256": "743aec3b11e23638bc7e6e4c5180775cbd790cee18575c7af4167f12e2bf70df"
+    },
+    "R": {
+      "path": "docs/workflow/history/issue-84/last-recovery-journal.json",
+      "kind": "json",
+      "raw_sha256": "eb2b20bbe52b3f6b6867226e8a96528d9452a00601f5fb1492ab8085d8276d02",
+      "canonical_sha256": "2a2ac80fabc45f00a7dbefc52e46baf82cb8a6d1270a4622cf02b825b6e82fe2"
+    },
+    "S0": {
+      "path": "docs/workflow/history/issue-84/supplemental-S0.json",
+      "kind": "json",
+      "raw_sha256": "d63cae20a86075f8e302d9117433823b99a2fc710994a8c16fcb78095f04abb5",
+      "canonical_sha256": "33fee8d76801460432d6b2542299cecbc8a8f385c002f76c5f7e578212a4ebc9"
+    },
+    "D1": {
+      "path": "docs/workflow/history/issue-84/design-proposal-D1.md",
+      "kind": "text",
+      "raw_sha256": "86cd40b398c9b8bb2a2b4dfb535710a2d1841b9095ce5acf70cccfa672db9c00",
+      "canonical_sha256": null
+    },
+    "C1": {
+      "path": "docs/workflow/history/issue-84/challenge-result-C1.md",
+      "kind": "text",
+      "raw_sha256": "39aaf227e64caad23457c7b2931dffbbe3e1b8e82261b622179aa0dc8461dc53",
+      "canonical_sha256": null
+    },
+    "E1": {
+      "path": "docs/workflow/history/issue-84/coordinator-arbitration-E1.md",
+      "kind": "text",
+      "raw_sha256": "69226227c74e03cd33e56bbe033097b5590a004d45ad77340249311a28f718d7",
+      "canonical_sha256": null
+    },
+    "failure_handoff": {
+      "path": "docs/workflow/history/issue-84/last-recovery-failure-handoff.md",
+      "kind": "text",
+      "raw_sha256": "14c1e463f0ad8edfc19826ff8e53dea6e1d0877790e90e66f73f9b6af9f68a13",
+      "canonical_sha256": null
+    },
+    "D2": {
+      "path": "docs/workflow/history/issue-84/design-proposal-D2.md",
+      "kind": "text",
+      "raw_sha256": "c9ff9c29fb80c706ce212c9a55e0b9b96574772ea47efaaaac219633850d2046",
+      "canonical_sha256": null
+    },
+    "challenge_input": {
+      "path": "docs/workflow/history/issue-84/challenge-input-C2.json",
+      "kind": "json",
+      "raw_sha256": "bf8557c0c20d4381605c8e16a284843f0fa7e5a717077fd9618979c7e040bedf",
+      "canonical_sha256": "304f1a52b6fb80b705448d7c70fc17a14563f19fc8253efbd206b442ab544938"
+    },
+    "challenged_supplemental": {
+      "path": "docs/workflow/history/issue-84/supplemental-C2-input.json",
+      "kind": "json",
+      "raw_sha256": "3a2e7555a5ae270004340d261da568111821f71dade0aad786dfb90db1600d3f",
+      "canonical_sha256": "a499052bdd433369ae550b0507f24d9d42086f4713e474c78491825b05b486de"
+    },
+    "completed_supplemental": {
+      "path": "docs/workflow/history/issue-84/supplemental-completed.json",
+      "kind": "json",
+      "raw_sha256": "aa72d95d70537c799964e21bacf20c474ea408d3a3653de17f329b1a012a73c3",
+      "canonical_sha256": "31702868fe53484c12cda13023b800d5333187f529e3b47f0d26144111494808"
+    },
+    "C2": {
+      "path": "docs/workflow/history/issue-84/challenge-result-C2.md",
+      "kind": "text",
+      "raw_sha256": "4f3352e863c14dc30dabe35ffe4b3908900076b6285185fd09e311f01369f270",
+      "canonical_sha256": null
+    },
+    "E2": {
+      "path": "docs/workflow/history/issue-84/coordinator-arbitration-E2.md",
+      "kind": "text",
+      "raw_sha256": "a2d0b259ee6e132f61a36045a40d77537e9568e9dc2bdfdebe33c034555a7316",
+      "canonical_sha256": null
+    }
+  },
+  "coordinator_decision": {
+    "authority": {
+      "kind": "coordinator",
+      "name": "/root",
+      "evidence": "2026-10-08 coordinator approves exact complete D2 technical contract after independent C2 PASS under direct supplemental read-only user authority."
+    },
+    "proposal_digest": "48d4b86ce324331a5d2dbf8ae0d42254243de83f4cd329fc7f4a63c067ab8458",
+    "challenge_input_digest": "304f1a52b6fb80b705448d7c70fc17a14563f19fc8253efbd206b442ab544938",
+    "outcome": "approved",
+    "evidence": "E1 technical closure conditions satisfied. Original D1 blocked/C1 failed outcomes retained. Issue84 OPEN/BLOCKED_FOR_DECISION; no write/publication grant."
+  }
+}

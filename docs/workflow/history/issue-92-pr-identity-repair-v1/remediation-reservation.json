@@ -1,0 +1,48 @@
+{
+  "schema": "issue92-recovery-bootstrap-reservation-v1",
+  "at": "2026-10-09T10:12:25Z",
+  "issue": 92,
+  "owner": {
+    "role": "implementation_worker",
+    "model": "gpt-6-sol",
+    "effort": "medium",
+    "session": "/root/issue84_remainder_implementation"
+  },
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "grant_digest": "ecba220c1e266721d5e199a8d8c5b3e0d0ae7722a2b430b182d6b4019fa369b0",
+  "proposal_digest": "2c18aaa09100b679add0d422850cb85d9aa747c90322c78874e842581c699c1b",
+  "closeout_digest": "cceaadefea56843630f0156d83f7c13a0a7172c7a6fa44858d85be21ef2b7d48",
+  "stop_ledger_digest": "290ffe7e16d19de8c7e67df54cbf06c517e6313778a377da20877af9490a967a",
+  "ledger_digest": "05a7443c611a287b8f269cc6fa36cadcfbbad27e759458228620817d94499714",
+  "phase": "remediation",
+  "gate": {
+    "command": "uv run python scripts/ticket_workflow.py check --issue 92 --phase remediation",
+    "exit_code": 1,
+    "output": "Ticket workflow blocked: Issue92 finite grant has no allowance for this phase"
+  },
+  "exception": "User-approved sole pre-validator recovery event7 and same-owner counted remediation event8. Not native success; actual saved8 and archive package must validate before repair completion.",
+  "consumed_counts": {
+    "implementation": 5,
+    "initial_review": 3,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "limits": {
+    "implementation": 5,
+    "initial_review": 4,
+    "remediation": 5,
+    "final_review": 4,
+    "design_reset": 4
+  },
+  "verification_starts": 1,
+  "verification_limit": 2,
+  "publication_available": 1,
+  "failed_content": "a69779793820e624eb12f66f0fb6f243db7f7fc14940161b984a46ec5c6e5d4f",
+  "prepared_content": "87fe58f9dffbbae422ae9e29f603eb3ff0704aa0f8933f070bec39a17e37a400",
+  "decision_raw_sha256": "e246cb92d98be469da3b9ffa5fcc432733a996480383d0af20d9e98a20b82793"
+}

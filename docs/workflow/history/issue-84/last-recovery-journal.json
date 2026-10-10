@@ -1,0 +1,454 @@
+{
+  "bootstrap": {
+    "reservation": {
+      "version": "pr85-final-recovery-reservation-v1",
+      "repo": "beagle1903/agentic-etf-advisor",
+      "issue": 84,
+      "pr": 85,
+      "prefix_events": 62,
+      "prefix_digest": "e941ecb38388154683e01f982a9397dec8a54d801b634bb56c25e7d1d52551e5",
+      "authorization": {
+        "name": "burha",
+        "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1101c-0360-72d2-bf90-bb9752d1c5ce",
+        "evidence": "User message01a1101c-0360-72d2-bf90-bb9752d1c5ce: \"ok continue one last time\", answering the request for one bounded recovery cycle: design/challenge, narrow test fixture repair, verification, independent review and append-only recertification; no further retries.",
+        "allowances": {
+          "design": 1,
+          "challenge": 1,
+          "implementation": 1,
+          "verification": 1,
+          "initial_review": 1,
+          "remediation": 0,
+          "final_review": 0,
+          "design_reset": 0
+        }
+      },
+      "events": [
+        {
+          "type": "phase_start",
+          "at": "2026-10-06T07:28:11Z",
+          "data": {
+            "phase": "design",
+            "session": "/root/pr85_last_recovery_design",
+            "role": "design_architect",
+            "model": "gpt-6-astra",
+            "effort": "high",
+            "gate": "Required ordinary design_reset check rejected terminal state; explicitly authorized supplemental last recovery reservation recorded truthfully."
+          }
+        }
+      ]
+    },
+    "ci_failure": {
+      "source": "C:/Users/burha/.codex/pr85-ci-failure-handoff.md",
+      "sha256": "21d4c6799b1965e86ee525cd3d560028dd542700be62f8ae070592ba577c2d64",
+      "text": "# PR85 CI failure after pinned correction delivery\n\nDate: 2026-10-05. Status: BLOCKED_FOR_DECISION. Branch: codex/cycle-bounded-workflow. Head:34a1c8e69ed2dd040dc4b3c9a2f0f75b2a545e58. No source changes after reviewed content7d680f302d12007e99a51f3d8540e7acd35b3e4420c6495116ee07dff2c1c45d.\n\nBefore delivery, H8/H9/H10 passed:138 focused tests,1298 selected offline tests, validators/lint/types/evaluations/build/Compose and independent review on exact audit seal. The one approved correction certificate was prospectively validated and atomically appended as event62, preserving original61 events/counts/binding. Source was committed/pushed and PR description updated.\n\nGitHub CI runs37326575287 and37326758264 failed three new certificate tests. Latest run: https://github.com/beagle1903/agentic-etf-advisor/actions/runs/37326758264 . Delivery-history/primary-issue gate, Ruff and format pass. CI test summary:3 failed,1289 passed,47 skipped. No CI retries requested manually.\n\nConcrete failure: tests/test_ticket_workflow.py correction_fixture reads the mutable docs/workflow/tickets/issue-84.json live ledger, then appends a simulated certificate. Before delivery it read61 events; after real certification it reads62 and appends a second certificate (63 events). The intentionally strict validator rejects it at index61. The three positive/atomic tests consequently fail. Negative cases can pass for the wrong prefix/count reason. No platform-dependent source bug or weakened validator is established; this is a post-delivery fixture defect.\n\nFrozen invariant/AC: I84GATES / AC85C-EVIDENCE and I84ISOLATE / AC85C-ISOLATE required meaningful final verification; the excluded mutable ledger affected fixture semantics after certification. The likely narrow test repair selects/asserts the exact original61-event prefix or uses an immutable test fixture; it must also exercise the real delivered62-event state and malformed alternatives. No repair has been made.\n\nThe approved H8 implementation/H9 verification/H10 independent review allowances are consumed. The v2 contract allows one certificate only and rejects event63/second certification. Do not edit original events, delete certificate, reuse old content binding, skip CI tests, broaden digest exclusions or silently reopen terminal state. No further source work/push/merge authorized. Any repair plus publication needs explicit finite authority and a separate complete consequential handoff/challenge/approval for its recertification path. Do not automatically create a new ticket or reset counts.\n\nPreserve external complete journal C:/Users/burha/.codex/pr85-correction-journal.json and certificate C:/Users/burha/.codex/pr85-correction-certificate.json unchanged. Their existing pass results are historical facts; this later CI failure is recorded externally because the terminal v2 transcript cannot accept new events. Original Issue23/83 product checkout and history remain untouched/suspended. PR85 is to be kept draft/not merge-ready until user decision."
+    }
+  },
+  "transcript": [
+    {
+      "seq": 1,
+      "at": "2026-10-06T07:34:38Z",
+      "type": "phase_end",
+      "data": {
+        "slot": "R1",
+        "session": "/root/pr85_last_recovery_design",
+        "outcome": "pass",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "evidence": {
+          "anchor": "session:01a1101d-c781-70c0-a8a4-c26e31db9a96/final",
+          "summary": "Read-only architect completed DESIGN_READY exact final recovery capsule."
+        },
+        "observations": [],
+        "reviewed_content": null,
+        "audited_prefix_digest": null,
+        "prior_digest": "c6658e03eb556af0aa44f05e05cfb759be11fb80e673fb7ffa1909cabc82de9c"
+      }
+    },
+    {
+      "seq": 2,
+      "at": "2026-10-06T07:34:38Z",
+      "type": "phase_start",
+      "data": {
+        "slot": "R2",
+        "phase": "challenge",
+        "session": "/root/pr85_last_recovery_challenge",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "authorization": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1101c-0360-72d2-bf90-bb9752d1c5ce",
+        "gate": {
+          "anchor": "tool:76a74d",
+          "summary": "Ordinary initial_review check rejected terminal ticket before supplemental challenge reservation."
+        },
+        "reservation": {
+          "anchor": "journal:R2",
+          "summary": "Single authorized independent challenge reserved before dispatch; no retries."
+        },
+        "content": null,
+        "prior_digest": "862d5edec3b85c1a829253881f5822089d2d633f557c639cb0ad4775813dacf4"
+      }
+    },
+    {
+      "seq": 3,
+      "at": "2026-10-06T07:38:25Z",
+      "type": "phase_end",
+      "data": {
+        "slot": "R2",
+        "session": "/root/pr85_last_recovery_challenge",
+        "outcome": "pass",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "evidence": {
+          "anchor": "session:/root/pr85_last_recovery_challenge/final",
+          "summary": "Independent read-only design challenge PASS on frozen capsule 2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649; no concrete frozen-ID blocker."
+        },
+        "observations": [],
+        "reviewed_content": null,
+        "audited_prefix_digest": null,
+        "prior_digest": "fdaf71443dd1dcd81d970398cb3de00fdf9ef0ab0e68db1a33a7fb1bac967123"
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-10-06T07:38:25Z",
+      "type": "design_approval",
+      "data": {
+        "name": "coordinator",
+        "session": "/root",
+        "anchor": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/coordinator:last-recovery-generation1-approved",
+        "evidence": "Coordinator approves independently challenged exact last-recovery generation1 capsule under user message01a1101c-0360-72d2-bf90-bb9752d1c5ce full-cycle authorization; one implementation verification review, mandatory actual63-state publication checks, no retries.",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "bootstrap_digest": "47a66fb1ae0fb49df93d63e1694bd3d6ba9b13d37f95ae7c263e4255261abb5b",
+        "prior_digest": "8751c9935e338b90f5a886a597ea5bc591531aa0faf7dff8ea5a3f94c1c5bba2"
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-10-06T07:38:25Z",
+      "type": "phase_start",
+      "data": {
+        "slot": "R3",
+        "phase": "implementation",
+        "session": "/root/pr85_last_recovery_implementation",
+        "role": "implementation_worker",
+        "model": "gpt-6-sol",
+        "effort": "medium",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "authorization": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1101c-0360-72d2-bf90-bb9752d1c5ce",
+        "gate": {
+          "anchor": "tool:53972d",
+          "summary": "Ordinary implementation check rejected terminal ticket; explicitly authorized supplemental exception."
+        },
+        "reservation": {
+          "anchor": "journal:R3",
+          "summary": "Single authorized narrow implementation reserved before dispatch; no completed-pass retries."
+        },
+        "content": null,
+        "prior_digest": "07ac8a8d2ee603fcacf0241ad861b334d175684ad222221478565ffc603f9dec"
+      }
+    },
+    {
+      "seq": 6,
+      "at": "2026-10-06T07:49:48Z",
+      "type": "phase_end",
+      "data": {
+        "slot": "R3",
+        "session": "/root/pr85_last_recovery_implementation",
+        "outcome": "pass",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "evidence": {
+          "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R3complete",
+          "summary": "Source/tests/docs complete, self-reviewed,171focused tests pass; retained self-check failures corrected within one implementation pass."
+        },
+        "observations": [
+          {
+            "id": "focused-initial",
+            "result": "fail",
+            "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R3/focused-initial",
+            "summary": "Two new adversarial test cases had weak mutation inputs; corrected within same R3, subsequent focused run passed."
+          },
+          {
+            "id": "targeted-script-mypy",
+            "result": "fail",
+            "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R3/targeted-script-mypy",
+            "summary": "Targeted strict script typing reported52 annotation errors outside configured project targets; new active narrowing fixed in R3, existing script annotation errors retained. Configured mypy awaits R4."
+          },
+          {
+            "id": "focused-final",
+            "result": "pass",
+            "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R3/focused-final",
+            "summary": "171 focused tests passed; focused Ruff, workflow validate and diff check passed. Exact61, real62 and synthetic63 positive baselines and semantic adversarial/race coverage implemented."
+          },
+          {
+            "id": "coordinator-prefix-assertion",
+            "result": "fail",
+            "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R3/coordinator-prefix-assertion",
+            "summary": "Coordinator bookkeeping used event-list digest instead of full schema1 ledger digest before any journal write; full ledger digest verified unchanged, reservation script corrected without repository edits."
+          }
+        ],
+        "reviewed_content": null,
+        "audited_prefix_digest": null,
+        "prior_digest": "1bb1d0623a0c71ab9310fb1749714eed39b2b98732d260e6d0a6f142bf904d47"
+      }
+    },
+    {
+      "seq": 7,
+      "at": "2026-10-06T07:49:48Z",
+      "type": "phase_start",
+      "data": {
+        "slot": "R4",
+        "phase": "verification",
+        "session": "/root/pr85_last_recovery_implementation",
+        "role": "implementation_worker",
+        "model": "gpt-6-sol",
+        "effort": "medium",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "authorization": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1101c-0360-72d2-bf90-bb9752d1c5ce",
+        "gate": {
+          "anchor": "tool:5707ba",
+          "summary": "Ordinary verification check rejected terminal ticket; explicitly authorized supplemental exception."
+        },
+        "reservation": {
+          "anchor": "journal:R4",
+          "summary": "Single configured full verification reserved on staged frozen content; no source edits or retries."
+        },
+        "content": "9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1",
+        "prior_digest": "24a2b283644049dc7c2440e9035b4e8a689941980f881b0bb89f8df0ce630030"
+      }
+    },
+    {
+      "seq": 8,
+      "at": "2026-10-06T07:55:09Z",
+      "type": "phase_end",
+      "data": {
+        "slot": "R4",
+        "session": "/root/pr85_last_recovery_implementation",
+        "outcome": "pass",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "evidence": {
+          "anchor": "session:01a11026-e817-7fd0-a9fc-ce31fe746935/R4complete",
+          "summary": "All14required observations pass on frozencontent 9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1; no tracked edits after freeze."
+        },
+        "observations": [
+          {
+            "id": "fixture-61",
+            "result": "pass",
+            "anchor": "tool:6001aa",
+            "summary": "Original61prefix fixture pinned digest and positive baseline passed."
+          },
+          {
+            "id": "actual-prefix-62",
+            "result": "pass",
+            "anchor": "tool:6001aa",
+            "summary": "Actual certified62prefix replay/bindings/counts positively verified unchanged."
+          },
+          {
+            "id": "synthetic-recovery-63",
+            "result": "pass",
+            "anchor": "tool:6001aa",
+            "summary": "Valid synthetic63 replay/prospective/append/exclusivePR binding and semantic adversarial/race cases passed."
+          },
+          {
+            "id": "focused-tests",
+            "result": "pass",
+            "anchor": "tool:6001aa",
+            "summary": "171 focused tests passed."
+          },
+          {
+            "id": "workflow-validator",
+            "result": "pass",
+            "anchor": "tool:6c4048",
+            "summary": "Required uv run python scripts/validate_codex_workflow.py passed. Initial nonexistent scripts/validate_workflow_agents.py command rejected during discovery (87139b); correct required gate passed."
+          },
+          {
+            "id": "ledger-validator",
+            "result": "pass",
+            "anchor": "tool:6c4048",
+            "summary": "uv run python scripts/ticket_workflow.py validate passed."
+          },
+          {
+            "id": "ruff-check",
+            "result": "pass",
+            "anchor": "tool:c3d74e",
+            "summary": "uv run ruff check . passed."
+          },
+          {
+            "id": "ruff-format",
+            "result": "pass",
+            "anchor": "tool:c3d74e",
+            "summary": "uv run ruff format --check . passed157files."
+          },
+          {
+            "id": "mypy",
+            "result": "pass",
+            "anchor": "tool:c3d74e",
+            "summary": "Configured uv run mypy passed49sourcefiles."
+          },
+          {
+            "id": "offline-tests",
+            "result": "pass",
+            "anchor": "tool:ee2220",
+            "summary": "Single full uv run pytest -m not real_store -q -ra completed100percent exit0; session60538."
+          },
+          {
+            "id": "offline-evaluations",
+            "result": "pass",
+            "anchor": "tool:beb4b5",
+            "summary": "Retrieval5cases attribution/context1.0; explanations14/14passed."
+          },
+          {
+            "id": "package-build",
+            "result": "pass",
+            "anchor": "tool:19b1ae",
+            "summary": "Source/wheel build passed in externalTEMPoutput."
+          },
+          {
+            "id": "compose-config",
+            "result": "pass",
+            "anchor": "tool:29ce80",
+            "summary": "Both compose configs validated withoutservices."
+          },
+          {
+            "id": "diff-check",
+            "result": "pass",
+            "anchor": "tool:a48ec5",
+            "summary": "Working/staged diffchecks passed; frozen content recomputed unchanged."
+          }
+        ],
+        "reviewed_content": null,
+        "audited_prefix_digest": null,
+        "prior_digest": "19cb170335633b375ed99ca69f13d28ec66072aed36eb0b7163ed096f7df59eb"
+      }
+    },
+    {
+      "seq": 9,
+      "at": "2026-10-06T07:55:09Z",
+      "type": "acceptance",
+      "data": {
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "content": "9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1",
+        "evidence": {
+          "AC85C-HISTORY": {
+            "anchor": "journal:R4/AC85C-HISTORY",
+            "summary": "Full62prefix unchanged including original/v2 certificates, failures, interruptions and counts; Issue83/23 untouched."
+          },
+          "AC85C-BOUND": {
+            "anchor": "journal:R4/AC85C-BOUND",
+            "summary": "One exact final recovery allowance perphase; no retries/replacements/reset; old accounting unchanged."
+          },
+          "AC85C-EVIDENCE": {
+            "anchor": "journal:R4/AC85C-EVIDENCE",
+            "summary": "Prepublication61/62/63positive and adverse tests plus allconfigured gates passed on frozencontent. Actual-ledger63postappend publication checks remain pending mandatory publication condition."
+          },
+          "AC85C-IDENTITY": {
+            "anchor": "journal:R4/AC85C-IDENTITY",
+            "summary": "PR85 and repository beagle1903/agentic-etf-advisor, Primary issue#84 exact binding tested exclusively."
+          },
+          "AC85C-STATUS": {
+            "anchor": "journal:R4/AC85C-STATUS",
+            "summary": "Splitremainingpool preserved; correction counts unchanged and recovery consumed/remaining fixedtotals validated."
+          },
+          "AC85C-ISOLATE": {
+            "anchor": "journal:R4/AC85C-ISOLATE",
+            "summary": "Only approved workflow script/tests/docs changed; offlinegates pass, fresh independent review reserved next; no product/provider/financial activity."
+          }
+        },
+        "prior_digest": "dc9154c401d1b258147ca01adab2ca2a2604afbe3f8f0242fdaa56cf5f6805e3"
+      }
+    },
+    {
+      "seq": 10,
+      "at": "2026-10-06T07:55:09Z",
+      "type": "phase_start",
+      "data": {
+        "slot": "R5",
+        "phase": "initial_review",
+        "session": "/root/pr85_last_recovery_review",
+        "role": "code_reviewer",
+        "model": "gpt-6-sol",
+        "effort": "high",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "authorization": "thread:01a10c3f-947b-7d22-9a62-18be591c6074/message:01a1101c-0360-72d2-bf90-bb9752d1c5ce",
+        "gate": {
+          "anchor": "tool:b9549e",
+          "summary": "Ordinary initial_review check rejected terminal ticket; explicitly authorized supplemental exception."
+        },
+        "reservation": {
+          "anchor": "journal:R5",
+          "summary": "Single fresh independent read-only implementation review reserved before dispatch; no final review or remediation retries."
+        },
+        "content": "9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1",
+        "prior_digest": "8edaba0d30bc8d566b00ce75acaa189065022372ad6c2e19d6a8cb4227e55fff"
+      }
+    },
+    {
+      "seq": 11,
+      "at": "2026-10-06T07:58:28Z",
+      "type": "phase_end",
+      "data": {
+        "slot": "R5",
+        "session": "/root/pr85_last_recovery_review",
+        "outcome": "fail",
+        "capsule": {
+          "id": "issue-84-pr85-last-recovery",
+          "generation": 1,
+          "digest": "2657881c10629b407dcf2e018042e3f01bd6fbb09739cbdd38d55a0f4d4bc649"
+        },
+        "evidence": {
+          "anchor": "session:01a11036-386a-76a1-8b28-bf8d7f51fe7b/final",
+          "summary": "R5 FAIL I84GATES/AC85C-EVIDENCE: CLI reads external journal once; final atomic check compares only loaded dict, so changed journal file can escape detection. No file-race regression. Reviewed content 9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1; audited prefix 8edaba0d30bc8d566b00ce75acaa189065022372ad6c2e19d6a8cb4227e55fff. No remediation/reviewretry allowed; no append/push."
+        },
+        "observations": [
+          {
+            "id": "B85-EXTERNAL-JOURNAL-FILE-RACE",
+            "result": "fail",
+            "anchor": "scripts/ticket_workflow.py:2391,2197;tests/test_ticket_workflow.py:2095",
+            "summary": "External journal changed after CLI load before os.replace is not reread; in-memory comparison passes stale certificate. Frozen I84GATES/AC85C-EVIDENCE violated."
+          }
+        ],
+        "reviewed_content": "9f2c846393de7b002fd6670c61c633db2368abab6b0362144d71f168b6fca0c1",
+        "audited_prefix_digest": "8edaba0d30bc8d566b00ce75acaa189065022372ad6c2e19d6a8cb4227e55fff",
+        "prior_digest": "06869044eb38767d5073e9af8a5a7a229948217ef37363ccc34f940ab73c19f3"
+      }
+    }
+  ]
+}

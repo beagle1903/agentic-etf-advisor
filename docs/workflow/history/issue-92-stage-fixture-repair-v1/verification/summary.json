@@ -1,0 +1,77 @@
+{
+  "schema": "issue92-pr-identity-formal-verification-v1",
+  "gates": [
+    {
+      "name": "ruff-check",
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "duration_ms": 185
+    },
+    {
+      "name": "ruff-format",
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "duration_ms": 295
+    },
+    {
+      "name": "mypy",
+      "command": [
+        "uv",
+        "run",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "duration_ms": 1616
+    },
+    {
+      "name": "pytest-full",
+      "command": [
+        "uv",
+        "run",
+        "pytest"
+      ],
+      "exit_code": 1,
+      "duration_ms": 499775
+    }
+  ],
+  "before": {
+    "at": "2026-10-09T18:39:48Z",
+    "event_count": 21,
+    "ledger_canonical": "198b1e93b678328c9083ca7ccadadc56a9b2cd8f7972b1c5be409af4823571d7",
+    "content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+    "stage": "verifying",
+    "prior_stage": "failed",
+    "prior_failure": "initial_review",
+    "active_phase": "verification",
+    "verified": false,
+    "accepted": false,
+    "reviewed": false,
+    "local_verification_starts": 3,
+    "local_verification_limit": 3
+  },
+  "before_integrity": {
+    "archive_files": 89,
+    "git_blob_roundtrip_mismatches": [],
+    "primary_raw_sha256": {
+      "23": "724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0",
+      "83": "0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c"
+    },
+    "primary_matches": true,
+    "new_source_descriptors": 43,
+    "new_closeout_descriptors": 8
+  },
+  "failure": "completed gate pytest-full failed"
+}

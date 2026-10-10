@@ -200,8 +200,25 @@ def test_role_contract_drift(repository: Path, role: str, key: str) -> None:
     "relative,marker",
     [
         ("AGENTS.md", "DESIGN_READY"),
+        (
+            "AGENTS.md",
+            "ADR 0035 pins the exact Issue23/83 transition and Issue92 exhausted-source bootstrap",
+        ),
+        (
+            "CONTRIBUTING.md",
+            "ADR 0035 pins the exact Issue23/83 transition and Issue92 exhausted-source bootstrap",
+        ),
+        ("AGENTS.md", "ADR 0036 binds the sole Issue92 fixture recovery"),
+        ("CONTRIBUTING.md", "ADR 0036 records one approved Issue92 fixture repair"),
+        ("AGENTS.md", "ADR 0038 binds the subsequent stage-aware Issue92 test repair"),
+        (
+            "CONTRIBUTING.md",
+            "ADR 0038 records the exact later Issue92 stage-aware actual-ledger test repair",
+        ),
         (".github/PULL_REQUEST_TEMPLATE.md", "Design handoff"),
         ("docs/workflow/README.md", "owner-led-v1"),
+        ("docs/workflow/README.md", "lineage_policy_transition"),
+        ("docs/workflow/README.md", "issue92_recovery"),
         ("docs/workflow/templates/initialize.example.json", '"policy": "owner-led-v1"'),
         *[
             (f".github/ISSUE_TEMPLATE/{name}.yml", "execution-workflow")

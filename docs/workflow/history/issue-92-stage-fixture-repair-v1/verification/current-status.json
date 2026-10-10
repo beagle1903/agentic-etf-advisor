@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-09T18:40:06Z",
+  "event_count": 21,
+  "ledger_canonical": "198b1e93b678328c9083ca7ccadadc56a9b2cd8f7972b1c5be409af4823571d7",
+  "content": "e8bffb9f4841d4af9d80c1af471d7bcde7cd786b173bf6119ac927cbe162019a",
+  "stage": "verifying",
+  "prior_stage": "failed",
+  "prior_failure": "initial_review",
+  "active_phase": "verification",
+  "verified": false,
+  "accepted": false,
+  "reviewed": false,
+  "local_verification_starts": 3,
+  "local_verification_limit": 3
+}

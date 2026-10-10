@@ -1,0 +1,34 @@
+{
+  "schema": "issue92-fresh-verification-reservation-v1",
+  "at": "2026-10-09T10:27:33Z",
+  "owner": "/root/issue84_remainder_implementation",
+  "role": "implementation_worker",
+  "model": "gpt-6-sol",
+  "effort": "medium",
+  "phase": "verification",
+  "capsule": {
+    "id": "issue-92-issue84-remainder",
+    "generation": 1,
+    "digest": "197879ccd445194f77287455919e1f15efb5dce4366c5283a000ab6405dbeace"
+  },
+  "content": "6f985a3dd80b75e430422b3ab9c86a0793e88345af135970bbb63776bce89c87",
+  "gate": {
+    "args": [
+      "check",
+      "--issue",
+      "92",
+      "--phase",
+      "verification"
+    ],
+    "exit_code": 0,
+    "output": "Recorded ticket workflow validation passed; no runtime kill switch is implied.\n"
+  },
+  "grant_digest": "ecba220c1e266721d5e199a8d8c5b3e0d0ae7722a2b430b182d6b4019fa369b0",
+  "local_verification_starts": 2,
+  "local_verification_limit": 2,
+  "remediation_start": "2026-10-09T10:12:25Z",
+  "remediation_end": "2026-10-09T10:27:31Z",
+  "remediation_elapsed_seconds": 906,
+  "prior_failure_retained": true,
+  "exception": null
+}
