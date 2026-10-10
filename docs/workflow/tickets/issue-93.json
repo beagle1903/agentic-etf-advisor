@@ -374,6 +374,21 @@
         "outcome": "pass",
         "evidence": "Fresh independent final REVIEW_PASS on corrected ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94. U+202E control finding closed, all six frozen ACs assessed, no remaining frozen-criterion failure. Exact report issue93-final-review-pass.md rawSHA256 7f4e565e44364876379b786de1dedc4fb0e3bcb46d96122ac4032492a1b73587; verification/acceptance/review same content; initial failed review retained."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-10T17:54:17Z",
+      "data": {
+        "evidence": "Actual first draft PR identity bound after clean corrected verification, acceptance and fresh independent final review. Approved S93P1 first identity bootstrap; initial undelivered CI is not certification. Only excluded current-ledger binding changes follow; fresh live CI required.",
+        "pr": 96,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
     }
   ]
 }
