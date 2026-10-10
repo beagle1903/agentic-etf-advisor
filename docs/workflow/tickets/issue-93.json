@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-10T17:23:16Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 93,
+        "classification": "consequential",
+        "scope": [
+          "S93"
+        ],
+        "invariants": [
+          "I84GATES",
+          "I84HISTORY",
+          "I84ISOLATE"
+        ],
+        "acceptance": [
+          "AC93IDENTITY",
+          "AC93SHAPE",
+          "AC93LIVE",
+          "AC93GATES",
+          "AC93VERIFY",
+          "AC93DOCS"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Approved source-manifest and issue93-coordinator-approval.json; exact one-time administrative local-phase projection; ancestral failure retained; actual S93D1/S93C2 source times/outcomes in frozen supplemental-preparation; new reviewer challenge user-approved"
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 93,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue93_owner"
+          },
+          "rationale": "Queued/live GitHub identity is a consequential delivery gate. Separate S93D1 architect and independent challenge must precede coordinator approval. Main baseline 67b93e77cc3a2c665fb902e44508ff693f877e43. Original owner /root/issue84_remainder_implementation is unavailable; the explicitly recorded fresh same-role successor owner is /root/issue93_owner, with all original authors excluded from independent review. Administrative projection is not native inherited-state support.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "chat:01a11788-6350-7da0-a55a-b6e5a56551ce:2026-10-10:approved-ticket-pr-split; user approved (whatever bro I am exhausted) in direct response to proposal SHA256 79d44237d7349cbc0998deaccdab6f5feaf574226d489b87c672ffe44e0c1c45. Approved disposition raw SHA256 3c97dd9a301a0c7c1dbce66362d0fbbe4f78adb9176e3e132078678f818ed7dd. One three-child grant, not three independent grants."
+          },
+          "scope": {
+            "S93": "Validate complete queued/live GitHub PR identity in scripts/ticket_workflow.py current_pr and its existing CLI consumption; generic tests/full_pr fixtures and directly affected workflow documentation. Identity comprises PR number, creation timestamp, head/base SHA, branch ref and repository full_name, plus event repository/base consistency. Return validated live PR data. Preserve legitimate matching forks and existing delivery/content gates. Parent mapping I84GATES/I84HISTORY/I84ISOLATE; AC84GATES/AC84VERIFY and relevant documentation subset AC84DOCS. Approved administrative three-child disposition is governance evidence only."
+          },
+          "non_goals": [
+            "No Issue94 generic split/lineage/locking implementation or Issue95 exact historical transition implementation.",
+            "No Issue92 grant/recovery/publication parsers, hardcoded runtime exceptions, copied mutable-ledger fixtures or active Issue92 ledger.",
+            "No product/authentication/financial/provider/database/graph changes, external financial writes, actual Issue23/83 adoption or resume.",
+            "No accepted-history rewrite, transported certification, design reset/revision, extra PR, sibling transfer, replacement-ticket retry, automatic extension or merge.",
+            "No claim that native zero local counts erase inherited counts, native default reset1 grants a reset, or native gates enforce the administrative ancestry/identity supplement."
+          ],
+          "invariants": {
+            "I84GATES": "Consequential design/challenge/approval, role ownership, review independence, content-bound acceptance/verification/review and clean delivery remain enforced.",
+            "I84HISTORY": "Existing ledger prefixes/capsules/counters/content/PR bindings remain immutable and validated; explicit policy transition cannot clear attempts, review outcomes or substantive blockers.",
+            "I84ISOLATE": "Only development-governance engine/docs/tests change; current Issue83 product work preserved."
+          },
+          "interfaces": [
+            "Queued GitHub pull_request event and live GitHub pull-request API JSON through current_pr(event, metadata).",
+            "Existing main() ci path, check_prefix, primary_issue, check_pr and injected HTTP test boundary; existing content_digest/recorded delivery behavior retained.",
+            "Workflow event schema: none. Native operational ledger is explicitly a local-phase projection under the approved administrative exception.",
+            "Application/provider/store/financial interfaces: none."
+          ],
+          "json_state_impact": "Application graph/checkpoint JSON: none. Workflow event schema: none. Pure identity validation returns JSON-safe live PR metadata without mutating either input. Native Issue93 counts denote LOCAL reservations only; authoritative administrative effective counts add inherited (implementation,initial_review,remediation,final_review,design_reset)=(5,4,7,5,4), allocation=(1,1,1,1,0), limits=(6,5,8,6,4). Shared pool=(3,3,3,3,0) exclusively allocates the same vector to Issues93/94/95. Each child design1/challenge1/verification<=2/design_revision0/newPR<=1; verification2 only after sole remediation. Owner-led elapsed is audit-only. Inherited failures, authors and approvals remain evidence, never current certification.",
+          "acceptance": {
+            "AC93IDENTITY": "Matching complete same-repository and legitimate fork queued/live snapshots pass current_pr. Independently reject changed PR number, creation timestamp, head/base SHA/ref/repository, equal-SHA changed fork/branch, and event-repository/base mismatch; reject before downstream certification.",
+            "AC93SHAPE": "Fail closed on malformed required envelopes and identity fields in either snapshot: positive non-bool integer PR number; valid UTC-seconds created_at; head/base object with lowercase 40- or 64-hex SHA, nonempty ref without whitespace/control characters, repository object with two nonempty full_name components without whitespace/control characters. Both nested PR numbers and event number are required and equal. Body may be absent/null/string; any other supplied body type rejects.",
+            "AC93LIVE": "Return validated live pull_request identity and body without input mutation. CLI uses validated live body for primary issue, live base SHA for check_prefix, live head SHA for content_digest, and rejects --base differing from validated live base SHA. Body-only edit selects the live primary issue; stale base requires a fresh event/rerun.",
+            "AC93GATES": "Preserve existing check_pr recorded-delivery and original repo/PR/exact-content binding, historical exemption and merge-base-prefix rules. Undelivered or wrong-PR/repo/content ledgers remain rejected. Administrative manual conservation/exclusion checks and native gates must both pass; old Issue84/92 certificates never certify Issue93.",
+            "AC93VERIFY": "Focused positive-controlled current_pr/CLI/prefix mutation coverage, unchanged delivery tests and full required offline/static/evaluation/build/Compose gates pass on identical reviewed content; independent initial review or sole post-remediation final review passes.",
+            "AC93DOCS": "Document complete identity/live-body/base behavior, stale-event rerun requirement, legitimate fork support, limitations and the exact one-time administrative projection. Add a new narrow ADR and iteration evidence; preserve accepted ADR0026/0033/0034 and all original histories. No broader policy or product documentation rewrite."
+          },
+          "verification": [
+            "AC93IDENTITY/SHAPE: full_pr fixture supplies complete API-like identity; independently mutate each queued/live field and malformed scalar/container, including bool number, missing nested number, missing/null repo, invalid SHA/ref/time, unexpected body type; positive ordinary and matching-fork controls.",
+            "AC93LIVE: injected urllib HTTP main() tests prove live-body primary lookup, live-base prefix and live-head content lookup, --base rejection and no continuation after stale identity; input deep-copy equality establishes nonmutation.",
+            "AC93GATES: retain recorded-delivery, wrong-PR/repo/content and prefix-edit/deletion controls; synthetic immutable fixtures only. Map AC93IDENTITY/SHAPE/LIVE/GATES to AC84GATES, AC93VERIFY to AC84VERIFY, AC93DOCS to relevant AC84DOCS.",
+            "Required gates: Ruff check/format, configured mypy, full offline pytest, validate_codex_workflow.py, ticket_workflow.py validate, retrieval and explanation offline evaluations, uv build, docker compose config --quiet, git diff --check. No service startup.",
+            "One initial formal verification, at most one fresh verification following sole same-owner remediation. Review/verification/acceptance must share exact content_digest excluding only current issue ledger and existing lock/temp exceptions."
+          ],
+          "documentation": [
+            "New Issue93-focused ADR, directly affected docs/workflow/README.md and a new iteration record; no accepted-history edits.",
+            "Record administrative split/disposition, source manifest, capsule digest and challenge/coordinator approval evidence before certification. Durable local execution ledger docs/workflow/tickets/issue-93.json binds this entire capsule.",
+            "Immutable ancestry evidence resolves through backup commit e7c31b7337c1a94631b4fa7ff73f687b343b49be and the exact Issue92 33-event raw SHA256 13e3dd82a8aeb5c0a51c302d7f94b658a6c46f867c692b83d9b2c9c02eaa41bb. Frozen source manifests retain complete files and authored role/approval/outcome inventory. No executable history reader is added."
+          ],
+          "risks": [
+            "Native projection alone does not enforce inherited totals, zero resets, supplemental limits, lineage-wide authority uniqueness or historical participant exclusions. The approved coordinator administrative gate is mandatory before every reservation and delivery.",
+            "B92-HISTORICAL-REVIEWER-REUSE remains failed/unresolved in the preserved backup. Exclude all historical/current designers, challengers, write/verification authors and prior reviewers from new independent challenge/review, including /root/issue84_final_review, /root/pr85_redelivery_review, /root/pr85_last_recovery_review, /root/issue92_recovered_initial_review, /root/issue92_stage_fixture_final_review. Use full frozen inventory, not only these examples; normalized aliases cannot create independence.",
+            "Deleting/renaming source refs, missing history or changed raw-byte/digest bindings blocks setup. Approval normalization is NFKC, whitespace collapse and casefold, plus one canonical authority anchor; source authority references do not mint grants.",
+            "Overrestricting fork identity would reject valid PRs. Require queued/live equality, not head repo equals base repo. GitHub metadata can change after fetch; this bounded snapshot gate does not claim atomicity across future edits.",
+            "Changing any certified repository document/history manifest/sibling ledger changes content and requires fresh certification within remaining slots. No documentation updates after certification except excluded current-ledger or linked external evidence."
+          ],
+          "escalation_triggers": [
+            "Frozen-criterion defect: coordinator arbitration, narrow same-owner remediation only while sole slot remains; verification failure must be recorded as blocker before repair.",
+            "Consequential ambiguity, failed challenge, failed final review, exhausted allowance, unresolved serious blocker or unprovable required acceptance: BLOCKED_FOR_DECISION; no design revision/reset exists.",
+            "No specialist escalation without concrete recorded evidence and separate sequential pinned session; no extra allowance is implied.",
+            "Any discrepancy between native projection and authoritative administrative ledger, source identity/exclusion inventory or publication cap blocks dispatch/delivery."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:23:20Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue93_retained_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:23:21Z",
+      "data": {
+        "session": "/root/issue93_retained_design",
+        "outcome": "pass",
+        "evidence": "Administrative observation of genuinely completed S93D1; actual session/timestamps/elapsed in frozen supplemental-preparation.json. issue93-design-handoff.md raw SHA256 66b8fcfd3004c6ffe3b4a69bebf065e76e0571c9095dd4158c8e973a46dfed45; projection recording timestamps are not original execution timestamps. Failed S93C1 remains failed externally; no allowance renewal."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:23:22Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue93_corrected_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:23:22Z",
+      "data": {
+        "session": "/root/issue93_corrected_challenge",
+        "outcome": "pass",
+        "evidence": "Administrative observation of genuinely completed S93C2; actual session/timestamps/elapsed in frozen supplemental-preparation.json. issue93-corrected-challenge-pass.md raw SHA256 c8c4582f98115aa0420bae1f2d50f777c0c6287bd8dd9ccf466d3f9ea6cf9e65; projection recording timestamps are not original execution timestamps. Failed S93C1 remains failed externally; no allowance renewal."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-10T17:23:23Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Approved source-manifest and issue93-coordinator-approval.json; exact one-time administrative local-phase projection; ancestral failure retained; actual S93D1/S93C2 source times/outcomes in frozen supplemental-preparation; new reviewer challenge user-approved"
+        },
+        "evidence": "Coordinator approval binds exact capsule, disposition fb7fd988c54a3db14a1daaeba00ae2bef6d0d608df87289e20ccc8483836cc44, passed S93C2 and separate challenge authority428fd655; administrative effective gates remain mandatory; original failed S93C1 retained",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:24:21Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue93_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:31:27Z",
+      "data": {
+        "session": "/root/issue93_owner",
+        "outcome": "pass",
+        "evidence": "Scoped current_pr implementation, generic tests and docs complete; owner self-review found no frozen-criterion defect.146 focused workflow tests, Ruff lint/format, both validators and diff check passed. Formalverification and independent review remain pending; no code/ledger publication."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:31:29Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue93_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "bceb561ab656ff705a9b4a4323b1c71be67b9419578662b3580cf8faed759b78"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:38:57Z",
+      "data": {
+        "session": "/root/issue93_owner",
+        "outcome": "pass",
+        "evidence": "Formalverification PASS on frozen bceb561ab656ff705a9b4a4323b1c71be67b9419578662b3580cf8faed759b78. All12gates exited0; fulloffline1415passed47opt-in-skipped, mypy49, retrieval5cases, explanation14/14, build/bothComposeconfig PASS,no service startup. Exact commands/times/outputs in verification93/summary.json and logs. Native ledger and source/content hashes unchanged during run."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-10T17:38:59Z",
+      "data": {
+        "ids": [
+          "AC93IDENTITY",
+          "AC93SHAPE",
+          "AC93LIVE",
+          "AC93GATES",
+          "AC93VERIFY",
+          "AC93DOCS"
+        ],
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "bceb561ab656ff705a9b4a4323b1c71be67b9419578662b3580cf8faed759b78",
+        "evidence": "AC93IDENTITY/SHAPE/LIVE/GATES covered by146 focused generic cases and retained delivery/prefix controls; AC93DOCS narrow ADR0035/iteration020/README and approved administrative source/exclusion records; AC93VERIFY all12 formal gates PASS, fulloffline1415passed47opt-in-skipped,mypy49sources,retrieval5cases,explanation14/14,no services. Full evidence verification93/summary.json rawSHA256 d2759fd93e0e95416ac8f8a46b4a0eb6f4b844bf50a58ed0dec809d53e885470; content unchanged; independent code review remains required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:39:01Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue93_code_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "bceb561ab656ff705a9b4a4323b1c71be67b9419578662b3580cf8faed759b78"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:42:26Z",
+      "data": {
+        "session": "/root/issue93_code_review",
+        "outcome": "fail",
+        "evidence": "Independent initial REVIEW_FAIL on bceb561ab656ff705a9b4a4323b1c71be67b9419578662b3580cf8faed759b78: AC93SHAPE requires no control characters, but U+202E bidirectional control is accepted in ref/repo because invalid_char checks only Unicode Cc. Exact report issue93-initial-review-failed.md; no other frozen-criterion finding."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-10T17:42:27Z",
+      "data": {
+        "id": "B93-UNICODE-CONTROL",
+        "criterion": "AC93SHAPE",
+        "scenario": "Matching queued/live snapshots with head ref feature U+202E hidden pass although the frozen shape forbids control characters; shared predicate also permits controls in repository components.",
+        "evidence": "Read-only initial reviewer reproduction current_pr returns validated PR; source1312 invalid_char categoryCc only; issue93-initial-review-failed.md preserved. Coordinator classifies demonstrated same-scope defect and authorizes sole allocated remediation, no design revision."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:42:29Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue93_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:44:29Z",
+      "data": {
+        "session": "/root/issue93_owner",
+        "outcome": "pass",
+        "evidence": "Sole same-owner remediation fixed B93-UNICODE-CONTROL/AC93SHAPE: whitespace,Cc,Cf controls reject including U+202E in queued/live/both refs and repository components; ordinary accented text and matching forks positive.159 focused tests,Ruff lint/format,diff PASS. Only assigned source/tests changed; corrected content ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94. First failure and verification retained."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-10T17:44:30Z",
+      "data": {
+        "id": "B93-UNICODE-CONTROL",
+        "evidence": "Completed sole approved remediation with equal malformed snapshot negative controls across all affected head/base refs and repo components; U+202E fails, ordinary accented text/matching forks pass;159 focused workflow tests and lint/format/diff passed. Fresh full content-bound verification and independent final review still required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:44:31Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue93_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:49:33Z",
+      "data": {
+        "session": "/root/issue93_owner",
+        "outcome": "pass",
+        "evidence": "Second/last formalverification PASS on corrected ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94; all12gates0,fulloffline1428passed47opt-in-skipped,mypy49,retrieval5,explanation14/14,build,bothComposeconfig no startup. Exact unchanged-content/ledger-hash evidence verification93-remediation/summary.json+logs. Source/inventory immutable; old verification and failed review preserved."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-10T17:49:34Z",
+      "data": {
+        "ids": [
+          "AC93IDENTITY",
+          "AC93SHAPE",
+          "AC93LIVE",
+          "AC93GATES",
+          "AC93VERIFY",
+          "AC93DOCS"
+        ],
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94",
+        "evidence": "AC93IDENTITY/SHAPE/LIVE/GATES covered by focused generic identity/CLI mutations with positive fork and retained delivery/prefix controls; AC93DOCS narrow ADR0035/iteration020/README plus approved source/exclusion records; AC93VERIFY every required formal gate PASS including fulloffline/type/static/evaluations/build/bothComposeconfigs without services. Exact evidence verification93-remediation/summary.json rawSHA256 062cf1018f2ab479e5ae1dae9078311df9b0d11e3b7eebd32f39e67114973249; all commands exited0 on identical before/after verified content; independent code review remains required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-10T17:49:35Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue93_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-93-complete-queued-live-pr-identity",
+          "generation": 1,
+          "digest": "db10264da16042d7602eda0dbbf19670218abde5689c92a7f10f00f8beeef260"
+        },
+        "content": "ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-10T17:52:59Z",
+      "data": {
+        "session": "/root/issue93_final_review",
+        "outcome": "pass",
+        "evidence": "Fresh independent final REVIEW_PASS on corrected ca99766ad792896dbb941a1be3e735b392ba3875d66678edc1b657d75e0c4b94. U+202E control finding closed, all six frozen ACs assessed, no remaining frozen-criterion failure. Exact report issue93-final-review-pass.md rawSHA256 7f4e565e44364876379b786de1dedc4fb0e3bcb46d96122ac4032492a1b73587; verification/acceptance/review same content; initial failed review retained."
+      }
+    }
+  ]
+}
