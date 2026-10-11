@@ -171,7 +171,11 @@ counts and delivery bindings while clearing only current certification and marki
 repair pending. Repair, verification, acceptance and independent review bind the new
 content; later delivery must use the original repository and PR. A distinct explicit
 `policy_transition` may move an unsplit timed ticket to owner-led policy without
-granting slots. New-policy splits are unsupported. Historical timed splits require explicit user decision,
+granting slots. Owner-led split uses one conserved batch allocation: each child inherits
+effective consumption and receives only its named finite remaining counts. The parent
+retires permanently; child phase prerequisites use local outcomes. Connected lineage
+authority and independent participants are audited across siblings and descendants.
+Historical timed splits require explicit user decision,
 validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.
@@ -183,7 +187,9 @@ is single-use despite changed display names or surrounding/internal whitespace.
 Review, verification and acceptance bind identical repository content. Delivered ledgers
 authorize only their original PR identity and that content; reruns preserve the binding.
 Atomic append rereads the real event file, every ledger file, candidate temp and repository
-content immediately before replacement. CI validates immutable merge-base history and current primary issue binding on PR
+content immediately before replacement. The repository ticket-directory lock excludes
+cooperating append writers across issues; observed external edits reject publication.
+CI validates immutable merge-base history and current primary issue binding on PR
 edits. Existing historical tickets are not retrospectively adopted. Issue70 remains
 stopped pending a separate user decision; this workflow ticket changes no product code.
 

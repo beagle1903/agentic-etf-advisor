@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 import unicodedata
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -275,6 +276,18 @@ def normalized_evidence(value: object) -> str:
     return " ".join(unicodedata.normalize("NFKC", text(value)).split()).casefold()
 
 
+def same_session(left: str | None, right: str | None, policy: str) -> bool:
+    if left is None or right is None:
+        return False
+    if policy == "owner-led-v1":
+        return normalized_evidence(left) == normalized_evidence(right)
+    return left == right
+
+
+def session_in(value: str, sessions: Iterable[str | None], policy: str) -> bool:
+    return any(same_session(value, candidate, policy) for candidate in sessions)
+
+
 @dataclass
 class State:
     repo: str
@@ -299,6 +312,13 @@ class State:
     elapsed_seconds: int = 0
     limits: dict = field(default_factory=lambda: COUNTS.copy())
     counts: dict = field(default_factory=lambda: dict.fromkeys(COUNTS, 0))
+    inherited_counts: dict = field(default_factory=lambda: dict.fromkeys(COUNTS, 0))
+    local_counts: dict = field(default_factory=lambda: dict.fromkeys(COUNTS, 0))
+    ancestry: list[int] = field(default_factory=list)
+    imported_participants: list[dict] = field(default_factory=list)
+    imported_authorities: list[dict] = field(default_factory=list)
+    ancestor_outcomes: list[dict] = field(default_factory=list)
+    ancestor_bindings: list[dict] = field(default_factory=list)
     active: dict | None = None
     suspended: dict | None = None
     clock_running: bool = True
@@ -318,6 +338,8 @@ class State:
     blockers: dict = field(default_factory=dict)
     delivered: bool = False
     split_remaining: int | None = None
+    retired: bool = False
+    split_pool: dict | None = None
     splits: dict = field(default_factory=dict)
     extension_authorizations: set[str] = field(default_factory=set)
     policy: str = "timed-v1"
@@ -336,7 +358,7 @@ class State:
     def gate(self, operation: str, now: datetime, *, allow_bootstrap: bool = False) -> None:
         if not self.capsule and not allow_bootstrap:
             raise Invalid("complete frozen capsule binding required")
-        if self.delivered or self.split_remaining is not None:
+        if self.delivered or self.retired or self.split_remaining is not None:
             raise Invalid("terminal ticket; explicit user decision required")
         if self.policy == "timed-v1" and self.elapsed(now) >= self.budget_seconds:
             raise Invalid("active-time budget exhausted; stop for user decision")
@@ -353,12 +375,12 @@ class State:
                 raise Invalid("open phase or unresolved blocker denies delivery")
             if not self.ready or not self.verified or not self.accepted:
                 raise Invalid("incomplete design, verification or acceptance")
-            if (self.review_required or self.counts["initial_review"]) and not self.reviewed:
+            if (self.review_required or self.local_counts["initial_review"]) and not self.reviewed:
                 raise Invalid("clean required review missing")
             if not self.verified_content or self.verified_content != self.acceptance_content:
                 raise Invalid("verification and acceptance content differ")
             if (
-                self.review_required or self.counts["initial_review"]
+                self.review_required or self.local_counts["initial_review"]
             ) and self.review_content != self.verified_content:
                 raise Invalid("review and verified content differ")
             return
@@ -412,14 +434,14 @@ class State:
             and operation == "verification"
             and self.verification_repair_count is not None
             and (
-                self.counts["remediation"] < self.verification_repair_count
+                self.local_counts["remediation"] < self.verification_repair_count
                 or not self.remediated
                 or self.blockers
             )
         ):
             raise Invalid("failed verification requires completed bounded remediation")
         if self.policy == "owner-led-v1" and operation in {"initial_review", "final_review"}:
-            if operation == "initial_review" and self.counts["remediation"]:
+            if operation == "initial_review" and self.local_counts["remediation"]:
                 raise Invalid("remediation requires final review")
             if (
                 not self.verified
@@ -447,10 +469,14 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
         kind, data = event["type"], event["data"]
         if state is not None:
             if (
-                state.delivered
-                and not (state.policy == "owner-led-v1" and kind == "continuation")
-                and kind != "policy_transition"
-            ) or (state.split_remaining is not None and kind != "split"):
+                (
+                    state.delivered
+                    and not (state.policy == "owner-led-v1" and kind == "continuation")
+                    and kind != "policy_transition"
+                )
+                or state.retired
+                or (state.split_remaining is not None and kind != "split")
+            ):
                 raise Invalid("terminal history cannot be reopened")
             state.elapsed_seconds = state.elapsed(at)
             state.last = at
@@ -505,8 +531,6 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             )
             state.scope = scope
             state.policy = data.get("policy", "timed-v1")
-            if state.policy == "owner-led-v1" and data["predecessor"] is not None:
-                raise Invalid("owner-led predecessor is unsupported")
             if not bootstrap:
                 if data["adoption"] is not None:
                     raise Invalid(
@@ -536,6 +560,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                     state.sessions[session] = next(iter(ROLES[phase["phase"]]))
                     if phase["phase"] in state.counts:
                         state.counts[phase["phase"]] += 1
+                        state.local_counts[phase["phase"]] += 1
                     completed(state, phase["phase"], session, "pass")
             if data["predecessor"] is not None:
                 state.predecessor = True
@@ -561,12 +586,48 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 if parent_state.repo != repo or issue not in parent_state.splits:
                     raise Invalid("predecessor did not allocate this successor")
                 allocation = parent_state.splits[issue]
-                state.budget_seconds = allocation["seconds"]
-                state.counts = allocation["counts"].copy()
-                state.limits = allocation["limits"].copy()
-                state.extension_authorizations = set(allocation["extensions"])
-                state.write_authors = set(allocation["authors"])
-                state.sessions = allocation["sessions"].copy()
+                if state.policy == "owner-led-v1":
+                    if parent_state.policy != state.policy or not parent_state.retired:
+                        raise Invalid("owner-led predecessor must end at allocating split")
+                    if parent != history or parent["events"][-1]["type"] != "split":
+                        raise Invalid("owner-led predecessor digest must identify split prefix")
+                    if allocation["capsule"] != state.capsule:
+                        raise Invalid("allocated child capsule differs from initialization")
+                    if timestamp(history["events"][-1]["at"]) > at:
+                        raise Invalid("child predates allocation")
+                    state.inherited_counts = allocation["counts"].copy()
+                    state.counts = allocation["counts"].copy()
+                    state.limits = allocation["limits"].copy()
+                    state.ancestry = [*parent_state.ancestry, pred_issue]
+                    state.imported_participants = [
+                        *parent_state.imported_participants,
+                        *participant_records(parent),
+                    ]
+                    state.imported_authorities = [
+                        *parent_state.imported_authorities,
+                        *authority_records(parent),
+                    ]
+                    state.ancestor_outcomes = [
+                        *parent_state.ancestor_outcomes,
+                        *outcome_records(parent),
+                    ]
+                    state.ancestor_bindings = [
+                        *parent_state.ancestor_bindings,
+                        *(
+                            {"issue": pred_issue, **binding}
+                            for binding in parent_state.delivery_history
+                        ),
+                    ]
+                else:
+                    if parent_state.policy != "timed-v1":
+                        raise Invalid("timed predecessor policy mismatch")
+                    state.budget_seconds = allocation["seconds"]
+                    state.counts = allocation["counts"].copy()
+                    state.local_counts = allocation["counts"].copy()
+                    state.limits = allocation["limits"].copy()
+                    state.extension_authorizations = set(allocation["extensions"])
+                    state.write_authors = set(allocation["authors"])
+                    state.sessions = allocation["sessions"].copy()
                 if data["adoption"] is not None:
                     raise Invalid("successor cannot also adopt history")
             if any(state.counts[k] > state.limits[k] for k in COUNTS):
@@ -638,19 +699,23 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                     raise Invalid("review reservation differs from verified accepted content")
             if data["role"] not in ROLES[phase]:
                 raise Invalid("phase role mismatch")
-            if phase == "design_reset" and session in state.sessions:
+            if phase == "design_reset" and session_in(session, state.sessions, state.policy):
                 raise Invalid("design reset requires a fresh architect session")
-            if phase in {"challenge", "initial_review", "final_review"} and session in {
-                state.design_session,
-                *state.write_authors,
-            }:
+            excluded_readers = {state.design_session, *state.write_authors}
+            if state.policy == "owner-led-v1" and state.approved_owner:
+                excluded_readers.add(state.approved_owner["session"])
+            if phase in {"challenge", "initial_review", "final_review"} and session_in(
+                session, excluded_readers, state.policy
+            ):
                 raise Invalid("independent read-only session required")
-            if phase in {"implementation", "remediation", "verification"} and session in {
-                state.design_session,
-                state.challenge_session,
-            }:
+            if phase in {"implementation", "remediation", "verification"} and session_in(
+                session, {state.design_session, state.challenge_session}, state.policy
+            ):
                 raise Invalid("separate write-capable session required")
-            if session in state.sessions and state.sessions[session] != data["role"]:
+            if any(
+                same_session(session, prior, state.policy) and role != data["role"]
+                for prior, role in state.sessions.items()
+            ):
                 raise Invalid("role change requires a fresh separate session")
             state.sessions[session] = data["role"]
             if phase in {"implementation", "remediation", "verification"}:
@@ -664,6 +729,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 state.write_authors.add(session)
             if phase in state.counts:
                 state.counts[phase] += 1
+                state.local_counts[phase] += 1
             if phase == "design_reset":
                 state.ready = state.challenge_ok = False
                 state.challenge_session = None
@@ -713,7 +779,11 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             require_capsule(data["capsule"], state)
             text(data["reason"])
             selected = owner(data["owner"])
-            if state.active or state.suspended or selected["session"] in state.sessions:
+            if (
+                state.active
+                or state.suspended
+                or session_in(selected["session"], state.sessions, state.policy)
+            ):
                 raise Invalid("owner handoff requires fresh separate sequential session")
             if selected["role"] != state.approved_owner["role"]:
                 if selected["role"] != "implementation_specialist":
@@ -827,7 +897,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 raise Invalid("duplicate blocker or unfrozen criterion")
             text(data["scenario"])
             text(data["evidence"])
-            required_remediation = state.counts["remediation"]
+            required_remediation = state.local_counts["remediation"]
             if not state.active or state.active["phase"] != "remediation":
                 required_remediation += 1
             state.blockers[ident] = {**data, "required_remediation": required_remediation}
@@ -838,7 +908,8 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 raise Invalid("unknown blocker or active phase")
             if (
                 not state.remediated
-                or state.counts["remediation"] < state.blockers[data["id"]]["required_remediation"]
+                or state.local_counts["remediation"]
+                < state.blockers[data["id"]]["required_remediation"]
             ):
                 raise Invalid("blocker resolution requires completed remediation evidence")
             del state.blockers[data["id"]]
@@ -949,7 +1020,82 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             state.elapsed_seconds += integer(data["seconds"], 1)
         elif kind == "split":
             if state.policy == "owner-led-v1":
-                raise Invalid("owner-led split is unsupported")
+                data = keys(data, {"authority", "capsule", "children", "reason"})
+                authority(data["authority"], "user")
+                require_capsule(data["capsule"], state)
+                text(data["reason"])
+                if (
+                    not state.ready
+                    or state.active
+                    or state.suspended
+                    or state.blockers
+                    or state.delivered
+                    or state.retired
+                    or state.final_failed
+                    or state.pending_repair
+                    or state.verification_repair_count is not None
+                    or (state.initial_failed and not state.reviewed)
+                    or (state.classification == "consequential" and not state.challenge_ok)
+                ):
+                    raise Invalid("parent cannot split with unresolved work or outcome")
+                if not isinstance(data["children"], list) or not data["children"]:
+                    raise Invalid("split requires children")
+                pool = {phase: state.limits[phase] - state.counts[phase] for phase in COUNTS}
+                used = dict.fromkeys(COUNTS, 0)
+                for child in data["children"]:
+                    child = keys(child, {"issue", "counts", "capsule"})
+                    child_issue = integer(child["issue"], 1)
+                    if child_issue == state.issue or child_issue in state.splits:
+                        raise Invalid("duplicate or self split allocation")
+                    allocated = keys(child["counts"], set(COUNTS))
+                    allocated = {phase: integer(value) for phase, value in allocated.items()}
+                    if not any(allocated.values()):
+                        raise Invalid("empty split allocation")
+                    if not isinstance(child["capsule"], dict):
+                        raise Invalid("child capsule must be complete object")
+                    proposed = child["capsule"]
+                    child_classification = text(proposed.get("classification"))
+                    if child_classification not in {
+                        "mechanical",
+                        "ordinary",
+                        "consequential",
+                        "high-risk/disputed",
+                        "difficult",
+                    }:
+                        raise Invalid("invalid allocated child classification")
+                    child_state = State(
+                        state.repo,
+                        child_issue,
+                        child_classification,
+                        list(definitions(proposed.get("acceptance"))),
+                        list(definitions(proposed.get("invariants"))),
+                        state.review_required,
+                    )
+                    child_state.scope = list(definitions(proposed.get("scope")))
+                    child_capsule = capsule(child["capsule"], child_state)
+                    if child_capsule["generation"] != 1:
+                        raise Invalid("child capsule must start at generation one")
+                    if normalized_evidence(
+                        child_capsule["authorization"]["evidence"]
+                    ) != normalized_evidence(data["authority"]["evidence"]):
+                        raise Invalid("child capsule must reference split authority")
+                    for phase in COUNTS:
+                        used[phase] += allocated[phase]
+                        if used[phase] > pool[phase]:
+                            raise Invalid("split allocations exceed remaining count pool")
+                    state.splits[child_issue] = {
+                        "counts": state.counts.copy(),
+                        "limits": {
+                            phase: state.counts[phase] + allocated[phase] for phase in COUNTS
+                        },
+                        "allocation": allocated,
+                        "capsule": child_capsule,
+                    }
+                state.split_pool = pool
+                state.retired = True
+                state.clock_running = False
+                state.authorization_history.add(normalized_evidence(data["authority"]["evidence"]))
+                continue
             data = keys(data, {"authority", "successor", "seconds", "reason"})
             authority(data["authority"], "user")
             text(data["reason"])
@@ -1012,7 +1158,9 @@ def completed(state: State, phase: str, session: str, outcome: str) -> None:
             state.design_ref = state.active.get("capsule") if state.active else None
     elif phase == "challenge":
         state.challenge_session = session
-        state.challenge_ok = outcome == "pass" and session != state.design_session
+        state.challenge_ok = outcome == "pass" and not same_session(
+            session, state.design_session, state.policy
+        )
         state.challenge_ref = (
             state.active.get("capsule") if outcome == "pass" and state.active else None
         )
@@ -1025,7 +1173,7 @@ def completed(state: State, phase: str, session: str, outcome: str) -> None:
         )
         if state.policy == "owner-led-v1":
             state.verification_repair_count = (
-                None if outcome == "pass" else state.counts["remediation"] + 1
+                None if outcome == "pass" else state.local_counts["remediation"] + 1
             )
     elif phase == "initial_review":
         state.reviewed = outcome == "pass"
@@ -1126,13 +1274,256 @@ def content_digest(root: Path, issue: int, ref: str | None = None) -> str:
 
 def validate_all(root: Path, now: datetime) -> dict[int, dict]:
     ledgers = read_all(root)
-    for issue, value in ledgers.items():
-        replay(value, now, predecessors={k: v for k, v in ledgers.items() if k != issue})
+    validate_map(ledgers, now)
     return ledgers
+
+
+def normalized_session(value: object) -> str:
+    return normalized_evidence(value)
+
+
+def capsule_origin(history: dict) -> tuple[int, dict]:
+    initial = history["events"][0]["data"]
+    if "capsule" in initial:
+        return 0, initial["capsule"]
+    for index, event in enumerate(history["events"]):
+        if event["type"] == "capsule_binding":
+            return index, event["data"]["capsule"]
+    raise Invalid("complete capsule origin missing")
+
+
+def participant_records(history: dict) -> list[dict]:
+    issue = history["events"][0]["data"]["issue"]
+    initial = history["events"][0]["data"]
+    origin_index, origin = capsule_origin(history)
+    selected = origin["owner"]
+    records = [
+        {
+            "issue": issue,
+            "event": origin_index,
+            "class": "owner",
+            "role": selected["role"],
+            "session": selected["session"],
+        }
+    ]
+    if initial.get("adoption"):
+        for adopted in initial["adoption"]["phases"]:
+            records.append(
+                {
+                    "issue": issue,
+                    "event": 0,
+                    "class": adopted["phase"],
+                    "role": "adopted",
+                    "session": adopted["session"],
+                }
+            )
+    for index, event in enumerate(history["events"][1:], 1):
+        data = event["data"]
+        if event["type"] == "phase_start":
+            records.append(
+                {
+                    "issue": issue,
+                    "event": index,
+                    "class": data["phase"],
+                    "role": data["role"],
+                    "session": data["session"],
+                }
+            )
+        elif event["type"] == "owner_handoff":
+            records.append(
+                {
+                    "issue": issue,
+                    "event": index,
+                    "class": "owner",
+                    "role": data["owner"]["role"],
+                    "session": data["owner"]["session"],
+                }
+            )
+        elif event["type"] == "split" and "children" in data:
+            for child in data["children"]:
+                records.append(
+                    {
+                        "issue": child["issue"],
+                        "source_issue": issue,
+                        "event": index,
+                        "class": "allocated_owner",
+                        "role": child["capsule"]["owner"]["role"],
+                        "session": child["capsule"]["owner"]["session"],
+                    }
+                )
+    return records
+
+
+def authority_records(history: dict) -> list[dict]:
+    issue = history["events"][0]["data"]["issue"]
+    initial = history["events"][0]["data"]
+    origin_index, origin = capsule_origin(history)
+    records = []
+    if initial["predecessor"] is None:
+        records.append(
+            {
+                "issue": issue,
+                "event": origin_index,
+                "class": "initialize" if origin_index == 0 else "capsule_binding",
+                "authority": origin["authorization"],
+                "evidence": normalized_evidence(origin["authorization"]["evidence"]),
+            }
+        )
+    for index, event in enumerate(history["events"][1:], 1):
+        if event["type"] in {"split", "extension", "continuation", "policy_transition"}:
+            records.append(
+                {
+                    "issue": issue,
+                    "event": index,
+                    "class": event["type"],
+                    "authority": event["data"]["authority"],
+                    "evidence": normalized_evidence(event["data"]["authority"]["evidence"]),
+                }
+            )
+    return records
+
+
+def outcome_records(history: dict) -> list[dict]:
+    issue = history["events"][0]["data"]["issue"]
+    return [
+        {
+            "issue": issue,
+            "event": index,
+            "class": event["type"],
+            "outcome": event["data"].get("outcome"),
+        }
+        for index, event in enumerate(history["events"])
+        if event["type"] in {"phase_end", "pause", "delivery", "acceptance"}
+    ]
+
+
+def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
+    """Validate every ticket and each connected owner-led split component."""
+    states = {}
+    for issue, value in ledgers.items():
+        states[issue] = replay(
+            value, now, predecessors={k: v for k, v in ledgers.items() if k != issue}
+        )
+        if states[issue].issue != issue:
+            raise Invalid("ledger issue differs from initialized issue")
+    targets: dict[int, int] = {}
+    adjacency: dict[int, set[int]] = {issue: set() for issue in ledgers}
+    for issue, state in states.items():
+        if state.policy != "owner-led-v1" or not state.retired:
+            continue
+        for child in state.splits:
+            if child in targets:
+                raise Invalid("duplicate split allocation target")
+            targets[child] = issue
+            if child in states:
+                if not states[child].predecessor:
+                    raise Invalid("allocated child lacks predecessor declaration")
+                adjacency[issue].add(child)
+                adjacency[child].add(issue)
+    for issue, state in states.items():
+        if state.policy != "owner-led-v1" or not state.predecessor:
+            continue
+        pred = ledgers[issue]["events"][0]["data"]["predecessor"]["issue"]
+        if targets.get(issue) != pred:
+            raise Invalid("predecessor allocation mismatch")
+    visited: set[int] = set()
+    for issue in states:
+        if issue in visited or states[issue].policy != "owner-led-v1":
+            continue
+        component: set[int] = set()
+        pending = [issue]
+        while pending:
+            current = pending.pop()
+            if current in component:
+                continue
+            component.add(current)
+            pending.extend(adjacency[current] - component)
+        visited.update(component)
+        consumed: dict[str, tuple[int, int, str]] = {}
+        participants: dict[int, set[str]] = {}
+        independent: dict[int, set[str]] = {}
+        uninitialized_owners: dict[int, set[str]] = {}
+        for member in sorted(component):
+            history = ledgers[member]["events"]
+            own = states[member]
+            people: set[str] = set()
+            readers: set[str] = set()
+            first = history[0]["data"]
+            origin_index, origin = capsule_origin(ledgers[member])
+            if not own.predecessor:
+                anchor = normalized_evidence(origin["authorization"]["evidence"])
+                if anchor in consumed:
+                    raise Invalid("authority reused within connected lineage")
+                consumed[anchor] = (
+                    member,
+                    origin_index,
+                    "initialize" if origin_index == 0 else "capsule_binding",
+                )
+            people.add(normalized_session(origin["owner"]["session"]))
+            adoption = first.get("adoption")
+            if adoption:
+                for phase in adoption["phases"]:
+                    identity = normalized_session(phase["session"])
+                    people.add(identity)
+                    if phase["phase"] in {"challenge", "initial_review", "final_review"}:
+                        readers.add(identity)
+            for index, event in enumerate(history[1:], 1):
+                data = event["data"]
+                kind = event["type"]
+                if kind == "phase_start":
+                    identity = normalized_session(data["session"])
+                    people.add(identity)
+                    if data["phase"] in {"challenge", "initial_review", "final_review"}:
+                        readers.add(identity)
+                elif kind == "owner_handoff":
+                    people.add(normalized_session(data["owner"]["session"]))
+                elif kind == "split":
+                    for child in data["children"]:
+                        if child["issue"] not in states:
+                            uninitialized_owners.setdefault(child["issue"], set()).add(
+                                normalized_session(child["capsule"]["owner"]["session"])
+                            )
+                if kind in {"split", "extension", "continuation", "policy_transition"}:
+                    key = normalized_evidence(data["authority"]["evidence"])
+                    if key in consumed:
+                        prior = consumed[key]
+                        if not (
+                            kind == "policy_transition"
+                            and prior[0] == member
+                            and prior[1] == origin_index
+                            and prior[2] in {"initialize", "capsule_binding"}
+                        ):
+                            raise Invalid("authority reused within connected lineage")
+                    else:
+                        consumed[key] = (member, index, kind)
+                if kind == "capsule_update":
+                    people.add(normalized_session(data["capsule"]["owner"]["session"]))
+            participants[member] = people
+            independent[member] = readers
+        participants.update(uninitialized_owners)
+        for member in participants:
+            for other in participants.keys() - {member}:
+                if independent.get(member, set()) & participants[other]:
+                    raise Invalid("independent participant conflicts with connected lineage")
+    return states
 
 
 def ledger_bytes(root: Path) -> dict[str, bytes]:
     return {path.name: path.read_bytes() for path in sorted((root / DIRECTORY).glob("*.json"))}
+
+
+def ledgers_from_bytes(files: dict[str, bytes]) -> dict[int, dict]:
+    ledgers = {}
+    for name, raw in files.items():
+        value = load(raw.decode("utf-8"))
+        first = keys(value["events"][0], {"type", "at", "data"})
+        if not isinstance(first["data"], dict):
+            raise Invalid("initialization data must be an object")
+        issue = integer(first["data"].get("issue"), 1)
+        if name != f"issue-{issue}.json" or issue in ledgers:
+            raise Invalid("duplicate or misnamed issue ledger")
+        ledgers[issue] = value
+    return ledgers
 
 
 def append(
@@ -1141,7 +1532,7 @@ def append(
     """One writer, lock, validate candidate, atomic replace; never rewrite prior events."""
     path = root / DIRECTORY / f"issue-{integer(issue, 1)}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    lock = path.with_suffix(".lock")
+    lock = path.parent / "repository.lock"
     try:
         fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     except FileExistsError as exc:
@@ -1160,7 +1551,8 @@ def append(
                 raise Invalid("event source differs from supplied event")
         original_files = ledger_bytes(root)
         original_content = content_digest(root, issue)
-        ledgers = read_all(root)
+        ledgers = ledgers_from_bytes(original_files)
+        validate_map(ledgers, now)
         if issue not in ledgers and (
             not isinstance(event, dict)
             or event.get("type") != "initialize"
@@ -1195,9 +1587,8 @@ def append(
             if expected is not None and expected != original_content:
                 raise Invalid("repository content changed after recorded verification/review")
         candidate = {"schema": 1, "events": [*value["events"], event]}
-        state = replay(
-            candidate, now, predecessors={k: v for k, v in ledgers.items() if k != issue}
-        )
+        candidate_map = {**ledgers, issue: candidate}
+        state = validate_map(candidate_map, now)[issue]
         if state.issue != issue:
             raise Invalid("requested issue differs from initialized issue")
         expected_temp = (json.dumps(candidate, indent=2, allow_nan=False) + "\n").encode("utf-8")
@@ -1403,6 +1794,13 @@ def main() -> None:
                                 "owner": state.approved_owner,
                                 "policy": state.policy,
                                 "counts": state.counts,
+                                "inherited_counts": state.inherited_counts,
+                                "local_counts": state.local_counts,
+                                "ancestry": state.ancestry,
+                                "imported_participants": state.imported_participants,
+                                "imported_authorities": state.imported_authorities,
+                                "ancestor_outcomes": state.ancestor_outcomes,
+                                "ancestor_bindings": state.ancestor_bindings,
                                 "limits": state.limits,
                                 "remaining_counts": {
                                     phase: state.limits[phase] - state.counts[phase]
@@ -1422,8 +1820,13 @@ def main() -> None:
                                 "delivered": state.delivered,
                                 "delivery_binding": state.delivery_binding,
                                 "delivery_history": state.delivery_history,
-                                "retired": state.split_remaining is not None,
+                                "retired": state.retired or state.split_remaining is not None,
                                 "split_remaining_seconds": state.split_remaining,
+                                "split_pool": state.split_pool,
+                                "split_allocations": {
+                                    str(child): allocation.get("allocation")
+                                    for child, allocation in sorted(state.splits.items())
+                                },
                             },
                             indent=2,
                         )

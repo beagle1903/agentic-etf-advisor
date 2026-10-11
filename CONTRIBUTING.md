@@ -263,6 +263,14 @@ validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.
 
+Owner-led splits allocate all named children in one event. Each child begins with
+the parent's consumed counts and only its assigned remaining count allowance;
+local design, implementation, verification and review still need their own evidence.
+The parent retires, and unused allowance cannot later move to a sibling. Connected
+lineage authority and independent participants are checked in both directions before
+any append. A repository ticket-directory lock serializes cooperating writers, while
+final actual-file checks reject observed edits by other processes. See ADR 0036.
+
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on
 exhaustion. Static validation cannot authenticate approval or session provenance. Approval evidence

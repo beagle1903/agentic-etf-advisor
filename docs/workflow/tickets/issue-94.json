@@ -1,0 +1,464 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-11T11:54:28Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 94,
+        "classification": "consequential",
+        "scope": [
+          "S94SPLIT",
+          "S94LINEAGE",
+          "S94ATOMIC",
+          "S94EVIDENCE"
+        ],
+        "invariants": [
+          "I94POOL",
+          "I94SPLIT",
+          "I94LOCAL",
+          "I94AUTH",
+          "I94IDENTITY",
+          "I94ATOMIC",
+          "I94HISTORY",
+          "I94ADMIN",
+          "I94ADMINIDENTITY"
+        ],
+        "acceptance": [
+          "AC94POOL",
+          "AC94LOCAL",
+          "AC94LINEAGE",
+          "AC94IDENTITY",
+          "AC94ATOMIC",
+          "AC94HISTORY",
+          "AC94DOCS",
+          "AC94VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue94-specific approval in issue94-coordinator-approval.json binds frozen capsule and setup disposition; genuine supplemental phases materialized as local native projection; inherited counts/exclusions remain authoritative externally. Original missing-ledger checks stay rejected."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 94,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue94_owner"
+          },
+          "rationale": "Owner-led split conservation, inherited versus local prerequisites, lineage-wide authority and participant history, and cross-ledger atomic append are consequential persistence and authorization contracts. S94D1 is the separate read-only design; an independent code_reviewer challenge and coordinator approval of the identical capsule and handoff must precede implementation. Ordinary implementation and any authorized remediation remain with the pinned owner.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Parent chat 01a11788-6350-7da0-a55a-b6e5a56551ce, 2026-10-10: approved (whatever bro I am exhausted), directly responding to exact written A/B/C split, per-child allowances and three-PR setup exception proposal. Single authority anchor chat:01a11788-6350-7da0-a55a-b6e5a56551ce:2026-10-10:approved-ticket-pr-split; proposal SHA256 79d44237d7349cbc0998deaccdab6f5feaf574226d489b87c672ffe44e0c1c45. Issue94 receives only the conserved B allocation; 2026-10-11 continue authorizes proceeding within it and does not renew any allowance."
+          },
+          "scope": {
+            "S94SPLIT": "Implement generic owner-led-v1 split allocation and child initialization, permanent retirement, inherited count baselines, local prerequisites, complete capsule binding and explicit derived status. Preserve existing timed-v1 replay.",
+            "S94LINEAGE": "Implement repository validation of owner-led split components, predecessor and allocation integrity, normalized authority use and participant independence across connected lineage. Validate the complete candidate repository during append.",
+            "S94ATOMIC": "Serialize cooperating repository ledger writers and retain final actual-file raw-byte, membership, event-source, temporary-candidate and repository-content checks before the single target replacement.",
+            "S94EVIDENCE": "Add independent synthetic split/lineage fixtures, actual append race controls, focused instruction/static-validator tests, ADR0036 and iteration021. Record Issue94's own approved administrative local projection without importing abandoned Issue92 runtime machinery."
+          },
+          "non_goals": [
+            "No application, authentication, finance, graph/checkpoint, provider, database or market-data behavior changes; no external financial writes.",
+            "No exact Issue23/83 transition, historical whitelist, actual product resume, Issue95 work or general historical adoption API.",
+            "No Issue92 bootstrap, recovery, publication, source-package parser or mutable Issue92 test oracle; no repair or delivery claim for its preserved failed final review.",
+            "No retroactive rewrite of timed history, accepted ADRs, existing delivered bindings or Issue93's ledger.",
+            "No new continuation support for predecessor-bearing tickets; existing continuation restrictions remain. No transfer, recycling or automatic renewal of allocated attempts.",
+            "No authentication of human authority or live-session provenance, runtime kill switch, arbitrary-editor lock, merge authorization or extra PR."
+          ],
+          "invariants": {
+            "I94POOL": "For owner-led split, snapshot baseline B=parent.counts and available pool R=parent.limits-B, componentwise over exactly implementation, initial_review, remediation, final_review, design_reset. One atomic split event allocates all selected children. Each allocation A is a complete nonnegative bounded-integer map with at least one positive component; sum(A) must be <=R in every component. Child effective counts initialize to B; limits initialize to B+A, without adding COUNTS defaults. Each local counted start increments both local and effective counts exactly once. Nested splits allocate only that child's remaining effective allowance. Unallocated remainder is permanently unavailable after retirement; no subsequent allocation, transfer or reopening event is accepted. Historical consumption is reported once at its origin, never summed repeatedly as sibling consumption. Explicit distinct grants retain their existing policy meaning; splits themselves grant no attempts.",
+            "I94SPLIT": "Owner-led split uses strict data fields authority, capsule, children, reason. authority is named user authority; capsule is the exact current parent reference; children is a nonempty list of strict objects issue, counts, capsule, where capsule is that child's complete generation-one capsule. Issue IDs are positive, unique, different from the parent, and unique as allocation targets across repository histories. The child capsule must match repository and child issue and pass existing complete-capsule and pinned-owner validation. Require parent ready, no active or suspended phase, no unresolved blocker, no failed final review, no pending repair, no failed-verification repair requirement and no unresolved failed initial review or consequential challenge. A passed subsequent final review may resolve initial-review failure for this purpose. Delivered or already retired parents cannot split. Retirement and all allocations occur in the one event. Keep the existing timed split event shape and replay behavior unchanged.",
+            "I94LOCAL": "A native owner-led child uses existing initialize fields, policy owner-led-v1, adoption null and predecessor {issue,digest}. The digest identifies the exact parent prefix ending with its owner-led split. The parent must exist, have the same repository and owner-led policy, allocate this issue exactly once, and predate or equal child initialization. Initialization capsule must equal the allocated complete capsule, not merely its IDs. Inherit consumed counts, ancestry, participant classifications and authority history; preserve ancestor outcome and binding records as audit references. Do not inherit readiness, local successful design/challenge/implementation/remediation/review, active/suspended reservations, accepted/verified/reviewed flags or content certificates. Local counts start at zero and gate local prerequisites, including initial_review versus final_review selection. Effective counts alone gate lifetime limits. Missing/cyclic predecessors, wrong prefixes, duplicate allocations and capsule substitutions reject.",
+            "I94AUTH": "Audit the complete connected owner-led split component, including descendants and siblings, independent of dictionary traversal, event-file append order or issue number. Normalize user evidence with existing NFKC, whitespace collapse and casefold rules, independently of authority display name. Preserve each original authority occurrence with issue/event origin; inherited copies and exact allocated child-capsule references are references to that occurrence, not new grants. A split authority must be distinct from prior authority identities in its component. Require each allocated child's capsule authorization evidence to normalize to the split authority: this is one split decision referenced by its allocations, never additional grants. An extension, continuation or later split cannot consume any previously used component authority, including sibling capsule or ancestral authority evidence. Preserve the existing explicit policy_transition exception allowing its own initialization authority on that same ticket; do not generalize that exception to siblings or other grant kinds. Capsule updates do not create grants. Detect reuse in either append order, including when a later connection would join formerly separate components. Unconnected historical tickets are not retrospectively treated as one lineage.",
+            "I94IDENTITY": "Derive participant history from authoritative events and capsule/owner declarations, including unsuccessful or interrupted phases, original and replacement owners, adoption entries where historically supported, designers, challengers, implementation/remediation/verification authors and initial/final reviewers. Do not infer independence from write_authors alone. Normalize recorded session identity for comparison with NFKC, whitespace collapse and casefold, retaining raw identities and issue/event sources. A child challenge or review cannot use any participant imported from an ancestor. Across different tickets in a connected owner-led split component, a challenge or review identity cannot also be another ticket's declared owner or phase participant; enforce this symmetrically when either history is appended. Existing same-ticket review reuse rules remain unchanged, and all existing same-ticket designer/write-author exclusions remain. Same-role owner reuse across ancestor and child remains permitted for write ownership when it does not conflict with these independent-role rules. Recorded aliases beyond normalization remain a coordinator responsibility. Unknown imported classification fails closed.",
+            "I94ATOMIC": "One repository ticket-directory lock acquired before snapshots excludes cooperating append writers, including writes to different issues; lock contention fails closed without publishing. A stale lock is not automatically removed or renewed. Build and validate the complete candidate ledger map, using the exact captured ledger bytes, before temporary-file publication. Immediately before the single os.replace, reread actual event-source bytes when supplied, exact ledger filenames and raw bytes, candidate temp bytes and canonical repository content. Any observed difference or read failure rejects with no candidate ledger replacement. Preserve an external editor's changed bytes rather than restoring them. Cleanup only this operation's owned lock/temp. Canonical content exclusions remain exactly the current ticket ledger and existing ticket-directory lock/temp exclusions. This is observed-input race protection, not an atomic snapshot or lock on arbitrary editors.",
+            "I94HISTORY": "Preserve schema 1 and existing event envelope. Dispatch owner-led versus timed split semantics by effective policy. Historical timed replay, budget exhaustion, approved Issue73 bootstrap, prefix rules, original PR/content binding, failed final review stops, and content-bound verification/acceptance/review remain intact. No old certificate certifies a child. Validation of owner-led split components must not reinterpret disconnected timed history or enable a timed predecessor transition. Parent mapping: I84CYCLES, I84HISTORY, I84GATES, I84SPLIT and I84ISOLATE.",
+            "I94ADMIN": "Issue94 itself remains an administrative local-phase projection, not a native child of Issue92 and not a migration through the new generic split feature. Preserve source manifest SHA256 8edfaf64f1ad27fe427830fd2582caf0a6c8aa411594e3b98a74fe1d68a2f42d, inventory SHA256 aaacbbb420f4e9970fc1e6f54b8ec23e9675d3ae451727d274a60a29e740a1e6, frozen Issue94 body SHA256 503593a93ad1584be1e49b4c050ad1ca733995bfefecc76defb1204b02c50290, backup e7c31b7337c1a94631b4fa7ff73f687b343b49be, and Issue92 33-event raw SHA256 13e3dd82a8aeb5c0a51c302d7f94b658a6c46f867c692b83d9b2c9c02eaa41bb. Inherited counts 5/4/7/5/4 plus allocation 1/1/1/1/0 give limits 6/5/8/6/4. Shared additional pool is 3/3/3/3/0, already allocated equally among 93/94/95. Issue94 has design1, challenge1, verification at most2 with second only after sole remediation, design revision/reset0 and newPR1. Elapsed is audit-only. No transfers, renewal, merge or replacement issue. S94D1's missing-ledger native rejection remains a rejection.",
+            "I94ADMINIDENTITY": "All source-inventory participants are conservatively classified as independent-ineligible imported historical/setup participants; classification does not confer phase credit. Historical participants: /root/issue83_implementation; /root/issue84_challenge; /root/issue84_challenge_correction; /root/issue84_challenge_reset; /root/issue84_correction_challenge; /root/issue84_correction_design; /root/issue84_design; /root/issue84_design_correction; /root/issue84_design_reset; /root/issue84_final_review; /root/issue84_implementation; /root/issue84_implementation_correction; /root/issue84_remainder_challenge; /root/issue84_remainder_design; /root/issue84_remainder_implementation; /root/issue92_pr_identity_challenge; /root/issue92_pr_identity_design; /root/issue92_recovered_initial_review; /root/issue92_recovery_challenge; /root/issue92_recovery_design; /root/issue92_stage_fixture_challenge; /root/issue92_stage_fixture_design; /root/issue92_stage_fixture_final_review; /root/pr85_challenge_revision2; /root/pr85_design_revision2; /root/pr85_last_recovery_challenge; /root/pr85_last_recovery_design; /root/pr85_last_recovery_implementation; /root/pr85_last_recovery_review; /root/pr85_redelivery_challenge; /root/pr85_redelivery_design; /root/pr85_redelivery_implementation; /root/pr85_redelivery_review; /root/pr85_status_correction; /root/pr85_status_review. Additional classified exclusions: /root is coordinator; /root/issue93_retained_design is architect; /root/issue93_independent_challenge is failed challenger; /root/issue93_corrected_challenge is successful challenger; /root/issue93_owner is write/verification owner; /root/issue93_code_review is initial reviewer; /root/issue93_final_review is final reviewer; /root/issue94_design is current architect; /root/issue94_owner is approved write/verification owner. The last two Issue93 reviewers are retained from the journal beyond the 40-entry inventory. Add each actual Issue94 challenger/reviewer and author to subsequent administrative exclusion checks. All listed identities and known aliases are excluded from new independent assignments; unknown identity classification blocks assignment."
+          },
+          "interfaces": [
+            "scripts/ticket_workflow.py: existing schema-1 owner-led split event gains its policy-specific batch data contract; initialize predecessor is enabled only for validated owner-led allocations.",
+            "State: explicit inherited baseline and local counts, retirement and allocated/unused pool state, source-linked authority and participant history. Effective counts and limits retain their existing meaning.",
+            "replay and State.gate: strict local prerequisite checks, ancestor validation and preserved timed behavior.",
+            "validate_all and append: shared pure complete-map validation plus connected-lineage audit; CLI validate/check/status/ci and static validator consume that validation.",
+            "append filesystem boundary: one repository writer lock, exact captured-byte candidate construction, final actual-input checks and one target replacement.",
+            "status: additive JSON-safe inherited_counts, local_counts, retired, split pool/allocation summaries; retain existing counts, limits, remaining_counts and timed fields.",
+            "Application, provider, database, market-data and external financial interfaces: none."
+          ],
+          "json_state_impact": "Application graph/checkpoint JSON: none. Development ledger remains JSON schema 1 with existing type/at/data envelope and strict policy-specific split payload. Child allocations contain complete JSON capsules and bounded integer maps. Runtime audit sets must be emitted as deterministic lists/maps, never serialized Python sets. Existing timed payloads and content digest semantics remain unchanged. Issue94 operational ledger uses existing initialization schema with predecessor null as an explicitly documented local projection.",
+          "acceptance": {
+            "AC94POOL": "Independent parent/two-sibling/nested-child fixtures prove effective=B+local, limits=B+allocation, exact-boundary allocation succeeds, over-allocation fails for each counter, no defaults replenish counts, duplicate/negative/boolean/missing/unknown map entries fail, and retirement prohibits any later work, grant or allocation. Parent I84CYCLES/I84SPLIT; AC84CYCLES/AC84SPLIT.",
+            "AC94LOCAL": "A child of a parent with successful design/implementation/remediation/review cannot satisfy any corresponding local prerequisite from ancestry. After its own successful implementation and matching verification/acceptance, a child with inherited remediation counts can take its own initial review. Failed local verification, failed final review, unresolved blockers, suspended work and unresolved challenge deny the relevant gates and ordinary split. Parent I84GATES; AC84GATES.",
+            "AC94LINEAGE": "Missing/cyclic/wrong-policy/wrong-repository predecessors, wrong prefix, duplicate target allocations, child predating allocation and complete-capsule substitutions fail. Sibling extension/continuation/split authority reuse fails in either append order with Unicode, whitespace and display-name variations; exact allocated child references to one split authority remain valid. Distinct authority and separate unrelated tickets are positive controls. Parent I84HISTORY/I84SPLIT; AC84HISTORY/AC84SPLIT.",
+            "AC94IDENTITY": "Fixtures derive every imported participant category from original events, including failed/interrupted phases, handoffs and historical reviewers. Reject omitted-reviewer substitutions /root/issue84_final_review, /root/pr85_redelivery_review and /root/pr85_last_recovery_review wherever inherited review eligibility is introduced. Reject cross-sibling participant conflicts in both append orders; allow a truly independent reviewer and permitted same-role successor owner. Administrative eligibility also rejects the complete frozen inventory and later journal participants. Parent I84GATES/I84HISTORY; AC84GATES/AC84HISTORY.",
+            "AC94ATOMIC": "Real append calls show a held repository lock prevents a second writer on a different issue, with a successful uncontended control. Inject actual on-disk whitespace-only target/sibling changes, ledger addition/removal, event-source changes, candidate corruption and content changes at the final-check boundary. Every observed race rejects without candidate publication or lost external mutation and leaves no owned temp/lock. Invalid complete-map lineage candidates leave every original ledger byte unchanged. Parent I84GATES; AC84GATES/AC84VERIFY.",
+            "AC94HISTORY": "Existing timed split/budget/bootstrap/prefix tests and owner-led continuation, failed-review, reviewer-independence, exact-content and original-PR controls retain outcomes. Owner-led elapsed time remains audit-only. Product code and application state are untouched; no Issue92 runtime/history-package import or Issue23/83 special case appears. Parent I84HISTORY/I84ISOLATE; AC84HISTORY/AC84GATES.",
+            "AC94DOCS": "ADR0036 explains the exact batch event, conservation arithmetic, local/inherited distinction, authority/reference rules, participant audit, final-input limits and compatibility. Iteration021 records approved owner, capsule reference and Issue94-only administrative projection and finite allowances. AGENTS, CONTRIBUTING and workflow README plus focused validator markers/tests agree; accepted ADR0026/0033/0034/0035 remain history. Parent AC84DOCS.",
+            "AC94VERIFY": "Focused tests, all required offline/static/evaluation/build/Compose-configuration gates and independent review pass against identical certified repository content. Record actual commands/outcomes and limitations. Native plus administrative checks and reservations precede every post-setup phase. A sole allowed remediation, if used, is followed by fresh verification/acceptance and final review; any failed final review or serious unresolved concern stops. Parent AC84VERIFY/AC84GATES."
+          },
+          "verification": [
+            "Focused: uv run pytest tests/test_ticket_workflow.py tests/test_codex_workflow.py. Build synthetic fixtures independent of Issue92 and separately test each frozen failure scenario and its positive control.",
+            "Required full gates: uv run ruff check .; uv run ruff format --check .; uv run mypy; uv run pytest; uv run python scripts/validate_codex_workflow.py; uv run python scripts/ticket_workflow.py validate; uv run etf-advisor evaluate-retrieval; uv run etf-advisor evaluate-explanations; uv build; docker compose config --quiet; docker compose -f compose.integration.yaml config --quiet with explicit harmless test-port variables; git diff --check.",
+            "Formal verification compares content_digest before and after, records the actual current capsule, native ledger and administrative reservation, and reports opt-in skipped tests without claiming live-store coverage. No live services or providers are needed.",
+            "Independent challenge assesses this entire capsule and exact handoff before approval. Independent code review follows implementation and current verification/acceptance. Both use code_reviewer/gpt-6-sol/high and administrative participant exclusions; they are separate reservations.",
+            "Publication retains the existing single first-PR identity bootstrap only after clean required certification and both pre-delivery checks; actual CI must pass after original PR/content binding. No second PR or merge."
+          ],
+          "documentation": [
+            "Add docs/architecture/decisions/0036-owner-led-conserved-split-lineage.md, superseding only ADR0033's unsupported owner-led split boundary while preserving historical ADR0026 behavior.",
+            "Add docs/iterations/021-issue94-conserved-allowances.md with frozen capsule reference, subset of abandoned work replaced, administrative source hashes, local-projection limits and truthful failed historical checks.",
+            "Update only directly affected AGENTS.md, CONTRIBUTING.md and docs/workflow/README.md split/lineage/lock instructions and corresponding scripts/validate_codex_workflow.py markers and tests/test_codex_workflow.py mutations.",
+            "Keep later certification outcomes in the excluded current ticket ledger or linked external evidence; editing certified documentation requires fresh permitted certification. Product documentation and accepted historical ADR edits: none."
+          ],
+          "risks": [
+            "Inherited remediation counts currently influence State.gate initial-review routing; use local counts for prerequisites without weakening effective lifetime checks.",
+            "A one-sided ancestor audit misses later sibling grants or participant conflicts. Validate the complete candidate component symmetrically.",
+            "Existing initialization and capsule authorization appearances are references, while grant events consume authority. Incorrect classification can either duplicate allowance or reject valid allocated children.",
+            "A repository lock serializes cooperating append calls only. Filesystem rereads detect observed races but cannot prove arbitrary editors remained quiescent between reads and replacement.",
+            "Administrative Issue94 ancestry remains externally enforced even after generic runtime support ships. The native local ledger alone does not enforce inherited limits, participant exclusions, verification cap or zero-reset authority.",
+            "The finite grant has no design revision/reset allowance. Unresolved consequential ambiguity, failed challenge, failed final review, serious blocker or material acceptance uncertainty stops instead of silently revising this design."
+          ],
+          "escalation_triggers": [
+            "Concrete implementation complexity, concurrency failure or unresolved execution defect may justify a separately recorded implementation_specialist session only within existing finite allowances and explicit escalation authority.",
+            "Any incompatible reading of a frozen criterion or required expansion beyond this contract returns BLOCKED_FOR_DECISION; no automatic design reset is available.",
+            "Repeated concerns after a substantive answer invoke coordinator arbitration under ADR0034. Record scenario, frozen ID, evidence, one decision and observable closure condition; arbitration creates no slot or waiver."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T11:54:31Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue94_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T11:54:32Z",
+      "data": {
+        "session": "/root/issue94_design",
+        "outcome": "pass",
+        "evidence": "Local administrative projection of genuinely completed S94D1; original times and elapsed retained in administrative-lineage-journal.json. issue94-design-handoff.md raw SHA256 c9356af1d593ce4fbfcb608011e4224f1a091808fd13e36423a1df716db9edff. Original missing-ledger dispatch rejection remains rejected; projection timestamps are actual recording times."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T11:54:32Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue94_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T11:54:33Z",
+      "data": {
+        "session": "/root/issue94_challenge",
+        "outcome": "pass",
+        "evidence": "Local administrative projection of genuinely completed S94C1; original times and elapsed retained in administrative-lineage-journal.json. issue94-challenge-report.md raw SHA256 578ab6faf27c108dbc2cf19356739521ce7765fd1d75c998dc5df4460c67519d. Original missing-ledger dispatch rejection remains rejected; projection timestamps are actual recording times."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-11T11:54:33Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue94-specific approval in issue94-coordinator-approval.json binds frozen capsule and setup disposition; genuine supplemental phases materialized as local native projection; inherited counts/exclusions remain authoritative externally. Original missing-ledger checks stay rejected."
+        },
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "evidence": "Separate S94D1 design and S94C1 independent challenge pass; coordinator approval binds exact capsule and setup disposition c2f80c092f2f74f134a213d4bf15c99afc24228d4c907fa34db63ec299059be7; external authoritative effective counts and participant exclusions remain mandatory."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T11:54:35Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T12:11:25Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "issue94-implementation-report.md raw SHA256 2ae72771289fee7fbd0bd8c358144765027c1a9640ea6355d760aff1d39cb275; actual measured administrative reservation S94-implementation-1; no refunded attempt."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T12:11:26Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "f27518f973dd051dd7dec1fbeb24156e8722ee1243c1e7286a821eb02aa55426"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T12:15:06Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "verification94/summary.json raw SHA256 6488c1d645d92dbf3f00a56d0d1ca873e3c443f0118e9a9c48b4607b9cc79806; actual measured administrative reservation S94-verification-1; no refunded attempt."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-11T12:15:07Z",
+      "data": {
+        "ids": [
+          "AC94POOL",
+          "AC94LOCAL",
+          "AC94LINEAGE",
+          "AC94IDENTITY",
+          "AC94ATOMIC",
+          "AC94HISTORY",
+          "AC94DOCS",
+          "AC94VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "f27518f973dd051dd7dec1fbeb24156e8722ee1243c1e7286a821eb02aa55426",
+        "evidence": "AC94POOL/LOCAL/LINEAGE/IDENTITY/ATOMIC/HISTORY covered by independent synthetic and on-disk mutation positive/negative tests, historical reviewer omissions and preserved timed outcomes; AC94DOCS frozen ADR0036/iteration021/instructions/static markers. AC94VERIFY 12 full gates pass on identical certified content; opt-in live-store skips truthful. Evidence verification94/summary.json raw SHA256 6488c1d645d92dbf3f00a56d0d1ca873e3c443f0118e9a9c48b4607b9cc79806; independent review remains required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T12:15:09Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue94_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "f27518f973dd051dd7dec1fbeb24156e8722ee1243c1e7286a821eb02aa55426"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T17:15:31Z",
+      "data": {
+        "session": "/root/issue94_review",
+        "outcome": "fail",
+        "evidence": "issue94-initial-review-failed.md raw SHA256 83c29b913f6dd3bf578e22a454a3b640c8841f98db5b3ed5ed6480f7007384b5; actual measured administrative reservation S94-initial_review-1; no refunded attempt."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-11T17:15:39Z",
+      "data": {
+        "id": "B94-NORMALIZED-INDEPENDENCE",
+        "criterion": "AC94IDENTITY",
+        "scenario": "Unicode-equivalent same-ticket writer accepted as reviewer",
+        "evidence": "Independent reviewer pure in-memory repro; issue94-initial-review-failed.md item1"
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-11T17:15:42Z",
+      "data": {
+        "id": "B94-BOOTSTRAP-CAPSULE",
+        "criterion": "AC94HISTORY",
+        "scenario": "Valid Issue73 policy transition crashes complete-map audit on missing initial capsule",
+        "evidence": "Independent reviewer replay positive versus validate_map KeyError; issue94-initial-review-failed.md item2"
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-11T17:15:44Z",
+      "data": {
+        "id": "B94-ALLOCATED-OWNER",
+        "criterion": "AC94IDENTITY",
+        "scenario": "Uninitialized allocated child owner conflicts with historical independent reviewer",
+        "evidence": "Independent reviewer synthetic complete-capsule allocation repro; issue94-initial-review-failed.md item3"
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-11T17:15:46Z",
+      "data": {
+        "id": "B94-COUNTER-EVIDENCE",
+        "criterion": "AC94POOL",
+        "scenario": "Per-counter over-allocation negative controls incomplete",
+        "evidence": "Frozen AC94POOL requires every counter; issue94-initial-review-failed.md item4"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T17:15:50Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T17:21:42Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "issue94-remediation-report.md raw SHA256 720217e7a4969ff454985dff4125ceb2bdf751538ef695f334a7cc4af88e9b91; actual measured administrative reservation S94-remediation-1; no refunded attempt."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-11T17:21:49Z",
+      "data": {
+        "id": "B94-NORMALIZED-INDEPENDENCE",
+        "evidence": "Same owner repair and normalized alias negative/independent positive cases PASS; issue94-remediation-report.md AC94IDENTITY"
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-11T17:21:52Z",
+      "data": {
+        "id": "B94-BOOTSTRAP-CAPSULE",
+        "evidence": "Genuine copied Issue73 valid transition full-map/source-binding audit PASS; original untouched; issue94-remediation-report.md AC94HISTORY"
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-11T17:21:54Z",
+      "data": {
+        "id": "B94-ALLOCATED-OWNER",
+        "evidence": "Allocated-uninitialized owner/reviewer conflict REJECT and independent allocation positive PASS; issue94-remediation-report.md AC94IDENTITY"
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-11T17:21:56Z",
+      "data": {
+        "id": "B94-COUNTER-EVIDENCE",
+        "evidence": "All five counters exact-boundary PASS and plus-one REJECT, nonzero designreset included; issue94-remediation-report.md AC94POOL"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T17:22:01Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "cefe88b67c90730b744cd2d7f9daed0da98ed2ab79941f6bc843ed70214a4685"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T17:30:41Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "verification94-remediation/summary.json raw SHA256 90c4a850a0bc16dc0d3c3e9471aae7fa1dc203270037c2c4d78f8fe4f0aa026d; actual measured administrative reservation S94-verification-2; no refunded attempt."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-11T17:30:43Z",
+      "data": {
+        "ids": [
+          "AC94POOL",
+          "AC94LOCAL",
+          "AC94LINEAGE",
+          "AC94IDENTITY",
+          "AC94ATOMIC",
+          "AC94HISTORY",
+          "AC94DOCS",
+          "AC94VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "cefe88b67c90730b744cd2d7f9daed0da98ed2ab79941f6bc843ed70214a4685",
+        "evidence": "AC94POOL/LOCAL/LINEAGE/IDENTITY/ATOMIC/HISTORY covered by independent synthetic and on-disk mutation positive/negative tests, historical reviewer omissions and preserved timed outcomes; AC94DOCS frozen ADR0036/iteration021/instructions/static markers. AC94VERIFY 12 full gates pass on identical certified content; opt-in live-store skips truthful. Evidence verification94-remediation/summary.json raw SHA256 90c4a850a0bc16dc0d3c3e9471aae7fa1dc203270037c2c4d78f8fe4f0aa026d; independent review remains required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T17:30:46Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue94_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "cefe88b67c90730b744cd2d7f9daed0da98ed2ab79941f6bc843ed70214a4685"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T17:34:14Z",
+      "data": {
+        "session": "/root/issue94_final_review",
+        "outcome": "pass",
+        "evidence": "issue94-final-review-pass.md raw SHA256 6ccd7d3b5e13de666d337325bbb60437bc9ca516c002cd2257136c6656e7bac3; actual measured administrative reservation S94-final_review-1; no refunded attempt."
+      }
+    }
+  ]
+}
