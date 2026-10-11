@@ -474,6 +474,169 @@
           "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
         }
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-11T17:49:33Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "Chat 01a12ac3-ae98-72a1-a065-d0e52d151e5b 2026-10-11: user \"ok fix it\" approves the immediately proposed PR97 capsule-authorization repair: one additional same-owner remediation, one full verification, one fresh independent final review on existing PR97 only."
+        },
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Existing I94AUTH/AC94LINEAGE capsule-update authorization audit gap only; unchanged/reference authorizations remain valid. No reset, new PR, merge, or expanded scope. Preserve prior failures and counters."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-11T17:49:34Z",
+      "data": {
+        "id": "B94-CAPSULE-AUTH",
+        "criterion": "AC94LINEAGE",
+        "scenario": "A child capsule_update introducing an authorization normalized equal to a sibling lineage grant escapes consumed-authority validation because only root capsules and grant event types are audited. Violates frozen I94AUTH; unchanged/reference authorization must remain valid.",
+        "evidence": "PR97 discussion_r4242544191 and coordinator read-only source triage; user-approved bounded continuation recorded in issue94-pr97-repair-extension.json."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-11T17:49:54Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume coordination after explicitly user-approved PR97 bounded continuation recorded in issue94-pr97-repair-extension.json."
+        },
+        "evidence": "Previous delivery stopped coordination clock. Resume for existing same-owner repair; failed dispatch check preserved; no phase was started by that rejection."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T17:49:56Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T17:56:52Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "issue94-capsule-auth-remediation-report.md raw SHA256 924cd9b03ac3367e6c933b03658d1ae1665f22886a0181fdd267d9116389abbc; actual measured administrative reservation S94-remediation-2; no refunded attempt."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-11T17:56:53Z",
+      "data": {
+        "id": "B94-CAPSULE-AUTH",
+        "evidence": "Completed S94-remediation-2: issue94-capsule-auth-remediation-report.md; 215 focused workflow tests PASS, Ruff and diff checks PASS. New capsule-update authorization participates in connected authority audit; unchanged/prior same-ticket capsule references remain valid; both map orders and normalized evidence covered. Formal verification and independent final review remain required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T17:56:56Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue94_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "142f5ebe9d75062e5303dc3846a80de76db7bbfc5a059417652d5895523dc804"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T18:03:15Z",
+      "data": {
+        "session": "/root/issue94_owner",
+        "outcome": "pass",
+        "evidence": "verification94-capsule-auth-repair/summary.json raw SHA256 02cf598a3742d42d07fc792e3e5b0300051a0a0cdfeded42489da2b243e4bb64; actual measured administrative reservation S94-verification-3; no refunded attempt."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-11T18:03:17Z",
+      "data": {
+        "ids": [
+          "AC94POOL",
+          "AC94LOCAL",
+          "AC94LINEAGE",
+          "AC94IDENTITY",
+          "AC94ATOMIC",
+          "AC94HISTORY",
+          "AC94DOCS",
+          "AC94VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "142f5ebe9d75062e5303dc3846a80de76db7bbfc5a059417652d5895523dc804",
+        "evidence": "AC94POOL/LOCAL/LINEAGE/IDENTITY/ATOMIC/HISTORY covered by independent synthetic and on-disk mutation positive/negative tests, historical reviewer omissions and preserved timed outcomes; AC94DOCS frozen ADR0036/iteration021/instructions/static markers. AC94VERIFY 12 full gates pass on identical certified content; opt-in live-store skips truthful. Evidence verification94-capsule-auth-repair/summary.json raw SHA256 02cf598a3742d42d07fc792e3e5b0300051a0a0cdfeded42489da2b243e4bb64; independent review remains required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-11T18:03:19Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue94_capsule_auth_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        },
+        "content": "142f5ebe9d75062e5303dc3846a80de76db7bbfc5a059417652d5895523dc804"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-11T18:06:39Z",
+      "data": {
+        "session": "/root/issue94_capsule_auth_final_review",
+        "outcome": "pass",
+        "evidence": "issue94-capsule-auth-final-review.md raw SHA256 fc3cf3367dba4b79d8aca9c5362e8ab83ad4b6297c1c877465ad9a69263ae146; actual measured administrative reservation S94-final_review-2; no refunded attempt."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-11T18:06:43Z",
+      "data": {
+        "evidence": "Original PR97 redelivery after explicit bounded continuation, same-owner remediation2, full verification3 and fresh independent final_review2 PASS on identical new content. Prior delivery/failure history and original identity preserved; no new PR or merge. Live CI still required. Reports issue94-capsule-auth-remediation-report.md, verification94-capsule-auth-repair/summary.json, issue94-capsule-auth-final-review.md.",
+        "pr": 97,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "142f5ebe9d75062e5303dc3846a80de76db7bbfc5a059417652d5895523dc804",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
     }
   ]
 }

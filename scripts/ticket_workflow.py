@@ -1358,6 +1358,7 @@ def authority_records(history: dict) -> list[dict]:
     issue = history["events"][0]["data"]["issue"]
     initial = history["events"][0]["data"]
     origin_index, origin = capsule_origin(history)
+    capsule_references = {normalized_evidence(origin["authorization"]["evidence"])}
     records = []
     if initial["predecessor"] is None:
         records.append(
@@ -1380,6 +1381,20 @@ def authority_records(history: dict) -> list[dict]:
                     "evidence": normalized_evidence(event["data"]["authority"]["evidence"]),
                 }
             )
+        elif event["type"] == "capsule_update":
+            updated = event["data"]["capsule"]["authorization"]
+            evidence = normalized_evidence(updated["evidence"])
+            records.append(
+                {
+                    "issue": issue,
+                    "event": index,
+                    "class": "capsule_update",
+                    "authority": updated,
+                    "evidence": evidence,
+                    "reference": evidence in capsule_references,
+                }
+            )
+            capsule_references.add(evidence)
     return records
 
 
@@ -1450,6 +1465,7 @@ def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
             readers: set[str] = set()
             first = history[0]["data"]
             origin_index, origin = capsule_origin(ledgers[member])
+            capsule_references = {normalized_evidence(origin["authorization"]["evidence"])}
             if not own.predecessor:
                 anchor = normalized_evidence(origin["authorization"]["evidence"])
                 if anchor in consumed:
@@ -1498,6 +1514,12 @@ def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
                         consumed[key] = (member, index, kind)
                 if kind == "capsule_update":
                     people.add(normalized_session(data["capsule"]["owner"]["session"]))
+                    key = normalized_evidence(data["capsule"]["authorization"]["evidence"])
+                    if key not in capsule_references:
+                        if key in consumed:
+                            raise Invalid("authority reused within connected lineage")
+                        consumed[key] = (member, index, "capsule_update")
+                        capsule_references.add(key)
             participants[member] = people
             independent[member] = readers
         participants.update(uninitialized_owners)

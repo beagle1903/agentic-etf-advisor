@@ -1054,6 +1054,204 @@ def owner_split_fixture():
     return parent, successors
 
 
+def owner_capsule_update_fixture(
+    evidence: str, *, child_issue: int = 201, name: str = "capsule author"
+):
+    parent, children = owner_split_fixture()
+    allocation = next(
+        child for child in parent["events"][-1]["data"]["children"] if child["issue"] == child_issue
+    )
+    allocation["counts"]["design_reset"] = 1
+    for child in children.values():
+        child["events"][0]["data"]["predecessor"]["digest"] = workflow.digest(parent)
+    updated = children[child_issue]
+    ready(updated, 22)
+    add(
+        updated,
+        "phase_start",
+        23,
+        phase="design_reset",
+        role="design_architect",
+        session="new reset architect",
+        criterion="INV1",
+        reason="bounded revision",
+    )
+    revised = copy.deepcopy(current_capsule(updated))
+    revised["generation"] = 2
+    revised["authorization"] = {"kind": "user", "name": name, "evidence": evidence}
+    add(updated, "capsule_update", 24, authority=AUTH, capsule=revised)
+    return parent, children
+
+
+def wide(value: str) -> str:
+    return "".join(chr(ord(char) + 0xFEE0) for char in value)
+
+
+def test_owner_capsule_update_distinct_and_reference_authorities():
+    for evidence, is_reference in (
+        ("new capsule approval", False),
+        ("  " + wide("APPROVED") + "   SIBLING SPLIT  ", True),
+    ):
+        parent, children = owner_capsule_update_fixture(evidence)
+        workflow.validate_map({200: parent, **children}, START + timedelta(seconds=100))
+        record = workflow.authority_records(children[201])[-1]
+        assert record["class"] == "capsule_update"
+        assert record["reference"] is is_reference
+        assert record["evidence"] == workflow.normalized_evidence(evidence)
+
+
+@pytest.mark.parametrize("update_first", [True, False])
+@pytest.mark.parametrize("reverse_map", [True, False])
+def test_owner_capsule_update_rejects_sibling_extension_authority_in_either_order(
+    update_first, reverse_map
+):
+    parent, children = owner_capsule_update_fixture("new capsule approval")
+    update = children[201]["events"].pop()
+    add(
+        children[202],
+        "extension",
+        25 if update_first else 22,
+        authority={
+            "kind": "user",
+            "name": "unrelated name",
+            "evidence": " " + wide("NEW") + "  CAPSULE\tAPPROVAL ",
+        },
+        seconds=0,
+        counts={key: (1 if key == "implementation" else 0) for key in workflow.COUNTS},
+        reason="separate sibling grant",
+    )
+    if update_first:
+        children[201]["events"].append(update)
+    else:
+        update["at"] = at(26)
+        children[201]["events"].append(update)
+    candidate = {200: parent, **children}
+    if reverse_map:
+        candidate = dict(reversed(list(candidate.items())))
+    with pytest.raises(workflow.Invalid, match="authority reused within connected lineage"):
+        workflow.validate_map(candidate, START + timedelta(seconds=100))
+
+
+@pytest.mark.parametrize("update_first", [True, False])
+def test_owner_capsule_update_rejects_same_ticket_grant_authority(update_first):
+    parent, children = owner_capsule_update_fixture("new capsule approval")
+    child = children[201]
+    update = child["events"].pop()
+    add(
+        child,
+        "extension",
+        25 if update_first else 22,
+        authority={
+            "kind": "user",
+            "name": "different display",
+            "evidence": " " + wide("NEW") + " CAPSULE APPROVAL ",
+        },
+        seconds=0,
+        counts={key: (1 if key == "implementation" else 0) for key in workflow.COUNTS},
+        reason="new local grant",
+    )
+    update["at"] = at(24 if update_first else 26)
+    child["events"].append(update)
+    if update_first:
+        child["events"][-2:] = [update, child["events"][-2]]
+    else:
+        child["events"].insert(2, child["events"].pop(-2))
+    with pytest.raises(
+        workflow.Invalid,
+        match=r"authority reused within connected lineage|authorization already consumed",
+    ):
+        workflow.validate_map({200: parent, **children}, START + timedelta(seconds=100))
+
+
+@pytest.mark.parametrize("update_first", [True, False])
+@pytest.mark.parametrize("reverse_map", [True, False])
+def test_owner_capsule_update_rejects_sibling_split_authority(update_first, reverse_map):
+    parent, children = owner_capsule_update_fixture("new capsule approval")
+    sibling = children[202]
+    ready(sibling, 22)
+    cap = make_capsule(issue=203)
+    cap["authorization"] = {
+        "kind": "user",
+        "name": "different display",
+        "evidence": " " + wide("NEW") + "  CAPSULE APPROVAL ",
+    }
+    add(
+        sibling,
+        "split",
+        25 if update_first else 23,
+        authority=cap["authorization"],
+        capsule=workflow.capsule_ref(current_capsule(sibling)),
+        children=[
+            {
+                "issue": 203,
+                "counts": {key: (1 if key == "implementation" else 0) for key in workflow.COUNTS},
+                "capsule": cap,
+            }
+        ],
+        reason="sibling successor",
+    )
+    if not update_first:
+        children[201]["events"][-1]["at"] = at(26)
+    candidate = {200: parent, **children}
+    if reverse_map:
+        candidate = dict(reversed(list(candidate.items())))
+    with pytest.raises(workflow.Invalid, match="authority reused within connected lineage"):
+        workflow.validate_map(candidate, START + timedelta(seconds=100))
+
+
+@pytest.mark.parametrize("grant", ["policy_transition", "continuation"])
+@pytest.mark.parametrize("reverse_map", [True, False])
+def test_owner_capsule_update_rejects_ancestor_authority(grant, reverse_map):
+    parent, children = owner_capsule_update_fixture("new capsule approval")
+    authority = {
+        "kind": "user",
+        "name": "another display",
+        "evidence": " " + wide("NEW") + "  CAPSULE APPROVAL ",
+    }
+    if grant == "policy_transition":
+        del parent["events"][0]["data"]["policy"]
+        parent["events"].insert(
+            1,
+            event(
+                "policy_transition",
+                1,
+                policy="owner-led-v1",
+                authority=authority,
+                capsule=workflow.capsule_ref(current_capsule(parent)),
+                reason="transition to owner-led policy",
+            ),
+        )
+    else:
+        split = parent["events"].pop()
+        add(
+            parent,
+            "continuation",
+            20,
+            authority=authority,
+            capsule=workflow.capsule_ref(current_capsule(parent)),
+            counts={
+                key: (1 if key in {"remediation", "final_review"} else 0) for key in workflow.COUNTS
+            },
+            reason="bounded continuation",
+        )
+        phase(parent, "remediation", 21)
+        owner_certify(parent, 23, "final_review")
+        split["at"] = at(29)
+        parent["events"].append(split)
+        for child in children.values():
+            child["events"][0]["at"] = at(30)
+        updated = children[201]
+        for item, offset in zip(updated["events"][1:], (31, 32, 33), strict=True):
+            item["at"] = at(offset)
+    for child in children.values():
+        child["events"][0]["data"]["predecessor"]["digest"] = workflow.digest(parent)
+    candidate = {200: parent, **children}
+    if reverse_map:
+        candidate = dict(reversed(list(candidate.items())))
+    with pytest.raises(workflow.Invalid, match="authority reused within connected lineage"):
+        workflow.validate_map(candidate, START + timedelta(seconds=100))
+
+
 def test_owner_split_conserves_effective_counts_and_local_review_prerequisites():
     parent, children = owner_split_fixture()
     result = workflow.validate_map({200: parent, **children}, START + timedelta(seconds=100))
