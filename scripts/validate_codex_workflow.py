@@ -338,6 +338,9 @@ def main() -> None:
             "unanimous agreement is not required",
             "Never waive a demonstrated defect",
             "reset design automatically",
+            "Owner-led split uses one conserved batch allocation",
+            "Connected lineage",
+            "repository ticket-directory lock",
         ),
     )
     require_markers(
@@ -389,6 +392,9 @@ def main() -> None:
             "one accountable decision and focused closure condition",
             "failed check stays failed",
             "arbitration supplies no automatic reset or allowance",
+            "Owner-led splits allocate all named children in one event",
+            "lineage authority and independent participants",
+            "repository ticket-directory lock",
         ),
     )
     require_markers(
@@ -403,6 +409,10 @@ def main() -> None:
             "one observable",
             "no event, allowance",
             "failed checks remain failed",
+            "Owner-led splits use one",
+            "Local counts and local outcomes",
+            "Connected siblings and descendants",
+            "repository ticket-directory lock",
         ),
     )
     template = ROOT / "docs/workflow/templates/coordinator-arbitration.md"

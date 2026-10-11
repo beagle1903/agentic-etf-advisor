@@ -202,6 +202,9 @@ def test_role_contract_drift(repository: Path, role: str, key: str) -> None:
         ("AGENTS.md", "DESIGN_READY"),
         (".github/PULL_REQUEST_TEMPLATE.md", "Design handoff"),
         ("docs/workflow/README.md", "owner-led-v1"),
+        ("AGENTS.md", "Owner-led split uses one conserved batch allocation"),
+        ("CONTRIBUTING.md", "Owner-led splits allocate all named children in one event"),
+        ("docs/workflow/README.md", "Local counts and local outcomes"),
         ("docs/workflow/templates/initialize.example.json", '"policy": "owner-led-v1"'),
         *[
             (f".github/ISSUE_TEMPLATE/{name}.yml", "execution-workflow")

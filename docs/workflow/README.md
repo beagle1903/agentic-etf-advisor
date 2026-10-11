@@ -52,7 +52,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; owner-led requires zero seconds and positive count delta. |
 | `policy_transition` | `policy: owner-led-v1`, user `authority`, current `capsule`, `reason`; unsplit timed ticket only and grants no slot. |
 | `continuation` | New user `authority`, current `capsule`, full finite `counts`, `reason`; completed implementation and positive remediation grant, plus final review when required. |
-| `split` | `authority` (user), `successor` issue, positive `seconds`, `reason` |
+| `split` | Timed: `authority` (user), `successor` issue, positive `seconds`, `reason`. Owner-led: `authority` (user), current `capsule`, nonempty `children` with complete `{issue, counts, capsule}` entries, `reason`. |
 | `delivery` | `evidence`, original `pr` number, `repo`, `capsule`, `content` SHA256; terminal after the gate. |
 | `capsule_update` | `authority`, complete `capsule`; only during a reserved reset, frozen scope/AC/invariant definitions unchanged. |
 | `owner_handoff` | `authority`, pinned `owner`, current `capsule`, `reason`, `escalation` (required for a specialist role change); fresh session. |
@@ -92,8 +92,13 @@ eligible. The same owner completes the repair and fresh certification; a new ord
 delivery binds the original repository and PR to the new content. After delivered
 coordination stops the clock, record `coordination_resume` before the next phase.
 New-policy authority identities use NFKC, collapsed whitespace and case folding;
-display-name changes cannot authorize the same grant twice. New-policy splits are
-unsupported. Legacy timed histories, including splits and exhaustion, retain their
+display-name changes cannot authorize the same grant twice. Owner-led splits use one
+conserved batch allocation. Each child inherits the parent's effective consumed counts
+and receives limits equal to those counts plus its assigned five-counter allocation.
+Local counts and local outcomes alone satisfy child phase prerequisites. The parent
+retires immediately, including any unused pool. Connected siblings and descendants
+share one normalized authority-use and independent-participant audit; child capsule
+authorization is a reference to its allocating split, not another grant. Legacy timed histories, including splits and exhaustion, retain their
 original outcomes.
 
 Splitting retires the predecessor. Each explicit user-approved allocation records
@@ -138,8 +143,10 @@ invariant/AC definitions, classification and initial owner cannot silently chang
 Explicit owner handoffs record fresh sessions and concrete specialist escalation.
 
 Store event files outside the repository (for example in the OS temporary directory).
-Append checks the event file's actual bytes when supplied, the ledger-file set and
-bytes, candidate temporary bytes and repository content again just before atomic
+Append holds one repository ticket-directory lock for cooperating writers, validates
+the complete candidate ledger map from captured bytes, then checks the event file's
+actual bytes when supplied, the ledger-file set and bytes, candidate temporary bytes
+and repository content again just before atomic
 replace. Keep the workspace quiescent through certification and publication. Static
 checks cannot authenticate the referenced human authorization.
 Review/verification reservations and successful outcomes are checked against actual
