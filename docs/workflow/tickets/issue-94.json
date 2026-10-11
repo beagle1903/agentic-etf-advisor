@@ -459,6 +459,21 @@
         "outcome": "pass",
         "evidence": "issue94-final-review-pass.md raw SHA256 6ccd7d3b5e13de666d337325bbb60437bc9ca516c002cd2257136c6656e7bac3; actual measured administrative reservation S94-final_review-1; no refunded attempt."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-11T17:35:17Z",
+      "data": {
+        "evidence": "Original sole PR identity established by approved S94P1 draft bootstrap after identical verified/accepted/independently reviewed content and native+administrative pre-delivery gates; initial undelivered CI rejection retained truthfully. Only excluded current-ledger binding follows; live CI success required.",
+        "pr": 97,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "cefe88b67c90730b744cd2d7f9daed0da98ed2ab79941f6bc843ed70214a4685",
+        "capsule": {
+          "id": "issue-94-conserved-owner-led-split-lineage",
+          "generation": 1,
+          "digest": "4612f83c55b0727daf999abb08001d289baa91ed947ca7f90bb9d7dff99250f5"
+        }
+      }
     }
   ]
 }
