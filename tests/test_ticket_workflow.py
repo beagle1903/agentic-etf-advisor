@@ -1140,6 +1140,24 @@ def pr(body="Primary issue: #73", created="2026-09-26T04:23:34Z"):
     }
 
 
+def full_pr(body="Primary issue: #73", *, fork=False):
+    value = pr(body)
+    value["pull_request"].update(
+        number=80,
+        head={
+            "sha": "a" * 40,
+            "ref": "feature",
+            "repo": {"full_name": "fork/repo" if fork else "beagle1903/agentic-etf-advisor"},
+        },
+        base={
+            "sha": "b" * 40,
+            "ref": "main",
+            "repo": {"full_name": "beagle1903/agentic-etf-advisor"},
+        },
+    )
+    return value
+
+
 @pytest.mark.parametrize(
     "body", ["", "Primary issue: #74", "Primary issue: #73\nPrimary issue: #74"]
 )
@@ -1212,14 +1230,14 @@ def test_new_blocker_cannot_use_stale_successful_remediation():
 
 
 def test_ci_refreshes_current_body_and_rejects_stale_head():
-    old_event = {**pr(), "number": 80}
-    old_event["pull_request"]["head"] = {"sha": "a"}
-    base = {"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}}
-    old_event["pull_request"]["base"] = base
-    metadata = {"number": 80, "body": "Primary issue: #74", "head": {"sha": "a"}, "base": base}
-    assert workflow.current_pr(old_event, metadata)["pull_request"]["body"] == "Primary issue: #74"
-    metadata["head"]["sha"] = "b"
-    with pytest.raises(workflow.Invalid, match="stale head"):
+    old_event = full_pr()
+    metadata = copy.deepcopy(old_event["pull_request"])
+    metadata["body"] = "Primary issue: #74"
+    before_event, before_live = copy.deepcopy(old_event), copy.deepcopy(metadata)
+    assert workflow.current_pr(old_event, metadata)["pull_request"] == metadata
+    assert (old_event, metadata) == (before_event, before_live)
+    metadata["head"]["sha"] = "c" * 40
+    with pytest.raises(workflow.Invalid, match="stale identity"):
         workflow.current_pr(old_event, metadata)
 
 
@@ -1235,32 +1253,175 @@ def test_ci_rejects_ready_ledger_without_recorded_delivery(number):
         )
 
 
-@pytest.mark.parametrize("field", ["sha", "ref", "repo"])
-def test_ci_rejects_live_base_change_with_unchanged_head(field):
-    request = pr()
-    request["pull_request"].update(
-        head={"sha": "same-head"},
-        base={"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}},
+@pytest.mark.parametrize(
+    "side,field", [(side, field) for side in ("head", "base") for field in ("sha", "ref", "repo")]
+)
+def test_ci_rejects_live_branch_change_with_same_head_sha(side, field):
+    request = full_pr(fork=True)
+    metadata = copy.deepcopy(request["pull_request"])
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+    metadata[side][field] = (
+        {"full_name": "other/repo"}
+        if field == "repo"
+        else ("c" * 40 if field == "sha" else "other-branch")
     )
-    metadata = {"number": 80, **copy.deepcopy(request["pull_request"])}
-    assert workflow.current_pr(request, metadata)["pull_request"]["base"] == metadata["base"]
-    metadata["base"][field] = {"full_name": "other/repo"} if field == "repo" else "changed"
-    with pytest.raises(workflow.Invalid, match="stale base"):
+    with pytest.raises(workflow.Invalid, match="stale"):
         workflow.current_pr(request, metadata)
 
 
-@pytest.mark.parametrize("cli_base", ["base-a", "different-base"])
+@pytest.mark.parametrize("field", ["number", "created_at"])
+def test_ci_rejects_live_scalar_identity_change(field):
+    request = full_pr()
+    metadata = copy.deepcopy(request["pull_request"])
+    metadata[field] = 81 if field == "number" else "2026-09-27T04:23:34Z"
+    with pytest.raises(workflow.Invalid, match="stale"):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize("fork", [False, True])
+def test_ci_accepts_complete_matching_identity(fork):
+    request = full_pr(fork=fork)
+    metadata = copy.deepcopy(request["pull_request"])
+    metadata["body"] = "Primary issue: #74"
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+
+
+def test_ci_accepts_matching_64_character_shas():
+    request = full_pr()
+    request["pull_request"]["head"]["sha"] = "a" * 64
+    request["pull_request"]["base"]["sha"] = "b" * 64
+    metadata = copy.deepcopy(request["pull_request"])
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+
+
+def test_ci_accepts_ordinary_unicode_branch_and_fork_names():
+    request = full_pr(fork=True)
+    request["pull_request"]["head"]["ref"] = "özellik"
+    request["pull_request"]["head"]["repo"]["full_name"] = "münchen/repo"
+    metadata = copy.deepcopy(request["pull_request"])
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+
+
+@pytest.mark.parametrize("target", ["queued", "live", "both"])
+@pytest.mark.parametrize("side", ["head", "base"])
+@pytest.mark.parametrize("field", ["ref", "repo"])
+def test_ci_rejects_bidirectional_control_in_identity(target, side, field):
+    request = full_pr(fork=True)
+    metadata = copy.deepcopy(request["pull_request"])
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+    malformed = "feature\u202ehidden" if field == "ref" else "owner\u202eextra/repo"
+    snapshots = {
+        "queued": [request["pull_request"]],
+        "live": [metadata],
+        "both": [request["pull_request"], metadata],
+    }
+    for value in snapshots[target]:
+        if field == "ref":
+            value[side]["ref"] = malformed
+        else:
+            value[side]["repo"]["full_name"] = malformed
+    if side == "base" and field == "repo" and target == "both":
+        request["repository"]["full_name"] = malformed
+    with pytest.raises(workflow.Invalid):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize(
+    "side,field", [(side, field) for side in ("head", "base") for field in ("sha", "ref", "repo")]
+)
+def test_ci_rejects_changed_queued_branch_identity(side, field):
+    request = full_pr(fork=True)
+    metadata = copy.deepcopy(request["pull_request"])
+    request["pull_request"][side][field] = (
+        {"full_name": "other/repo"}
+        if field == "repo"
+        else ("c" * 40 if field == "sha" else "other-branch")
+    )
+    with pytest.raises(workflow.Invalid, match="stale"):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize("side", ["event", "queued", "live"])
+def test_ci_rejects_event_base_or_nested_number_mismatch(side):
+    request = full_pr()
+    metadata = copy.deepcopy(request["pull_request"])
+    if side == "event":
+        request["repository"]["full_name"] = "other/repo"
+    elif side == "queued":
+        request["pull_request"]["number"] = 81
+    else:
+        metadata["number"] = 81
+    with pytest.raises(workflow.Invalid, match="stale"):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize("body", [None, "", "Primary issue: #74"])
+def test_ci_accepts_optional_live_body(body):
+    request = full_pr()
+    metadata = copy.deepcopy(request["pull_request"])
+    if body is None:
+        del metadata["body"]
+    else:
+        metadata["body"] = body
+    assert workflow.current_pr(request, metadata)["pull_request"] == metadata
+
+
+@pytest.mark.parametrize("target", ["queued", "live"])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "missing_number",
+        "bool_number",
+        "missing_head",
+        "null_base_repo",
+        "bad_sha",
+        "bad_ref",
+        "bad_repo",
+        "bad_time",
+        "bad_body",
+        "null_pr",
+    ],
+)
+def test_ci_rejects_malformed_required_identity(target, mutation):
+    request = full_pr()
+    metadata = copy.deepcopy(request["pull_request"])
+    value = request["pull_request"] if target == "queued" else metadata
+    if mutation == "missing_number":
+        del value["number"]
+    elif mutation == "bool_number":
+        value["number"] = True
+    elif mutation == "missing_head":
+        del value["head"]
+    elif mutation == "null_base_repo":
+        value["base"]["repo"] = None
+    elif mutation == "bad_sha":
+        value["head"]["sha"] = "A" * 40
+    elif mutation == "bad_ref":
+        value["head"]["ref"] = "bad\x80ref"
+    elif mutation == "bad_repo":
+        value["base"]["repo"]["full_name"] = "owner/ bad"
+    elif mutation == "bad_time":
+        value["created_at"] = "2026-09-26T04:23:34+00:00"
+    elif mutation == "bad_body":
+        value["body"] = []
+    else:
+        if target == "queued":
+            request["pull_request"] = None
+        else:
+            metadata = None
+    with pytest.raises(workflow.Invalid):
+        workflow.current_pr(request, metadata)
+
+
+@pytest.mark.parametrize("cli_base", ["b" * 40, "c" * 40])
 def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
     import io
 
-    request = pr("", "2026-09-25T00:00:00Z")
-    request["pull_request"].update(
-        head={"sha": "same-head"},
-        base={"sha": "base-a", "ref": "main", "repo": {"full_name": "owner/repo"}},
-    )
+    request = full_pr("")
+    request["pull_request"]["created_at"] = "2026-09-25T00:00:00Z"
     path = tmp_path / "event.json"
     path.write_text(json.dumps(request), encoding="utf-8")
-    metadata = {"number": 80, **request["pull_request"]}
+    metadata = copy.deepcopy(request["pull_request"])
     monkeypatch.setattr(workflow, "validate_all", lambda *_: {})
     monkeypatch.setattr(
         workflow.urllib.request, "urlopen", lambda *_args, **_kw: io.StringIO(json.dumps(metadata))
@@ -1270,14 +1431,84 @@ def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
         workflow, "check_prefix", lambda _root, base, _ledgers, _now: bases.append(base) or set()
     )
     monkeypatch.setattr(sys, "argv", ["workflow", "ci", "--event", str(path), "--base", cli_base])
-    if cli_base == "base-a":
+    if cli_base == "b" * 40:
         workflow.main()
-        assert bases == ["base-a"]
+        assert bases == ["b" * 40]
     else:
         with pytest.raises(SystemExit) as failure:
             workflow.main()
         assert failure.value.code == 1
         assert bases == []
+
+
+def test_ci_consumes_live_body_base_and_head(monkeypatch, tmp_path):
+    import io
+
+    request = full_pr()
+    event_file = tmp_path / "event.json"
+    event_file.write_text(json.dumps(request), encoding="utf-8")
+    metadata = copy.deepcopy(request["pull_request"])
+    metadata["body"] = "Primary issue: #74"
+    seen = []
+
+    def urlopen(http_request, **_kwargs):
+        seen.append(http_request.full_url)
+        result = metadata if len(seen) == 1 else {"number": 74, "created_at": at(0)}
+        return io.StringIO(json.dumps(result))
+
+    monkeypatch.setattr(workflow, "validate_all", lambda *_: {})
+    monkeypatch.setattr(workflow.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(
+        workflow, "check_prefix", lambda _root, base, _ledgers, _now: seen.append(base) or set()
+    )
+    monkeypatch.setattr(
+        workflow,
+        "content_digest",
+        lambda _root, issue, head: seen.append((issue, head)) or "digest",
+    )
+    monkeypatch.setattr(
+        workflow,
+        "check_pr",
+        lambda event, *_args: seen.append(event["pull_request"]["body"]) or "passed",
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["workflow", "ci", "--event", str(event_file), "--base", "b" * 40],
+    )
+    workflow.main()
+    assert seen[1] == "b" * 40
+    assert seen[2].endswith("/issues/74")
+    assert seen[3] == (74, "a" * 40)
+    assert seen[4] == "Primary issue: #74"
+
+
+def test_ci_stale_live_identity_stops_before_prefix_and_issue_lookup(monkeypatch, tmp_path):
+    import io
+
+    request = full_pr(fork=True)
+    event_file = tmp_path / "event.json"
+    event_file.write_text(json.dumps(request), encoding="utf-8")
+    metadata = copy.deepcopy(request["pull_request"])
+    metadata["head"]["repo"]["full_name"] = "other/repo"
+    fetched = []
+    prefixes = []
+
+    def urlopen(http_request, **_kwargs):
+        fetched.append(http_request.full_url)
+        return io.StringIO(json.dumps(metadata))
+
+    monkeypatch.setattr(workflow, "validate_all", lambda *_: {})
+    monkeypatch.setattr(workflow.urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(workflow, "check_prefix", lambda *_args: prefixes.append(True) or set())
+    monkeypatch.setattr(
+        sys, "argv", ["workflow", "ci", "--event", str(event_file), "--base", "b" * 40]
+    )
+    with pytest.raises(SystemExit) as failure:
+        workflow.main()
+    assert failure.value.code == 1
+    assert len(fetched) == 1
+    assert prefixes == []
 
 
 def test_delivered_history_cannot_be_reopened():

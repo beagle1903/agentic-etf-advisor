@@ -103,7 +103,14 @@ the predecessor ledger present. No automatic fresh implementation slot is grante
 Sibling allocations share the original remainder. An extension is a separately approved
 finite choice before splitting, not an automatic successor budget.
 
-CI fetches the current PR body and checks the event head against the current head.
+CI fetches the current PR and validates complete queued/live identity before
+certification: PR and nested numbers, UTC-seconds creation time, head/base SHA, ref
+and repository, and event repository/base consistency. A matching head fork is valid.
+Malformed or stale identity requires a fresh event and rerun. After validation, CI
+uses the live body for the primary issue, live base SHA for prefix and `--base`, and
+live head SHA for content. See [ADR 0035](../architecture/decisions/0035-complete-pr-snapshot-identity.md)
+and the [Issue #93 iteration record](../iterations/020-issue93-pr-identity.md)
+for the exact one-time administrative projection and its limits.
 New ledger introduction must derive the current `owner-led-v1` policy. An existing
 timed prefix with an explicit authorized transition may be introduced; a newly
 introduced history that remains timed is rejected. Merge-base legacy ledgers remain
