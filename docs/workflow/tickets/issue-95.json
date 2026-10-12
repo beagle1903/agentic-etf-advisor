@@ -296,6 +296,21 @@
         "outcome": "pass",
         "evidence": "issue95-initial-review-report.md SHA256 638385a82bff40a41514b9fc2172dd2755f0ac3f34127f6932d559b49788e8ab; actual original reservation S95-initial_review-1; no refund or count reset."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-12T13:45:23Z",
+      "data": {
+        "evidence": "Original sole PR98 first-identity bootstrap after identical content verification,acceptance and independent initial review plus native/admin delivery preflight. Excluded ledger binding only; initial unbound CI rejection if present retained. No actual Issue23/83 operational transition or merge.",
+        "pr": 98,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb"
+      }
     }
   ]
 }
