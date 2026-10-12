@@ -42,7 +42,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `phase_start` | `phase`, `session`, `role`, `capsule`; review/verification also require `content` SHA256. |
 | `phase_end` | `session`, `outcome` (`pass`, `fail`, `interrupted`), `evidence` |
 | `pause` | Same as end, with `interrupted`; preserves exact reserved session. |
-| `phase_resume` | `session`; resumes the interrupted phase without another slot. |
+| `phase_resume` | Ordinary: `session`. Exact transitioned Issue 83 reservation: `session`, distinct user `authority`, current `capsule`, `reason`; resumes the same slot. |
 | `coordination_pause`, `coordination_resume` | `authority` (coordinator), `evidence`; explicit between-phase offline interval. |
 | `design_ready` | `authority` (coordinator), `evidence`, exact current `capsule` reference. |
 | `blocker` | `id`, `criterion` (frozen AC/invariant ID), `scenario`, `evidence` |
@@ -51,6 +51,7 @@ settings. All events have exactly `type`, `at`, `data`; unknown fields fail clos
 | `charge` | `authority` (coordinator), positive additional `seconds`, `evidence`; conservative extra charge only. |
 | `extension` | `authority` (user), nonnegative `seconds`, full `counts` delta map, `reason`; owner-led requires zero seconds and positive count delta. |
 | `policy_transition` | `policy: owner-led-v1`, user `authority`, current `capsule`, `reason`; unsplit timed ticket only and grants no slot. |
+| `lineage_policy_transition` | Only Issue 83 event 10: `policy: owner-led-v1`, distinct user `authority`, current `capsule`, exact `prefix_digest`, exact `predecessor`, `time_barrier: B83-EXHAUSTED`, `reason`; preserves suspension, blocker, elapsed time and counts. |
 | `continuation` | New user `authority`, current `capsule`, full finite `counts`, `reason`; completed implementation and positive remediation grant, plus final review when required. |
 | `split` | Timed: `authority` (user), `successor` issue, positive `seconds`, `reason`. Owner-led: `authority` (user), current `capsule`, nonempty `children` with complete `{issue, counts, capsule}` entries, `reason`. |
 | `delivery` | `evidence`, original `pr` number, `repo`, `capsule`, `content` SHA256; terminal after the gate. |
@@ -116,10 +117,13 @@ uses the live body for the primary issue, live base SHA for prefix and `--base`,
 live head SHA for content. See [ADR 0035](../architecture/decisions/0035-complete-pr-snapshot-identity.md)
 and the [Issue #93 iteration record](../iterations/020-issue93-pr-identity.md)
 for the exact one-time administrative projection and its limits.
-New ledger introduction must derive the current `owner-led-v1` policy. An existing
-timed prefix with an explicit authorized transition may be introduced; a newly
-introduced history that remains timed is rejected. Merge-base legacy ledgers remain
-valid without a retroactive policy rewrite.
+New ledger introduction must initialize explicitly with `owner-led-v1`. An arbitrary
+new timed prefix cannot acquire introduction eligibility through a later transition.
+The sole exception is the complete immutable Issue 23/83 pair with immediate valid
+Issue 83 event-10 transition and explicit primary Issue 83. Its source container and
+original operational bytes are checked independently; prefix admissibility cannot
+certify delivery. Merge-base legacy timed ledgers remain valid without retroactive
+policy rewrite. See [ADR 0037](../architecture/decisions/0037-exact-historical-23-83-transition.md).
 Exactly one `Primary issue: #N` line binds the PR; a changed ledger must include that
 primary issue. `edited` events rerun checks. Existing merge-base events must remain an
 identical prefix; deletion fails. Future issues (created at/after 2026-09-26T04:23:34Z)
@@ -149,6 +153,8 @@ actual bytes when supplied, the ledger-file set and bytes, candidate temporary b
 and repository content again just before atomic
 replace. Keep the workspace quiescent through certification and publication. Static
 checks cannot authenticate the referenced human authorization.
+For the exact historical pair, append also rereads the source container's raw bytes;
+canonical content alone cannot detect a line-ending-only source change.
 Review/verification reservations and successful outcomes are checked against actual
 repository content by append. Acceptance and delivery carry that same content digest.
 Content covers Git tracked and unignored untracked files, canonical LF text and file

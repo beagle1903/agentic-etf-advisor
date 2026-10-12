@@ -1,0 +1,16 @@
+# ADR 0037: Exact historical Issue 23/83 transition
+
+- Status: Accepted for Issue #95 implementation
+- Date: 2026-10-12
+- Supersedes: ADR 0033 only for this exact predecessor transition and the associated new-ledger introduction exception.
+- Preserves: ADR 0026 timed replay, ADR 0036 owner-led split semantics, finite counts, blockers, independent review, content and PR binding.
+
+The original Issue 23 ten-event and Issue 83 nine-event histories are fixed by independent canonical digests and original raw SHA256 values in the workflow code. A minimal JSON source container stores their original UTF-8 text, including line endings. Repository validation accepts original operational bytes or the standard append serialization for the pinned prefix, and standard append serialization for the transitioned child. It checks both original source bytes and operational file bytes. No mutable primary checkout or Issue 92 recovery package is a runtime source.
+
+Only Issue 83 event 10 may be `lineage_policy_transition`. Its schema carries `policy: owner-led-v1`, distinct named user `authority`, current `capsule`, both exact prefix references, `time_barrier: B83-EXHAUSTED`, and `reason`. The parent remains retired and timed. The child retains budget 6051 seconds, historical elapsed 34580, debt 28529, original event-7 implementation reservation and blocker with required remediation 1. The parent retains elapsed 1144, split pool 6056, allocation 6051 and residual 5. The transition changes subsequent child timing enforcement; it grants no seconds or phase counts, starts no phase, resolves no blocker and certifies no implementation or delivery. The historical blocker text's observed -28484 remains evidence, distinct from derived final debt.
+
+Only a later explicit `phase_resume` for that retained reservation requires exactly `session`, new user `authority`, current `capsule` and `reason`. Its authority must differ under NFKC, whitespace-collapse and casefold normalization from all source and subsequent consumed authorities. It activates the same owner, role and reservation at the resume timestamp without another implementation start. Ordinary resumes retain their existing schema. This ADR does not authorize an actual Issue 83 resume or product work.
+
+The exact pair can be introduced together only with its immediate valid transition and explicit primary Issue 83. CI obtains that primary from the validated live PR body; read-only base checks require an explicit issue argument. Other new ledgers initialize as owner-led. Merge-base timed histories retain replay compatibility. Prefix admissibility alone never satisfies blocker, acceptance, current-content, original-PR or delivery gates.
+
+Replay accepts explicit checked source context; filesystem acquisition stays at existing boundaries. Append validates the complete candidate map while holding its repository writer lock and rereads the source container's raw bytes, actual ledger bytes, event source, candidate temporary bytes and repository content before replacement. These checks observe changes by external editors without claiming an atomic cross-file snapshot. Application graph state, providers, financial rules and external writes are unaffected.

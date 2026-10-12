@@ -175,6 +175,11 @@ granting slots. Owner-led split uses one conserved batch allocation: each child 
 effective consumption and receives only its named finite remaining counts. The parent
 retires permanently; child phase prerequisites use local outcomes. Connected lineage
 authority and independent participants are audited across siblings and descendants.
+ADR 0037 permits only the immutable Issue 23/83 historical pair to append its exact
+`lineage_policy_transition` as Issue 83 event 10. It preserves the exhausted timed
+allocation, suspended reservation and blocker, and requires distinct user authority
+for transition and each later resume. No operational Issue 23/83 transition or resume
+is authorized by Issue 95. New introductions otherwise initialize owner-led.
 Historical timed splits require explicit user decision,
 validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires

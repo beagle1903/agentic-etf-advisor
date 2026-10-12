@@ -1,0 +1,479 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-12T09:20:06Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 95,
+        "classification": "consequential",
+        "scope": [
+          "S95EXACT",
+          "S95RESERVATION",
+          "S95INTRO",
+          "S95EVIDENCE"
+        ],
+        "invariants": [
+          "I95EXACT",
+          "I95TIME",
+          "I95STATE",
+          "I95AUTH",
+          "I95INTRO",
+          "I95IO",
+          "I95ISOLATE",
+          "I95ADMIN"
+        ],
+        "acceptance": [
+          "AC95EXACT",
+          "AC95TIME",
+          "AC95GATES",
+          "AC95AUTH",
+          "AC95INTRO",
+          "AC95IO",
+          "AC95DOCS",
+          "AC95VERIFY"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue95-specific issue95-coordinator-approval.json binds exact capsule and setup handoff; native local-phase projection preserves original missing-ledger rejections and external inherited finite counts/exclusions."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 95,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue95_owner"
+          },
+          "rationale": "The exact historical predecessor transition changes development-ledger replay, timing enforcement, authorization consumption and suspended-reservation handling. These are consequential persistence and authorization contracts. Separate S95D1 design, independent code_reviewer challenge and coordinator approval of the identical complete capsule and handoff precede implementation. The named owner is a fresh Issue95 session, not a claim that an earlier Issue94 session continues.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Parent chat 01a11788-6350-7da0-a55a-b6e5a56551ce, 2026-10-10: approved (whatever bro I am exhausted), directly responding to the exact written A/B/C split, per-child allowances and three-PR setup exception proposal. Single authority anchor chat:01a11788-6350-7da0-a55a-b6e5a56551ce:2026-10-10:approved-ticket-pr-split; proposal SHA256 79d44237d7349cbc0998deaccdab6f5feaf574226d489b87c672ffe44e0c1c45. Issue95 receives only conserved allocation C. The 2026-10-11 continue instruction and subsequent runtime recovery continue the same reserved S95D1 within existing allowances; neither renews a count nor authorizes actual Issue23/83 introduction, transition, product work or resume."
+          },
+          "scope": {
+            "S95EXACT": "Support only the complete exact historical Issue23 ten-event and Issue83 nine-event pair through immutable descriptors, read-only source verification and strict lineage_policy_transition replay.",
+            "S95RESERVATION": "Preserve the exact historical timed allocation, consumed counters, existing suspended implementation reservation and B83-EXHAUSTED while requiring separate distinct user authority for a future resume of that reservation.",
+            "S95INTRO": "Constrain historical introduction in check_prefix and CI to the exact pair with valid immediate child transition and primary Issue83; ordinary newly introduced ledgers must initialize under owner-led-v1.",
+            "S95EVIDENCE": "Add independent historical and synthetic controls, additive JSON-safe transition status, transition ADR and iteration evidence. Establish only Issue95's approved administrative local-phase projection."
+          },
+          "non_goals": [
+            "No application, authentication, financial, graph/checkpoint, provider, market-data or database behavior changes; no trades or external financial writes.",
+            "No actual operational introduction, transition, resume, implementation or certification of Issue23 or Issue83. Their primary-checkout files remain untouched.",
+            "No generic legacy adoption or migration API, arbitrary timed predecessor transition, second historical pair or automatic policy upgrade.",
+            "No Issue92 repair, bootstrap, recovery-chain import, delivery claim or reuse of its failed review; no execution or reuse of Issue93/94 administrative helpers or approvals.",
+            "No additional counts, conversion of timed seconds into counts, reset, sibling transfer, replacement issue, extra PR or merge.",
+            "No change to unrelated timed histories, ordinary resume schemas, accepted historical ADRs, existing content/PR binding or replaceable side-effect boundaries.",
+            "No authentication of user evidence or live agent identity, runtime kill switch, or guarantee that arbitrary external editors cannot race filesystem reads."
+          ],
+          "invariants": {
+            "I95EXACT": "Only repository beagle1903/agentic-etf-advisor, complete Issue23 events1-10 with canonical digest edb0ea490e463a75cbb92696e1400c2ad8f32e939ae9fb905db132cb27e0baac and original raw SHA256 724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0, and complete Issue83 events1-9 with canonical digest b46ec791f25f51f7e022d00e6a654e0429e59b59a874500247f7f974c60664f9 and original raw SHA256 0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c qualify. Require exact original capsules, predecessor reference and retained reservation. No shorter prefix, extra parent event or allocation, intervening child event, altered source byte, changed repository, capsule, owner, session, role, counter or blocker qualifies. Raw source hashes describe original immutable source bytes, not the necessarily changed whole-file bytes after an append. The detailed handoff defines the only accepted operational serializations. Parent I84HISTORY/I84SPLIT; AC84HISTORY.",
+            "I95TIME": "Replay both historical prefixes under unchanged timed semantics before transition. Issue23 remains retired and timed, with elapsed1144, budget7200, split-time pool6056, sole allocation6051 to Issue83 and residual5 seconds. Its counts remain zero and limits remain one in each counted category. Issue83 retains budget6051, recorded elapsed34580 and historical debt28529 at transition. Preserve historical blocker evidence reporting its earlier observed -28484 rather than rewriting it to the derived final debt. Transition changes only subsequent child timing-policy enforcement and records the original timing snapshot; it grants no counts or seconds and changes no allocation, elapsed history, limit or reservation. Parent I84TIME/I84HISTORY/I84SPLIT; AC84TIME/AC84HISTORY.",
+            "I95STATE": "Issue83 event10 may be lineage_policy_transition only when active is null, suspended equals the original event7 implementation reservation for /root/issue83_implementation with its exact role, capsule and original start timestamp, clock_running is false, implementation count and limit both equal1, author_session is null and verification/acceptance/review/delivery are false. Preserve the complete B83-EXHAUSTED blocker including required_remediation1. The transition preserves all prior design/approval history without promoting it into implementation success or certification. It neither starts nor resumes a phase, resolves a blocker, sets a successful outcome, clears failure evidence nor permits delivery. Future completion and blocker resolution remain subject to ordinary gates. Parent I84GATES/I84HISTORY; AC84GATES/AC84HISTORY.",
+            "I95AUTH": "The transition requires named explicit user authority distinct from every consumed user authority in both exact histories; the ordinary same-ticket policy_transition initialization-authority exception does not apply. Normalize evidence using existing NFKC, whitespace-collapse and casefold rules independently of display name. Seed complete source-linked historical authorities and participant records; the child capsule's reference to its parent's split is one historical reference, not another grant. New transition, resume, extension, split, continuation or new capsule authorization cannot reuse inherited or already consumed evidence. For the retained transitioned implementation reservation, each phase_resume requires strict session, authority, capsule and reason fields, a distinct user authority, the same reserved owner/role/capsule, no active phase and an existing matching suspension. Resume moves that reservation to active without incrementing or resetting its count, clearing B83-EXHAUSTED or certifying anything. Ordinary resumes retain their existing schema. Ancestral independent-role exclusions remain enforced; later authority and participant audit uses the reviewed Issue94 rules without reinterpreting disconnected timed histories. Parent I84GATES/I84HISTORY/I84SPLIT; AC84GATES/AC84HISTORY.",
+            "I95INTRO": "Ordinary ledgers absent from merge base must initialize explicitly with owner-led-v1; an arbitrary timed initialization followed by policy_transition is not an introduction exemption. Existing merge-base timed histories retain replay compatibility. The only exceptional timed introduction requires the complete exact Issue23/83 pair, immediate valid Issue83 event10 transition, immutable source verification, original repository and explicit primary Issue83. Missing, partial, substituted or untransitioned pairs and primary Issue95 or another issue fail. check_prefix success establishes history admissibility only; existing check_pr, delivery, blocker, current-content and original-PR gates remain mandatory. No operational Issue23/83 ledger is added by Issue95. Parent I84HISTORY/I84GATES/I84ISOLATE; AC84HISTORY/AC84GATES.",
+            "I95IO": "Keep parsing and transition semantics pure with explicit validated source/raw-byte context, and filesystem/Git acquisition at existing replaceable boundaries. Every repository validation, append, check, status and CI path that accepts the exceptional transition must enforce the same exact-source and history checks. A mapping-only replay cannot silently waive missing historical-source context. Append retains the repository writer lock, complete candidate-map validation, actual event/ledger/source/candidate/content rereads and single-target replacement. Immutable source-container bytes are explicitly snapshotted and reread; canonical repository content alone is insufficient for raw-byte race detection because it normalizes line endings. Rejection preserves externally changed bytes. Parent I84GATES/I84HISTORY; AC84GATES/AC84VERIFY.",
+            "I95ISOLATE": "Production support uses only the two exact historical source records and minimum fixed descriptors. Do not import Issue92 recovery machinery or its complete evidence package into runtime. Test fixtures never read the mutable primary checkout at test execution. The primary Issue23 and Issue83 raw hashes remain respectively 724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0 and 0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c before and after work. Application graph/checkpoint JSON impact is none. Parent I84ISOLATE/I84HISTORY; AC84HISTORY/AC84VERIFY.",
+            "I95ADMIN": "Issue95's native ledger is a documented administrative local-phase projection with predecessor null, not a native descendant migration through Issue92 or Issue94. External inherited consumption5/4/7/5/4 plus allocated1/1/1/1/0 remains bounded by6/5/8/6/4 in implementation/initial_review/remediation/final_review/design_reset order. One design, one independent challenge, at most two formal verifications with the second only after the sole remediation, zero design revision/reset and one new PR are authorized. S95D1 remains the single reservation recorded at journal entry167, including its actual missing-ledger native rejection; recovery does not replace it. Preserve the frozen source manifest, approved disposition, failed historical checks and review, journal prefix, participant inventory and all subsequent participants. Fresh independent assignment excludes their normalized union, original-pair participants, /root/issue93_split_design, current architect and approved owner; unknown provenance blocks assignment. No old approval or certificate establishes Issue95 readiness. Parent I84HISTORY/I84GATES/I84ISOLATE; AC84HISTORY/AC84GATES/AC84VERIFY."
+          },
+          "interfaces": [
+            "scripts/ticket_workflow.py: strict lineage_policy_transition event available only at exact Issue83 event10, plus a scoped authority-bearing phase_resume variant for the retained transitioned reservation.",
+            "Pure exact-pair descriptor/source verification, replay and validate_map: explicit raw/source context, preserved timed prefix replay, narrowly validated mixed-policy predecessor edge and source-linked authority/participant audit.",
+            "validate_all, append, check_prefix, check_pr and CLI validate/check/status/ci: propagate the same historical context; check_prefix accepts explicit primary-issue context for the introduction exception.",
+            "Read-only immutable source artifact docs/workflow/history/issue-95/exact-23-83-sources.json: strict JSON container holding only the two original UTF-8 source texts with escaped line endings; fixed descriptors remain independently pinned in code.",
+            "Additive status fields for exact historical transition, original timing snapshot, parent residual seconds, suspended reservation, resume authority requirement, remaining implementation starts and unresolved blockers.",
+            "Application, authentication, graph/checkpoint, provider, database, market-data and external financial interfaces: none."
+          ],
+          "json_state_impact": "Application graph/checkpoint JSON: none. Development ledger remains schema1 with existing type/at/data envelope. Add one exact historical transition payload and a conditional strict resume payload. New derived state and status contain only JSON-safe strings, integers, booleans, nulls, lists and maps. Preserve ordinary timed and owner-led event meanings, existing capsule schema, counters and canonical content binding. The source artifact stores original UTF-8 text as JSON strings so Git LF normalization cannot alter the decoded original bytes. No runtime dependence on the primary checkout or external Issue92 package.",
+          "acceptance": {
+            "AC95EXACT": "An independent exact-pair positive control verifies both original raw hashes, complete canonical digests and capsule references. Independently reject each source-byte/line-ending/whitespace mutation, truncated or extra history, repository/issue/predecessor/capsule/reservation/role/owner/session/count/limit/blocker substitution, missing source and unexpected source-container field. Expected descriptors are independently pinned, not generated from the candidate under test. Parent AC84HISTORY/AC84GATES.",
+            "AC95TIME": "Assert the exact parent pool6056, allocation6051 and residual5; parent remains timed and terminal. Assert child elapsed34580, budget6051 and historical debt28529 remain distinguishable from the unchanged historical -28484 evidence text. Transition after arbitrary additional paused wall time preserves these values, all counts and limits, the suspended reservation, zero additional implementation starts and B83-EXHAUSTED. Parent AC84TIME/AC84HISTORY.",
+            "AC95GATES": "Transition alone leaves no active phase, successful implementation, verification, acceptance, review or delivery. Starting another implementation, delivering, resolving B83-EXHAUSTED without required remediation, repeating transition or treating introduction as certification rejects. A synthetic distinct-authority resume activates exactly the existing reservation with unchanged counts and blocker; missing suspension, mismatched session/capsule/owner, active overlap and ordinary session-only resume reject for this path. Ordinary resume and timed controls retain behavior. Parent AC84GATES/AC84HISTORY.",
+            "AC95AUTH": "Reject transition/resume authority copied from either original capsule, the historical split, transition or an earlier scoped resume, including changed display names and Unicode/whitespace/case variants. A distinct-authority control passes. Verify later grants and new capsule authorizations cannot reuse seeded identities and ancestry-derived independent participants cannot become new independent reviewers. Preserve valid historical reference aliases and Issue94 ordinary lineage controls. Parent AC84GATES/AC84HISTORY.",
+            "AC95INTRO": "Temporary-repository tests prove the exact pair plus immediate transition and primary83 passes history admissibility while remaining undeliverable. Reject partial/untransitioned pairs, another primary, absent primary context, mismatched sources, altered parent and arbitrary new timed initialization with a final owner-led transition. Preserve already-merge-base timed history and ordinary owner-led introduction. Exercise the real CI call path and check_pr so prefix success cannot substitute for delivery. Parent AC84HISTORY/AC84GATES.",
+            "AC95IO": "Exercise replay, validate_map, saved-file validate/check/status, actual append and CI with the same exact-source requirements. Real temporary-file tests inject source-container and operational-ledger byte changes at final append recheck, including line-ending-only edits; reject without publishing candidate or overwriting external edits. Check clean successful controls, owned lock/temp cleanup and no new writer/concurrency exemption. Parent AC84VERIFY/AC84GATES.",
+            "AC95DOCS": "ADR0037 and iteration022 explain the exact descriptors, transition/resume schemas, historical versus current timing, immutable raw sources versus appended serialization, narrow introduction exception, persistent blocker and explicit future product authorization. Update only directly affected governance instructions and static markers/tests. Record Issue95's own administrative projection, authority, finite allowance and source/exclusion evidence. No accepted historical ADR is rewritten and no product readiness is claimed. Parent AC84DOCS.",
+            "AC95VERIFY": "Focused workflow/static tests, all12 required offline/static/evaluation/build/Compose-configuration gates and independent review pass against identical certified content. Record actual commands, skips and limitations. Before/after primary hashes match. Native and administrative phase checks/reservations precede subsequent work. If the sole remediation is used, fresh verification/acceptance and final review are required. Failed challenge, failed final review, exhausted allowance, unresolved serious blocker or material acceptance uncertainty stops for decision. Parent AC84VERIFY/AC84GATES/AC84HISTORY."
+          },
+          "verification": [
+            "Focused: uv run pytest tests/test_ticket_workflow.py tests/test_codex_workflow.py. Use immutable exact-source records and independent synthetic mutations/positive controls; no mutable primary path or old recovery helper is a test oracle.",
+            "Full gates: uv run ruff check .; uv run ruff format --check .; uv run mypy; uv run pytest; uv run python scripts/validate_codex_workflow.py; uv run python scripts/ticket_workflow.py validate; uv run etf-advisor evaluate-retrieval; uv run etf-advisor evaluate-explanations; uv build; docker compose config --quiet; docker compose -f compose.integration.yaml config --quiet with harmless explicit test-port variables; git diff --check.",
+            "Read-only before/after SHA256 of the two actual primary ledgers, plus immutable source-container decoded-byte checks and repository content_digest comparison before/after formal verification.",
+            "Separate fresh code_reviewer/gpt-6-sol/high challenge binds this entire capsule and handoff before coordinator approval. Later independent code review binds implementation and current verification/acceptance; challenge is not code review.",
+            "No providers, live market data, application authentication, database services or financial writes are required for this workflow-only ticket. Report optional skipped integration coverage truthfully.",
+            "One first-PR identity bootstrap only after clean certification and native plus administrative delivery checks; bind the actual sole PR and require final CI success. No merge."
+          ],
+          "documentation": [
+            "Add docs/architecture/decisions/0037-exact-historical-23-83-transition.md, superseding only the exact-pair limitation of ADR0033 and the new-ledger introduction wording needed for this exception.",
+            "Add docs/iterations/022-issue95-historical-transition.md with capsule reference, owner, scope, source descriptors, finite administrative projection, truthful rejected native preparation checks and primary integrity evidence.",
+            "Update only directly affected AGENTS.md, CONTRIBUTING.md and docs/workflow/README.md transition/introduction guidance and corresponding scripts/validate_codex_workflow.py markers and tests/test_codex_workflow.py mutations.",
+            "Add only docs/workflow/history/issue-95/exact-23-83-sources.json as the minimal historical source payload; no operational issue-23.json or issue-83.json introduction.",
+            "Complete reviewable documentation before certification. Later outcomes belong in the excluded Issue95 ledger or external evidence; changing certified documentation requires fresh permitted certification. Product documentation changes: none."
+          ],
+          "risks": [
+            "A broad exception to predecessor or suspended-phase checks would accidentally enable generic adoption or automatic product resume.",
+            "validate_map currently expects owner-led predecessors to arise from owner-led split allocation; the mixed-policy exception must be keyed to verified exact-pair transition evidence rather than weakening all predecessor checks.",
+            "Raw original source identity and later appended ledger serialization are different objects. Hashing reconstructed JSON cannot prove original raw bytes, while comparing an appended whole file to the original raw hash can never succeed.",
+            "Repository content hashing normalizes CRLF, so it cannot replace explicit raw source-container and ledger rereads at the append boundary.",
+            "The final historical timed debt differs from a previously recorded live observation in B83-EXHAUSTED. Rewriting that evidence or presenting it as the final derived debt would falsify history.",
+            "Historical authority aliases must remain references while new grants and resume actions consume distinct evidence. Reusing the ordinary same-ticket transition exemption here would defeat the contract.",
+            "The native Issue95 local projection does not enforce its external ancestry, verification cap, zero-reset authority or complete participant exclusions by itself.",
+            "No design revision/reset allowance exists. A failed challenge or unresolved consequential ambiguity cannot be repaired by silently changing this frozen capsule."
+          ],
+          "escalation_triggers": [
+            "Concrete implementation complexity or an unresolved execution defect may justify a separately recorded specialist escalation only within existing explicit finite authority; no automatic owner replacement or extra pass.",
+            "Any required generic historical adoption, changed product contract, actual historical introduction/resume or incompatible reading of a frozen criterion returns BLOCKED_FOR_DECISION.",
+            "Repeated concerns after a substantive answer invoke ADR0034 coordinator arbitration with the concrete scenario, frozen ID, evidence, accountable decision and observable closure condition; arbitration grants no slot or waiver.",
+            "Failed independent challenge, failed final review, exhausted counts, serious unresolved blocker or material acceptance uncertainty stops without renewal."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T09:20:13Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue95_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T09:20:14Z",
+      "data": {
+        "session": "/root/issue95_design",
+        "outcome": "pass",
+        "evidence": "Administrative projection of genuinely completed S95D1; actual timestamps and elapsed audit retained externally, not backdated. issue95-design-handoff.md SHA256 6770fece775ef58fee43d6f4f6c7eacb30938be1d98e821fd4cd8ea145668791; original missing-ledger rejection remains rejected."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T09:20:16Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue95_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T09:20:17Z",
+      "data": {
+        "session": "/root/issue95_challenge",
+        "outcome": "pass",
+        "evidence": "Administrative projection of genuinely completed S95C1; actual timestamps and elapsed audit retained externally, not backdated. issue95-challenge-report.md SHA256 2d7ee0928f447f25681025d7861cda811ca502f3201d4fbfa8c8463bd9228576; original missing-ledger rejection remains rejected."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-12T09:20:18Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue95-specific issue95-coordinator-approval.json binds exact capsule and setup handoff; native local-phase projection preserves original missing-ledger rejections and external inherited finite counts/exclusions."
+        },
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "evidence": "Separate original S95D1 and fresh S95C1 pass; exact capsule and handoff approved; external conserved counts and complete exclusions remain mandatory."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T09:20:20Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T09:47:41Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-implementation-report.md SHA256 5d89158fa57fbf148ce07a6bd6139b5658f27ec33709c8f5f77d6081ac9dfcc7; actual original reservation S95-implementation-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T09:47:44Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T13:37:14Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-verification-report.md SHA256 2e8964028a90ecfac8dc066ce3cad926a2806aa57cfa7ef71b90641913d63ba1; actual original reservation S95-verification-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-12T13:37:15Z",
+      "data": {
+        "ids": [
+          "AC95EXACT",
+          "AC95TIME",
+          "AC95GATES",
+          "AC95AUTH",
+          "AC95INTRO",
+          "AC95IO",
+          "AC95DOCS",
+          "AC95VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb",
+        "evidence": "All frozen AC95 ids supported by focused exact/synthetic mutation controls and all12 full gates on identical content; primary hashes unchanged. Full evidence verification95/summary.json SHA256 b435a7057606e51ccbda2585e44690e77bb36f585da52a97f39755dd71325eb3. Independent review remains required; no actual product transition/resume."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T13:37:18Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue95_initial_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T13:44:09Z",
+      "data": {
+        "session": "/root/issue95_initial_review",
+        "outcome": "pass",
+        "evidence": "issue95-initial-review-report.md SHA256 638385a82bff40a41514b9fc2172dd2755f0ac3f34127f6932d559b49788e8ab; actual original reservation S95-initial_review-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-12T13:45:23Z",
+      "data": {
+        "evidence": "Original sole PR98 first-identity bootstrap after identical content verification,acceptance and independent initial review plus native/admin delivery preflight. Excluded ledger binding only; initial unbound CI rejection if present retained. No actual Issue23/83 operational transition or merge.",
+        "pr": 98,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb"
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-12T14:02:56Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "chat:01a12f2f-6c99-7071-adc7-67acc29632ba:2026-10-12:pr98-bounded-resume-repair: user said ok do as you suggested, directly approving same owner repair B95-LATER-PHASE-RESUME, one fresh verification and one independent final review on original PR98; no redesign,new ticket,reset,new PR or merge."
+        },
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "User-approved narrow repair for PR98 discussion_r4248794723; one same-owner remediation,fresh verification and independent final review. Preserve original binding and historical certificates; no other scope or merge."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-12T14:02:57Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume after distinct user-approved PR98 bounded continuation; issue95-pr98-resume-repair-authorization.json"
+        },
+        "evidence": "New approval resumes coordinator audit timing; no retroactive pause/subtraction."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-12T14:02:59Z",
+      "data": {
+        "id": "B95-LATER-PHASE-RESUME",
+        "criterion": "AC95GATES",
+        "scenario": "After retained implementation completes, persistent historical_transition incorrectly forces later paused remediation/verification through retained-reservation-only resume schema, leaving them impossible to resume.",
+        "evidence": "PR98 discussion_r4248794723 and source phase_resume branch; external blocked decision retained; user-approved bounded repair now permits narrow remediation."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:03:01Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:13:26Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-resume-remediation-report.md SHA256 6ca2dbf5db769a872fe40b286c4f47bc00bfbf23d989c0df5f8e2b8fa5391b4a; actual original reservation S95-remediation-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-12T14:13:28Z",
+      "data": {
+        "id": "B95-LATER-PHASE-RESUME",
+        "evidence": "Completed sole S95-remediation-1: issue95-resume-remediation-report.md; retained reservation lifecycle predicate,same status flag,later remediation/verification resume controls and original authority/mismatch negatives PASS. Fresh verification/final review still required; initial defect and stopped preflight retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:13:31Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:22:42Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-resume-verification-report.md SHA256 b4c5bab8c3bdfd11686333dcf50df4ae99d767845ec4c629997ccfa1ec8212a4; actual original reservation S95-verification-2; no refund or count reset."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-12T14:22:44Z",
+      "data": {
+        "ids": [
+          "AC95EXACT",
+          "AC95TIME",
+          "AC95GATES",
+          "AC95AUTH",
+          "AC95INTRO",
+          "AC95IO",
+          "AC95DOCS",
+          "AC95VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b",
+        "evidence": "All frozen AC95 ids supported by focused exact/synthetic mutation controls and all12 full gates on identical content; primary hashes unchanged. Full evidence verification95-resume-repair/summary.json SHA256 acbf4ef4e2753d0292340ce72432499ba87131b7c71aa8cf573d7bd2acbc90f1. Independent review remains required; no actual product transition/resume."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:22:47Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue95_resume_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:27:16Z",
+      "data": {
+        "session": "/root/issue95_resume_final_review",
+        "outcome": "pass",
+        "evidence": "issue95-resume-final-review-report.md SHA256 decd575f0e5462e45e5b2bfee29eaa2b7418cc7df4d5814b16c87d13ea070b8e; actual original reservation S95-final_review-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-12T14:27:19Z",
+      "data": {
+        "evidence": "Original PR98 redelivery after distinct explicit bounded user continuation,same owner remediation,fresh full12gate verification and fresh independent final review PASS on identical repaired content. P1 and prior certification retained in history. Same repository/PR,no new identity or merge. Actual updated-head CI still required.",
+        "pr": 98,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
+    }
+  ]
+}
