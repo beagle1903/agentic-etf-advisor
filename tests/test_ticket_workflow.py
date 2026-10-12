@@ -1,6 +1,7 @@
 """Finite ticket transitions, adversarial history and CI binding."""
 
 import copy
+import hashlib
 import json
 import subprocess
 import sys
@@ -16,6 +17,264 @@ START = datetime(2026, 9, 26, 4, 23, 34, tzinfo=UTC)
 AUTH = {"kind": "coordinator", "name": "coordinator", "evidence": "approved issue comment"}
 CONTENT = workflow.digest([])
 USER = {"kind": "user", "name": "beagle1903", "evidence": "explicit finite approval"}
+
+EXACT_TEST_HASHES = {
+    23: "724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0",
+    83: "0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c",
+}
+
+
+def exact_pair():
+    path = Path(__file__).resolve().parents[1] / workflow.EXACT_SOURCE
+    sources = workflow.exact_sources(path.read_bytes())
+    for issue, expected in EXACT_TEST_HASHES.items():
+        assert hashlib.sha256(sources[issue][1]).hexdigest() == expected
+    return sources, {issue: copy.deepcopy(source[0]) for issue, source in sources.items()}
+
+
+def exact_transition(evidence="new distinct transition approval", when="2026-10-12T00:00:00Z"):
+    return {
+        "type": "lineage_policy_transition",
+        "at": when,
+        "data": {
+            "policy": "owner-led-v1",
+            "authority": {"kind": "user", "name": "test", "evidence": evidence},
+            "capsule": copy.deepcopy(workflow.EXACT_CAPSULE),
+            "prefix_digest": "b46ec791f25f51f7e022d00e6a654e0429e59b59a874500247f7f974c60664f9",
+            "predecessor": {
+                "issue": 23,
+                "events": 10,
+                "digest": "edb0ea490e463a75cbb92696e1400c2ad8f32e939ae9fb905db132cb27e0baac",
+            },
+            "time_barrier": "B83-EXHAUSTED",
+            "reason": "test transition only",
+        },
+    }
+
+
+def test_exact_historical_transition_preserves_debt_reservation_and_blocker():
+    sources, histories = exact_pair()
+    original = workflow.validate_map(
+        histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+    )
+    assert original[23].elapsed_seconds == 1144
+    assert original[23].split_remaining == 5
+    assert original[83].elapsed_seconds == 34580
+    histories[83]["events"].append(exact_transition())
+    state = workflow.validate_map(
+        histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+    )[83]
+    assert state.historical_transition["timed_debt_seconds"] == 28529
+    assert state.historical_transition["parent_residual_seconds"] == 5
+    assert state.counts["implementation"] == state.limits["implementation"] == 1
+    assert state.suspended == state.historical_transition["reservation"]
+    assert state.active is None and not state.verified and not state.accepted
+    assert "-28484" in state.blockers["B83-EXHAUSTED"]["evidence"]
+    with pytest.raises(workflow.Invalid):
+        state.gate("delivery", datetime(2026, 10, 13, tzinfo=UTC))
+
+
+@pytest.mark.parametrize(
+    "issue,mutation",
+    [
+        (23, "append"),
+        (23, "change"),
+        (83, "append"),
+        (83, "change"),
+    ],
+)
+def test_exact_source_rejects_raw_mutation(issue, mutation):
+    path = Path(__file__).resolve().parents[1] / workflow.EXACT_SOURCE
+    container = json.loads(path.read_text(encoding="utf-8"))
+    original = container["sources"][str(issue)]
+    container["sources"][str(issue)] = (
+        original + " " if mutation == "append" else original.replace("\r\n", "\n", 1)
+    )
+    with pytest.raises(workflow.Invalid, match="raw bytes differ"):
+        workflow.exact_sources(json.dumps(container).encode())
+
+
+def test_exact_historical_transition_and_resume_authorities_are_distinct():
+    sources, histories = exact_pair()
+    old_grant = histories[23]["events"][-1]["data"]["authority"]["evidence"]
+    histories[83]["events"].append(exact_transition("  " + old_grant.upper() + "  "))
+    with pytest.raises(workflow.Invalid, match="authority already consumed"):
+        workflow.validate_map(
+            histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+        )
+    histories[83]["events"][-1] = exact_transition()
+    resume = {
+        "type": "phase_resume",
+        "at": "2026-10-12T00:00:01Z",
+        "data": {
+            "session": "/root/issue83_implementation",
+            "authority": {"kind": "user", "name": "test", "evidence": "unique resume authority"},
+            "capsule": copy.deepcopy(workflow.EXACT_CAPSULE),
+            "reason": "continue retained reservation",
+        },
+    }
+    histories[83]["events"].append(resume)
+    state = workflow.validate_map(
+        histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+    )[83]
+    assert state.active["at"] == resume["at"]
+    assert state.counts["implementation"] == 1
+    assert "B83-EXHAUSTED" in state.blockers
+    bad = copy.deepcopy(histories)
+    bad[83]["events"][-1]["data"] = {"session": "/root/issue83_implementation"}
+    with pytest.raises(workflow.Invalid):
+        workflow.validate_map(bad, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources)
+    pause = {
+        "type": "pause",
+        "at": "2026-10-12T00:00:02Z",
+        "data": {
+            "session": "/root/issue83_implementation",
+            "outcome": "interrupted",
+            "evidence": "test pause",
+        },
+    }
+    histories[83]["events"].append(pause)
+    second = copy.deepcopy(resume)
+    second["at"] = "2026-10-12T00:00:03Z"
+    histories[83]["events"].append(second)
+    with pytest.raises(workflow.Invalid, match="authority already consumed"):
+        workflow.validate_map(
+            histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+        )
+    second["data"]["authority"]["evidence"] = "second distinct resume authority"
+    resumed = workflow.validate_map(
+        histories, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+    )[83]
+    assert resumed.active["at"] == second["at"] and resumed.counts["implementation"] == 1
+
+
+def test_exact_mapping_rejects_forged_source_context():
+    sources, histories = exact_pair()
+    histories[83]["events"].append(exact_transition())
+    forged = copy.deepcopy(sources)
+    forged[23] = (forged[23][0], forged[23][1] + b" ")
+    with pytest.raises(workflow.Invalid, match="unvalidated historical source context"):
+        workflow.replay(
+            histories[83],
+            datetime(2026, 10, 13, tzinfo=UTC),
+            predecessors={23: histories[23]},
+            historical_sources=forged,
+        )
+
+
+def exact_temp_repository(tmp_path):
+    subprocess.run(["git", "init", "-b", "main"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.invalid"], cwd=tmp_path, check=True
+    )
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
+    (tmp_path / "baseline.txt").write_text("baseline\n", encoding="utf-8")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "baseline"], cwd=tmp_path, check=True, capture_output=True
+    )
+    source = Path(__file__).resolve().parents[1] / workflow.EXACT_SOURCE
+    target = tmp_path / workflow.EXACT_SOURCE
+    target.parent.mkdir(parents=True)
+    target.write_bytes(source.read_bytes())
+    sources, histories = exact_pair()
+    ticket_dir = tmp_path / workflow.DIRECTORY
+    ticket_dir.mkdir(parents=True)
+    for issue in histories:
+        (ticket_dir / f"issue-{issue}.json").write_bytes(sources[issue][1])
+    return histories
+
+
+def test_exact_introduction_requires_primary_and_transition(tmp_path):
+    histories = exact_temp_repository(tmp_path)
+    now = datetime(2026, 10, 13, tzinfo=UTC)
+    with pytest.raises(workflow.Invalid, match="primary Issue83"):
+        workflow.check_prefix(tmp_path, "main", histories, now)
+    with pytest.raises(workflow.Invalid, match="immediate valid transition"):
+        workflow.check_prefix(tmp_path, "main", histories, now, primary=83)
+    state = workflow.append(tmp_path, 83, exact_transition(), now)
+    assert state.historical_transition and state.suspended
+    saved = workflow.validate_all(tmp_path, now)
+    assert workflow.check_prefix(tmp_path, "main", saved, now, primary=83) == {23, 83}
+    with pytest.raises(workflow.Invalid, match="recorded delivery"):
+        workflow.check_pr(
+            full_pr("Primary issue: #83"),
+            saved,
+            at(0),
+            now,
+            {23, 83},
+            CONTENT,
+            historical_sources=workflow.exact_sources(
+                (tmp_path / workflow.EXACT_SOURCE).read_bytes()
+            ),
+        )
+
+
+def test_exact_ci_uses_live_primary83_and_still_denies_delivery(tmp_path, monkeypatch, capsys):
+    import io
+
+    exact_temp_repository(tmp_path)
+    now = datetime(2026, 10, 13, tzinfo=UTC)
+    workflow.append(tmp_path, 83, exact_transition(), now)
+    base = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True).strip()
+    queued = full_pr("Primary issue: #95")
+    queued["pull_request"]["base"]["sha"] = base
+    queued["pull_request"]["head"]["sha"] = base
+    live = copy.deepcopy(queued["pull_request"])
+    live["body"] = "Primary issue: #83"
+    answers = iter([live, {"number": 83, "created_at": "2026-10-04T00:00:00Z"}])
+    monkeypatch.setattr(
+        workflow.urllib.request,
+        "urlopen",
+        lambda *_args, **_kwargs: io.StringIO(json.dumps(next(answers))),
+    )
+    event_file = tmp_path / "event.json"
+    event_file.write_text(json.dumps(queued), encoding="utf-8")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "workflow",
+            "ci",
+            "--root",
+            str(tmp_path),
+            "--event",
+            str(event_file),
+            "--base",
+            base,
+            "--now",
+            "2026-10-13T00:00:00Z",
+        ],
+    )
+    with pytest.raises(SystemExit, match="1"):
+        workflow.main()
+    assert "recorded delivery event" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("target", ["source", "ledger"])
+def test_exact_append_rechecks_raw_inputs(tmp_path, monkeypatch, target):
+    exact_temp_repository(tmp_path)
+    source = tmp_path / workflow.EXACT_SOURCE
+    ledger = tmp_path / workflow.DIRECTORY / "issue-23.json"
+    original = source.read_bytes() if target == "source" else ledger.read_bytes()
+    actual = source if target == "source" else ledger
+    fsync = workflow.os.fsync
+
+    def mutate(fd):
+        fsync(fd)
+        actual.write_bytes(
+            original.replace(b"\r\n", b"\n")
+            if b"\r\n" in original
+            else original.replace(b"\n", b"\r\n")
+        )
+
+    monkeypatch.setattr(workflow.os, "fsync", mutate)
+    now = datetime(2026, 10, 13, tzinfo=UTC)
+    with pytest.raises(workflow.Invalid, match="changed before atomic replace"):
+        workflow.append(tmp_path, 83, exact_transition(), now)
+    assert actual.read_bytes() != original
+    assert not (tmp_path / workflow.DIRECTORY / "repository.lock").exists()
+    assert len(list((tmp_path / workflow.DIRECTORY).glob("*.tmp"))) == 0
 
 
 def at(seconds: int) -> str:
@@ -1789,7 +2048,7 @@ def test_merge_base_new_policy_requirement_and_explicit_transition(tmp_path):
     )
     timed = ledger(issue=86)
     with pytest.raises(
-        workflow.Invalid, match="new ledger introduction requires current owner-led-v1"
+        workflow.Invalid, match="new ledger introduction requires owner-led-v1 initialization"
     ):
         workflow.check_prefix(tmp_path, "main", {86: timed}, START)
     owner = owner_ledger()
@@ -1804,9 +2063,8 @@ def test_merge_base_new_policy_requirement_and_explicit_transition(tmp_path):
         capsule=workflow.capsule_ref(current_capsule(transitioned)),
         reason="explicitly authorized owner-led policy",
     )
-    assert workflow.check_prefix(
-        tmp_path, "main", {86: transitioned}, START + timedelta(seconds=1)
-    ) == {86}
+    with pytest.raises(workflow.Invalid, match="owner-led-v1 initialization"):
+        workflow.check_prefix(tmp_path, "main", {86: transitioned}, START + timedelta(seconds=1))
 
     # The same policyless prefix remains valid when it already exists at merge base.
     path = tmp_path / workflow.DIRECTORY / "issue-86.json"
@@ -2141,7 +2399,9 @@ def test_ci_prefix_uses_validated_base_sha(monkeypatch, tmp_path, cli_base):
     )
     bases = []
     monkeypatch.setattr(
-        workflow, "check_prefix", lambda _root, base, _ledgers, _now: bases.append(base) or set()
+        workflow,
+        "check_prefix",
+        lambda _root, base, _ledgers, _now, **_kwargs: bases.append(base) or set(),
     )
     monkeypatch.setattr(sys, "argv", ["workflow", "ci", "--event", str(path), "--base", cli_base])
     if cli_base == "b" * 40:
@@ -2172,7 +2432,9 @@ def test_ci_consumes_live_body_base_and_head(monkeypatch, tmp_path):
     monkeypatch.setattr(workflow, "validate_all", lambda *_: {})
     monkeypatch.setattr(workflow.urllib.request, "urlopen", urlopen)
     monkeypatch.setattr(
-        workflow, "check_prefix", lambda _root, base, _ledgers, _now: seen.append(base) or set()
+        workflow,
+        "check_prefix",
+        lambda _root, base, _ledgers, _now, **_kwargs: seen.append(base) or set(),
     )
     monkeypatch.setattr(
         workflow,
@@ -2182,7 +2444,7 @@ def test_ci_consumes_live_body_base_and_head(monkeypatch, tmp_path):
     monkeypatch.setattr(
         workflow,
         "check_pr",
-        lambda event, *_args: seen.append(event["pull_request"]["body"]) or "passed",
+        lambda event, *_args, **_kwargs: seen.append(event["pull_request"]["body"]) or "passed",
     )
     monkeypatch.setattr(
         sys,

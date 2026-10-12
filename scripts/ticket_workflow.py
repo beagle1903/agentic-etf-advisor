@@ -18,6 +18,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DIRECTORY = Path("docs/workflow/tickets")
+EXACT_SOURCE = Path("docs/workflow/history/issue-95/exact-23-83-sources.json")
+EXACT_PAIR = {
+    23: (
+        10,
+        "edb0ea490e463a75cbb92696e1400c2ad8f32e939ae9fb905db132cb27e0baac",
+        "724087c8856d412e98070c8e677ff37e3c17638bd188c11e38c722f7329267b0",
+    ),
+    83: (
+        9,
+        "b46ec791f25f51f7e022d00e6a654e0429e59b59a874500247f7f974c60664f9",
+        "0a975b01eb0a5732eecbccfca0de99ff0a952a9787c2af15b6870c08097f248c",
+    ),
+}
+EXACT_CAPSULE = {
+    "id": "issue-83-authenticated-owned-review",
+    "generation": 1,
+    "digest": "56f152c798123ae05ae6775870478c709363d745b4e52ac79f5327930e0f4f79",
+}
 ADOPTION = "2026-09-26T04:23:34Z"
 BOOTSTRAP_EVENTS = 18
 BOOTSTRAP_DIGEST = "ad92fa4555aa4162c9cefcfce7f6c2d233bdc318748b0b6b6b04bff208ae2779"
@@ -155,6 +173,73 @@ def sha(value: object) -> str:
     if not isinstance(value, str) or not re.fullmatch("[0-9a-f]{64}", value):
         raise Invalid("expected SHA256 content digest")
     return value
+
+
+def exact_sources(raw: bytes) -> dict[int, tuple[dict, bytes]]:
+    """Validate the separately pinned, immutable original UTF-8 source texts."""
+    try:
+        container = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=unique,
+            parse_constant=lambda _: (_ for _ in ()).throw(Invalid("nonfinite JSON")),
+        )
+    except (UnicodeError, ValueError, TypeError) as exc:
+        raise Invalid("invalid exact historical source container") from exc
+    container = keys(container, {"schema", "sources"})
+    if container["schema"] != "exact-issue23-83-source-v1":
+        raise Invalid("unknown exact historical source schema")
+    sources = keys(container["sources"], {"23", "83"})
+    result = {}
+    for issue, (events, expected_digest, expected_raw) in EXACT_PAIR.items():
+        source = sources[str(issue)]
+        if not isinstance(source, str):
+            raise Invalid("historical source must be UTF-8 text")
+        original = source.encode("utf-8")
+        if hashlib.sha256(original).hexdigest() != expected_raw:
+            raise Invalid("historical source raw bytes differ")
+        history = load(source)
+        if len(history["events"]) != events or digest(history) != expected_digest:
+            raise Invalid("historical source history differs")
+        result[issue] = (history, original)
+    return result
+
+
+def exact_operational(
+    ledgers: dict[int, dict],
+    sources: dict[int, tuple[dict, bytes]] | None,
+    raw_files: dict[str, bytes] | None,
+) -> bool:
+    """Require exact source context and permitted operational serializations."""
+    if 83 not in ledgers:
+        return False
+    if 23 not in ledgers or 83 not in ledgers or sources is None:
+        raise Invalid("complete exact historical pair and source context required")
+    if set(sources) != {23, 83}:
+        raise Invalid("complete exact historical source context required")
+    for issue, (original, raw) in sources.items():
+        expected_events, expected_digest, expected_raw = EXACT_PAIR[issue]
+        if (
+            hashlib.sha256(raw).hexdigest() != expected_raw
+            or original != load(raw.decode("utf-8"))
+            or len(original["events"]) != expected_events
+            or digest(original) != expected_digest
+        ):
+            raise Invalid("unvalidated historical source context")
+        candidate = ledgers[issue]
+        prefix = original["events"]
+        if candidate["events"][: len(prefix)] != prefix:
+            raise Invalid("historical event prefix differs")
+        if issue == 23 and candidate != original:
+            raise Invalid("historical parent has extra events")
+        if issue == 83 and len(candidate["events"]) < len(prefix):
+            raise Invalid("historical child prefix truncated")
+        if raw_files is not None:
+            actual = raw_files.get(f"issue-{issue}.json")
+            standard = (json.dumps(candidate, indent=2, allow_nan=False) + "\n").encode()
+            allowed = {raw, standard} if issue == 23 or candidate == original else {standard}
+            if actual not in allowed:
+                raise Invalid("historical operational raw bytes differ")
+    return True
 
 
 def owner(value: object) -> dict:
@@ -348,6 +433,7 @@ class State:
     delivery_history: list[dict] = field(default_factory=list)
     pending_repair: bool = False
     verification_repair_count: int | None = None
+    historical_transition: dict | None = None
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -452,8 +538,20 @@ class State:
                 raise Invalid("review requires current matching verification and acceptance")
 
 
-def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None = None) -> State:
+def replay(
+    value: dict,
+    now: datetime,
+    *,
+    predecessors: dict[int, dict] | None = None,
+    historical_sources: dict[int, tuple[dict, bytes]] | None = None,
+) -> State:
     value = load(json.dumps(value, allow_nan=False))
+    if any(item.get("type") == "lineage_policy_transition" for item in value["events"]):
+        exact_operational(
+            {23: predecessors[23], 83: value} if predecessors and 23 in predecessors else {},
+            historical_sources,
+            None,
+        )
     state = None
     previous = None
     bootstrap = (
@@ -531,6 +629,14 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             )
             state.scope = scope
             state.policy = data.get("policy", "timed-v1")
+            if issue == 83 and any(
+                item.get("type") == "lineage_policy_transition" for item in value["events"]
+            ):
+                if historical_sources is None or issue not in historical_sources:
+                    raise Invalid("exact historical source context required")
+                pinned = historical_sources[issue][0]
+                if value["events"][: len(pinned["events"])] != pinned["events"]:
+                    raise Invalid("exact historical replay prefix required")
             if not bootstrap:
                 if data["adoption"] is not None:
                     raise Invalid(
@@ -582,6 +688,7 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                     parent,
                     at,
                     predecessors={k: v for k, v in predecessors.items() if k != pred_issue},
+                    historical_sources=historical_sources,
                 )
                 if parent_state.repo != repo or issue not in parent_state.splits:
                     raise Invalid("predecessor did not allocate this successor")
@@ -795,7 +902,23 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
                 raise Invalid("same-role handoff does not change escalation")
             state.approved_owner = selected
         elif kind == "phase_resume":
-            data = keys(data, {"session"})
+            if state.historical_transition is not None:
+                data = keys(data, {"session", "authority", "capsule", "reason"})
+                authority(data["authority"], "user")
+                require_capsule(data["capsule"], state)
+                text(data["reason"])
+                evidence = normalized_evidence(data["authority"]["evidence"])
+                if evidence in state.authorization_history:
+                    raise Invalid("historical resume authority already consumed")
+                reserved = state.historical_transition["reservation"]
+                if not state.suspended or any(
+                    state.suspended.get(key) != reserved[key]
+                    for key in ("phase", "session", "role", "capsule")
+                ):
+                    raise Invalid("historical reservation differs")
+                state.authorization_history.add(evidence)
+            else:
+                data = keys(data, {"session"})
             if state.active or not state.suspended or data["session"] != state.suspended["session"]:
                 raise Invalid("no matching interrupted session")
             if (
@@ -807,6 +930,87 @@ def replay(value: dict, now: datetime, *, predecessors: dict[int, dict] | None =
             state.active = {**state.suspended, "at": event["at"]}
             state.suspended = None
             state.clock_running = True
+        elif kind == "lineage_policy_transition":
+            data = keys(
+                data,
+                {
+                    "policy",
+                    "authority",
+                    "capsule",
+                    "prefix_digest",
+                    "predecessor",
+                    "time_barrier",
+                    "reason",
+                },
+            )
+            authority(data["authority"], "user")
+            require_capsule(data["capsule"], state)
+            text(data["reason"])
+            pred = keys(data["predecessor"], {"issue", "events", "digest"})
+            if (
+                index != 9
+                or state.issue != 83
+                or state.repo != "beagle1903/agentic-etf-advisor"
+                or data["policy"] != "owner-led-v1"
+                or state.policy != "timed-v1"
+                or data["prefix_digest"] != EXACT_PAIR[83][1]
+                or pred != {"issue": 23, "events": 10, "digest": EXACT_PAIR[23][1]}
+                or data["time_barrier"] != "B83-EXHAUSTED"
+                or not predecessors
+                or 23 not in predecessors
+                or historical_sources is None
+                or value["events"][:9] != historical_sources[83][0]["events"]
+                or predecessors[23] != historical_sources[23][0]
+                or state.active
+                or not state.suspended
+                or state.clock_running
+                or state.suspended
+                != {
+                    "phase": "implementation",
+                    "session": "/root/issue83_implementation",
+                    "role": "implementation_worker",
+                    "capsule": EXACT_CAPSULE,
+                    "at": historical_sources[83][0]["events"][6]["at"],
+                }
+                or state.capsule is None
+                or capsule_ref(state.capsule) != EXACT_CAPSULE
+                or state.counts["implementation"] != 1
+                or state.limits["implementation"] != 1
+                or state.budget_seconds != 6051
+                or state.elapsed_seconds != 34580
+                or state.author_session is not None
+                or state.verified
+                or state.accepted
+                or state.reviewed
+                or state.delivered
+                or state.blockers.get("B83-EXHAUSTED") is None
+                or state.blockers["B83-EXHAUSTED"].get("required_remediation") != 1
+            ):
+                raise Invalid("exact historical lineage transition required")
+            evidence = normalized_evidence(data["authority"]["evidence"])
+            inherited = {
+                record["evidence"]
+                for history in (predecessors[23], historical_sources[83][0])
+                for record in authority_records(history)
+            }
+            if evidence in state.authorization_history | inherited:
+                raise Invalid("historical transition authority already consumed")
+            state.authorization_history.update(inherited)
+            state.authorization_history.add(evidence)
+            state.ancestry = [23]
+            state.imported_participants = participant_records(predecessors[23])
+            state.imported_authorities = authority_records(predecessors[23])
+            state.ancestor_outcomes = outcome_records(predecessors[23])
+            state.historical_transition = {
+                "pair": "issue-23-83",
+                "event": 10,
+                "timed_budget_seconds": state.budget_seconds,
+                "timed_elapsed_seconds": state.elapsed_seconds,
+                "timed_debt_seconds": state.elapsed_seconds - state.budget_seconds,
+                "parent_residual_seconds": 5,
+                "reservation": state.suspended.copy(),
+            }
+            state.policy = "owner-led-v1"
         elif kind in {"phase_end", "pause"}:
             data = keys(data, {"session", "outcome", "evidence"})
             text(data["evidence"])
@@ -1273,8 +1477,10 @@ def content_digest(root: Path, issue: int, ref: str | None = None) -> str:
 
 
 def validate_all(root: Path, now: datetime) -> dict[int, dict]:
-    ledgers = read_all(root)
-    validate_map(ledgers, now)
+    files = ledger_bytes(root)
+    ledgers = ledgers_from_bytes(files)
+    source = exact_sources((root / EXACT_SOURCE).read_bytes()) if 83 in ledgers else None
+    validate_map(ledgers, now, historical_sources=source, raw_files=files)
     return ledgers
 
 
@@ -1371,7 +1577,18 @@ def authority_records(history: dict) -> list[dict]:
             }
         )
     for index, event in enumerate(history["events"][1:], 1):
-        if event["type"] in {"split", "extension", "continuation", "policy_transition"}:
+        if (
+            event["type"]
+            in {
+                "split",
+                "extension",
+                "continuation",
+                "policy_transition",
+                "lineage_policy_transition",
+                "phase_resume",
+            }
+            and "authority" in event["data"]
+        ):
             records.append(
                 {
                     "issue": issue,
@@ -1412,12 +1629,22 @@ def outcome_records(history: dict) -> list[dict]:
     ]
 
 
-def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
+def validate_map(
+    ledgers: dict[int, dict],
+    now: datetime,
+    *,
+    historical_sources: dict[int, tuple[dict, bytes]] | None = None,
+    raw_files: dict[str, bytes] | None = None,
+) -> dict[int, State]:
     """Validate every ticket and each connected owner-led split component."""
+    exact = exact_operational(ledgers, historical_sources, raw_files)
     states = {}
     for issue, value in ledgers.items():
         states[issue] = replay(
-            value, now, predecessors={k: v for k, v in ledgers.items() if k != issue}
+            value,
+            now,
+            predecessors={k: v for k, v in ledgers.items() if k != issue},
+            historical_sources=historical_sources,
         )
         if states[issue].issue != issue:
             raise Invalid("ledger issue differs from initialized issue")
@@ -1439,6 +1666,10 @@ def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
         if state.policy != "owner-led-v1" or not state.predecessor:
             continue
         pred = ledgers[issue]["events"][0]["data"]["predecessor"]["issue"]
+        if exact and issue == 83 and pred == 23 and state.historical_transition:
+            adjacency[23].add(83)
+            adjacency[83].add(23)
+            continue
         if targets.get(issue) != pred:
             raise Invalid("predecessor allocation mismatch")
     visited: set[int] = set()
@@ -1494,12 +1725,27 @@ def validate_map(ledgers: dict[int, dict], now: datetime) -> dict[int, State]:
                 elif kind == "owner_handoff":
                     people.add(normalized_session(data["owner"]["session"]))
                 elif kind == "split":
-                    for child in data["children"]:
-                        if child["issue"] not in states:
-                            uninitialized_owners.setdefault(child["issue"], set()).add(
-                                normalized_session(child["capsule"]["owner"]["session"])
-                            )
-                if kind in {"split", "extension", "continuation", "policy_transition"}:
+                    if member == 23 and exact:
+                        if data["successor"] != 83:
+                            raise Invalid("historical split successor differs")
+                    else:
+                        for child in data["children"]:
+                            if child["issue"] not in states:
+                                uninitialized_owners.setdefault(child["issue"], set()).add(
+                                    normalized_session(child["capsule"]["owner"]["session"])
+                                )
+                if (
+                    kind
+                    in {
+                        "split",
+                        "extension",
+                        "continuation",
+                        "policy_transition",
+                        "lineage_policy_transition",
+                        "phase_resume",
+                    }
+                    and "authority" in data
+                ):
                     key = normalized_evidence(data["authority"]["evidence"])
                     if key in consumed:
                         prior = consumed[key]
@@ -1574,7 +1820,9 @@ def append(
         original_files = ledger_bytes(root)
         original_content = content_digest(root, issue)
         ledgers = ledgers_from_bytes(original_files)
-        validate_map(ledgers, now)
+        historical_bytes = (root / EXACT_SOURCE).read_bytes() if 83 in ledgers else None
+        historical = exact_sources(historical_bytes) if historical_bytes is not None else None
+        validate_map(ledgers, now, historical_sources=historical, raw_files=original_files)
         if issue not in ledgers and (
             not isinstance(event, dict)
             or event.get("type") != "initialize"
@@ -1596,7 +1844,10 @@ def append(
             raise Invalid("phase reservation does not match current repository content")
         if event.get("type") in {"phase_end", "acceptance", "delivery"} and value["events"]:
             prior = replay(
-                value, now, predecessors={k: v for k, v in ledgers.items() if k != issue}
+                value,
+                now,
+                predecessors={k: v for k, v in ledgers.items() if k != issue},
+                historical_sources=historical,
             )
             expected = event.get("data", {}).get("content")
             if (
@@ -1610,10 +1861,16 @@ def append(
                 raise Invalid("repository content changed after recorded verification/review")
         candidate = {"schema": 1, "events": [*value["events"], event]}
         candidate_map = {**ledgers, issue: candidate}
-        state = validate_map(candidate_map, now)[issue]
+        expected_temp = (json.dumps(candidate, indent=2, allow_nan=False) + "\n").encode("utf-8")
+        candidate_files = {**original_files, f"issue-{issue}.json": expected_temp}
+        if historical is None and 83 in candidate_map:
+            historical_bytes = (root / EXACT_SOURCE).read_bytes()
+            historical = exact_sources(historical_bytes)
+        state = validate_map(
+            candidate_map, now, historical_sources=historical, raw_files=candidate_files
+        )[issue]
         if state.issue != issue:
             raise Invalid("requested issue differs from initialized issue")
-        expected_temp = (json.dumps(candidate, indent=2, allow_nan=False) + "\n").encode("utf-8")
         with tempfile.NamedTemporaryFile(
             mode="wb", dir=path.parent, delete=False, suffix=".tmp"
         ) as target:
@@ -1624,6 +1881,10 @@ def append(
         try:
             if (
                 (source_path is not None and source_path.read_bytes() != source_bytes)
+                or (
+                    historical_bytes is not None
+                    and (root / EXACT_SOURCE).read_bytes() != historical_bytes
+                )
                 or ledger_bytes(root) != original_files
                 or temp.read_bytes() != expected_temp
                 or content_digest(root, issue) != original_content
@@ -1638,7 +1899,11 @@ def append(
 
 
 def check_prefix(
-    root: Path, base: str, ledgers: dict[int, dict], now: datetime | None = None
+    root: Path,
+    base: str,
+    ledgers: dict[int, dict],
+    now: datetime | None = None,
+    primary: int | None = None,
 ) -> set[int]:
     merge_base = subprocess.check_output(
         ["git", "merge-base", base, "HEAD"], cwd=root, text=True
@@ -1661,14 +1926,21 @@ def check_prefix(
         if current is None or current["events"][: len(old["events"])] != old["events"]:
             raise Invalid("merge-base ledger history edited or deleted")
     checked_at = now or datetime.now(UTC)
-    for issue in ledgers.keys() - originals.keys():
-        state = replay(
-            ledgers[issue],
-            checked_at,
-            predecessors={key: value for key, value in ledgers.items() if key != issue},
-        )
-        if state.policy != "owner-led-v1":
-            raise Invalid("new ledger introduction requires current owner-led-v1 policy")
+    introduced = ledgers.keys() - originals.keys()
+    exceptional = bool(introduced & {23, 83})
+    if exceptional:
+        if introduced & {23, 83} != {23, 83} or primary != 83:
+            raise Invalid("exact historical introduction requires pair and primary Issue83")
+        historical = exact_sources((root / EXACT_SOURCE).read_bytes())
+        files = ledger_bytes(root)
+        states = validate_map(ledgers, checked_at, historical_sources=historical, raw_files=files)
+        if not states[83].historical_transition:
+            raise Invalid("historical introduction requires immediate valid transition")
+    for issue in introduced:
+        if exceptional and issue in {23, 83}:
+            continue
+        if ledgers[issue]["events"][0]["data"].get("policy") != "owner-led-v1":
+            raise Invalid("new ledger introduction requires owner-led-v1 initialization")
     return {issue for issue, value in ledgers.items() if originals.get(issue) != value}
 
 
@@ -1686,6 +1958,7 @@ def check_pr(
     now: datetime,
     changed: set[int] | None = None,
     content: str | None = None,
+    historical_sources: dict[int, tuple[dict, bytes]] | None = None,
 ) -> str:
     pr = event["pull_request"]
     if timestamp(pr["created_at"]) < timestamp(ADOPTION) and not re.search(
@@ -1702,7 +1975,10 @@ def check_pr(
             return "Historical issue exempt; no retroactive ledger adoption."
         raise Invalid("primary issue ledger missing")
     state = replay(
-        ledgers[issue], now, predecessors={k: v for k, v in ledgers.items() if k != issue}
+        ledgers[issue],
+        now,
+        predecessors={k: v for k, v in ledgers.items() if k != issue},
+        historical_sources=historical_sources,
     )
     if state.repo != event["repository"]["full_name"]:
         raise Invalid("PR repository differs from ledger")
@@ -1794,8 +2070,11 @@ def main() -> None:
             append(args.root, args.issue, event, now, source_path=args.event)
         else:
             ledgers = validate_all(args.root, now)
+            historical = (
+                exact_sources((args.root / EXACT_SOURCE).read_bytes()) if 83 in ledgers else None
+            )
             changed = (
-                check_prefix(args.root, args.base, ledgers, now)
+                check_prefix(args.root, args.base, ledgers, now, primary=args.issue)
                 if args.base and args.command != "ci"
                 else set()
             )
@@ -1806,6 +2085,7 @@ def main() -> None:
                     ledgers[args.issue],
                     now,
                     predecessors={k: v for k, v in ledgers.items() if k != args.issue},
+                    historical_sources=historical,
                 )
                 if args.command == "status":
                     print(
@@ -1849,6 +2129,16 @@ def main() -> None:
                                     str(child): allocation.get("allocation")
                                     for child, allocation in sorted(state.splits.items())
                                 },
+                                "historical_transition": state.historical_transition,
+                                "suspended_phase": state.suspended["phase"]
+                                if state.suspended
+                                else None,
+                                "distinct_resume_authority_required": bool(
+                                    state.historical_transition and state.suspended
+                                ),
+                                "remaining_implementation_starts": state.limits["implementation"]
+                                - state.counts["implementation"],
+                                "blocker_ids": sorted(state.blockers),
                             },
                             indent=2,
                         )
@@ -1876,12 +2166,21 @@ def main() -> None:
                     event = current_pr(event, json.load(response))
                 if args.base != event["pull_request"]["base"]["sha"]:
                     raise Invalid("prefix base differs from validated PR base SHA")
-                changed = check_prefix(
-                    args.root, event["pull_request"]["base"]["sha"], ledgers, now
-                )
                 body = event["pull_request"].get("body") or ""
-                historical = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
-                if historical and not re.search(r"^Primary issue:", body, re.MULTILINE):
+                declared_primary = (
+                    primary_issue(body)
+                    if re.search(r"^Primary issue:", body, re.MULTILINE)
+                    else None
+                )
+                changed = check_prefix(
+                    args.root,
+                    event["pull_request"]["base"]["sha"],
+                    ledgers,
+                    now,
+                    primary=declared_primary,
+                )
+                historical_pr = timestamp(event["pull_request"]["created_at"]) < timestamp(ADOPTION)
+                if historical_pr and not re.search(r"^Primary issue:", body, re.MULTILINE):
                     if changed:
                         raise Invalid("changed ledger requires primary issue binding")
                     print("Historical PR exempt; append-only ledger validation passed.")
@@ -1903,6 +2202,7 @@ def main() -> None:
                         now,
                         changed,
                         content_digest(args.root, issue, event["pull_request"]["head"]["sha"]),
+                        historical_sources=historical,
                     )
                 )
                 return

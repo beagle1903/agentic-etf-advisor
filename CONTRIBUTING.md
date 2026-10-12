@@ -270,6 +270,12 @@ The parent retires, and unused allowance cannot later move to a sibling. Connect
 lineage authority and independent participants are checked in both directions before
 any append. A repository ticket-directory lock serializes cooperating writers, while
 final actual-file checks reject observed edits by other processes. See ADR 0036.
+ADR 0037 permits only the pinned original Issue 23/83 pair to make an exact historical
+lineage transition. It keeps the parent retired and timed, the child exhausted
+reservation and blocker intact, and requires distinct user authority for each later
+resume. New ledgers otherwise initialize owner-led; an arbitrary timed prefix with
+a transition suffix is not introduction authority. This ticket does not perform the
+historical transition or authorize Issue 83 product work.
 
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on

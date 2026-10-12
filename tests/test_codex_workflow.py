@@ -205,6 +205,9 @@ def test_role_contract_drift(repository: Path, role: str, key: str) -> None:
         ("AGENTS.md", "Owner-led split uses one conserved batch allocation"),
         ("CONTRIBUTING.md", "Owner-led splits allocate all named children in one event"),
         ("docs/workflow/README.md", "Local counts and local outcomes"),
+        ("AGENTS.md", "lineage_policy_transition"),
+        ("CONTRIBUTING.md", "ADR 0037 permits only the pinned original Issue 23/83 pair"),
+        ("docs/workflow/README.md", "original operational bytes"),
         ("docs/workflow/templates/initialize.example.json", '"policy": "owner-led-v1"'),
         *[
             (f".github/ISSUE_TEMPLATE/{name}.yml", "execution-workflow")

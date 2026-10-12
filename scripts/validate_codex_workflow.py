@@ -341,6 +341,7 @@ def main() -> None:
             "Owner-led split uses one conserved batch allocation",
             "Connected lineage",
             "repository ticket-directory lock",
+            "lineage_policy_transition",
         ),
     )
     require_markers(
@@ -395,6 +396,7 @@ def main() -> None:
             "Owner-led splits allocate all named children in one event",
             "lineage authority and independent participants",
             "repository ticket-directory lock",
+            "ADR 0037 permits only the pinned original Issue 23/83 pair",
         ),
     )
     require_markers(
@@ -413,6 +415,8 @@ def main() -> None:
             "Local counts and local outcomes",
             "Connected siblings and descendants",
             "repository ticket-directory lock",
+            "lineage_policy_transition",
+            "original operational bytes",
         ),
     )
     template = ROOT / "docs/workflow/templates/coordinator-arbitration.md"
