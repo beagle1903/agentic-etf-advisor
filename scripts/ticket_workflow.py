@@ -434,6 +434,7 @@ class State:
     pending_repair: bool = False
     verification_repair_count: int | None = None
     historical_transition: dict | None = None
+    retained_reservation_open: bool = False
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -536,6 +537,11 @@ class State:
                 or self.verified_content != self.acceptance_content
             ):
                 raise Invalid("review requires current matching verification and acceptance")
+
+
+def requires_historical_resume(state: State) -> bool:
+    """Only the retained implementation reservation needs a new user authority."""
+    return state.retained_reservation_open and state.suspended is not None
 
 
 def replay(
@@ -902,7 +908,7 @@ def replay(
                 raise Invalid("same-role handoff does not change escalation")
             state.approved_owner = selected
         elif kind == "phase_resume":
-            if state.historical_transition is not None:
+            if requires_historical_resume(state):
                 data = keys(data, {"session", "authority", "capsule", "reason"})
                 authority(data["authority"], "user")
                 require_capsule(data["capsule"], state)
@@ -1010,6 +1016,7 @@ def replay(
                 "parent_residual_seconds": 5,
                 "reservation": state.suspended.copy(),
             }
+            state.retained_reservation_open = True
             state.policy = "owner-led-v1"
         elif kind in {"phase_end", "pause"}:
             data = keys(data, {"session", "outcome", "evidence"})
@@ -1026,6 +1033,8 @@ def replay(
                 state.suspended = state.active.copy()
                 state.clock_running = False
             else:
+                if state.retained_reservation_open:
+                    state.retained_reservation_open = False
                 completed(state, phase, data["session"], data["outcome"])
             state.active = None
         elif kind in {"coordination_pause", "coordination_resume"}:
@@ -2133,8 +2142,8 @@ def main() -> None:
                                 "suspended_phase": state.suspended["phase"]
                                 if state.suspended
                                 else None,
-                                "distinct_resume_authority_required": bool(
-                                    state.historical_transition and state.suspended
+                                "distinct_resume_authority_required": requires_historical_resume(
+                                    state
                                 ),
                                 "remaining_implementation_starts": state.limits["implementation"]
                                 - state.counts["implementation"],

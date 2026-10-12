@@ -119,11 +119,22 @@ def test_exact_historical_transition_and_resume_authorities_are_distinct():
     )[83]
     assert state.active["at"] == resume["at"]
     assert state.counts["implementation"] == 1
+    assert state.retained_reservation_open
     assert "B83-EXHAUSTED" in state.blockers
     bad = copy.deepcopy(histories)
     bad[83]["events"][-1]["data"] = {"session": "/root/issue83_implementation"}
     with pytest.raises(workflow.Invalid):
         workflow.validate_map(bad, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources)
+    for field, replacement in (
+        ("session", "/root/another_worker"),
+        ("capsule", {**workflow.EXACT_CAPSULE, "digest": "a" * 64}),
+    ):
+        bad = copy.deepcopy(histories)
+        bad[83]["events"][-1]["data"][field] = replacement
+        with pytest.raises(workflow.Invalid):
+            workflow.validate_map(
+                bad, datetime(2026, 10, 13, tzinfo=UTC), historical_sources=sources
+            )
     pause = {
         "type": "pause",
         "at": "2026-10-12T00:00:02Z",
@@ -160,6 +171,104 @@ def test_exact_mapping_rejects_forged_source_context():
             predecessors={23: histories[23]},
             historical_sources=forged,
         )
+
+
+def test_later_historical_child_remediation_and_verification_resume_ordinary():
+    sources, histories = exact_pair()
+    events = histories[83]["events"]
+    events.append(exact_transition())
+    owner = "/root/issue83_implementation"
+    ref = copy.deepcopy(workflow.EXACT_CAPSULE)
+    events.extend(
+        [
+            {
+                "type": "phase_resume",
+                "at": "2026-10-12T00:00:01Z",
+                "data": {
+                    "session": owner,
+                    "authority": {
+                        "kind": "user",
+                        "name": "test",
+                        "evidence": "retained reservation resume",
+                    },
+                    "capsule": ref,
+                    "reason": "complete the original reservation",
+                },
+            },
+            {
+                "type": "phase_end",
+                "at": "2026-10-12T00:00:02Z",
+                "data": {"session": owner, "outcome": "pass", "evidence": "synthetic completion"},
+            },
+            {
+                "type": "phase_start",
+                "at": "2026-10-12T00:00:03Z",
+                "data": {
+                    "phase": "remediation",
+                    "session": owner,
+                    "role": "implementation_worker",
+                    "capsule": ref,
+                },
+            },
+            {
+                "type": "pause",
+                "at": "2026-10-12T00:00:04Z",
+                "data": {"session": owner, "outcome": "interrupted", "evidence": "synthetic pause"},
+            },
+        ]
+    )
+    now = datetime(2026, 10, 13, tzinfo=UTC)
+    paused = workflow.validate_map(histories, now, historical_sources=sources)[83]
+    assert paused.suspended["phase"] == "remediation"
+    assert not paused.retained_reservation_open
+    assert not workflow.requires_historical_resume(paused)
+    counts = paused.counts.copy()
+    events.append(
+        {"type": "phase_resume", "at": "2026-10-12T00:00:05Z", "data": {"session": owner}}
+    )
+    resumed = workflow.validate_map(histories, now, historical_sources=sources)[83]
+    assert resumed.active["phase"] == "remediation" and resumed.counts == counts
+    assert resumed.active["at"] == "2026-10-12T00:00:05Z"
+    events.extend(
+        [
+            {
+                "type": "phase_end",
+                "at": "2026-10-12T00:00:06Z",
+                "data": {"session": owner, "outcome": "pass", "evidence": "synthetic repair"},
+            },
+            {
+                "type": "resolve",
+                "at": "2026-10-12T00:00:07Z",
+                "data": {"id": "B83-EXHAUSTED", "evidence": "synthetic repaired criterion"},
+            },
+            {
+                "type": "phase_start",
+                "at": "2026-10-12T00:00:08Z",
+                "data": {
+                    "phase": "verification",
+                    "session": owner,
+                    "role": "implementation_worker",
+                    "capsule": ref,
+                    "content": "a" * 64,
+                },
+            },
+            {
+                "type": "pause",
+                "at": "2026-10-12T00:00:09Z",
+                "data": {"session": owner, "outcome": "interrupted", "evidence": "synthetic pause"},
+            },
+        ]
+    )
+    paused = workflow.validate_map(histories, now, historical_sources=sources)[83]
+    assert paused.suspended["phase"] == "verification"
+    assert not workflow.requires_historical_resume(paused)
+    counts = paused.counts.copy()
+    events.append(
+        {"type": "phase_resume", "at": "2026-10-12T00:00:10Z", "data": {"session": owner}}
+    )
+    resumed = workflow.validate_map(histories, now, historical_sources=sources)[83]
+    assert resumed.active["phase"] == "verification" and resumed.counts == counts
+    assert resumed.active["at"] == "2026-10-12T00:00:10Z"
 
 
 def exact_temp_repository(tmp_path):

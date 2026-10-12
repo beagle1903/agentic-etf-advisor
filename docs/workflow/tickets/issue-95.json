@@ -311,6 +311,169 @@
         },
         "content": "1adb36dc5d3b3a07c0e176a3606da1cc6c88fdb0c6716218cddc967bc1d08bbb"
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-12T14:02:56Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "chat:01a12f2f-6c99-7071-adc7-67acc29632ba:2026-10-12:pr98-bounded-resume-repair: user said ok do as you suggested, directly approving same owner repair B95-LATER-PHASE-RESUME, one fresh verification and one independent final review on original PR98; no redesign,new ticket,reset,new PR or merge."
+        },
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "User-approved narrow repair for PR98 discussion_r4248794723; one same-owner remediation,fresh verification and independent final review. Preserve original binding and historical certificates; no other scope or merge."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-12T14:02:57Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume after distinct user-approved PR98 bounded continuation; issue95-pr98-resume-repair-authorization.json"
+        },
+        "evidence": "New approval resumes coordinator audit timing; no retroactive pause/subtraction."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-12T14:02:59Z",
+      "data": {
+        "id": "B95-LATER-PHASE-RESUME",
+        "criterion": "AC95GATES",
+        "scenario": "After retained implementation completes, persistent historical_transition incorrectly forces later paused remediation/verification through retained-reservation-only resume schema, leaving them impossible to resume.",
+        "evidence": "PR98 discussion_r4248794723 and source phase_resume branch; external blocked decision retained; user-approved bounded repair now permits narrow remediation."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:03:01Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:13:26Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-resume-remediation-report.md SHA256 6ca2dbf5db769a872fe40b286c4f47bc00bfbf23d989c0df5f8e2b8fa5391b4a; actual original reservation S95-remediation-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-12T14:13:28Z",
+      "data": {
+        "id": "B95-LATER-PHASE-RESUME",
+        "evidence": "Completed sole S95-remediation-1: issue95-resume-remediation-report.md; retained reservation lifecycle predicate,same status flag,later remediation/verification resume controls and original authority/mismatch negatives PASS. Fresh verification/final review still required; initial defect and stopped preflight retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:13:31Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue95_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:22:42Z",
+      "data": {
+        "session": "/root/issue95_owner",
+        "outcome": "pass",
+        "evidence": "issue95-resume-verification-report.md SHA256 b4c5bab8c3bdfd11686333dcf50df4ae99d767845ec4c629997ccfa1ec8212a4; actual original reservation S95-verification-2; no refund or count reset."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-12T14:22:44Z",
+      "data": {
+        "ids": [
+          "AC95EXACT",
+          "AC95TIME",
+          "AC95GATES",
+          "AC95AUTH",
+          "AC95INTRO",
+          "AC95IO",
+          "AC95DOCS",
+          "AC95VERIFY"
+        ],
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b",
+        "evidence": "All frozen AC95 ids supported by focused exact/synthetic mutation controls and all12 full gates on identical content; primary hashes unchanged. Full evidence verification95-resume-repair/summary.json SHA256 acbf4ef4e2753d0292340ce72432499ba87131b7c71aa8cf573d7bd2acbc90f1. Independent review remains required; no actual product transition/resume."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-12T14:22:47Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue95_resume_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-12T14:27:16Z",
+      "data": {
+        "session": "/root/issue95_resume_final_review",
+        "outcome": "pass",
+        "evidence": "issue95-resume-final-review-report.md SHA256 decd575f0e5462e45e5b2bfee29eaa2b7418cc7df4d5814b16c87d13ea070b8e; actual original reservation S95-final_review-1; no refund or count reset."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-12T14:27:19Z",
+      "data": {
+        "evidence": "Original PR98 redelivery after distinct explicit bounded user continuation,same owner remediation,fresh full12gate verification and fresh independent final review PASS on identical repaired content. P1 and prior certification retained in history. Same repository/PR,no new identity or merge. Actual updated-head CI still required.",
+        "pr": 98,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-95-exact-historical-23-83-transition",
+          "generation": 1,
+          "digest": "29fe7abb153ff0bd8e3168dfbe1f3a16439b181781e4d36f23f78890921d2dea"
+        },
+        "content": "96888a1897a43255fd4224c6f114674bddd49f4cc6896c210a18e624b07f873b"
+      }
     }
   ]
 }
