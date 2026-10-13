@@ -191,6 +191,15 @@ adapters. Because the hybrid retriever preserves Chroma order, the measured sect
 explicitly constraint-context lift. It justifies the sector projection but not any further schema
 expansion.
 
+The Issue 99 offline analysis runner retains those five retrieval cases and the 14 existing
+explanation cases at their original dataset bytes, and adds 18 fixed synthetic cases through the
+current evidence, screening and construction functions. Per-case JSON reports stage, status,
+production reasons, source metadata, exclusions and exact basis-point/cents totals. The runner
+uses no live store, model, provider or clock and changes no graph/checkpoint state. EU listing
+fixtures are expected current US-only rejections; their currency labels are descriptive and do
+not implement a new eligibility or allocation rule. Fixture agreement is a contract regression
+measure, not evidence of Yahoo catalogue completeness or portfolio performance.
+
 The policy draft now calls a pure deterministic calculation boundary. It selects an
 illustrative target inside the existing risk-tolerance band based on the stated objective,
 then splits initial and recurring USD amounts to cents while preserving each total. The

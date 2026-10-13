@@ -1,0 +1,24 @@
+{
+  "dataset_id": "issue99-analysis-v1",
+  "version": 1,
+  "cases": [
+    {"id": "balanced", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"], "weights_bps": [1438, 1438, 1437, 1437, 4250], "initial_cents": [14380, 14380, 14370, 14370, 42500], "recurring_cents": [3595, 3595, 3593, 3592, 10625]},
+    {"id": "conservative", "risk": "conservative", "objective": "income", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"], "weights_bps": [500, 500, 500, 500, 8000]},
+    {"id": "aggressive", "risk": "aggressive", "objective": "growth", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
+    {"id": "one-cent", "initial_usd": 0.01, "recurring_usd": 0, "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
+    {"id": "zero-cash", "initial_usd": 0, "recurring_usd": 0, "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
+    {"id": "sector-reported", "exclusions": ["Technology"], "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_failed"}, "screening": {"SPY": "excluded_sector_detected"}},
+    {"id": "sector-unsupported", "exclusions": ["weapons"], "expected_stage": "construction", "expected_status": "blocked", "reason": "insufficient_eligible_candidates", "excluded": {"SPY": "candidate_screening_unknown", "VTI": "candidate_screening_unknown", "QQQ": "candidate_screening_unknown", "VEA": "candidate_screening_unknown", "BND": "candidate_screening_unknown"}, "screening": {"SPY": "unsupported_sector_exclusion"}},
+    {"id": "missing-fee", "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_unknown"}, "screening": {"SPY": "expense_ratio_unknown"}},
+    {"id": "missing-category", "expected_stage": "construction", "expected_status": "blocked", "reason": "missing_sleeve_coverage", "excluded": {"BND": "category_missing"}},
+    {"id": "stale-document", "expected_stage": "evidence", "expected_status": "blocked", "reason": "Source evidence is blocked until every observation is current."},
+    {"id": "stale-field", "expected_stage": "screening", "expected_status": "blocked", "reason": "field_stale"},
+    {"id": "conflicting-fee", "expected_stage": "screening", "expected_status": "blocked", "reason": "screening_contract_error"},
+    {"id": "insufficient-two", "risk": "aggressive", "objective": "growth", "candidate_symbols": ["QQQ", "BND"], "expected_stage": "construction", "expected_status": "blocked", "reason": "insufficient_eligible_candidates"},
+    {"id": "position-infeasible", "max_position_weight_bps": 4000, "expected_stage": "construction", "expected_status": "blocked", "reason": "position_constraints_infeasible"},
+    {"id": "concentration-fail", "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_failed"}, "screening": {"SPY": "concentration_above_limit"}},
+    {"id": "listing-us-usd", "candidate_symbols": ["SPY"], "expected_stage": "evidence", "expected_status": "ready"},
+    {"id": "listing-eu-eur", "candidate_symbols": ["VWCE.DE"], "expected_stage": "evidence", "expected_status": "blocked"},
+    {"id": "listing-eu-usd", "candidate_symbols": ["CSPX.AS"], "expected_stage": "evidence", "expected_status": "blocked"}
+  ]
+}

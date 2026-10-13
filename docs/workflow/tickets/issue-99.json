@@ -1,0 +1,231 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-13T14:34:07Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 99,
+        "classification": "ordinary",
+        "scope": [
+          "S99-1",
+          "S99-2",
+          "S99-3",
+          "S99-CASE-balanced",
+          "S99-CASE-conservative",
+          "S99-CASE-aggressive",
+          "S99-CASE-one-cent",
+          "S99-CASE-zero-cash",
+          "S99-CASE-sector-reported",
+          "S99-CASE-sector-unsupported",
+          "S99-CASE-missing-fee",
+          "S99-CASE-missing-category",
+          "S99-CASE-stale-document",
+          "S99-CASE-stale-field",
+          "S99-CASE-conflicting-fee",
+          "S99-CASE-insufficient-two",
+          "S99-CASE-position-infeasible",
+          "S99-CASE-concentration-fail",
+          "S99-CASE-listing-us-usd",
+          "S99-CASE-listing-eu-eur",
+          "S99-CASE-listing-eu-usd"
+        ],
+        "invariants": [
+          "INV99-1",
+          "INV99-2",
+          "INV99-3",
+          "INV99-4",
+          "INV99-5"
+        ],
+        "acceptance": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue99 live issue/parent scope checked; ordinary route approved for user continue; full frozen capsule in initialize event."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 99,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue99_owner"
+          },
+          "rationale": "Offline evaluation and documentation within existing contracts; no eligibility, safety, financial, replay, persistence or source-interface change. Project implementation_worker owns complete routine session; no evidence requiring independent review presently.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat 01a135ab-6a06-7903-893b-3aebc878ba67 user continue 2026-10-13 explicitly resumes queued Issue99 scoped task; parent source chat01a134a9-36a0-7c80-b663-32307389c31a handoff."
+          },
+          "scope": {
+            "S99-1": "Versioned bounded 37-case fixture evaluation: frozen original datasets {\"explanation_baseline.json\": {\"case_ids\": [\"grounded-safe-response\", \"unknown-source-citation\", \"mismatched-etf-subject\", \"unsupported-guaranteed-outcome\", \"unsupported-numeric-source-claim\", \"provider-refusal\", \"prompt-injection-followed\", \"negative-guarantee-disclaimer\", \"polite-trade-imperative\", \"passive-personal-recommendation\", \"shall-outperformance-forecast\", \"negated-polite-trade-imperative\", \"negated-passive-recommendation\", \"negated-shall-forecast\"], \"sha256\": \"09694077a2174f556180b9db6802112be921169593e1df4616562652c7bc6fb4\", \"version\": 3}, \"retrieval_baseline.json\": {\"case_ids\": [\"broad-us-equity\", \"total-market-specificity\", \"large-growth-equity\", \"core-bond\", \"technology-sector-threshold\"], \"sha256\": \"9d159ac7eb6b4bae9eec36aaf829bd22dacdf8efac42964c8c369c344b2a5a4e\", \"version\": 3}} plus exactly18 named scenarios in S99-CASE entries. Synthetic attributed fixtures, not downloaded market facts: source/provider yahoo_finance, HTTP(S) quote URLs, observation2026-09-01T20:00:00Z, check2026-09-02T08:00:00Z, version issue99-analysis-v1, 24-hour source age, existing financial defaults. Base candidate ordering, categories, scalar values and profile fixed by balanced case. All deviations explicitly named in scenario definitions; unrelated values unchanged. Consumed fields carry canonical ResearchField provenance; sector cases carry source-linked graph context agreeing with canonical weights. Report actual stages and production reason codes; never decide production success inside fixture adapters.",
+            "S99-2": "Repeatable source-attributable JSON per-case baseline readout, offline CLI and focused validation; include existing retrieval and explanation metrics as frozen in INV99-3.",
+            "S99-3": "Align current product roadmap to local single-user quality parent24 serial plan99,103,104,105,100,101,102. Remove active sign-in/production-readiness priority; preserve accepted ADRs and existing US-only product contract until104.",
+            "S99-CASE-balanced": "Base profile horizon 15 years, moderate/balanced, max drawdown 30%, initial USD1000, recurring USD250, no exclusions; ordered SPY Large Blend, VTI Large Blend, QQQ Large Growth, VEA Foreign Large Blend, BND Intermediate Core Bond. All current US ETF fields expense 0.1%, volume 1000000, concentration 40%. Expected ready, weights [1438,1438,1437,1437,4250], initial cents [14380,14380,14370,14370,42500], recurring cents [3595,3595,3593,3592,10625].",
+            "S99-CASE-conservative": "Base with conservative/income; ready, weights [500,500,500,500,8000]; exact total10000 and cash100000/25000 cents.",
+            "S99-CASE-aggressive": "Base with aggressive/growth; ready, exact totals10000bps and cash100000/25000 cents; existing risk/objective policy target, no changed allocation.",
+            "S99-CASE-one-cent": "Base initial USD0.01 recurring USD0; ready exact1 initial cent/0 recurring cents, nonzero weights may carry zero cents.",
+            "S99-CASE-zero-cash": "Base initial/recurring USD0; ready, exact10000bps and0/0 cents.",
+            "S99-CASE-sector-reported": "Base excludes Technology; canonical graph-linked sector exposure technology10% on SPY, others explicitly technology0%; SPY fail/excluded, remaining four ready if existing constraints permit.",
+            "S99-CASE-sector-unsupported": "Base excludes unsupported taxonomy term weapons; every candidate unknown, blocked/no draft.",
+            "S99-CASE-missing-fee": "Base SPY expense ratio not_reported with explicit missing provenance and no flattened value; SPY unknown/excluded; remaining four ready.",
+            "S99-CASE-missing-category": "Base BND category not_reported with explicit missing provenance and no flattened value; BND excluded, blocked missing defensive sleeve.",
+            "S99-CASE-stale-document": "Base all document observations older than fixed 24h evidence freshness window (checked minus25h); evidence blocked, no unsupported construction draft.",
+            "S99-CASE-stale-field": "Base SPY fee observation checked minus25h, document current; production screening freshness contract rejects consumed stale field.",
+            "S99-CASE-conflicting-fee": "Base SPY canonical fee0.1 but flattened0.2; production screening rejects contradictory provenance; no repaired facts.",
+            "S99-CASE-insufficient-two": "Base aggressive/growth with only QQQ,BND; blocked insufficient eligible candidates, no draft.",
+            "S99-CASE-position-infeasible": "Base construction max_position_weight_bps4000; blocked existing infeasibility reason, no draft.",
+            "S99-CASE-concentration-fail": "Base SPY concentration61% in canonical/flattened metadata; SPY fail/excluded, remaining four ready.",
+            "S99-CASE-listing-us-usd": "Base single attributable SPY ETF source market us_market, currency USD; evidence ready (no claim one candidate can form portfolio). Currency descriptive, no new currency rule.",
+            "S99-CASE-listing-eu-eur": "Single synthetic source fixture VWCE.DE ETF, market de_market, listing EU Germany, currency EUR; production US-only evidence rejection/block is expected future-coverage diagnostic. No live completeness/data claim.",
+            "S99-CASE-listing-eu-usd": "Single synthetic source fixture CSPX.AS ETF, market nl_market, listing EU Netherlands, currency USD; production US-only evidence rejection/block expected, distinct listing vs currency. No EU support implementation."
+          },
+          "non_goals": [
+            "No new providers/sources, financial eligibility/category/threshold rules, selection/ranking/weight/currency changes, portfolio performance objective or EU support.",
+            "No snapshot/replay, persistence, graph/checkpoint schema, safety, authentication, security, hosting or unrelated cleanup.",
+            "No recreation/resume of withdrawn23/83 or alteration of historical ledgers/ADRs; no next child started, no native split or allowance transfer."
+          ],
+          "invariants": {
+            "INV99-1": "All diagnostic execution uses existing production selection/screening/construction/explanation/retrieval contracts unchanged, with explicit unknown/stale/conflicting evidence; expected rejection is not authorization to repair contracts.",
+            "INV99-2": "Same versioned fixtures and fixed timestamps yield identical JSON reruns offline without services/credentials/network/model/clock; source attribution and synthetic fixture limitations explicit.",
+            "INV99-3": "Reuse existing retrieval evaluate_strategy definitions at K=3: hit_rate mean any relevant hit; recall mean relevant returned/relevant labelled; MRR mean reciprocal first relevant rank; attribution fraction returned records with source URL and timestamp; graph-context recall matched source-linked contexts/expected; graph field accuracy exact fund_family/category fields/expected; sector coverage records with sector status/results on sector-judged cases; sector exact match correct threshold match sets/judgments. Report both variants and deltas without ranking-lift claim. Reuse existing explanation evaluator: actual accept/reject versus frozen expected, accuracy correct/cases and dimension correct/dimension cases, existing provider-refusal node and validator. Per screening/construction/diagnostic case compare actual expected stage/status, exclusions/reason and applicable exact bps/cents; case passes only all frozen assertions match. Aggregate case agreement correct/all evaluated; missing case or failed expectation nonzero CLI exit. No investment performance/objective metric. Counts not yield/suitability/returns.",
+            "INV99-4": "Ready positions exactly sum10000bps, initial and recurring integer cents equal policy rounded totals; excluded candidates absent and blocked cases have no draft.",
+            "INV99-5": "US-only remains current accepted implementation; EU EUR/USD diagnostics expected block irrespective currency, future target only US/EU listings, not underlying geography; UK/Swiss/other non-EU not silently included."
+          },
+          "interfaces": [
+            "New packaged offline evaluation models/runner and CLI command; existing evaluator APIs invoked without changed metric definitions. Production financial/source/provider/database/workflow interfaces unchanged."
+          ],
+          "json_state_impact": "none for application graph/checkpoint, financial bundle and replay state. New versioned evaluation-only JSON fixtures/reports outside graph state.",
+          "acceptance": {
+            "AC99-1": "Complete DESIGN_READY frozen capsule and exact37-case matrix precede implementation edits, includes original dataset versions/digests and existing metric meanings.",
+            "AC99-2": "All18 explicit additional cases plus5 retrieval and14 explanation cases executed through relevant existing production paths; per-case actual/expected stages and reason/status, source/timestamp attribution, limitations; all frozen assertions satisfied or explicit blocker stopping delivery.",
+            "AC99-3": "Reproducible offline CLI readout; unchanged reruns byte-identical; gate nonzero on expectation mismatch; focused negative tests show failures affect gate rather than evaluator-owned assumed passes.",
+            "AC99-4": "Report exact totals/constraints/exclusions on feasible drafts, no draft on blocked cases; distinguish listing from currency and fixture replay from live/model quality/performance.",
+            "AC99-5": "Concrete observed gaps and unmeasured dimensions documented; roadmap names sequential parent24 children and withdrawn active authentication/hosting priorities, preserves historical accepted ADRs and current US-only contract."
+          },
+          "verification": [
+            "uv run pytest (full offline suite incl focused new runner/CLI negative and repeatability checks)",
+            "uv run ruff check .; uv run ruff format --check .; uv run mypy",
+            "Existing evaluate-retrieval and evaluate-explanations remain stable; new CLI repeated twice and byte compared",
+            "uv run python scripts/validate_codex_workflow.py; uv run python scripts/ticket_workflow.py validate",
+            "uv build; docker compose config --quiet; git diff --check; native content-bound verification and acceptance then delivery/publication gates"
+          ],
+          "documentation": [
+            "docs/iterations/023-issue99-analysis-baseline.md includes exact matrix, frozen definitions and reproducible evidence limitations/gaps.",
+            "docs/product/roadmap.md and README usage; system.md evaluation section only if necessary to reflect new baseline, preserve financial contracts."
+          ],
+          "risks": [
+            "Synthetic data may be mistaken for live performance; label fixture synthesis and unmeasured semantic/model/investment dimensions.",
+            "Expected rejections may be mislabeled defects; compare frozen existing criteria.",
+            "Production correctness defect or unexplained baseline mismatch blocks delivery; do not silently amend frozen criteria."
+          ],
+          "escalation_triggers": [
+            "Consequential contract ambiguity/change returns to separate design_architect/challenge/coordinator gates before writes.",
+            "High-risk/disputed concrete implementation warrants code_reviewer; repeated concern uses ADR0034 arbitration before dependent handoff.",
+            "Demonstrable unresolved complexity/migration/concurrency may need fresh specialist with recorded evidence; multiple files alone do not."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-13T14:34:33Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Live Issue99 matches ordinary frozen capsule; user continue authorizes its bounded scope; no financial contract change authorized."
+        },
+        "evidence": "DESIGN_READY complete frozen37-case matrix and metrics in issue99 initialization; owner-led-v1 prospective introduction; no prior reservations.",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-13T14:34:34Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue99_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-13T15:13:19Z",
+      "data": {
+        "evidence": "Issue99 A99-1 closure: pre-run self-review and focused tests PASS; full pytest 1512 passed 42 skipped in 1030.22s on content 3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d; ruff lint/format, mypy, existing evaluators, repeatable 37/37 CLI, workflow validation, build, docker config and diff check passed in implementation. Interrupted earlier pytest invocations were incomplete diagnostics only. No production financial contract changed.",
+        "session": "/root/issue99_owner",
+        "outcome": "pass"
+      }
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "phase": "verification",
+        "content": "3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "session": "/root/issue99_owner"
+      },
+      "at": "2026-10-13T15:13:34Z",
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-13T15:14:33Z",
+      "data": {
+        "session": "/root/issue99_owner",
+        "evidence": "A99-1 closure on content 3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d: full uv run pytest completed 1512 passed,42 skipped,1030.22s on same final files including coordinator arbitration record; formal verification focused pytest 5/5, ruff check/format, mypy, workflow configuration and ticket validators, original retrieval5 and explanation14/14, repeated evaluate-analysis byte-identical37/37, uv build,docker compose config --quiet,git diff --check all PASS. Prior interrupted pytest runs were incomplete diagnostics, not passes or assertion failures. No content edit after full run start; status digest rechecked unchanged.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "capsule": {
+          "generation": 1,
+          "id": "issue-99-analysis-baseline-v1",
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "content": "3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d",
+        "ids": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "evidence": "AC99-1 frozen complete capsule preceded edits; AC99-2 all 5 retrieval,14 explanation,18 analysis cases actually executed through unchanged production boundaries with per-case attribution/stages/reasons; AC99-3 37/37 and two CLI byte-identical reruns, altered expectation CLI exit1; AC99-4 exact bps/cents/exclusions and expected blocked no-draft, listing distinct from currency; AC99-5 measured gaps/unmeasured dimensions and parent24 roadmap documented. A99-1 closed by 1512 pass,42 skip full suite and formal same-content verification; no EU support/financial change or live quality claim."
+      },
+      "at": "2026-10-13T15:14:45Z",
+      "type": "acceptance"
+    }
+  ]
+}
