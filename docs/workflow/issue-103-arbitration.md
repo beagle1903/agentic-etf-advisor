@@ -169,3 +169,42 @@ and next cooperating publication, complete gates and freeze content. Independent
 must verify closure before original PR108 can be redelivered. No extra lock architecture
 or hypothetical unlimited OS recovery is required. Later outcomes use native ledger
 evidence once documentation is certified.
+
+## A103-2 new Linux CI evidence after corrected redelivery
+
+2026-10-14: narrow acquisition repair passed Windows default1556/48, fresh verification,
+all-AC acceptance and independent final review on content
+`a4d3b467b2af24b9a6d56d65a9c29332009a48952268dc5c1e16210832bbd83e`.
+The historical failed review remains failed. Corrected redelivery was recorded and
+published as commit3c135ec before final CI completed; it is not a clean CI outcome.
+This later document revision is new evidence, not a certification of changed docs.
+
+Actual Linux CI run38611336874 then failed existing
+test_replaced_lock_is_not_removed_after_commit (test_catalogue_review_repair.py256):
+expected cleanup_error is absent after a replaced lock is accepted/deleted by the
+device/inode-only guard. Result1failed1555passed48skipped. The assertion and current
+production path establish inode reuse invalidates the assumed identity distinction;
+do not dismiss the platform evidence as a Windows pass or skip/weaken the test.
+
+New B103-LINUX-LOCK-IDENTITY under INV103-4 / AC103-5 is a demonstrated defect in
+the already-asserted foreign-lock fixture, not a new unlimited external-interference
+requirement. Earlier reviewer classification of external stat/unlink interference
+did not address this concrete Linux test outcome. Commit success must remain truthful
+while cleanup must not remove a replacement lock mistaken for the original.
+
+Accountable revision: explicit stop. PR108 returns to draft/WIP; required CI is failed.
+All current counted slots are consumed. Preserve completed acquisition repair and CI
+failure in the same original PR and ledger; no automatic reset, new grant, weakened
+test, merge or next child. Proposed next bounded closure needs distinct user authority
+for one remediation and one final review: robust ownership distinction across inode
+reuse (for example an owned marker rather than inode alone), faithful focused regression,
+Windows and Linux checks, fresh same-content certification and redelivery PR108. No
+locking architecture or catalogue/financial scope expansion is proposed. The new
+material platform evidence updates this episode; unanimous agreement is not required.
+
+The proposed native blocker append was rejected with `terminal history cannot be
+reopened`; the delivery check also rejects `terminal ticket; explicit user decision
+required`. Neither rejection was relabelled successful, no event was appended and no
+allowance was consumed or invented. B103-LINUX-LOCK-IDENTITY currently names this
+external evidence record; a permitted native continuation must precede its blocker
+event and any further repair phase. Original delivered ledger remains immutable.
