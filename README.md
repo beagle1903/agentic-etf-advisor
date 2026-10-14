@@ -243,6 +243,24 @@ claims, ETF/source agreement, provider refusal, unsafe financial language, and p
 The command prints deterministic per-dimension JSON metrics and exits nonzero if any expected
 accept/reject decision regresses. It does not call a model, service, database, network, or clock.
 
+Replay the Issue 99 analysis baseline across those unchanged 5 retrieval and 14 explanation
+cases plus 18 synthetic screening, construction, freshness, and listing cases:
+
+```powershell
+uv run etf-advisor evaluate-analysis
+```
+
+The command prints all 37 expected and actual outcomes with source attribution, exact
+per-position weight/cash vectors, exclusions and existing stage reasons. It checks every
+retrieval metric for both variants against fixed case and aggregate expectations and exits
+nonzero on any mismatch. The 18 added sources and their timestamps are synthetic fixture data;
+the original retrieval and explanation sets remain frozen. This is an offline contract readout,
+not live Yahoo
+coverage, model quality, suitability or investment performance.
+The EU listing cases show the current US-only evidence rejection, including a USD-denominated
+EU listing. The case matrix and measured gaps are in
+`docs/iterations/023-issue99-analysis-baseline.md`.
+
 Start the local data services:
 
 ```powershell

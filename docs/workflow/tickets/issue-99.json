@@ -1,0 +1,575 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-13T14:34:07Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 99,
+        "classification": "ordinary",
+        "scope": [
+          "S99-1",
+          "S99-2",
+          "S99-3",
+          "S99-CASE-balanced",
+          "S99-CASE-conservative",
+          "S99-CASE-aggressive",
+          "S99-CASE-one-cent",
+          "S99-CASE-zero-cash",
+          "S99-CASE-sector-reported",
+          "S99-CASE-sector-unsupported",
+          "S99-CASE-missing-fee",
+          "S99-CASE-missing-category",
+          "S99-CASE-stale-document",
+          "S99-CASE-stale-field",
+          "S99-CASE-conflicting-fee",
+          "S99-CASE-insufficient-two",
+          "S99-CASE-position-infeasible",
+          "S99-CASE-concentration-fail",
+          "S99-CASE-listing-us-usd",
+          "S99-CASE-listing-eu-eur",
+          "S99-CASE-listing-eu-usd"
+        ],
+        "invariants": [
+          "INV99-1",
+          "INV99-2",
+          "INV99-3",
+          "INV99-4",
+          "INV99-5"
+        ],
+        "acceptance": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Issue99 live issue/parent scope checked; ordinary route approved for user continue; full frozen capsule in initialize event."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 99,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue99_owner"
+          },
+          "rationale": "Offline evaluation and documentation within existing contracts; no eligibility, safety, financial, replay, persistence or source-interface change. Project implementation_worker owns complete routine session; no evidence requiring independent review presently.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat 01a135ab-6a06-7903-893b-3aebc878ba67 user continue 2026-10-13 explicitly resumes queued Issue99 scoped task; parent source chat01a134a9-36a0-7c80-b663-32307389c31a handoff."
+          },
+          "scope": {
+            "S99-1": "Versioned bounded 37-case fixture evaluation: frozen original datasets {\"explanation_baseline.json\": {\"case_ids\": [\"grounded-safe-response\", \"unknown-source-citation\", \"mismatched-etf-subject\", \"unsupported-guaranteed-outcome\", \"unsupported-numeric-source-claim\", \"provider-refusal\", \"prompt-injection-followed\", \"negative-guarantee-disclaimer\", \"polite-trade-imperative\", \"passive-personal-recommendation\", \"shall-outperformance-forecast\", \"negated-polite-trade-imperative\", \"negated-passive-recommendation\", \"negated-shall-forecast\"], \"sha256\": \"09694077a2174f556180b9db6802112be921169593e1df4616562652c7bc6fb4\", \"version\": 3}, \"retrieval_baseline.json\": {\"case_ids\": [\"broad-us-equity\", \"total-market-specificity\", \"large-growth-equity\", \"core-bond\", \"technology-sector-threshold\"], \"sha256\": \"9d159ac7eb6b4bae9eec36aaf829bd22dacdf8efac42964c8c369c344b2a5a4e\", \"version\": 3}} plus exactly18 named scenarios in S99-CASE entries. Synthetic attributed fixtures, not downloaded market facts: source/provider yahoo_finance, HTTP(S) quote URLs, observation2026-09-01T20:00:00Z, check2026-09-02T08:00:00Z, version issue99-analysis-v1, 24-hour source age, existing financial defaults. Base candidate ordering, categories, scalar values and profile fixed by balanced case. All deviations explicitly named in scenario definitions; unrelated values unchanged. Consumed fields carry canonical ResearchField provenance; sector cases carry source-linked graph context agreeing with canonical weights. Report actual stages and production reason codes; never decide production success inside fixture adapters.",
+            "S99-2": "Repeatable source-attributable JSON per-case baseline readout, offline CLI and focused validation; include existing retrieval and explanation metrics as frozen in INV99-3.",
+            "S99-3": "Align current product roadmap to local single-user quality parent24 serial plan99,103,104,105,100,101,102. Remove active sign-in/production-readiness priority; preserve accepted ADRs and existing US-only product contract until104.",
+            "S99-CASE-balanced": "Base profile horizon 15 years, moderate/balanced, max drawdown 30%, initial USD1000, recurring USD250, no exclusions; ordered SPY Large Blend, VTI Large Blend, QQQ Large Growth, VEA Foreign Large Blend, BND Intermediate Core Bond. All current US ETF fields expense 0.1%, volume 1000000, concentration 40%. Expected ready, weights [1438,1438,1437,1437,4250], initial cents [14380,14380,14370,14370,42500], recurring cents [3595,3595,3593,3592,10625].",
+            "S99-CASE-conservative": "Base with conservative/income; ready, weights [500,500,500,500,8000]; exact total10000 and cash100000/25000 cents.",
+            "S99-CASE-aggressive": "Base with aggressive/growth; ready, exact totals10000bps and cash100000/25000 cents; existing risk/objective policy target, no changed allocation.",
+            "S99-CASE-one-cent": "Base initial USD0.01 recurring USD0; ready exact1 initial cent/0 recurring cents, nonzero weights may carry zero cents.",
+            "S99-CASE-zero-cash": "Base initial/recurring USD0; ready, exact10000bps and0/0 cents.",
+            "S99-CASE-sector-reported": "Base excludes Technology; canonical graph-linked sector exposure technology10% on SPY, others explicitly technology0%; SPY fail/excluded, remaining four ready if existing constraints permit.",
+            "S99-CASE-sector-unsupported": "Base excludes unsupported taxonomy term weapons; every candidate unknown, blocked/no draft.",
+            "S99-CASE-missing-fee": "Base SPY expense ratio not_reported with explicit missing provenance and no flattened value; SPY unknown/excluded; remaining four ready.",
+            "S99-CASE-missing-category": "Base BND category not_reported with explicit missing provenance and no flattened value; BND excluded, blocked missing defensive sleeve.",
+            "S99-CASE-stale-document": "Base all document observations older than fixed 24h evidence freshness window (checked minus25h); evidence blocked, no unsupported construction draft.",
+            "S99-CASE-stale-field": "Base SPY fee observation checked minus25h, document current; production screening freshness contract rejects consumed stale field.",
+            "S99-CASE-conflicting-fee": "Base SPY canonical fee0.1 but flattened0.2; production screening rejects contradictory provenance; no repaired facts.",
+            "S99-CASE-insufficient-two": "Base aggressive/growth with only QQQ,BND; blocked insufficient eligible candidates, no draft.",
+            "S99-CASE-position-infeasible": "Base construction max_position_weight_bps4000; blocked existing infeasibility reason, no draft.",
+            "S99-CASE-concentration-fail": "Base SPY concentration61% in canonical/flattened metadata; SPY fail/excluded, remaining four ready.",
+            "S99-CASE-listing-us-usd": "Base single attributable SPY ETF source market us_market, currency USD; evidence ready (no claim one candidate can form portfolio). Currency descriptive, no new currency rule.",
+            "S99-CASE-listing-eu-eur": "Single synthetic source fixture VWCE.DE ETF, market de_market, listing EU Germany, currency EUR; production US-only evidence rejection/block is expected future-coverage diagnostic. No live completeness/data claim.",
+            "S99-CASE-listing-eu-usd": "Single synthetic source fixture CSPX.AS ETF, market nl_market, listing EU Netherlands, currency USD; production US-only evidence rejection/block expected, distinct listing vs currency. No EU support implementation."
+          },
+          "non_goals": [
+            "No new providers/sources, financial eligibility/category/threshold rules, selection/ranking/weight/currency changes, portfolio performance objective or EU support.",
+            "No snapshot/replay, persistence, graph/checkpoint schema, safety, authentication, security, hosting or unrelated cleanup.",
+            "No recreation/resume of withdrawn23/83 or alteration of historical ledgers/ADRs; no next child started, no native split or allowance transfer."
+          ],
+          "invariants": {
+            "INV99-1": "All diagnostic execution uses existing production selection/screening/construction/explanation/retrieval contracts unchanged, with explicit unknown/stale/conflicting evidence; expected rejection is not authorization to repair contracts.",
+            "INV99-2": "Same versioned fixtures and fixed timestamps yield identical JSON reruns offline without services/credentials/network/model/clock; source attribution and synthetic fixture limitations explicit.",
+            "INV99-3": "Reuse existing retrieval evaluate_strategy definitions at K=3: hit_rate mean any relevant hit; recall mean relevant returned/relevant labelled; MRR mean reciprocal first relevant rank; attribution fraction returned records with source URL and timestamp; graph-context recall matched source-linked contexts/expected; graph field accuracy exact fund_family/category fields/expected; sector coverage records with sector status/results on sector-judged cases; sector exact match correct threshold match sets/judgments. Report both variants and deltas without ranking-lift claim. Reuse existing explanation evaluator: actual accept/reject versus frozen expected, accuracy correct/cases and dimension correct/dimension cases, existing provider-refusal node and validator. Per screening/construction/diagnostic case compare actual expected stage/status, exclusions/reason and applicable exact bps/cents; case passes only all frozen assertions match. Aggregate case agreement correct/all evaluated; missing case or failed expectation nonzero CLI exit. No investment performance/objective metric. Counts not yield/suitability/returns.",
+            "INV99-4": "Ready positions exactly sum10000bps, initial and recurring integer cents equal policy rounded totals; excluded candidates absent and blocked cases have no draft.",
+            "INV99-5": "US-only remains current accepted implementation; EU EUR/USD diagnostics expected block irrespective currency, future target only US/EU listings, not underlying geography; UK/Swiss/other non-EU not silently included."
+          },
+          "interfaces": [
+            "New packaged offline evaluation models/runner and CLI command; existing evaluator APIs invoked without changed metric definitions. Production financial/source/provider/database/workflow interfaces unchanged."
+          ],
+          "json_state_impact": "none for application graph/checkpoint, financial bundle and replay state. New versioned evaluation-only JSON fixtures/reports outside graph state.",
+          "acceptance": {
+            "AC99-1": "Complete DESIGN_READY frozen capsule and exact37-case matrix precede implementation edits, includes original dataset versions/digests and existing metric meanings.",
+            "AC99-2": "All18 explicit additional cases plus5 retrieval and14 explanation cases executed through relevant existing production paths; per-case actual/expected stages and reason/status, source/timestamp attribution, limitations; all frozen assertions satisfied or explicit blocker stopping delivery.",
+            "AC99-3": "Reproducible offline CLI readout; unchanged reruns byte-identical; gate nonzero on expectation mismatch; focused negative tests show failures affect gate rather than evaluator-owned assumed passes.",
+            "AC99-4": "Report exact totals/constraints/exclusions on feasible drafts, no draft on blocked cases; distinguish listing from currency and fixture replay from live/model quality/performance.",
+            "AC99-5": "Concrete observed gaps and unmeasured dimensions documented; roadmap names sequential parent24 children and withdrawn active authentication/hosting priorities, preserves historical accepted ADRs and current US-only contract."
+          },
+          "verification": [
+            "uv run pytest (full offline suite incl focused new runner/CLI negative and repeatability checks)",
+            "uv run ruff check .; uv run ruff format --check .; uv run mypy",
+            "Existing evaluate-retrieval and evaluate-explanations remain stable; new CLI repeated twice and byte compared",
+            "uv run python scripts/validate_codex_workflow.py; uv run python scripts/ticket_workflow.py validate",
+            "uv build; docker compose config --quiet; git diff --check; native content-bound verification and acceptance then delivery/publication gates"
+          ],
+          "documentation": [
+            "docs/iterations/023-issue99-analysis-baseline.md includes exact matrix, frozen definitions and reproducible evidence limitations/gaps.",
+            "docs/product/roadmap.md and README usage; system.md evaluation section only if necessary to reflect new baseline, preserve financial contracts."
+          ],
+          "risks": [
+            "Synthetic data may be mistaken for live performance; label fixture synthesis and unmeasured semantic/model/investment dimensions.",
+            "Expected rejections may be mislabeled defects; compare frozen existing criteria.",
+            "Production correctness defect or unexplained baseline mismatch blocks delivery; do not silently amend frozen criteria."
+          ],
+          "escalation_triggers": [
+            "Consequential contract ambiguity/change returns to separate design_architect/challenge/coordinator gates before writes.",
+            "High-risk/disputed concrete implementation warrants code_reviewer; repeated concern uses ADR0034 arbitration before dependent handoff.",
+            "Demonstrable unresolved complexity/migration/concurrency may need fresh specialist with recorded evidence; multiple files alone do not."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-13T14:34:33Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Live Issue99 matches ordinary frozen capsule; user continue authorizes its bounded scope; no financial contract change authorized."
+        },
+        "evidence": "DESIGN_READY complete frozen37-case matrix and metrics in issue99 initialization; owner-led-v1 prospective introduction; no prior reservations.",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-13T14:34:34Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue99_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-13T15:13:19Z",
+      "data": {
+        "evidence": "Issue99 A99-1 closure: pre-run self-review and focused tests PASS; full pytest 1512 passed 42 skipped in 1030.22s on content 3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d; ruff lint/format, mypy, existing evaluators, repeatable 37/37 CLI, workflow validation, build, docker config and diff check passed in implementation. Interrupted earlier pytest invocations were incomplete diagnostics only. No production financial contract changed.",
+        "session": "/root/issue99_owner",
+        "outcome": "pass"
+      }
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "phase": "verification",
+        "content": "3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "session": "/root/issue99_owner"
+      },
+      "at": "2026-10-13T15:13:34Z",
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-13T15:14:33Z",
+      "data": {
+        "session": "/root/issue99_owner",
+        "evidence": "A99-1 closure on content 3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d: full uv run pytest completed 1512 passed,42 skipped,1030.22s on same final files including coordinator arbitration record; formal verification focused pytest 5/5, ruff check/format, mypy, workflow configuration and ticket validators, original retrieval5 and explanation14/14, repeated evaluate-analysis byte-identical37/37, uv build,docker compose config --quiet,git diff --check all PASS. Prior interrupted pytest runs were incomplete diagnostics, not passes or assertion failures. No content edit after full run start; status digest rechecked unchanged.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "capsule": {
+          "generation": 1,
+          "id": "issue-99-analysis-baseline-v1",
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "content": "3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d",
+        "ids": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "evidence": "AC99-1 frozen complete capsule preceded edits; AC99-2 all 5 retrieval,14 explanation,18 analysis cases actually executed through unchanged production boundaries with per-case attribution/stages/reasons; AC99-3 37/37 and two CLI byte-identical reruns, altered expectation CLI exit1; AC99-4 exact bps/cents/exclusions and expected blocked no-draft, listing distinct from currency; AC99-5 measured gaps/unmeasured dimensions and parent24 roadmap documented. A99-1 closed by 1512 pass,42 skip full suite and formal same-content verification; no EU support/financial change or live quality claim."
+      },
+      "at": "2026-10-13T15:14:45Z",
+      "type": "acceptance"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-13T15:16:19Z",
+      "data": {
+        "evidence": "PR107 created as draft after accepted verification; native pre-delivery check passed; same verified content3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d; owner-led ordinary self-review, no required independent review or unresolved blocker. Final full1512passed42skipped and A99-1 closure in prior verification evidence. Publication checks follow on saved delivered ledger and actual PR identity.",
+        "pr": 107,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "content": "3e8817b54c0a3b4258555689af69f35825298c832d6097a3089ca6ed50109c8d"
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-13T15:32:06Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "Chat01a135ab-6a06-7903-893b-3aebc878ba67 current user fix them bro after three PR107 P1 findings and explanation that delivered99 requires finite continuation. Authorizes the narrow three-finding repair; coordinator records one remediation and one independent final review for this single attempt, no automatic repeat."
+        },
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Narrow repair of reviewed expected-stage execution dependency, incomplete exact allocation vectors and omitted retrieval metric gates against INV99-1,INV99-3,AC99-3; original PR107/history/capsule retained, independent final review triggered by three P1 false-pass defects. Only one remediation and one final review in this continuation; no reset or financial change."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-13T15:32:07Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "User fix them bro resumes narrowly authorized Issue99 continuation after previous delivery; new certification and independent final review required on original PR107."
+        },
+        "evidence": "One bounded owner repair and one sequential independent final-review attempt, with native reservations; elapsed audit resumes without history subtraction."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-13T15:32:08Z",
+      "data": {
+        "id": "B99-EXPECTPATH",
+        "criterion": "AC99-3",
+        "scenario": "Balanced expected_stage=evidence expected_status=ready controls early return, suppresses actual construction and falsely matches modified expectation.",
+        "evidence": "https://github.com/beagle1903/agentic-etf-advisor/pull/107#discussion_r4260523662; analysis.py244 and271 expectation-controlled returns."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-13T15:32:09Z",
+      "data": {
+        "id": "B99-ALLOC",
+        "criterion": "INV99-3",
+        "scenario": "Aggressive and several ready cases omit expected allocation arrays; a reconciled changed split can pass without matching existing deterministic allocation.",
+        "evidence": "https://github.com/beagle1903/agentic-etf-advisor/pull/107#discussion_r4260523678; compare_case only compares nonempty expected_list."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-13T15:32:10Z",
+      "data": {
+        "id": "B99-METRICS",
+        "criterion": "INV99-3",
+        "scenario": "MRR/graph field accuracy/sector coverage regressions can retain checked hit,recall,attribution,context presence and pass.",
+        "evidence": "https://github.com/beagle1903/agentic-etf-advisor/pull/107#discussion_r4260523684; retrieval predicate411-420 omits full frozen metrics."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-13T15:33:29Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue99_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "at": "2026-10-13T15:51:13Z",
+      "data": {
+        "evidence": "A99-2 narrow repair on final content 823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39. Reproduced all three old evaluator false passes. Frozen original fixtures unchanged. Complete fixed vectors for 8 ready cases and full static per-case/aggregate retrieval metrics. Focused tests 15/15 pass including expected-stage, sum-preserving weights/cents, missing vector, rank MRR, graph field/context/coverage, aggregate mismatch nonzero CLI regressions. Self-review of runner, fixture, source dates and docs complete before full run. Full uv run pytest -q exit0, 1564 collected; ruff lint/format, mypy and diff check pass on same SHA. No content edits during full run.",
+        "outcome": "pass",
+        "session": "/root/issue99_owner"
+      },
+      "type": "phase_end"
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-13T15:51:25Z",
+      "data": {
+        "id": "B99-EXPECTPATH",
+        "evidence": "test_expected_stage_cannot_skip_construction: changed balanced expected_stage=evidence and expected_status=ready now executes actual construction and CLI exits1, 36/37; frozen listing IDs alone select evidence diagnostics."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-13T15:51:26Z",
+      "data": {
+        "id": "B99-ALLOC",
+        "evidence": "test_every_ready_case_has_complete_fixed_allocation_vectors verifies all 8 ready vectors and sum-preserving wrong weights fail; test_sum_preserving_cents_regression_fails_cli and test_missing_allocation_vector_fails_cli exit1 against static expectations."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-13T15:51:27Z",
+      "data": {
+        "id": "B99-METRICS",
+        "evidence": "Static retrieval_expected_metrics.json binds all fields for both variants in all 5 original cases plus aggregate/deltas. Rank reorder MRR, wrong graph field, missing graph context, missing sector coverage, and aggregate mismatch each make CLI exit1 in focused tests."
+      }
+    },
+    {
+      "at": "2026-10-13T15:51:40Z",
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue99_owner",
+        "phase": "verification",
+        "capsule": {
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2",
+          "generation": 1,
+          "id": "issue-99-analysis-baseline-v1"
+        },
+        "content": "823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39",
+        "role": "implementation_worker"
+      }
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "session": "/root/issue99_owner",
+        "outcome": "pass",
+        "evidence": "A99-2 repaired content 823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39 rechecked unchanged. Full uv run pytest -q completed exit0 before verification on identical final content, 1564 collected with 42 skip markers and no failures. Formal focused test_analysis_evaluation.py 15/15; uv run ruff check ., ruff format --check . (165 files), mypy (50 source files); validate_codex_workflow.py and ticket_workflow.py validate; existing evaluate-retrieval 5 cases and evaluate-explanations 14 passed; evaluate-analysis twice byte-identical 37/37 with 5 retrieval,14 explanation,18 analysis cases and no retrieval aggregate failures; uv build with new metric JSON in wheel; docker compose config --quiet; git diff --check all PASS. Three blocker resolutions recorded after focused/full regression evidence. No content edit after full suite start."
+      },
+      "at": "2026-10-13T15:52:54Z"
+    },
+    {
+      "at": "2026-10-13T15:53:08Z",
+      "data": {
+        "ids": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "content": "823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39",
+        "evidence": "AC99-1 original complete frozen capsule and versioned fixture identities retained. AC99-2 actual 5 retrieval,14 explanation,18 analysis case reports with source provenance, fixed synthetic dates, clear offline limitations. AC99-3 37/37 byte-identical repeated CLI, full static per-case and aggregate retrieval metrics, expected-stage and metric regression negatives CLI exit1. AC99-4 complete static symbols/weights/initial/recurring vectors on all8 ready cases; sum-preserving wrong weights/cents and missing vectors fail CLI; blocked cases no draft, current US-only EU rejection remains diagnostic. AC99-5 iteration/README gaps and parent24 order preserved; no financial, provider, safety, persistence, or EU contract change. A99-2 narrow repair closure evidence: full 1564-collected pytest exit0 plus same-SHA formal standard gates, 15 focused passes, blockers B99-EXPECTPATH/B99-ALLOC/B99-METRICS resolved. Independent final review still required before PR107 redelivery.",
+        "capsule": {
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2",
+          "id": "issue-99-analysis-baseline-v1"
+        }
+      },
+      "type": "acceptance"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-13T15:53:51Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue99_review",
+        "role": "code_reviewer",
+        "content": "823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-13T15:58:37Z",
+      "data": {
+        "session": "/root/issue99_review",
+        "outcome": "fail",
+        "evidence": "Independent code_reviewer/gpt-6-sol/high /root/issue99_review FAIL on content823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39. All3P1 repairs pass substantive review, originalfixturesunchanged. New docdefect INV99-3/AC99-5 iteration023line36 claims any rankedpositiondifferencefails. Broad-us-equity swapping rank2VTI/relevant and rank3QQQ/nonrelevant retains firstrelevant rank1 and allfrozenmetrics, so gatecanpass. Narrowdoccorrection: recordedmetricchanges; exactrankvectorgatingoutsidescope. No code/reviewerwrites. A99-2 accountable revision classifies demonstrated documentationtruthfulnessdefect; failedfinalreviewstops pendingfresh finiteuserauthority."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-13T15:58:38Z",
+      "data": {
+        "id": "B99-DOC-METRIC",
+        "criterion": "AC99-5",
+        "scenario": "Iteration023line36 promises failure on any rankedpositionchange though frozen INV99-3 only compares existingmetrics. Swapping rank2VTI and rank3QQQ in broad-us-equity leaves MRR and otherfrozenmetrics unchanged; currentgatecorrectlypasses but contradictsdocclaim.",
+        "evidence": "A99-2 new material evidence: independent /root/issue99_review finalreview FAIL; primaryaccountable decision narrow documentationrepair only afterfreshfiniteauthority, expectedclosure corrected recordedmetricwording plus freshsamecontentverification/acceptance and independentreview. Rejected alternative exactranking-vectorrequirement expandsfrozencriteria. Three original P1 fixesremainconfirmed. No automatic slot/reset/publication or content edits."
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-14T07:32:28Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "Chat01a135ab-6a06-7903-893b-3aebc878ba67 user approved on2026-10-14 in response to exact prepared documentation correction and explicit request for one additional documentation repair and one final review after failed final review."
+        },
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "A99-2 new material documentation defect B99-DOC-METRIC: replace iteration023 claim about every rankedposition with exact approved recorded-metric-change wording. Only one doc repair and independent final review, no code/fixture/metric changes, no reset; original failed review/history preserved."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-14T07:32:30Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue99_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-14T07:35:59Z",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue99_owner",
+        "evidence": "B99-DOC-METRIC narrow approved documentation correction only. Iteration023 exact two-line wording now says any recorded metric mismatch fails, while changes preserving all frozen metrics do not by themselves fail. Review scenario broad-us rank2 VTI/rank3 QQQ swap reproduced with altered order and all metrics/37 cases still passing, confirming truthful limit. Six evaluation runner/fixture/test SHA256 hashes match prior certified content823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39 exactly; no code/tests/fixture change. Focused pytest15/15, repeated evaluate-analysis byte-identical37/37, workflow/ticket validators, ruff lint/format, mypy, git diff --check all pass. Prior full suite completed exit0 on old whole-content SHA before docs-only change; no new full-suite invocation is claimed. New full content SHA6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670."
+      }
+    },
+    {
+      "at": "2026-10-14T07:36:11Z",
+      "data": {
+        "evidence": "Corrected iteration023 overclaim with exactly user-approved two-line recorded-metric wording. Broad-us rank2/3 swap replay demonstrates unchanged metric vector correctly passes; focused15/15 and repeated37/37CLI pass. Six evaluation source/fixture/test SHA256 values unchanged from prior full-suite-tested content823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39. Remediation phase ended pass on new documentation content SHA6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670.",
+        "id": "B99-DOC-METRIC"
+      },
+      "type": "resolve"
+    },
+    {
+      "at": "2026-10-14T07:36:27Z",
+      "type": "phase_start",
+      "data": {
+        "phase": "verification",
+        "role": "implementation_worker",
+        "session": "/root/issue99_owner",
+        "content": "6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670",
+        "capsule": {
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2",
+          "generation": 1,
+          "id": "issue-99-analysis-baseline-v1"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "evidence": "Fresh content-bound verification on whole-content SHA6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670 after only exact approved iteration023 two-line correction. Focused pytest test_analysis_evaluation.py 15/15 pass; evaluate-analysis repeated byte-identical37/37 (5retrieval,14explanation,18analysis), original retrieval5/explanation14 CLI pass; workflow config and ticket validators pass; ruff check/format, mypy50files, uv build, docker compose config --quiet, git diff --check pass. Six evaluation code/fixture/test SHA256 values unchanged before/after doc repair, matching previous certified code on content823531be8b470b2f00925067b833255a61d6f9a6ba96ed582c75bc1125471f39. Previous full pytest exit0 (1564 collected,42 skipped) belonged to old whole-content SHA; no new full-suite invocation on this docs-only SHA. Reviewer broad-us rank2/3 swap replay confirmed gate still passes when all recorded metrics unchanged, validating corrected documentation claim. B99-DOC-METRIC resolved; no content edits since docs correction.",
+        "outcome": "pass",
+        "session": "/root/issue99_owner"
+      },
+      "at": "2026-10-14T07:38:54Z"
+    },
+    {
+      "data": {
+        "ids": [
+          "AC99-1",
+          "AC99-2",
+          "AC99-3",
+          "AC99-4",
+          "AC99-5"
+        ],
+        "evidence": "AC99-1 frozen DESIGN_READY capsule/digests unchanged. AC99-2 original5retrieval,14explanation,18analysis cases and source provenance remain; actual focused and repeated CLI gates pass37/37. AC99-3 CLI twice byte-identical, prior negative regression tests unchanged and focused15/15 pass. AC99-4 exact allocation vectors, blocked/no-draft, listing/currency contracts and synthetic limits unchanged because six evaluation code/fixture/test hashes match prior full-tested content. AC99-5 iteration023 wording now accurately promises failure on recorded metric differences and discloses metric-preserving changes do not alone fail; reviewer broad-us rank swap replay confirms this. Roadmap/gaps remain unchanged. Native B99-DOC-METRIC resolved, fresh same-SHA verification passed; previous full suite exit0 on old whole-content SHA remains code regression evidence only, not claimed rerun on this documentation SHA. Independent final review required before PR107 redelivery.",
+        "content": "6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2",
+          "generation": 1
+        }
+      },
+      "at": "2026-10-14T07:39:11Z",
+      "type": "acceptance"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-14T07:39:41Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue99_review",
+        "role": "code_reviewer",
+        "content": "6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-14T07:41:07Z",
+      "data": {
+        "session": "/root/issue99_review",
+        "outcome": "pass",
+        "evidence": "Independent code_reviewer/gpt-6-sol/high PASS on6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670. Exactapproved2lineiteration023 correctiontruthfullystatesrecordedmetricsnotexactrankvectors; priorAC99-5 documentationdefectclosed. All3P1 codefixesunchangedfromprior substantive review. Focused15 and repeated37CLIpassed,newverification/acceptancematching; previousfullsuiteappliesunchangedcodefixturesatolderrepodigest,nofalseclaimnewfullrun. Readonlyreviewer noedits. A99-2 closed; originalfailedfinalreview remains history."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-14T07:41:09Z",
+      "data": {
+        "evidence": "Freshownerverification/allACacceptanceandindependentfinalreviewPASSonexactcontent; original3P1falsepassfixesandapproveddoccorrectioncomplete,allblockersresolved. RedeliveryoriginalPR107 preservesoriginaldeliveryandfailedreviewevents. Nativegatepassed; publicationchecksagainstsavedledger/localcandidate/livePRfollowbeforepushandagainafterpush.",
+        "pr": 107,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-99-analysis-baseline-v1",
+          "generation": 1,
+          "digest": "81a67c8b1e69ac3569086f5e9d78d175e185af9df2674e65e55cdb1f26beb6c2"
+        },
+        "content": "6269528334347841fac43f080425e387024be7242804c7e59f3c609ebdd7e670"
+      }
+    }
+  ]
+}

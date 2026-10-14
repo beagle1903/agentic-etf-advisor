@@ -2,10 +2,12 @@
 
 ## Purpose
 
-Evolve the current local prototype into a trustworthy educational US ETF portfolio
-decision-support system. Delivery remains incremental: every slice must produce a runnable
-artifact, explicit acceptance criteria, automated tests, and source-attributable financial
-outputs.
+Evolve the local, single-user educational ETF research and portfolio-building prototype.
+The current implementation accepts US-listed ETFs only. The planned expansion covers
+US- and EU-listed ETFs, regardless of underlying investment geography; UK, Swiss, and
+other non-EU listings are outside that target. Delivery remains incremental: every slice must
+produce a runnable artifact, explicit acceptance criteria, automated tests, and
+source-attributable financial outputs.
 
 This roadmap is directional rather than a promise of dates. The active delivery contract
 continues to live in the highest-numbered file under `docs/iterations/`.
@@ -41,10 +43,9 @@ The repository already proves the following vertical slices:
   fail-closed side-effect replay receipts, local checkpoint retention/deletion, and allowlisted
   dashboard lifecycle controls.
 
-This is a strong research and review foundation. Iteration 016 builds, validates, presents, and
-restores a checkpointed illustrative portfolio at human review with deterministic safety gates. It
-is not a complete portfolio advisor: the system does not authenticate users, use
-production-licensed market data, optimize for expected performance, or execute trades.
+Iteration 016 builds, validates, presents, and restores a checkpointed illustrative portfolio
+at human review with deterministic safety gates. The local prototype does not optimize for
+expected performance or execute trades. Source coverage and portfolio quality remain measured gaps.
 
 ## Completed advisory-quality iterations
 
@@ -149,33 +150,31 @@ Acceptance gate:
 - Present allowlisted history and lifecycle controls without treating a review token as
   authentication or exposing private audit content.
 
-## Active: make review operationally complete
+## Active: local analysis and portfolio quality (parent #24)
 
-### Iteration 018: authenticated multi-user review
+Work one issue and one PR at a time, in this order:
 
-Add identity and authorization before exposing discovery or collaboration features.
+1. **#99** — Freeze a broader reproducible analysis baseline and align this roadmap.
+2. **#103** — Discover Yahoo US/EU ETF catalogue entries and support direct-symbol lookup;
+   report pagination and provider coverage honestly.
+3. **#104** — Design and implement the consequential US/EU listing and currency contracts;
+   update the US-only vision and architecture only through its separate approval gates.
+4. **#105** — Publish broader research snapshots and choose a bounded per-request candidate
+   shortlist for actual dashboard portfolio use.
+5. **#100** — Compare ETFs with attributable facts and visible evidence gaps.
+6. **#101** — Measure reported-holdings overlap with explicit partial-coverage limits.
+7. **#102** — Measure semantic retrieval and existing graph contribution on identical cases.
 
-Acceptance gate:
+Each slice needs a concrete limitation, versioned baseline, observable quality criterion,
+source evidence, and focused verification. Catalogue entries, researched ETFs, eligible ETFs,
+and the per-request shortlist are distinct counts. Passing fixture replay does not show live
+Yahoo coverage, model quality, portfolio suitability, or improved returns. New source providers,
+graph relationships, and allocation algorithms need their own demonstrated gap and approval.
 
-- Enforce per-user access to reviews and prevent opaque tokens from acting as authentication.
-- Add pending-review discovery, concurrent-review conflict handling, and administrative audit
-  controls.
-- Define threat-model, secret-management, backup, migration, and recovery procedures.
-- Preserve the offline single-user mode for development and deterministic testing.
-
-## Later: production-readiness gate
-
-Hosted deployment is a separate decision, not an automatic continuation of the local prototype.
-Before any public launch:
-
-- Replace or license market and reference data for the intended use and redistribution model.
-- Add production observability, service-level objectives, cost controls, privacy controls,
-  dependency scanning, and incident procedures.
-- Validate retrieval, explanation, portfolio constraints, and human-review behavior against a
-  broader curated evaluation suite.
-- Perform legal and compliance review for the actual jurisdictions, claims, and user experience.
-- Keep brokerage connectivity and every other external financial write out of scope unless a
-  later ADR defines a separately approved, immediately pre-execution human control.
+The former sign-in, multi-user, and production-hosting priorities were withdrawn from active
+scope. Issues #23 and #83 were deleted and their historical records remain external; this plan
+does not resume them. Accepted architectural decisions remain history. Local human review and
+existing financial guardrails still apply.
 
 ## Cross-cutting rules
 

@@ -33,6 +33,7 @@ from etf_advisor.evaluation import (
     run_offline_evaluation,
     run_offline_explanation_evaluation,
 )
+from etf_advisor.evaluation.analysis import load_analysis_dataset, run_analysis_baseline
 from etf_advisor.explanation.provider import (
     ProviderConfigurationError,
     create_explanation_generator,
@@ -674,6 +675,31 @@ def evaluate_explanations(
         raise typer.Exit(code=1) from exc
     typer.echo(report.model_dump_json(indent=2))
     if not report.metrics.passed:
+        raise typer.Exit(code=1)
+
+
+@app.command("evaluate-analysis")
+def evaluate_analysis(
+    dataset_path: Annotated[
+        Path | None,
+        typer.Option(
+            "--dataset",
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            help="Optional 18-case analysis JSON; defaults to the frozen Issue 99 set.",
+        ),
+    ] = None,
+) -> None:
+    """Replay 37 fixed cases offline and fail when any frozen expectation differs."""
+
+    try:
+        report = run_analysis_baseline(load_analysis_dataset(dataset_path))
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        typer.echo(f"Analysis evaluation failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
+    if not report["passed"]:
         raise typer.Exit(code=1)
 
 
