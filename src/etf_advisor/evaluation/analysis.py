@@ -27,6 +27,7 @@ from etf_advisor.evaluation.explanation_offline import (
     load_explanation_evaluation_dataset,
     run_offline_explanation_evaluation,
 )
+from etf_advisor.evaluation.models import MetricDeltas, RetrievalMetrics
 from etf_advisor.evaluation.offline import (
     CuratedRelationshipStore,
     CuratedSemanticStore,
@@ -63,6 +64,7 @@ CASE_IDS = (
     "listing-eu-eur",
     "listing-eu-usd",
 )
+EVIDENCE_ONLY_CASE_IDS = frozenset({"listing-us-usd", "listing-eu-eur", "listing-eu-usd"})
 BASE = {
     "SPY": "Large Blend",
     "VTI": "Large Blend",
@@ -241,7 +243,7 @@ def run_analysis_case(case: AnalysisCase) -> dict[str, Any]:
         ],
         "candidate_symbols": [item.symbol for item in evidence.candidates],
     }
-    if case.expected_stage == "evidence" or evidence.status != "ready":
+    if evidence.status != "ready" or case.id in EVIDENCE_ONLY_CASE_IDS:
         return actual
     try:
         screening = screen_candidate_evidence(evidence)
@@ -264,9 +266,6 @@ def run_analysis_case(case: AnalysisCase) -> dict[str, Any]:
         }
         for item in screening.candidates
     }
-    if case.expected_stage == "screening":
-        actual.update(stage="screening", status="ready", reason=None)
-        return actual
     policy = PortfolioConstructionPolicy(max_position_weight_bps=case.max_position_weight_bps)
     result = construct_model_portfolio(
         PortfolioConstructionInput(
@@ -345,13 +344,18 @@ def compare_case(case: AnalysisCase, actual: dict[str, Any]) -> list[str]:
             if not isinstance(draft, dict):
                 failures.append("ready case has no draft")
             else:
-                for list_key, expected_list in (
+                expected_vectors = (
                     ("symbols", case.symbols),
                     ("weights_bps", case.weights_bps),
                     ("initial_cents", case.initial_cents),
                     ("recurring_cents", case.recurring_cents),
+                )
+                if any(
+                    len(values) != len(case.symbols) or not values for _, values in expected_vectors
                 ):
-                    if expected_list and draft.get(list_key) != expected_list:
+                    failures.append("ready case has missing or incomplete frozen vectors")
+                for list_key, expected_list in expected_vectors:
+                    if draft.get(list_key) != expected_list:
                         failures.append(f"{list_key} differs from frozen expectation")
                 cents = round(case.initial_usd * 100), round(case.recurring_usd * 100)
                 for total_key, expected_total in (
@@ -388,6 +392,57 @@ def _checked_fixture(name: str, digest: str) -> str:
     return actual
 
 
+def _retrieval_expectations(case_ids: list[str]) -> dict[str, Any]:
+    """Load fixed metric values captured before the repaired evaluator runs."""
+
+    raw = (
+        files("etf_advisor.evaluation")
+        .joinpath("retrieval_expected_metrics.json")
+        .read_text(encoding="utf-8")
+    )
+    expected: dict[str, Any] = json.loads(raw)
+    if (
+        expected.get("version") != 1
+        or expected.get("retrieval_dataset_version") != 3
+        or expected.get("retrieval_dataset_sha256") != RETRIEVAL_SHA
+        or expected.get("limit") != 3
+        or list(expected.get("cases", {})) != case_ids
+        or set(expected.get("aggregate", {})) != {"semantic_only", "graph_enriched", "deltas"}
+    ):
+        raise ValueError("Frozen retrieval metric expectation identity or case matrix differs.")
+    metric_fields = set(RetrievalMetrics.model_fields)
+    delta_fields = set(MetricDeltas.model_fields)
+    for pair in [*expected["cases"].values(), expected["aggregate"]]:
+        if not isinstance(pair, dict) or not {"semantic_only", "graph_enriched"} <= set(pair):
+            raise ValueError("Frozen retrieval metric variants are missing.")
+        for variant in ("semantic_only", "graph_enriched"):
+            values = pair[variant]
+            if not isinstance(values, dict) or set(values) != metric_fields:
+                raise ValueError("Frozen retrieval metric fields are incomplete.")
+            RetrievalMetrics.model_validate(values)
+    deltas = expected["aggregate"]["deltas"]
+    if not isinstance(deltas, dict) or set(deltas) != delta_fields:
+        raise ValueError("Frozen retrieval delta fields are incomplete.")
+    MetricDeltas.model_validate(deltas)
+    return expected
+
+
+def _metric_failures(expected: dict[str, Any], actual: dict[str, Any]) -> list[str]:
+    failures = []
+    for variant, expected_values in expected.items():
+        actual_values = actual.get(variant)
+        if not isinstance(actual_values, dict):
+            failures.append(f"{variant} metrics missing")
+            continue
+        for field, expected_value in expected_values.items():
+            if actual_values.get(field) != expected_value:
+                actual_value = actual_values.get(field)
+                failures.append(
+                    f"{variant}.{field}: expected {expected_value}, actual {actual_value}"
+                )
+    return failures
+
+
 def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, Any]:
     """Return complete deterministic readout; caller must fail on passed=False."""
 
@@ -399,6 +454,9 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
     if retrieval_dataset.version != 3 or explanation_dataset.version != 3:
         raise ValueError("Frozen original dataset version differs")
     retrieval = run_offline_evaluation(retrieval_dataset, limit=3)
+    retrieval_expectations = _retrieval_expectations(
+        [case.case_id for case in retrieval_dataset.cases]
+    )
     explanation = run_offline_explanation_evaluation(explanation_dataset)
     semantic = CuratedSemanticStore(retrieval_dataset)
     graph = HybridRetriever(semantic, CuratedRelationshipStore(retrieval_dataset))
@@ -407,17 +465,12 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
         semantic_metrics = evaluate_strategy(semantic, [case], limit=3)
         graph_metrics = evaluate_strategy(graph, [case], limit=3)
         retrieved = list(graph.search(case.query, limit=3))
-        passed = (
-            semantic_metrics.hit_rate_at_k == 1
-            and semantic_metrics.recall_at_k == 1
-            and semantic_metrics.source_attribution_rate == 1
-            and graph_metrics.source_attribution_rate == 1
-            and graph_metrics.graph_context_recall == 1
-            and (
-                not case.sector_constraint_judgments
-                or graph_metrics.sector_constraint_exact_match_rate == 1
-            )
-        )
+        actual_metrics = {
+            "semantic_only": semantic_metrics.model_dump(mode="json"),
+            "graph_enriched": graph_metrics.model_dump(mode="json"),
+        }
+        expected_metrics = retrieval_expectations["cases"][case.case_id]
+        failures = _metric_failures(expected_metrics, actual_metrics)
         retrieval_cases.append(
             {
                 "id": case.case_id,
@@ -426,10 +479,10 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
                     "graph_context_ids": [
                         item.source_document_id for item in case.expected_graph_contexts
                     ],
+                    "metrics": expected_metrics,
                 },
                 "actual": {
-                    "semantic_only": semantic_metrics.model_dump(mode="json"),
-                    "graph_enriched": graph_metrics.model_dump(mode="json"),
+                    **actual_metrics,
                     "results": [
                         {
                             "document_id": item.document_id,
@@ -440,10 +493,13 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
                         for item in retrieved
                     ],
                 },
-                "passed": passed,
+                "passed": not failures,
+                "failures": failures,
                 "limitation": LIMITATION,
             }
         )
+    actual_aggregate = retrieval.model_dump(mode="json")
+    aggregate_failures = _metric_failures(retrieval_expectations["aggregate"], actual_aggregate)
     analysis_cases = []
     for analysis_case in dataset.cases:
         actual = run_analysis_case(analysis_case)
@@ -497,7 +553,12 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
             "correct_count": correct,
             "case_agreement": round(correct / all_count, 6),
         },
-        "retrieval": {"aggregate": retrieval.model_dump(mode="json"), "cases": retrieval_cases},
+        "retrieval": {
+            "aggregate": actual_aggregate,
+            "expected_aggregate": retrieval_expectations["aggregate"],
+            "aggregate_failures": aggregate_failures,
+            "cases": retrieval_cases,
+        },
         "explanation": explanation_report,
         "analysis": analysis_cases,
         "unmeasured": [
@@ -507,5 +568,10 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
             "future EU eligibility/currency support",
             "investment performance, suitability, returns, overlap and diversification quality",
         ],
-        "passed": correct == 37 and all_count == 37 and explanation.metrics.passed,
+        "passed": (
+            correct == 37
+            and all_count == 37
+            and not aggregate_failures
+            and explanation.metrics.passed
+        ),
     }

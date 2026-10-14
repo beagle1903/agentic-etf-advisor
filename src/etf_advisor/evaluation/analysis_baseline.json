@@ -2,23 +2,646 @@
   "dataset_id": "issue99-analysis-v1",
   "version": 1,
   "cases": [
-    {"id": "balanced", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"], "weights_bps": [1438, 1438, 1437, 1437, 4250], "initial_cents": [14380, 14380, 14370, 14370, 42500], "recurring_cents": [3595, 3595, 3593, 3592, 10625]},
-    {"id": "conservative", "risk": "conservative", "objective": "income", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"], "weights_bps": [500, 500, 500, 500, 8000]},
-    {"id": "aggressive", "risk": "aggressive", "objective": "growth", "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
-    {"id": "one-cent", "initial_usd": 0.01, "recurring_usd": 0, "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
-    {"id": "zero-cash", "initial_usd": 0, "recurring_usd": 0, "expected_stage": "construction", "expected_status": "ready", "symbols": ["SPY", "VTI", "QQQ", "VEA", "BND"]},
-    {"id": "sector-reported", "exclusions": ["Technology"], "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_failed"}, "screening": {"SPY": "excluded_sector_detected"}},
-    {"id": "sector-unsupported", "exclusions": ["weapons"], "expected_stage": "construction", "expected_status": "blocked", "reason": "insufficient_eligible_candidates", "excluded": {"SPY": "candidate_screening_unknown", "VTI": "candidate_screening_unknown", "QQQ": "candidate_screening_unknown", "VEA": "candidate_screening_unknown", "BND": "candidate_screening_unknown"}, "screening": {"SPY": "unsupported_sector_exclusion"}},
-    {"id": "missing-fee", "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_unknown"}, "screening": {"SPY": "expense_ratio_unknown"}},
-    {"id": "missing-category", "expected_stage": "construction", "expected_status": "blocked", "reason": "missing_sleeve_coverage", "excluded": {"BND": "category_missing"}},
-    {"id": "stale-document", "expected_stage": "evidence", "expected_status": "blocked", "reason": "Source evidence is blocked until every observation is current."},
-    {"id": "stale-field", "expected_stage": "screening", "expected_status": "blocked", "reason": "field_stale"},
-    {"id": "conflicting-fee", "expected_stage": "screening", "expected_status": "blocked", "reason": "screening_contract_error"},
-    {"id": "insufficient-two", "risk": "aggressive", "objective": "growth", "candidate_symbols": ["QQQ", "BND"], "expected_stage": "construction", "expected_status": "blocked", "reason": "insufficient_eligible_candidates"},
-    {"id": "position-infeasible", "max_position_weight_bps": 4000, "expected_stage": "construction", "expected_status": "blocked", "reason": "position_constraints_infeasible"},
-    {"id": "concentration-fail", "expected_stage": "construction", "expected_status": "ready", "symbols": ["VTI", "QQQ", "VEA", "BND"], "excluded": {"SPY": "candidate_screening_failed"}, "screening": {"SPY": "concentration_above_limit"}},
-    {"id": "listing-us-usd", "candidate_symbols": ["SPY"], "expected_stage": "evidence", "expected_status": "ready"},
-    {"id": "listing-eu-eur", "candidate_symbols": ["VWCE.DE"], "expected_stage": "evidence", "expected_status": "blocked"},
-    {"id": "listing-eu-usd", "candidate_symbols": ["CSPX.AS"], "expected_stage": "evidence", "expected_status": "blocked"}
+    {
+      "id": "balanced",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1438,
+        1438,
+        1437,
+        1437,
+        4250
+      ],
+      "initial_cents": [
+        14380,
+        14380,
+        14370,
+        14370,
+        42500
+      ],
+      "recurring_cents": [
+        3595,
+        3595,
+        3593,
+        3592,
+        10625
+      ],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "conservative",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "conservative",
+      "objective": "income",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        500,
+        500,
+        500,
+        500,
+        8000
+      ],
+      "initial_cents": [
+        5000,
+        5000,
+        5000,
+        5000,
+        80000
+      ],
+      "recurring_cents": [
+        1250,
+        1250,
+        1250,
+        1250,
+        20000
+      ],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "aggressive",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "aggressive",
+      "objective": "growth",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        2375,
+        2375,
+        2375,
+        2375,
+        500
+      ],
+      "initial_cents": [
+        23750,
+        23750,
+        23750,
+        23750,
+        5000
+      ],
+      "recurring_cents": [
+        5938,
+        5938,
+        5937,
+        5937,
+        1250
+      ],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "one-cent",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 0.01,
+      "recurring_usd": 0.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1438,
+        1438,
+        1437,
+        1437,
+        4250
+      ],
+      "initial_cents": [
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "recurring_cents": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "zero-cash",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 0.0,
+      "recurring_usd": 0.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1438,
+        1438,
+        1437,
+        1437,
+        4250
+      ],
+      "initial_cents": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "recurring_cents": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "sector-reported",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [
+        "Technology"
+      ],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1917,
+        1917,
+        1916,
+        4250
+      ],
+      "initial_cents": [
+        19170,
+        19170,
+        19160,
+        42500
+      ],
+      "recurring_cents": [
+        4793,
+        4792,
+        4790,
+        10625
+      ],
+      "excluded": {
+        "SPY": "candidate_screening_failed"
+      },
+      "screening": {
+        "SPY": "excluded_sector_detected"
+      },
+      "reason": null
+    },
+    {
+      "id": "sector-unsupported",
+      "expected_stage": "construction",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [
+        "weapons"
+      ],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {
+        "SPY": "candidate_screening_unknown",
+        "VTI": "candidate_screening_unknown",
+        "QQQ": "candidate_screening_unknown",
+        "VEA": "candidate_screening_unknown",
+        "BND": "candidate_screening_unknown"
+      },
+      "screening": {
+        "SPY": "unsupported_sector_exclusion"
+      },
+      "reason": "insufficient_eligible_candidates"
+    },
+    {
+      "id": "missing-fee",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1917,
+        1917,
+        1916,
+        4250
+      ],
+      "initial_cents": [
+        19170,
+        19170,
+        19160,
+        42500
+      ],
+      "recurring_cents": [
+        4793,
+        4792,
+        4790,
+        10625
+      ],
+      "excluded": {
+        "SPY": "candidate_screening_unknown"
+      },
+      "screening": {
+        "SPY": "expense_ratio_unknown"
+      },
+      "reason": null
+    },
+    {
+      "id": "missing-category",
+      "expected_stage": "construction",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {
+        "BND": "category_missing"
+      },
+      "screening": {},
+      "reason": "missing_sleeve_coverage"
+    },
+    {
+      "id": "stale-document",
+      "expected_stage": "evidence",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": "Source evidence is blocked until every observation is current."
+    },
+    {
+      "id": "stale-field",
+      "expected_stage": "screening",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": "field_stale"
+    },
+    {
+      "id": "conflicting-fee",
+      "expected_stage": "screening",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": "screening_contract_error"
+    },
+    {
+      "id": "insufficient-two",
+      "expected_stage": "construction",
+      "expected_status": "blocked",
+      "risk": "aggressive",
+      "objective": "growth",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "QQQ",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": "insufficient_eligible_candidates"
+    },
+    {
+      "id": "position-infeasible",
+      "expected_stage": "construction",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 4000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": "position_constraints_infeasible"
+    },
+    {
+      "id": "concentration-fail",
+      "expected_stage": "construction",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY",
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [
+        "VTI",
+        "QQQ",
+        "VEA",
+        "BND"
+      ],
+      "weights_bps": [
+        1917,
+        1917,
+        1916,
+        4250
+      ],
+      "initial_cents": [
+        19170,
+        19170,
+        19160,
+        42500
+      ],
+      "recurring_cents": [
+        4793,
+        4792,
+        4790,
+        10625
+      ],
+      "excluded": {
+        "SPY": "candidate_screening_failed"
+      },
+      "screening": {
+        "SPY": "concentration_above_limit"
+      },
+      "reason": null
+    },
+    {
+      "id": "listing-us-usd",
+      "expected_stage": "evidence",
+      "expected_status": "ready",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "SPY"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "listing-eu-eur",
+      "expected_stage": "evidence",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "VWCE.DE"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    },
+    {
+      "id": "listing-eu-usd",
+      "expected_stage": "evidence",
+      "expected_status": "blocked",
+      "risk": "moderate",
+      "objective": "balanced",
+      "initial_usd": 1000.0,
+      "recurring_usd": 250.0,
+      "exclusions": [],
+      "candidate_symbols": [
+        "CSPX.AS"
+      ],
+      "max_position_weight_bps": 8000,
+      "symbols": [],
+      "weights_bps": [],
+      "initial_cents": [],
+      "recurring_cents": [],
+      "excluded": {},
+      "screening": {},
+      "reason": null
+    }
   ]
 }

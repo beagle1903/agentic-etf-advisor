@@ -29,11 +29,21 @@ source-linked contexts over expected contexts; graph field accuracy is exact fun
 and category fields over expected fields. Sector coverage is records with structured
 sector status over records in sector-judged cases; sector exact match is correct threshold
 match sets over sector judgments. The report shows both variants and their difference.
+`retrieval_expected_metrics.json` records fixed values for every existing retrieval case,
+both variants, every metric field, the aggregate metrics, and their deltas. Its identity
+binds the original version-3 dataset SHA and K=3. These values were captured before the
+Issue 99 evaluator repair; the runner does not derive them from current actual metrics.
+The CLI fails when any recorded metric differs, even if hit rate and recall still match.
+Changes that preserve all frozen metrics do not by themselves fail the gate.
+
 Explanation decision accuracy is actual accept/reject against the frozen expectation;
 each dimension's accuracy is correct cases over cases tagged with that dimension. It uses
 the existing production validator and provider-refusal node. Analysis agreement is
-matching stage, status, codes, exclusions, and applicable exact weights/cents over all
-37 cases. These counts do not measure suitability, yield, or returns.
+matching stage, status, codes, exclusions, and complete fixed symbol, basis-point and cent
+vectors for all eight ready construction cases over all 37 cases. Missing vectors fail.
+Frozen listing case IDs select an evidence-only diagnostic, while expected stage/status
+values cannot skip screening or construction.
+These counts do not measure suitability, yield, or returns.
 
 ## Synthetic case matrix
 
@@ -67,6 +77,15 @@ USD 1,000 initial, USD 250 recurring, no exclusions. Listed deviations are the o
 | listing-eu-eur | VWCE.DE, German listing, EUR | Current US-only evidence blocked. |
 | listing-eu-usd | CSPX.AS, Netherlands listing, USD | Current US-only evidence blocked despite USD currency. |
 
+The exact ready construction vectors are fixed in `analysis_baseline.json`. In order,
+`balanced`, `one-cent`, and `zero-cash` use symbols SPY/VTI/QQQ/VEA/BND and weights
+1438/1438/1437/1437/4250 bps. `conservative` uses the same symbols and
+500/500/500/500/8000 bps; `aggressive` uses 2375/2375/2375/2375/500 bps.
+`sector-reported`, `missing-fee`, and `concentration-fail` use VTI/QQQ/VEA/BND and
+1917/1917/1916/4250 bps. The fixture also fixes each position's initial and recurring
+cents, including zero allocations; totals alone cannot accept a sum-preserving wrong
+allocation.
+
 ## Baseline readout and limitations
 
 The focused replay observed 37/37 matching cases. Retrieval has hit rate 1, recall 1,
@@ -87,8 +106,11 @@ quality, holdings overlap, diversification quality, suitability, and investment 
 are unmeasured. Follow-up issues #103 through #102 own these questions in the roadmap order;
 this replay grants no EU eligibility or new financial rule.
 
-The runner uses only packaged fixtures and pure production boundaries. It has no clock,
-network, database, model or financial-write call. A changed expected outcome or a failed
+Regression tests force the former false passes: a changed expected stage, wrong weights
+and cents with intact totals, a missing vector, a relevant-result rank change, and
+independent graph field, context, and sector-coverage changes. Each makes the CLI exit
+nonzero. The runner uses only packaged fixtures and pure production boundaries. It has no
+clock, network, database, model or financial-write call. A changed expected outcome or a failed
 production result makes the CLI exit nonzero. Native implementation and verification
 evidence is recorded separately in the excluded Issue 99 ticket ledger after this file
 is frozen for content-bound certification.

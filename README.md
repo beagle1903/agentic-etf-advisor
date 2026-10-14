@@ -251,9 +251,11 @@ uv run etf-advisor evaluate-analysis
 ```
 
 The command prints all 37 expected and actual outcomes with source attribution, exact
-weight/cash totals, exclusions and existing stage reasons. It exits nonzero on any mismatch. The
-18 added sources and their timestamps are synthetic fixture data; the original retrieval
-and explanation sets remain frozen. This is an offline contract readout, not live Yahoo
+per-position weight/cash vectors, exclusions and existing stage reasons. It checks every
+retrieval metric for both variants against fixed case and aggregate expectations and exits
+nonzero on any mismatch. The 18 added sources and their timestamps are synthetic fixture data;
+the original retrieval and explanation sets remain frozen. This is an offline contract readout,
+not live Yahoo
 coverage, model quality, suitability or investment performance.
 The EU listing cases show the current US-only evidence rejection, including a USD-denominated
 EU listing. The case matrix and measured gaps are in
