@@ -75,3 +75,21 @@ falsely report an unchanged prior version. Out-of-range source quote timestamps
 now yield an incomplete partition or rejected direct lookup. The initial review
 remains a failed historical gate; fresh content-bound verification, acceptance and
 independent final review remain required after this repair.
+
+## PR 108 post-delivery repair
+
+Three P2 review comments are handled under the finite Issue 103 continuation and
+arbitration A103-2. A failed refresh or direct addition reads the current validated
+active catalogue before reporting `active_version`, with `attempted_parent_version`
+kept separate. If that read fails, `active_version_state=unknown` prevents a captured
+parent from being mislabelled current. Publication retries release of its own lock
+three times after a transient unlink error; persistent cleanup failure is exposed as
+`cleanup_error=lock_release_error` while the already committed version still reports
+published. It does not remove an unowned or purported stale lock. Complete partition,
+page and retry-error evidence now has exact required keys and types on catalogue
+construction and readback, so a recomputed digest cannot legitimate hidden raw fields
+or missing audit counters. Focused fixtures reproduced the original three failures
+before repair and exercise CAS winner metadata, transient and persistent cleanup,
+and correctly digested nested-schema rejection. Final content-bound verification
+and independent final review remain required; the original delivery and reviews
+remain immutable ledger history.

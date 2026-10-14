@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from .service import CatalogueError, canonical, validate_catalogue
+from .service import CatalogueError, CommittedCleanupError, canonical, validate_catalogue
 
 
 def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -74,6 +74,7 @@ class CatalogueStore:
         while True:
             try:
                 fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+                owned_stat = os.fstat(fd)
                 os.close(fd)
                 break
             except FileExistsError as exc:
@@ -129,7 +130,23 @@ class CatalogueStore:
             raise CatalogueError("store_io_error") from exc
         finally:
             try:
-                lock.unlink(missing_ok=True)
+                self._release_owned_lock(lock, owned_stat.st_dev, owned_stat.st_ino)
             except OSError as exc:
-                if not pointer_committed:
-                    raise CatalogueError("lock_release_error") from exc
+                if pointer_committed:
+                    raise CommittedCleanupError(candidate) from exc
+                raise CatalogueError("lock_release_error") from exc
+
+    @staticmethod
+    def _release_owned_lock(lock: Path, device: int, inode: int) -> None:
+        """Retry a transient unlink error only while the original lock is still ours."""
+        for attempt in range(3):
+            current = lock.stat()
+            if (current.st_dev, current.st_ino) != (device, inode):
+                raise OSError("owned_lock_changed")
+            try:
+                lock.unlink()
+                return
+            except OSError:
+                if attempt == 2:
+                    raise
+                time.sleep(0.05)

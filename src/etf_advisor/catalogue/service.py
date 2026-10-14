@@ -27,6 +27,14 @@ class CatalogueError(ValueError):
     """A controlled source, validation, or publication failure."""
 
 
+class CommittedCleanupError(CatalogueError):
+    """The pointer moved, but releasing this writer's lock failed."""
+
+    def __init__(self, candidate: dict[str, Any]) -> None:
+        super().__init__("lock_release_error")
+        self.candidate = candidate
+
+
 class PageProvider(Protocol):
     version: str
 
@@ -342,6 +350,24 @@ def validate_catalogue(cat: Any) -> dict[str, Any]:
         for report, (country, exchange) in zip(coverage["partitions"], MANIFEST, strict=True):
             if (
                 not isinstance(report, dict)
+                or set(report)
+                != {
+                    "country",
+                    "exchange",
+                    "query",
+                    "page_size",
+                    "sort_field",
+                    "sort_asc",
+                    "source_version",
+                    "mapping_version",
+                    "status",
+                    "pages",
+                    "unique_count",
+                    "duplicate_count",
+                    "rejected_count",
+                    "errors",
+                    "truncation_reason",
+                }
                 or report.get("country") != country
                 or report.get("exchange") != exchange
                 or report.get("query") != query(country, exchange)
@@ -350,7 +376,11 @@ def validate_catalogue(cat: Any) -> dict[str, Any]:
                 or report.get("sort_asc") is not True
                 or report.get("mapping_version") != MAP_VERSION
                 or report.get("status") != "complete"
+                or not isinstance(report.get("source_version"), str)
+                or not report["source_version"].strip()
                 or not isinstance(report.get("errors"), list)
+                or type(report.get("rejected_count")) is not int
+                or report["rejected_count"] < 0
                 or report.get("truncation_reason") is not None
                 or type(report.get("unique_count")) is not int
                 or type(report.get("duplicate_count")) is not int
@@ -360,10 +390,32 @@ def validate_catalogue(cat: Any) -> dict[str, Any]:
                 or not 1 <= len(report["pages"]) <= MAX_PAGES
             ):
                 raise CatalogueError("invalid_partition_report")
+            for error in report["errors"]:
+                if (
+                    not isinstance(error, dict)
+                    or set(error) != {"offset", "attempt", "code", "at"}
+                    or type(error["offset"]) is not int
+                    or error["offset"] < 0
+                    or error["offset"] % PAGE_SIZE != 0
+                    or type(error["attempt"]) is not int
+                    or error["attempt"] not in (1, 2)
+                    or error["code"] != "provider_error"
+                ):
+                    raise CatalogueError("invalid_partition_error")
+                parse_time(error["at"])
             total: int | None = None
             for index, page in enumerate(report["pages"]):
                 if (
                     not isinstance(page, dict)
+                    or set(page)
+                    != {
+                        "offset",
+                        "count",
+                        "total",
+                        "requested_at",
+                        "responded_at",
+                        "identity_digest",
+                    }
                     or type(page.get("offset")) is not int
                     or page["offset"] != index * PAGE_SIZE
                     or type(page.get("count")) is not int
@@ -600,13 +652,42 @@ class CatalogueService:
                     p for p in catalogue_projection(saved) if p["listing_id"] == obs["listing_id"]
                 ),
             }
+        except CommittedCleanupError as exc:
+            return {
+                "verification": verified,
+                "publication": "published",
+                "version": exc.candidate["version"],
+                "cleanup_error": "lock_release_error",
+                "active_projection": next(
+                    p
+                    for p in catalogue_projection(exc.candidate)
+                    if p["listing_id"] == obs["listing_id"]
+                ),
+            }
         except CatalogueError as exc:
             return {
                 "verification": verified,
                 "publication": "failed",
                 "reason": str(exc),
-                "active_version": parent["version"] if parent else None,
+                **self._active_metadata(parent),
             }
+
+    def _active_metadata(self, parent: dict[str, Any] | None) -> dict[str, Any]:
+        """Read current validated state after a failed attempt; never call parent current."""
+        attempted = parent["version"] if parent else None
+        try:
+            current = self.store.read()
+        except (CatalogueError, OSError):
+            return {
+                "attempted_parent_version": attempted,
+                "active_version": None,
+                "active_version_state": "unknown",
+            }
+        return {
+            "attempted_parent_version": attempted,
+            "active_version": current["version"] if current else None,
+            "active_version_state": "validated",
+        }
 
     def refresh(self, *, force: bool = False) -> dict[str, Any]:
         parent = self.store.read()
@@ -797,7 +878,7 @@ class CatalogueService:
             return {
                 "status": "incomplete",
                 "coverage": coverage,
-                "active_version": parent["version"] if parent else None,
+                **self._active_metadata(parent),
             }
         try:
             candidate = make_catalogue(
@@ -816,12 +897,20 @@ class CatalogueService:
                 "coverage": coverage,
                 "counts": saved["counts"],
             }
+        except CommittedCleanupError as exc:
+            return {
+                "status": "published",
+                "version": exc.candidate["version"],
+                "coverage": coverage,
+                "counts": exc.candidate["counts"],
+                "cleanup_error": "lock_release_error",
+            }
         except CatalogueError as exc:
             return {
                 "status": "failed",
                 "reason": str(exc),
                 "coverage": coverage,
-                "active_version": parent["version"] if parent else None,
+                **self._active_metadata(parent),
             }
 
 

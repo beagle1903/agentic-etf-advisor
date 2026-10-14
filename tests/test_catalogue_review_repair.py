@@ -12,7 +12,13 @@ from test_catalogue import T0, FakeProvider, row
 from typer.testing import CliRunner
 
 from etf_advisor import cli
-from etf_advisor.catalogue.service import CatalogueService, digest, validate_catalogue
+from etf_advisor.catalogue.service import (
+    CatalogueError,
+    CatalogueService,
+    canonical,
+    digest,
+    validate_catalogue,
+)
 from etf_advisor.catalogue.store import CatalogueStore
 
 
@@ -117,6 +123,170 @@ def test_post_pointer_cleanup_error_does_not_claim_prior_version(
     assert active is not None
     assert active["version"] == result["version"]
     assert active["version"] != before["version"]
+    assert result["cleanup_error"] == "lock_release_error"
+
+
+@pytest.mark.parametrize("operation", ["refresh", "direct"])
+def test_cas_loser_reports_validated_winner_version(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, operation: str
+) -> None:
+    svc, provider, store = _service(tmp_path)
+    provider.lookups["VWCE.DE"] = [row()]
+    original_publish = store.publish
+
+    def winner_then_conflict(candidate: dict[str, Any], parent: str | None) -> dict[str, Any]:
+        original_publish(candidate, parent)
+        raise CatalogueError("cas_conflict")
+
+    monkeypatch.setattr(store, "publish", winner_then_conflict)
+    result = svc.refresh() if operation == "refresh" else svc.add_direct("VWCE.DE")
+    active = store.read()
+    assert active is not None
+    assert result["active_version"] == active["version"]
+    assert result["active_version_state"] == "validated"
+
+
+def test_failed_attempt_does_not_label_parent_active_when_readback_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, store = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    parent = store.read()
+    assert parent is not None
+    reads = 0
+    original_read = store.read
+
+    def unavailable_read() -> dict[str, Any] | None:
+        nonlocal reads
+        reads += 1
+        if reads > 1:
+            raise CatalogueError("invalid_pointer")
+        return original_read()
+
+    monkeypatch.setattr(store, "read", unavailable_read)
+
+    def fail_publish(candidate: dict[str, Any], captured: str | None) -> dict[str, Any]:
+        raise CatalogueError("cas_conflict")
+
+    monkeypatch.setattr(store, "publish", fail_publish)
+    result = svc.refresh(force=True)
+    assert result["status"] == "failed"
+    assert result["attempted_parent_version"] == parent["version"]
+    assert result["active_version"] is None
+    assert result["active_version_state"] == "unknown"
+
+
+def test_transient_owned_lock_cleanup_allows_next_writer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, store = _service(tmp_path)
+    real_unlink = Path.unlink
+    failed = False
+
+    def transient_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        nonlocal failed
+        if path.name == "publish.lock" and not failed:
+            failed = True
+            raise OSError("fixture_transient_cleanup_failure")
+        real_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", transient_unlink)
+    assert svc.refresh()["status"] == "published"
+    assert failed
+    assert not (tmp_path / "publish.lock").exists()
+    assert svc.refresh(force=True)["status"] == "published"
+    assert store.read() is not None
+
+
+def test_replaced_lock_is_not_removed_after_commit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, store = _service(tmp_path)
+    real_unlink = Path.unlink
+    replaced = False
+
+    def replace_on_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        nonlocal replaced
+        if path.name == "publish.lock" and not replaced:
+            replaced = True
+            real_unlink(path, *args, **kwargs)
+            path.write_text("replacement-owner", encoding="ascii")
+            raise OSError("fixture_lock_replaced")
+        real_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", replace_on_unlink)
+    result = svc.refresh()
+    assert replaced
+    assert result["status"] == "published"
+    assert result["cleanup_error"] == "lock_release_error"
+    assert (tmp_path / "publish.lock").read_text(encoding="ascii") == "replacement-owner"
+    assert store.read() is not None
+
+
+@pytest.mark.parametrize(
+    ("location", "change"),
+    [
+        ("report", ("source_version", "remove")),
+        ("report", ("source_version", None)),
+        ("report", ("rejected_count", "remove")),
+        ("report", ("rejected_count", True)),
+        ("report", ("raw_response", {"private": "value"})),
+        ("report", ("query", {"extra": "raw"})),
+        (
+            "report",
+            (
+                "errors",
+                [
+                    {
+                        "offset": 0,
+                        "attempt": 1,
+                        "code": "provider_error",
+                        "at": "2026-10-14T08:00:00Z",
+                        "raw_payload": "hidden",
+                    }
+                ],
+            ),
+        ),
+        ("page", ("identity_digest", "remove")),
+        ("page", ("raw_payload", [1, 2, 3])),
+        ("page", ("requested_at", 123)),
+    ],
+)
+def test_nested_report_page_schema_rejects_correctly_digested_payload(
+    tmp_path: Path, location: str, change: tuple[str, Any]
+) -> None:
+    svc, provider, store = _service(tmp_path)
+    provider.rows[("de", "GER")] = [row()]
+    assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    mutated = copy.deepcopy(saved)
+    report = mutated["coverage"]["partitions"][0]
+    target = report if location == "report" else report["pages"][0]
+    key, value = change
+    if value == "remove":
+        target.pop(key)
+    else:
+        target[key] = value
+    mutated["version"] = digest({k: v for k, v in mutated.items() if k != "version"})
+    with pytest.raises(CatalogueError):
+        validate_catalogue(mutated)
+
+
+def test_nested_schema_is_checked_on_store_readback(tmp_path: Path) -> None:
+    svc, _, store = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    mutated = copy.deepcopy(saved)
+    mutated["coverage"]["partitions"][0]["pages"][0]["raw_payload"] = {"unexpected": True}
+    mutated["version"] = digest({k: v for k, v in mutated.items() if k != "version"})
+    (tmp_path / f"{mutated['version']}.json").write_bytes(canonical(mutated))
+    (tmp_path / "active.json").write_bytes(
+        canonical({"schema": "yahoo-catalogue-pointer-v1", "version": mutated["version"]})
+    )
+    with pytest.raises(CatalogueError, match="invalid_page_report"):
+        store.read()
 
 
 def test_out_of_range_source_time_is_controlled(tmp_path: Path) -> None:
