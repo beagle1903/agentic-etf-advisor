@@ -445,6 +445,20 @@ transient adapters with no recovery promise.
 
 ## Data-source boundary
 
+### Local US/EU Yahoo listing catalogue (ADR 0038)
+
+Issue 103 adds a separate source-attributed listing directory under
+`etf_advisor.catalogue`. It enumerates the fixed 42 Yahoo ETFQuery region/exchange
+partitions with bounded pagination and exposes exact direct symbol verification plus
+non-exhaustive live suggestions. The versioned, ignored local JSON cache has separate
+discovered and direct observations, immutable blobs, a validated active pointer and
+parent-version CAS. Combined listing search selects the whole discovered observation
+on overlap, retaining the original direct provenance. Catalogue response observation
+time is distinct from optional source quote time. A complete provider-partition report
+is not a claim of every Yahoo or EU ETF. Unsupported venues and countries remain
+explicit. Catalogue membership does not change the packaged research universe or
+the existing US-only advisory eligibility boundary.
+
 ### Official BND composition (ADR 0028)
 
 The CLI injects a bounded Vanguard Advisors client for BND when Yahoo holdings are

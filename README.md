@@ -119,6 +119,31 @@ times, units, version, and either a value or an explicit missing reason. The cur
 does not supply geography exposure, so it reports that field as unsupported rather than implying
 zero exposure.
 
+The separate local listing catalogue can discover Yahoo-reported US/EU ETF listings and verify
+one exact ticker outside that six-symbol research universe:
+
+```powershell
+uv sync --extra rag
+uv run --extra rag etf-advisor catalogue refresh
+uv run --extra rag etf-advisor catalogue search VWCE
+uv run --extra rag etf-advisor catalogue lookup VWCE.DE --add
+uv run --extra rag etf-advisor catalogue search VWCE
+```
+
+`refresh --force` bypasses the 24-hour completed-refresh reuse. A failed/incomplete refresh
+reports partition errors and keeps the prior active version. `search --live` returns at most
+25 non-exhaustive Yahoo suggestions without publishing them. `lookup` verifies an exact ETF
+symbol and allowed exchange; `--add` separately attempts a local immutable publication.
+The JSON cache lives in ignored `.artifacts/catalogue/`. Its `provider_partitions_complete`
+status means only the 42 mapped Yahoo region/exchange partitions and reported pages completed;
+seven EU countries remain unsupported and upstream omissions are unknowable. Full refresh
+replaces discovered observations but retains direct observations with their original source
+times. On overlap, local search selects the entire discovered observation without backfilling
+missing fields from direct lookup. Response observation time and optional source quote time are
+distinct. A listing in this catalogue is research data only and does not grant US advisory
+eligibility or publish a research snapshot. Yahoo/yfinance is an unofficial development source;
+its ETF classification and coverage are not regulatory certification or a complete EU directory.
+
 Publish a new immutable snapshot version after upgrading from Iteration 012 so Neo4j receives the
 measured sector projection. Rechecking an already-active older version without its canonical local
 payload verifies that snapshot but intentionally does not mutate it.
