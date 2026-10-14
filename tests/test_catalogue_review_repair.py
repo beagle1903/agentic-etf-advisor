@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import errno
 import os
 from pathlib import Path
 from typing import Any
@@ -196,6 +197,40 @@ def test_transient_owned_lock_cleanup_allows_next_writer(
     assert not (tmp_path / "publish.lock").exists()
     assert svc.refresh(force=True)["status"] == "published"
     assert store.read() is not None
+
+
+def test_lock_metadata_failure_releases_fd_and_allows_next_writer(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, _ = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    before = (tmp_path / "active.json").read_bytes()
+    real_fstat = os.fstat
+    acquired_fd: int | None = None
+    failed_once = False
+
+    def fail_once(fd: int) -> os.stat_result:
+        nonlocal acquired_fd, failed_once
+        acquired_fd = fd
+        if not failed_once:
+            failed_once = True
+            raise OSError("fixture_lock_metadata_failure")
+        return real_fstat(fd)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(os, "fstat", fail_once)
+        failed = svc.refresh(force=True)
+
+    assert failed["status"] == "failed"
+    assert failed["reason"] == "store_io_error"
+    assert failed_once
+    assert acquired_fd is not None
+    with pytest.raises(OSError) as closed:
+        real_fstat(acquired_fd)
+    assert closed.value.errno == errno.EBADF
+    assert not (tmp_path / "publish.lock").exists()
+    assert (tmp_path / "active.json").read_bytes() == before
+    assert svc.refresh(force=True)["status"] == "published"
 
 
 def test_replaced_lock_is_not_removed_after_commit(

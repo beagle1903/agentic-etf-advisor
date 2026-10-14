@@ -148,3 +148,24 @@ known-owned lock, preserve active pointer, return a controlled failure and permi
 next cooperating writer. Focused regression, required gates, fresh same-content
 verification/acceptance and independent final review then precede redelivery PR108.
 No new frozen criterion, design reset, financial change or next child is requested.
+
+## A103-2 distinct user authorization to resume narrow repair
+
+2026-10-14 user `ok approved` accepted the explained scope: one additional remediation
+and one final review for B103-LOCK-ACQUIRE-STAT, not merge/new scope/design reset.
+The coordinator records a distinct native continuation with exactly those count deltas.
+The prior failed final review remains failed and original PR108 delivery remains history.
+Primary decision now resumes narrow repair against the existing observable acquisition
+closure above; no acceptance condition is changed. Remaining before reservation:
+remediation1/final_review1, implementation0/initial_review0/design_reset0.
+
+The prior live repair agent is unavailable after the blocked turn. An explicit fresh
+same-role handoff to `/root/issue103_lock_repair_owner` preserves implementation_worker /
+gpt-6-sol / medium and frozen capsule generation2. Session recovery is not replacement
+due to disagreement. Native remediation check and reservation must precede dispatch.
+Owner must reproduce transient acquisition metadata failure, fix exception-safe fd and
+known-owned lock cleanup, add focused regression proving prior pointer preservation
+and next cooperating publication, complete gates and freeze content. Independent review
+must verify closure before original PR108 can be redelivered. No extra lock architecture
+or hypothetical unlimited OS recovery is required. Later outcomes use native ledger
+evidence once documentation is certified.

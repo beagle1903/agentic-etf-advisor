@@ -74,15 +74,41 @@ class CatalogueStore:
         while True:
             try:
                 fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-                owned_stat = os.fstat(fd)
-                os.close(fd)
-                break
             except FileExistsError as exc:
                 if time.monotonic() >= deadline:
                     raise CatalogueError("lock_timeout") from exc
                 time.sleep(0.05)
             except OSError as exc:
                 raise CatalogueError("store_io_error") from exc
+            else:
+                owned_stat: os.stat_result | None = None
+                try:
+                    try:
+                        try:
+                            owned_stat = os.fstat(fd)
+                        except OSError as exc:
+                            # Recover identity while our exclusive descriptor remains open.
+                            for _ in range(2):
+                                try:
+                                    owned_stat = os.fstat(fd)
+                                    break
+                                except OSError:
+                                    continue
+                            if owned_stat is None:
+                                raise CatalogueError("lock_release_error") from exc
+                            raise CatalogueError("store_io_error") from exc
+                    finally:
+                        os.close(fd)
+                except (OSError, CatalogueError) as exc:
+                    if owned_stat is not None:
+                        try:
+                            self._release_owned_lock(lock, owned_stat.st_dev, owned_stat.st_ino)
+                        except OSError as cleanup_exc:
+                            raise CatalogueError("lock_release_error") from cleanup_exc
+                    if isinstance(exc, CatalogueError):
+                        raise
+                    raise CatalogueError("store_io_error") from exc
+                break
         pointer_committed = False
         try:
             current = self.read()

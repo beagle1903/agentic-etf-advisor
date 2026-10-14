@@ -93,3 +93,23 @@ before repair and exercise CAS winner metadata, transient and persistent cleanup
 and correctly digested nested-schema rejection. Final content-bound verification
 and independent final review remain required; the original delivery and reviews
 remain immutable ledger history.
+
+## Lock acquisition continuation
+
+The next independent final review failed on B103-LOCK-ACQUIRE-STAT, a same-scope
+INV103-4/AC103-5 acquisition cleanup defect. A transient `os.fstat` failure after
+exclusive `publish.lock` creation previously left its descriptor and lock behind,
+so a later cooperating publisher timed out. A focused fault-injection regression
+failed before production repair because the descriptor remained open.
+
+The store now makes bounded attempts to recover the newly created lock's identity
+through that open descriptor. After a transient metadata failure it closes the
+descriptor, releases only the identified owned lock, returns `store_io_error`, and
+leaves the prior active pointer intact. The regression also requires the next
+cooperating publication to succeed. If metadata remains unavailable or lock
+cleanup is denied, the store reports a controlled `lock_release_error`; it makes
+no general recovery promise for permanent OS failures or external lock replacement.
+The CAS winner metadata, committed-version cleanup warning, and strict nested
+catalogue evidence validation from the prior repair remain in place. Fresh
+content-bound verification, acceptance and independent final review are required
+before PR 108 can be redelivered; the failed review remains historical evidence.
