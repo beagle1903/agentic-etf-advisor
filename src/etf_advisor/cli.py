@@ -59,6 +59,79 @@ from etf_advisor.research.snapshot_io import (
 from etf_advisor.research.universe import load_research_universe
 
 app = typer.Typer(no_args_is_help=True)
+catalogue_app = typer.Typer(
+    no_args_is_help=True, help="Local US/EU Yahoo listing catalogue (research only)."
+)
+app.add_typer(catalogue_app, name="catalogue")
+
+
+def _catalogue_service() -> Any:
+    from etf_advisor.catalogue import CatalogueService, CatalogueStore
+    from etf_advisor.catalogue.yahoo import YahooCatalogueProvider
+
+    provider = YahooCatalogueProvider()
+    return CatalogueService(CatalogueStore(), provider, provider)
+
+
+@catalogue_app.command("refresh")
+def catalogue_refresh(force: bool = typer.Option(False, help="Bypass 24-hour reuse.")) -> None:
+    """Boundedly enumerate all mapped provider partitions and publish only a complete result."""
+    from etf_advisor.catalogue import CatalogueError
+
+    try:
+        result = _catalogue_service().refresh(force=force)
+        typer.echo(json.dumps(result, indent=2))
+        if result["status"] not in ("published", "reused"):
+            raise typer.Exit(code=1)
+    except CatalogueError as exc:
+        typer.echo(json.dumps({"status": "failed", "reason": str(exc)}))
+        raise typer.Exit(code=1) from exc
+
+
+@catalogue_app.command("search")
+def catalogue_search(
+    text: str,
+    limit: int = typer.Option(25, min=1, max=100),
+    live: bool = typer.Option(False, help="Show non-exhaustive live suggestions."),
+) -> None:
+    """Search the local combined listing projection; live suggestions never publish."""
+    from etf_advisor.catalogue import CatalogueError, CatalogueStore
+
+    try:
+        if live:
+            result = _catalogue_service().suggestions(text)
+        else:
+            from etf_advisor.catalogue.service import CatalogueService
+
+            result = CatalogueService(CatalogueStore(), None, None).local_search(text, limit)  # type: ignore[arg-type]
+        typer.echo(json.dumps(result, indent=2))
+    except CatalogueError as exc:
+        typer.echo(json.dumps({"status": "failed", "reason": str(exc)}))
+        raise typer.Exit(code=1) from exc
+
+
+@catalogue_app.command("lookup")
+def catalogue_lookup(
+    symbol: str, add: bool = typer.Option(False, help="Publish verified direct observation.")
+) -> None:
+    """Verify one exact Yahoo ETF symbol; optionally add it to the local catalogue."""
+    from etf_advisor.catalogue import CatalogueError
+
+    try:
+        service = _catalogue_service()
+        result = service.add_direct(symbol) if add else service.direct_lookup(symbol)
+        typer.echo(json.dumps(result, indent=2))
+        verification = result.get("verification")
+        rejected = (
+            verification.get("verification") == "rejected"
+            if isinstance(verification, dict)
+            else verification == "rejected"
+        )
+        if rejected or result.get("publication") == "failed":
+            raise typer.Exit(code=1)
+    except CatalogueError as exc:
+        typer.echo(json.dumps({"status": "failed", "reason": str(exc)}))
+        raise typer.Exit(code=1) from exc
 
 
 @dataclass

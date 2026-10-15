@@ -1,0 +1,205 @@
+# Iteration 024: Issue 103 Yahoo listing catalogue implementation
+
+Issue [#103](https://github.com/beagle1903/agentic-etf-advisor/issues/103) implements
+the approved generation 2 capsule `issue-103-yahoo-catalogue`, digest
+`b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234`.
+The separate architect handoff, independent challenge and coordinator approval are
+recorded in [the design handoff](024-issue103-catalogue-design.md). A103-1's original
+failed challenge and approved overlap clarification remain part of that history.
+
+## Delivered boundary
+
+`etf_advisor.catalogue` contains the fixed `yahoo-listing-map-v1` manifest, strict
+observation and catalogue validation, bounded discovery/direct lookup operations,
+and an ignored local immutable JSON store. The optional yfinance 1.7.0 adapter builds
+the reviewed two-equality ETFQuery per partition and supplies a session whose HTTP
+requests, including cookie/authentication calls, use the smaller of ten seconds and
+the refresh deadline remainder. Search is exact for direct lookup and capped at 25
+non-exhaustive suggestions. The CLI exposes `catalogue refresh`, `search` and
+`lookup`; it does not call research publication or advisory screening.
+
+All 42 partitions must finish for a full refresh publication. Reports retain fixed
+query, provider/map versions, requested/response times, offsets, counts, totals,
+identity digests, retries/errors, duplicate/rejected counts and truncation state.
+Incomplete or unattempted partitions stay visible in the returned report, while the
+active pointer remains on its prior validated version. The 24-hour reuse clock is
+the prior full-refresh completion time, unaffected by direct additions. Local search
+labels a version `direct_only`, `fresh` or `stale` and exposes its age and matched
+count before the output limit.
+
+The catalogue stores discovered and direct observations separately. Full refresh
+retains direct observations byte-equivalently, including original response and quote
+times. Combined projection counts their union and selects the whole discovered
+observation on overlap, with no optional-value backfill. A same-symbol different-
+exchange union fails publication and preserves the prior active pointer. Direct
+verification, publication and resulting selected projection are separate outputs.
+The store validates schema, digest, counts, identities, fixed manifest and page
+report before exposing the active version; a bounded lock and parent CAS prevent
+last-writer overwrite. Runtime sessions, clocks and locks stay outside catalogue JSON.
+
+## Verification and observed source limits
+
+Synthetic focused fixtures cover mapping/exclusions, exact ETF lookup and rejection,
+the architect's T0/T1/T2 overlap sequence, empty and multi-page partitions,
+duplicates, changed totals, malformed/bool counts, short pages, source failures,
+retry/unattempted reports, expired/forced reuse, prior-version preservation,
+corrupt JSON and CAS, and transport/deadline bounds. The slow-provider fixture found
+and fixed an over-deadline response retention bug before completion.
+
+A bounded live probe on 2026-10-14 verified one exact `VWCE.DE` Search result as ETF
+on `GER`; Search omitted source quote time and currency, so both remain explicit
+absences in the direct observation. A separate `pl/WSE` screen call returned
+start 0/count 57/total 57 with the reviewed page shape. These checks establish
+adapter capability only. No complete 42-partition live catalogue was collected;
+other source coverage, Yahoo taxonomy accuracy, upstream omissions and same-count
+changes remain unverified. `provider_partitions_complete` is conditional on a later
+full successful refresh and does not assert all Yahoo or EU ETFs. Seven EU member
+countries have no mapped source exchange; unsupported is not a zero listing count.
+
+The existing six-symbol research universe, US-only advisory eligibility, frozen
+Issue 99 evaluation dataset identities and graph/checkpoint state were not changed.
+No trades, financial writes, hosted distribution or provider raw response storage
+are introduced.
+
+## Initial review remediation
+
+The independent initial code review failed with four same-scope scenarios, recorded
+in `docs/workflow/issue-103-review-repair.md`. Each was reproduced as a failing
+focused test before repair. Rejected `catalogue lookup --add` results now exit
+nonzero. Discovered records must match their exact country/exchange partition and
+page offset; complete catalogue readback recomputes each page's normalized identity
+digest and count from linked records and checks the response observation time.
+Blob/pointer I/O failures now return a controlled failed publication with the
+previous active version retained; cleanup after successful pointer movement cannot
+falsely report an unchanged prior version. Out-of-range source quote timestamps
+now yield an incomplete partition or rejected direct lookup. The initial review
+remains a failed historical gate; fresh content-bound verification, acceptance and
+independent final review remain required after this repair.
+
+## PR 108 post-delivery repair
+
+Three P2 review comments are handled under the finite Issue 103 continuation and
+arbitration A103-2. A failed refresh or direct addition reads the current validated
+active catalogue before reporting `active_version`, with `attempted_parent_version`
+kept separate. If that read fails, `active_version_state=unknown` prevents a captured
+parent from being mislabelled current. Publication retries release of its own lock
+three times after a transient unlink error; persistent cleanup failure is exposed as
+`cleanup_error=lock_release_error` while the already committed version still reports
+published. It does not remove an unowned or purported stale lock. Complete partition,
+page and retry-error evidence now has exact required keys and types on catalogue
+construction and readback, so a recomputed digest cannot legitimate hidden raw fields
+or missing audit counters. Focused fixtures reproduced the original three failures
+before repair and exercise CAS winner metadata, transient and persistent cleanup,
+and correctly digested nested-schema rejection. Final content-bound verification
+and independent final review remain required; the original delivery and reviews
+remain immutable ledger history.
+
+## Lock acquisition continuation
+
+The next independent final review failed on B103-LOCK-ACQUIRE-STAT, a same-scope
+INV103-4/AC103-5 acquisition cleanup defect. A transient `os.fstat` failure after
+exclusive `publish.lock` creation previously left its descriptor and lock behind,
+so a later cooperating publisher timed out. A focused fault-injection regression
+failed before production repair because the descriptor remained open.
+
+The store now makes bounded attempts to recover the newly created lock's identity
+through that open descriptor. After a transient metadata failure it closes the
+descriptor, releases only the identified owned lock, returns `store_io_error`, and
+leaves the prior active pointer intact. The regression also requires the next
+cooperating publication to succeed. If metadata remains unavailable or lock
+cleanup is denied, the store reports a controlled `lock_release_error`; it makes
+no general recovery promise for permanent OS failures or external lock replacement.
+The CAS winner metadata, committed-version cleanup warning, and strict nested
+catalogue evidence validation from the prior repair remain in place. Fresh
+content-bound verification, acceptance and independent final review are required
+before PR 108 can be redelivered; the failed review remains historical evidence.
+
+## Linux lock identity repair (WIP)
+
+Linux CI run 38611336874 failed the existing replacement-lock test after inode
+reuse made a foreign `publish.lock` appear to have the original device/inode.
+The lock now contains a unique marker for each successful acquisition. Release
+checks both the recorded device/inode and that marker before each bounded unlink
+attempt. If a replacement carries the same device/inode but a different marker,
+the committed catalogue version remains published and the service reports
+`cleanup_error=lock_release_error` without removing that replacement. A
+deterministic cross-platform fixture reproduces the equal-device/inode failure
+before this repair, retains the existing Linux-failed test, and checks the
+committed result and foreign marker. Focused acquisition fixtures also cover
+marker write errors, short writes, transient descriptor-close failure and
+explicit persistent-close or marker-read cleanup failure. Persistent OS denial
+can leave a lock requiring manual recovery; no automatic stale-lock removal is
+claimed. This repair changes no catalogue JSON schema, source mapping, financial
+eligibility, research publication, or graph/checkpoint state.
+
+## Read and counter repair awaiting certification
+
+Later PR feedback identified `B103-READ-IO` and `B103-EVIDENCE-COUNTERS` under
+INV103-4/AC103-5 and INV103-2/AC103-2/4 respectively. Focused regressions first
+showed pointer/blob read denial escaping as `PermissionError`, and correctly
+re-digested complete reports accepting forged `duplicate_count` and
+`rejected_count` values. Store reads now translate filesystem read failures to
+`CatalogueError("store_io_error")`, preserving absent-pointer behavior and strict
+corrupt-cache rejection. Refresh, direct addition, local search and their CLI
+paths report a controlled error; a failed initial read cannot alter the active
+pointer. Complete partition reports require both counters to be zero, consistent
+with accepted unique rows and page totals. Incomplete attempts retain their
+diagnostic counters and error evidence without publication. The readback test
+rejects a correctly re-digested forged blob. This changes no persisted JSON
+schema, mapping, financial eligibility or graph/checkpoint state.
+
+The earlier Linux ownership-marker repair remains part of the same final review
+scope. Fresh full verification, acceptance and independent final review must bind
+the saved corrected content before PR 108 can be redelivered. Directory-entry
+durability after a host or power crash is outside this frozen guarantee; no such
+durability claim is made. No merge or successor work is included.
+
+## Complete coverage container repair awaiting certification
+
+Independent final review found `B103-COVERAGE-CONTAINER` under INV103-4/AC103-5:
+a correctly re-digested active blob with `coverage.partitions: null` raised raw
+`TypeError` before the malformed-cache check. Complete coverage validation now
+requires a list before reading its length or iterating its reports. Focused
+persisted-blob fixtures reproduce the failure before repair and verify that
+null, scalar, string and mapping containers produce controlled
+`CatalogueError("invalid_coverage")` through store readback and all three local
+CLI commands, with the active pointer bytes unchanged. A valid complete report
+with 42 empty provider partitions still reads and validates. Self-review of
+adjacent nested accesses found existing guards for report, page and error lists;
+this repair changes no catalogue schema or advisory behavior. Fresh full gates,
+acceptance and independent final review must bind the corrected content.
+
+## Observation exchange type repair awaiting certification
+
+Independent review found `B103-EXCHANGE-TYPE` under INV103-4/AC103-5: a
+correctly re-digested active blob with a direct or discovered observation whose
+`exchange` is a JSON list or mapping raised raw `TypeError` during mapping
+membership. Observation validation now requires a string before that membership
+check. Before-fix persisted fixtures failed for both origins and both malformed
+types; after repair, store readback and refresh, lookup-add and local-search CLI
+paths report `CatalogueError("invalid_observation_identity")` without changing
+the pointer. Valid direct and discovered caches still read successfully. A bounded
+150-case JSON-type perturbation check across catalogue, observation, coverage,
+partition and page fields reached the same raw exception before repair and now
+reaches valid acceptance or controlled rejection for each case. Self-review
+found existing type preconditions on the adjacent provenance, report, page and
+coverage container paths. This adds no schema, financial or publication-contract
+change. Fresh full gates, acceptance and independent final review are required.
+
+## Search provider input repair awaiting certification
+
+Independent review found `B103-SEARCH-INPUT-SHAPE` under INV103-1/3 and AC103-3/4:
+an ETF suggestion with list-valued `exchange` raised raw `TypeError`, while a
+non-record exact-lookup row raised raw `AttributeError`. Both were reproduced
+before repair. A shared Search result validator now checks the bounded response
+sequence, row mapping, symbol, quote type and exchange shapes before live
+suggestion or exact-lookup consumers access them. It rejects more than 25 rows
+instead of silently truncating them; tuple sequences and mapping rows remain
+valid provider inputs. Focused malformed response/row/field fixtures check
+controlled service and CLI failure with unchanged active pointer, including a
+valid exact row beside malformed evidence. Positive fixtures preserve source ETF
+suggestions, provider row count, non-exhaustive labeling, suffixes, non-ETF and
+out-of-region rejection, unknown symbols and exact-match ambiguity. Existing
+deadline checks and Search limits remain. No catalogue JSON, Yahoo adapter,
+advisory eligibility or publication contract changes. Fresh full gates,
+acceptance and independent final review must bind the corrected content.
