@@ -579,6 +579,102 @@ def test_complete_coverage_accepts_empty_provider_partitions(tmp_path: Path) -> 
     assert validate_catalogue(saved) == saved
 
 
+@pytest.mark.parametrize("origin", ["direct", "discovered"])
+@pytest.mark.parametrize("exchange", [[], {}])
+def test_active_observation_exchange_type_is_controlled_at_store_and_cli(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, origin: str, exchange: Any
+) -> None:
+    svc, provider, store = _service(tmp_path)
+    if origin == "direct":
+        provider.lookups["VWCE.DE"] = [row()]
+        assert svc.add_direct("VWCE.DE")["publication"] == "published"
+    else:
+        provider.rows[("de", "GER")] = [row()]
+        assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    assert validate_catalogue(saved) == saved
+    forged = copy.deepcopy(saved)
+    forged[origin][0]["exchange"] = exchange
+    forged["version"] = digest({k: v for k, v in forged.items() if k != "version"})
+    with pytest.raises(CatalogueError, match="invalid_observation_identity"):
+        validate_catalogue(forged)
+
+    (tmp_path / f"{forged['version']}.json").write_bytes(canonical(forged))
+    pointer = canonical({"schema": "yahoo-catalogue-pointer-v1", "version": forged["version"]})
+    (tmp_path / "active.json").write_bytes(pointer)
+    with pytest.raises(CatalogueError, match="invalid_observation_identity"):
+        store.read()
+
+    monkeypatch.setattr(cli, "_catalogue_service", lambda: svc)
+    monkeypatch.setattr(catalogue, "CatalogueStore", lambda: store)
+    for command in (
+        ["catalogue", "refresh", "--force"],
+        ["catalogue", "lookup", "VWCE.DE", "--add"],
+        ["catalogue", "search", "VWCE"],
+    ):
+        result = CliRunner().invoke(cli.app, command)
+        assert result.exit_code == 1
+        assert '"reason": "invalid_observation_identity"' in result.stdout
+        assert (tmp_path / "active.json").read_bytes() == pointer
+
+
+def test_json_type_perturbations_have_controlled_validation_boundary(tmp_path: Path) -> None:
+    svc, provider, store = _service(tmp_path)
+    provider.lookups["VWCE.DE"] = [row()]
+    assert svc.add_direct("VWCE.DE")["publication"] == "published"
+    direct = store.read()
+    assert direct is not None
+    provider.rows[("de", "GER")] = [row()]
+    assert svc.refresh(force=True)["status"] == "published"
+    discovered = store.read()
+    assert discovered is not None
+
+    values: list[Any] = [None, True, 0, "wrong", [], {}]
+    probes = 0
+    for baseline, origin in ((direct, "direct"), (discovered, "discovered")):
+        assert validate_catalogue(baseline) == baseline
+        fields: list[tuple[str, ...]] = [
+            ("parent",),
+            ("operation",),
+            ("manifest",),
+            ("coverage",),
+            ("counts",),
+            (origin, "0", "symbol"),
+            (origin, "0", "exchange"),
+            (origin, "0", "provenance"),
+            (origin, "0", "observed_at"),
+        ]
+        if origin == "discovered":
+            fields.extend(
+                [
+                    ("coverage", "partitions"),
+                    ("coverage", "attempts"),
+                    ("coverage", "partitions", "0", "pages"),
+                    ("coverage", "partitions", "0", "errors"),
+                    ("coverage", "partitions", "0", "unique_count"),
+                    ("coverage", "partitions", "0", "pages", "0", "count"),
+                    ("coverage", "partitions", "0", "pages", "0", "identity_digest"),
+                ]
+            )
+        for path in fields:
+            rejected = 0
+            for value in values:
+                mutated = copy.deepcopy(baseline)
+                target: Any = mutated
+                for key in path[:-1]:
+                    target = target[int(key)] if isinstance(target, list) else target[key]
+                target[path[-1]] = value
+                mutated["version"] = digest({k: v for k, v in mutated.items() if k != "version"})
+                try:
+                    validate_catalogue(mutated)
+                except CatalogueError:
+                    rejected += 1
+                probes += 1
+            assert rejected > 0, path
+    assert probes == (9 + 16) * len(values)
+
+
 def test_out_of_range_source_time_is_controlled(tmp_path: Path) -> None:
     svc, provider, store = _service(tmp_path)
     huge = 10**100

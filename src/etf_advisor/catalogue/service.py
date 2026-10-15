@@ -183,7 +183,11 @@ def validate_observation(obs: Any, origin: str) -> None:
         raise CatalogueError("invalid_observation_schema")
     if obs["provider"] != "yahoo_finance" or obs["mapping_version"] != MAP_VERSION:
         raise CatalogueError("invalid_observation_provider")
-    if obs["quote_type"] != "ETF" or obs["exchange"] not in EXCHANGE_MAP:
+    if (
+        obs["quote_type"] != "ETF"
+        or not isinstance(obs["exchange"], str)
+        or obs["exchange"] not in EXCHANGE_MAP
+    ):
         raise CatalogueError("invalid_observation_identity")
     sym = symbol(obs["symbol"])
     if sym != obs["symbol"] or obs["listing_id"] != digest(["yahoo_finance", sym, obs["exchange"]]):

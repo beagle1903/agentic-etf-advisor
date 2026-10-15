@@ -1350,6 +1350,139 @@
         "scenario": "Correctly re-digested direct or discovered observation exchange list/map causes raw TypeError at EXCHANGE_MAP membership before controlled schema rejection; readback and three CLI paths escape structured errors.",
         "evidence": "Independent /root/issue103_container_review reproduced on 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7, service.py186/store.py63/cli.py86,108,132. Consolidated372JSONtypeperturbations found list/mapexchange familyonlyrawexception (boundednotexhaustive). CurrentfinalreviewFAILretained, A103-2accountablestop."
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-15T14:45:53Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-15 latest continue after WIPb210a1f directly accepts immediately proposed B103-EXCHANGE-TYPE guard/consolidatedregressions, one remediation and one finalreview on originalPR108. Distinct from earlier partitions-container continue; no merge/reset/newscope."
+        },
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Explicit finite same-scope observationexchange type repair after consolidated372-type review; preserve previous failedreviews/history/PRbindings, fresh verification/acceptance/review required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T14:45:54Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue103_container_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T14:52:21Z",
+      "data": {
+        "session": "/root/issue103_container_owner",
+        "outcome": "pass",
+        "evidence": "Authorized exchange-type remediation PASS 7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42. Beforefix5/5 focused genuine rawTypeError: direct/discovered list/map exchange persistedredigestedcases plusbounded150JSONtypematrix. Explicitstringguard beforeEXCHANGE_MAPmembership now controlledinvalid_observation_identity via storeandall3CLI, unchangedpointer, validdirect/discoveredpositives. Afterfixrepairmodule43/43; boundedmatrix150 outcomesvalidacceptanceorCatalogueError,no rawexception,atleastonerejectionperfield; notexhaustiveproof. Adjacentvalidator typepreconditions selfreviewed. FinalDEFAULTfullWindows1576pass48skip187.47s andnativeLinuxext4same1576/48 78.63s. uvfrozen57,workflow/ticketvalidators,rufflintformat177,mypy55,offline37/37,buildwheel+sdist,Composequiet,diffcheckPASS. Savedsource/docs frozenbeforefullgates, Linuxtrackedcopyincl.githubverified. Previous marker/read/counter/partitionguard/CAS retained. No schema/finance/directorydurability expansion; freshreadonlyverification/acceptance/independentreview next."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-15T14:52:22Z",
+      "data": {
+        "id": "B103-EXCHANGE-TYPE",
+        "evidence": "A103-2 focusedclosure achievedbyapprovedowner 7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42: bothorigins/listmapredigestedcache controlledstore+CLIrejection/unchangedpointer, validpositives, consolidated150typechecks, fullbothOS1576/48 andrequiredgatesPASS. Historicalfailedreviews preserved; independentfinalreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T14:52:23Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue103_container_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T14:53:02Z",
+      "data": {
+        "session": "/root/issue103_container_owner",
+        "outcome": "pass",
+        "evidence": "Fresh READONLYverification PASS nativebefore=after 7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42;no source/test/docs/config/ledgerwrites. Workflow/ticketvalidators,fullrepairmodule43/43,offline37/37,diffcheckPASS; savedexchangeguard/directdiscoveredredigestedstoreCLI/matrix/docsmarkerspresent. FinalbothOS1576/48 requiredgatesretainedsamecontent,no repeatedfullsuite. Allblockersresolved; independentfinalreview next."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-15T14:53:03Z",
+      "data": {
+        "ids": [
+          "AC103-1",
+          "AC103-2",
+          "AC103-3",
+          "AC103-4",
+          "AC103-5"
+        ],
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42",
+        "evidence": "AllfrozenAC reaffirmed correctedexchangecontent: AC103-1 gen2approvedsource/map/query/identity/cache unchanged;AC103-2 exactattributablepage/count/provenance/strictcounterrelationships retained;AC103-3 directlookupallowedregion/suffix/controlledCLI preserved;AC103-4 positive/negativepagination/source/failure/redigestedmalformedshape fixtures+validcachepositives, nowbothdirect/discoveredexchange list/map rejected;AC103-5 strictmalformedactivecontrolledrejection/nopointermutation, ownershipmarker/devinode/fdcleanup/readOSError/partitionguard/CASpriorusablecache andexistingbaseline intact. FinalWindows+nativeLinux1576pass48skip,repair43/43,matrix150,offline37/37,allrequiredgatesPASS;freshreadonlyhashbeforeafteridentical. A103-2 consolidatedobservationtypefocusedclosuremet;priorreviewsFAILpreserved. Powerlossdirectorydurabilitydeferredoutsidefrozenguarantee,notwaiveddefect. Independentfinalreviewrequired."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T14:53:04Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue103_exchange_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T14:57:49Z",
+      "data": {
+        "session": "/root/issue103_exchange_review",
+        "outcome": "fail",
+        "evidence": "Independentreadonly code_reviewer Solhigh FINALREVIEW FAIL exactverifiedaccepted 7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42. Cacheexchangeguardcorrect/B103-EXCHANGE-TYPEclosed; previousfullbothOS1576/48/focus43/allgatesremainpasses. Newmaterial B103-SEARCH-INPUT-SHAPE INV103-1/3 AC103-3/4: suggestionsETFrow exchange[] rawTypeError service.py595 andliveCLIsearch noJSONerror; nonrecord Searchrow[[]] rawAttributeError direct_lookupservice.py613 andCLIlookup no controlledrejection. Inmemoryreadonlypython-B/CliRunnerrepro. ConsolidatedallEXCHANGE_MAPsites: sourceobservation121guarded, cache189guarded, suggestions595unguarded; refresh787rejectsnonrecord/wrongexchange, directrecordexchange[]alreadycontrolledviaobservation. YahooSearchadapter returnslist(result.quotes) unfiltered (yahoo.py72), so actualboundarydoesnotexclude malformedrows. Stopdependentdelivery/allslotsconsumed; no repairauthorized. ProposedboundedSearchrow/fieldshapevalidation beforelive/exactconsumers, preserveexactambiguity/nonexhaustivesemantics, no blanketexceptioncatch/schema redesign."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-15T14:57:50Z",
+      "data": {
+        "id": "B103-SEARCH-INPUT-SHAPE",
+        "criterion": "AC103-3",
+        "scenario": "Live Search ETF row exchange list/map reaches unguarded dictionary membership TypeError; non-record Search row reaches direct lookup .get AttributeError. CLI live search/exact lookup escape controlled errors. Source adapter copies quotes unfiltered.",
+        "evidence": "Independent /root/issue103_exchange_review reproduced on 7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42 with provider ETFVWCE.DE exchange[] and rows[[]], service.py595,613;cli.py CatalogueErrorhandlers. Root consolidated yahoo.py72 list(result.quotes) unfiltered. A103-2 newproviderboundaryevidence, not relabelledcachefixfailure."
+      }
     }
   ]
 }

@@ -398,3 +398,73 @@ This requires distinct finite user authority for one remediation and one final
 review. No grant is inferred; no new architecture or financial behavior is proposed.
 Directory power-loss durability deferral remains unchanged. Later outcomes belong
 in excluded native ledger; this WIP document revision is not newly certified.
+
+
+## A103-2 exchange-type repair authorization
+
+2026-10-15 latest user `continue`, immediately after the exchange-type repair
+proposal and WIPb210a1f, authorizes one remediation and one independent final
+review. This is distinct from the prior partitions-container continuation.
+Native continuation grants exactly remediation1/finalreview1 and preserves prior
+failures/counts/PR108 bindings while clearing current certification. Existing
+approved /root/issue103_container_owner remains available and accountable as
+implementation_worker/gpt-6-sol/medium; no owner replacement or design reset.
+
+Primary decision resumes the consolidated bounded observation-type repair under
+INV103-4/AC103-5: validate exchange string type before mapping membership, check
+existing type preconditions in this same validator boundary, and retain meaningful
+correctly re-digested direct/discovered cache and CLI negative fixtures for list/map
+exchange values. Use the prior bounded type-perturbation evidence to consolidate
+regressions, preserving valid-cache positives and pointer bytes. No blanket catch
+of programmer exceptions, schema redesign, financial behavior, directory-durability
+claim, merge or successor work. Existing prior repair behavior remains invariant.
+
+Focused closure is controlled schema rejection across store and all three CLI
+paths for malformed observation exchange types, positive direct/discovered cache
+readback, and fresh required verification/all-AC acceptance/independent final review
+on identical saved content. Native preflight/reservation precedes owner resumption.
+After reservation remediation0/finalreview1 remain; later outcomes use excluded
+ledger after documentation freezes. No further grant is inferred.
+
+
+## A103-2 consolidated Search-provider input evidence
+
+2026-10-15 independent /root/issue103_exchange_review returned final review FAIL
+on verified/accepted content
+`7549e3789c22f472e1a6ade5f23c4c517b37754fa04e5b2237fb99f94156da42`.
+The cache exchange type guard is correct and previous full1576/48, focused43,
+all required gates and fresh verification remain actual passes.
+
+B103-SEARCH-INPUT-SHAPE, INV103-1/3 / AC103-3/4: provider ETF suggestion VWCE.DE
+with exchange[] raises TypeError at service.py595; live-search CLI exits without
+controlled JSON. Provider Search rows[[]] raises AttributeError at direct_lookup
+service.py613; exact-lookup CLI likewise lacks controlled rejection. Reviewer
+confirmed both with in-memory injected provider/CliRunner without writes.
+The Yahoo adapter returns list(result.quotes) unfiltered at yahoo.py72, so malformed
+rows are not excluded by the actual adapter boundary. This is material evidence
+for Search input handling, not a failure of the now-repaired cache string guard.
+
+Reviewer consolidated every production EXCHANGE_MAP membership: source observation
+121 and cache validation189 guarded; suggestions595 unguarded. Refresh787 already
+rejects non-record/wrong-exchange rows; exact lookup rejects a record exchange[]
+through observation, but accesses .get on non-record rows first. The existing handoff
+requires attributable allowed-region suggestions/exact ETF verification with explicit
+rejection, preserving bounded non-exhaustive Search and ambiguity semantics.
+
+Primary accountable decision: explicit stop. Record FAIL/nativeblocker, preserve
+cache exchange repair as WIP on original PR108. Remaining remediation0/finalreview0/
+designreset0. No blind acceptance from passing cache tests/full suites, automatic
+count grant, repeated assertion without evidence, silent exception suppression,
+delivery or merge. Directory power-loss guarantee remains outside frozen scope.
+
+One bounded next closure covers the Search-provider boundary: validate response
+row shape and exchange type before both suggestion and exact-lookup consumers,
+inspect equivalent access preconditions under existing Search limits, and retain
+focused malformed-provider response/row/field tests through live-search/exact-lookup
+CLI plus valid source positives. Preserve exact-symbol ambiguity/rejection and
+non-exhaustive capped suggestions; no new interface/schema/financial behavior.
+Fresh required verification, all-AC acceptance and independent final review must
+bind identical corrected content. Existing implementation owner remains accountable.
+Distinct user authority for one remediation and one final review is required;
+none is inferred. Later outcomes use excluded ledger; this WIP documentation
+revision is not certified by the previous review.

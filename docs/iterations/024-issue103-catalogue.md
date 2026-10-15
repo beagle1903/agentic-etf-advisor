@@ -168,3 +168,20 @@ with 42 empty provider partitions still reads and validates. Self-review of
 adjacent nested accesses found existing guards for report, page and error lists;
 this repair changes no catalogue schema or advisory behavior. Fresh full gates,
 acceptance and independent final review must bind the corrected content.
+
+## Observation exchange type repair awaiting certification
+
+Independent review found `B103-EXCHANGE-TYPE` under INV103-4/AC103-5: a
+correctly re-digested active blob with a direct or discovered observation whose
+`exchange` is a JSON list or mapping raised raw `TypeError` during mapping
+membership. Observation validation now requires a string before that membership
+check. Before-fix persisted fixtures failed for both origins and both malformed
+types; after repair, store readback and refresh, lookup-add and local-search CLI
+paths report `CatalogueError("invalid_observation_identity")` without changing
+the pointer. Valid direct and discovered caches still read successfully. A bounded
+150-case JSON-type perturbation check across catalogue, observation, coverage,
+partition and page fields reached the same raw exception before repair and now
+reaches valid acceptance or controlled rejection for each case. Self-review
+found existing type preconditions on the adjacent provenance, report, page and
+coverage container paths. This adds no schema, financial or publication-contract
+change. Fresh full gates, acceptance and independent final review are required.
