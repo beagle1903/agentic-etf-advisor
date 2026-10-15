@@ -112,6 +112,12 @@ Publish the packaged research universe as one snapshot after starting Chroma and
 uv run etf-advisor publish-research-universe --snapshot-version research-2026-08-30
 ```
 
+A failed publication exits nonzero and reports a fixed stage and category, such as
+`source_fetch: source_failure` or `graph_lookup: store_failure`. Check the named source,
+local store, or input before retrying with a new version. The diagnostic deliberately omits
+raw provider and connection details; `schema_encoding` is reserved for an actual integrity
+validation failure.
+
 The packaged membership is SPY, VTI, QQQ, BND, VEA, and VWO. The richer contract records fees,
 average volume, category, benchmark, top holdings, sector exposure, geography exposure, and
 top-ten concentration. Each field carries its own provider, source URL, observation and ingestion

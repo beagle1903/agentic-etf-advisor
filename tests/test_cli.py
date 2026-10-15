@@ -537,8 +537,97 @@ def test_publication_diagnostic_does_not_echo_raw_store_failure(
     monkeypatch.setattr(cli, "Neo4jGraphStore", fail)
     result = CliRunner().invoke(cli.app, ["publish-research-universe"])
     assert result.exit_code == 1
-    assert "schema_encoding" in result.output
+    assert "at graph_connect: store_failure" in result.output
+    assert "schema_encoding" not in result.output
     assert private not in result.output
+
+
+def test_publication_source_failure_reports_stage_without_private_detail(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    private = "https://provider.example/private?token=secret"
+
+    class EmptyGraph:
+        def active_snapshot_identity(self) -> None:
+            return None
+
+        def snapshot_digest(self, version: str) -> None:
+            return None
+
+        def close(self) -> None:
+            pass
+
+    class FailingSource:
+        def fetch_snapshot(self, universe: object, *, snapshot_version: str) -> None:
+            raise ValueError(private)
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: EmptyGraph())
+    monkeypatch.setattr(
+        cli, "load_research_universe", lambda path: SimpleNamespace(universe_id="test")
+    )
+    monkeypatch.setattr(cli, "YahooResearchAdapter", lambda **kwargs: FailingSource())
+    monkeypatch.setattr(
+        cli, "ChromaDocumentStore", lambda **kwargs: pytest.fail("failed source reached store")
+    )
+
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            "new-v1",
+            "--snapshot-file",
+            str(tmp_path / "new.json"),
+        ],
+    )
+    assert result.exit_code == 1
+    assert "at source_fetch: source_failure" in result.output
+    assert "schema_encoding" not in result.output
+    assert private not in result.output
+
+
+def test_publication_graph_lookup_failure_reports_stage_without_private_detail(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    private = "neo4j://private:password@internal"
+
+    class FailingGraph:
+        def active_snapshot_identity(self) -> None:
+            raise RuntimeError(private)
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: FailingGraph())
+    result = CliRunner().invoke(cli.app, ["publish-research-universe"])
+    assert result.exit_code == 1
+    assert "at graph_lookup: store_failure" in result.output
+    assert "schema_encoding" not in result.output
+    assert private not in result.output
+
+
+@pytest.mark.parametrize(
+    ("stage", "error", "code"),
+    [
+        ("payload_load", ValueError("private-payload"), "input_validation"),
+        ("snapshot_validation", ValueError("private-validation"), "input_validation"),
+        ("chroma_connect", RuntimeError("private-store"), "store_failure"),
+        ("snapshot_publish", RuntimeError("private-store"), "store_failure"),
+        (
+            "snapshot_validation",
+            cli.ResearchIntegrityError("numeric_provenance"),
+            "numeric_provenance",
+        ),
+    ],
+)
+def test_publication_diagnostic_categories_are_fixed_and_sanitized(
+    stage: str, error: Exception, code: str
+) -> None:
+    diagnostic = cli._publication_diagnostic(stage, error)
+    assert diagnostic["code"] == code
+    assert "private" not in diagnostic["message"]
+    if "private" in str(error):
+        assert str(error) not in diagnostic["message"]
 
 
 @pytest.mark.parametrize("records", [None, [None], [{}]])

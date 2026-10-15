@@ -13,6 +13,7 @@ from uuid import uuid4
 import typer
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.types import Command
+from pydantic import ValidationError
 
 from etf_advisor.clock import Clock, system_utc_now
 from etf_advisor.config import settings
@@ -391,6 +392,39 @@ def ingest(
         )
 
 
+def _publication_diagnostic(stage: str, error: Exception) -> dict[str, str]:
+    """Describe a failed publication without exposing provider or store exception text."""
+
+    if isinstance(error, IndexConsistencyError):
+        return integrity_diagnostic(ResearchIntegrityError("document_integrity"))
+    if isinstance(error, (ResearchIntegrityError, ValidationError)):
+        return integrity_diagnostic(error)
+    if isinstance(error, MarketDataQualityError):
+        return {
+            "code": "market_data_quality",
+            "message": "Market-data health check failed. Publish current validated source fields.",
+        }
+    if stage == "source_fetch" or isinstance(error, MarketDataError):
+        return {
+            "code": "source_failure",
+            "message": "Research source fetch failed. Check provider availability and retry.",
+        }
+    if stage in {"universe_load", "payload_load", "snapshot_validation"}:
+        return {
+            "code": "input_validation",
+            "message": "Research input validation failed. Check the selected universe or payload.",
+        }
+    if stage == "payload_save":
+        return {
+            "code": "local_io_failure",
+            "message": "Canonical snapshot payload could not be saved. Check local storage.",
+        }
+    return {
+        "code": "store_failure",
+        "message": "Research store operation failed. Check local stores and retry.",
+    }
+
+
 @app.command("publish-research-universe")
 def publish_research_universe(
     universe_path: Annotated[
@@ -425,6 +459,7 @@ def publish_research_universe(
     """Fetch, validate, stage, and atomically activate the curated research universe."""
 
     graph_store: Neo4jGraphStore | None = None
+    stage = "graph_connect"
     try:
         version = snapshot_version or system_utc_now().strftime("%Y%m%dT%H%M%SZ")
         payload_path = snapshot_file or default_snapshot_path(version)
@@ -432,6 +467,7 @@ def publish_research_universe(
             uri=settings.neo4j_uri,
             auth=settings.neo4j_credentials(),
         )
+        stage = "graph_lookup"
         active_identity = graph_store.active_snapshot_identity()
         existing_digest = graph_store.snapshot_digest(version)
         if existing_digest is not None:
@@ -439,6 +475,7 @@ def publish_research_universe(
             if active_identity == requested_identity:
                 supplied: ETFResearchSnapshot | None = None
                 if payload_path.exists():
+                    stage = "payload_load"
                     supplied = load_research_snapshot(payload_path)
                     if (
                         supplied.snapshot_version != version
@@ -447,6 +484,7 @@ def publish_research_universe(
                         raise IndexConsistencyError(
                             "Active retry payload conflicts with immutable identity."
                         )
+                stage = "graph_readback"
                 manifest = graph_store.snapshot_manifest(version)
                 if manifest is None or (
                     manifest.snapshot_version != version
@@ -455,12 +493,14 @@ def publish_research_universe(
                     raise IndexConsistencyError(
                         "Neo4j did not return the active snapshot's immutable manifest."
                     )
+                stage = "chroma_connect"
                 chroma_store = ChromaDocumentStore(
                     host=settings.chroma_host,
                     port=settings.chroma_port,
                     collection_name=settings.chroma_collection,
                     create_if_missing=False,
                 )
+                stage = "chroma_readback"
                 missing = chroma_store.missing_document_ids(list(manifest.document_ids))
                 if missing:
                     raise IndexConsistencyError(
@@ -481,6 +521,7 @@ def publish_research_universe(
                         else None
                     ),
                 )
+                stage = "graph_readback"
                 graph_store.verify_snapshot(version)
                 if graph_store.active_snapshot_identity() != requested_identity:
                     raise IndexConsistencyError(
@@ -500,18 +541,22 @@ def publish_research_universe(
                     "is unavailable. Retry with the original --snapshot-file."
                 )
             else:
+                stage = "payload_load"
                 snapshot = load_research_snapshot(payload_path)
                 if (
                     snapshot.snapshot_version != version
                     or snapshot.content_digest() != existing_digest
                 ):
                     raise ValueError("Inactive retry payload conflicts with immutable identity.")
+                stage = "snapshot_validation"
                 _assess_research_snapshot(snapshot, clock=system_utc_now).require_healthy()
+                stage = "chroma_connect"
                 chroma_store = ChromaDocumentStore(
                     host=settings.chroma_host,
                     port=settings.chroma_port,
                     collection_name=settings.chroma_collection,
                 )
+                stage = "snapshot_publish"
                 report = publish_research_snapshot(
                     snapshot,
                     chroma_store,
@@ -523,9 +568,11 @@ def publish_research_universe(
                     ),
                 )
         else:
+            stage = "universe_load"
             universe = load_research_universe(universe_path)
             persist_payload = False
             if payload_path.exists():
+                stage = "payload_load"
                 snapshot = load_research_snapshot(payload_path)
                 if snapshot.snapshot_version != version:
                     raise ValueError(
@@ -536,6 +583,7 @@ def publish_research_universe(
                         "The canonical snapshot payload does not match the selected universe."
                     )
             else:
+                stage = "source_fetch"
                 adapter = YahooResearchAdapter(
                     issuer_client=VanguardHoldingsClient(),
                     clock=system_utc_now,
@@ -544,14 +592,18 @@ def publish_research_universe(
                 )
                 snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
                 persist_payload = True
+            stage = "snapshot_validation"
             _assess_research_snapshot(snapshot, clock=system_utc_now).require_healthy()
             if persist_payload:
+                stage = "payload_save"
                 persist_research_snapshot(snapshot, payload_path)
+            stage = "chroma_connect"
             chroma_store = ChromaDocumentStore(
                 host=settings.chroma_host,
                 port=settings.chroma_port,
                 collection_name=settings.chroma_collection,
             )
+            stage = "snapshot_publish"
             report = publish_research_snapshot(
                 snapshot,
                 chroma_store,
@@ -571,16 +623,12 @@ def publish_research_universe(
         ValueError,
         json.JSONDecodeError,
     ) as exc:
-        if isinstance(exc, MarketDataQualityError):
-            message = "Market-data health check failed. Publish current validated source fields."
-        else:
-            diagnostic = integrity_diagnostic(
-                ResearchIntegrityError("document_integrity")
-                if isinstance(exc, IndexConsistencyError)
-                else exc
-            )
-            message = f"{diagnostic['code']}: {diagnostic['message']}"
-        typer.echo(f"Research-universe publication failed: {message}", err=True)
+        diagnostic = _publication_diagnostic(stage, exc)
+        typer.echo(
+            "Research-universe publication failed "
+            f"at {stage}: {diagnostic['code']}: {diagnostic['message']}",
+            err=True,
+        )
         raise typer.Exit(code=1) from exc
     finally:
         if graph_store is not None:
