@@ -675,6 +675,121 @@ def test_json_type_perturbations_have_controlled_validation_boundary(tmp_path: P
     assert probes == (9 + 16) * len(values)
 
 
+@pytest.mark.parametrize(
+    ("rows", "operation"),
+    [
+        ([row(exchange=[])], "suggestions"),
+        ([[]], "direct_lookup"),
+    ],
+)
+def test_malformed_search_input_is_controlled_at_service_and_cli(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    rows: Any,
+    operation: str,
+) -> None:
+    svc, provider, _ = _service(tmp_path)
+    provider.lookups["SCHD"] = [row("SCHD", "PCX")]
+    assert svc.add_direct("SCHD")["publication"] == "published"
+    pointer = (tmp_path / "active.json").read_bytes()
+    monkeypatch.setattr(provider, "search", lambda *_: rows)
+    monkeypatch.setattr(cli, "_catalogue_service", lambda: svc)
+    if operation == "suggestions":
+        with pytest.raises(CatalogueError, match="invalid_search_row"):
+            svc.suggestions("VWCE")
+        command = ["catalogue", "search", "VWCE", "--live"]
+    else:
+        result = svc.direct_lookup("VWCE.DE")
+        assert result["verification"] == "rejected"
+        assert result["reason"] == "invalid_search_row"
+        command = ["catalogue", "lookup", "VWCE.DE", "--add"]
+    cli_result = CliRunner().invoke(cli.app, command)
+    assert cli_result.exit_code == 1
+    assert "invalid_search_row" in cli_result.stdout
+    assert (tmp_path / "active.json").read_bytes() == pointer
+
+
+@pytest.mark.parametrize(
+    ("rows", "reason"),
+    [
+        (None, "invalid_search_response"),
+        ({}, "invalid_search_response"),
+        ("wrong", "invalid_search_response"),
+        (7, "invalid_search_response"),
+        ([row()] * 26, "invalid_search_response"),
+        ([None], "invalid_search_row"),
+        ([[]], "invalid_search_row"),
+        ([{}], "invalid_search_row"),
+        ([row(symbol=[])], "invalid_search_row"),
+        ([row(symbol="bad symbol")], "invalid_search_row"),
+        ([row(quoteType=[])], "invalid_search_row"),
+        ([row(exchange=[])], "invalid_search_row"),
+        ([row(exchange={})], "invalid_search_row"),
+        ([row(), row(exchange=[])], "invalid_search_row"),
+    ],
+)
+def test_search_response_shape_matrix_rejects_without_publication(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    rows: Any,
+    reason: str,
+) -> None:
+    svc, provider, _ = _service(tmp_path)
+    provider.lookups["SCHD"] = [row("SCHD", "PCX")]
+    assert svc.add_direct("SCHD")["publication"] == "published"
+    pointer = (tmp_path / "active.json").read_bytes()
+    monkeypatch.setattr(provider, "search", lambda *_: rows)
+    monkeypatch.setattr(cli, "_catalogue_service", lambda: svc)
+
+    with pytest.raises(CatalogueError, match=reason):
+        svc.suggestions("VWCE")
+    verification = svc.direct_lookup("VWCE.DE")
+    assert verification["verification"] == "rejected"
+    assert verification["reason"] == reason
+    for command in (
+        ["catalogue", "search", "VWCE", "--live"],
+        ["catalogue", "lookup", "VWCE.DE", "--add"],
+    ):
+        result = CliRunner().invoke(cli.app, command)
+        assert result.exit_code == 1
+        assert reason in result.stdout
+        assert (tmp_path / "active.json").read_bytes() == pointer
+
+
+def test_search_boundary_keeps_valid_mapping_sequences_and_source_semantics(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from types import MappingProxyType
+
+    svc, provider, store = _service(tmp_path)
+    responses: dict[str, Any] = {
+        "VWCE": (
+            MappingProxyType(row()),
+            row("AAPL", "NMS", quoteType="EQUITY"),
+            row("VUSA.L", "LSE"),
+            row("UNKNOWN", "UNKNOWN"),
+        ),
+        "VWCE.DE": (MappingProxyType(row()),),
+        "AAPL": (row("AAPL", "NMS", quoteType="EQUITY"),),
+        "VUSA.L": (row("VUSA.L", "LSE"),),
+        "UNKNOWN": (),
+        "AMBIGUOUS": (row("AMBIGUOUS"), row("AMBIGUOUS")),
+    }
+    monkeypatch.setattr(provider, "search", lambda query, *_: responses[query])
+
+    suggestions = svc.suggestions("VWCE")
+    assert suggestions["non_exhaustive"] is True
+    assert suggestions["provider_total"] is None
+    assert suggestions["returned_count"] == 4
+    assert suggestions["limit"] == 25
+    assert [item["symbol"] for item in suggestions["suggestions"]] == ["VWCE.DE"]
+    assert svc.direct_lookup("VWCE.DE")["observation"]["symbol"] == "VWCE.DE"
+    for value in ("AAPL", "VUSA.L", "UNKNOWN", "AMBIGUOUS"):
+        assert svc.direct_lookup(value)["verification"] == "rejected"
+    assert svc.direct_lookup("AMBIGUOUS")["reason"] == "no_unambiguous_exact_match"
+    assert store.read() is None
+
+
 def test_out_of_range_source_time_is_controlled(tmp_path: Path) -> None:
     svc, provider, store = _service(tmp_path)
     huge = 10**100

@@ -516,6 +516,32 @@ def make_catalogue(
     return validate_catalogue(cat)
 
 
+def _validated_search_rows(rows: Any) -> Sequence[Mapping[str, Any]]:
+    if (
+        not isinstance(rows, Sequence)
+        or isinstance(rows, (str, bytes, bytearray))
+        or len(rows) > MAX_SEARCH
+    ):
+        raise CatalogueError("invalid_search_response")
+    for row in rows:
+        if not isinstance(row, Mapping):
+            raise CatalogueError("invalid_search_row")
+        raw_symbol = row.get("symbol")
+        if not isinstance(raw_symbol, str):
+            raise CatalogueError("invalid_search_row")
+        try:
+            symbol(raw_symbol)
+        except CatalogueError as exc:
+            raise CatalogueError("invalid_search_row") from exc
+        quote_type = row.get("quoteType")
+        exchange = row.get("exchange")
+        if (quote_type is not None and not isinstance(quote_type, str)) or (
+            exchange is not None and not isinstance(exchange, str)
+        ):
+            raise CatalogueError("invalid_search_row")
+    return rows
+
+
 class CatalogueService:
     def __init__(
         self,
@@ -578,6 +604,7 @@ class CatalogueService:
             raise
         except Exception as exc:
             raise CatalogueError("provider_error") from exc
+        rows = _validated_search_rows(rows)
         return {
             "non_exhaustive": True,
             "provider_total": None,
@@ -609,6 +636,7 @@ class CatalogueService:
                 raise
             except Exception as exc:
                 raise CatalogueError("provider_error") from exc
+            rows = _validated_search_rows(rows)
             exact = [
                 r for r in rows if isinstance(r.get("symbol"), str) and r["symbol"].upper() == sym
             ]

@@ -468,3 +468,30 @@ bind identical corrected content. Existing implementation owner remains accounta
 Distinct user authority for one remediation and one final review is required;
 none is inferred. Later outcomes use excluded ledger; this WIP documentation
 revision is not certified by the previous review.
+
+
+## A103-2 Search input repair authorization
+
+2026-10-15 latest user `approve` accepts one remediation and one independent final
+review for B103-SEARCH-INPUT-SHAPE, after WIP619e09d. Native continuation adds
+exactly those counts, clears only current certification and preserves every
+prior outcome/reservation/delivery binding. Existing approved owner
+/root/issue103_container_owner remains implementation_worker/gpt-6-sol/medium.
+
+Primary decision resumes one bounded Search-provider input repair. Validate
+response/row and exchange field shapes before both live suggestion and exact
+lookup consumers, checking access preconditions under the already frozen Search
+limits. Add provider response/row/field malformed-type tests through service and
+CLI, plus valid source positives, explicit exact-symbol ambiguity/rejection,
+non-exhaustive capped suggestions and unchanged local pointer where applicable.
+Consolidate this boundary rather than just the first crash. Preserve all prior
+cache/lock/read/counter repairs and existing accepted interfaces. No blanket
+programmer exception suppression, schema/financial/persistence redesign, directory
+power-loss guarantee, merge or successor work is authorized.
+
+Focused closure is controlled rejection/error for malformed Search inputs across
+both consumers without raw TypeError/AttributeError, preserving valid semantics;
+then full required verification, all-AC acceptance and independent final review
+bind identical corrected content. Native preflight/reservation precedes resumption.
+After reservation remediation0/finalreview1 remain; no further grant is inferred.
+Reviewable docs freeze before certification; later outcomes use excluded ledger.

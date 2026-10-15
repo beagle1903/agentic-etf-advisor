@@ -185,3 +185,21 @@ reaches valid acceptance or controlled rejection for each case. Self-review
 found existing type preconditions on the adjacent provenance, report, page and
 coverage container paths. This adds no schema, financial or publication-contract
 change. Fresh full gates, acceptance and independent final review are required.
+
+## Search provider input repair awaiting certification
+
+Independent review found `B103-SEARCH-INPUT-SHAPE` under INV103-1/3 and AC103-3/4:
+an ETF suggestion with list-valued `exchange` raised raw `TypeError`, while a
+non-record exact-lookup row raised raw `AttributeError`. Both were reproduced
+before repair. A shared Search result validator now checks the bounded response
+sequence, row mapping, symbol, quote type and exchange shapes before live
+suggestion or exact-lookup consumers access them. It rejects more than 25 rows
+instead of silently truncating them; tuple sequences and mapping rows remain
+valid provider inputs. Focused malformed response/row/field fixtures check
+controlled service and CLI failure with unchanged active pointer, including a
+valid exact row beside malformed evidence. Positive fixtures preserve source ETF
+suggestions, provider row count, non-exhaustive labeling, suffixes, non-ETF and
+out-of-region rejection, unknown symbols and exact-match ambiguity. Existing
+deadline checks and Search limits remain. No catalogue JSON, Yahoo adapter,
+advisory eligibility or publication contract changes. Fresh full gates,
+acceptance and independent final review must bind the corrected content.
