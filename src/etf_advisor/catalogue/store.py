@@ -72,6 +72,7 @@ class CatalogueStore:
         lock = self.root / "publish.lock"
         deadline = time.monotonic() + self.lock_timeout
         while True:
+            owned_marker = uuid4().hex.encode("ascii")
             try:
                 fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
             except FileExistsError as exc:
@@ -82,6 +83,7 @@ class CatalogueStore:
                 raise CatalogueError("store_io_error") from exc
             else:
                 owned_stat: os.stat_result | None = None
+                written_marker = b""
                 try:
                     try:
                         try:
@@ -97,12 +99,28 @@ class CatalogueStore:
                             if owned_stat is None:
                                 raise CatalogueError("lock_release_error") from exc
                             raise CatalogueError("store_io_error") from exc
+                        written = os.write(fd, owned_marker)
+                        written_marker = owned_marker[:written]
+                        if written != len(owned_marker):
+                            raise OSError("short_lock_marker_write")
                     finally:
-                        os.close(fd)
+                        close_error: OSError | None = None
+                        for attempt in range(3):
+                            try:
+                                os.close(fd)
+                                break
+                            except OSError as exc:
+                                close_error = exc
+                                if attempt == 2:
+                                    raise CatalogueError("lock_release_error") from exc
+                        if close_error is not None:
+                            raise CatalogueError("store_io_error") from close_error
                 except (OSError, CatalogueError) as exc:
                     if owned_stat is not None:
                         try:
-                            self._release_owned_lock(lock, owned_stat.st_dev, owned_stat.st_ino)
+                            self._release_owned_lock(
+                                lock, owned_stat.st_dev, owned_stat.st_ino, written_marker
+                            )
                         except OSError as cleanup_exc:
                             raise CatalogueError("lock_release_error") from cleanup_exc
                     if isinstance(exc, CatalogueError):
@@ -156,19 +174,23 @@ class CatalogueStore:
             raise CatalogueError("store_io_error") from exc
         finally:
             try:
-                self._release_owned_lock(lock, owned_stat.st_dev, owned_stat.st_ino)
+                self._release_owned_lock(lock, owned_stat.st_dev, owned_stat.st_ino, owned_marker)
             except OSError as exc:
                 if pointer_committed:
                     raise CommittedCleanupError(candidate) from exc
                 raise CatalogueError("lock_release_error") from exc
 
     @staticmethod
-    def _release_owned_lock(lock: Path, device: int, inode: int) -> None:
+    def _release_owned_lock(lock: Path, device: int, inode: int, marker: bytes) -> None:
         """Retry a transient unlink error only while the original lock is still ours."""
         for attempt in range(3):
             current = lock.stat()
             if (current.st_dev, current.st_ino) != (device, inode):
                 raise OSError("owned_lock_changed")
+            with lock.open("rb") as handle:
+                current_marker = handle.read(len(marker) + 1)
+            if current_marker != marker:
+                raise OSError("owned_lock_marker_changed")
             try:
                 lock.unlink()
                 return

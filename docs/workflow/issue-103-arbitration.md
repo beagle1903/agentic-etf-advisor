@@ -208,3 +208,67 @@ required`. Neither rejection was relabelled successful, no event was appended an
 allowance was consumed or invented. B103-LINUX-LOCK-IDENTITY currently names this
 external evidence record; a permitted native continuation must precede its blocker
 event and any further repair phase. Original delivered ledger remains immutable.
+
+## A103-2 Linux repair authorization
+
+2026-10-15 user `approved` accepts the narrow proposal: one remediation and one final
+review for the Linux inode-reuse defect on original PR108. Distinct native continuation
+adds only these finite counts, preserves prior consumption/deliveries and makes the
+previously rejected terminal blocker append valid prospectively. The earlier rejection
+remains truthful history; no event was backdated or relabelled.
+
+Primary decision resumes narrow repair: strengthen currently owned lock identity across
+inode reuse, retain the existing replacement-lock regression and add deterministic reuse
+coverage. Verify on Windows and a Linux filesystem before final certification where
+available, then fresh acceptance, independent final review and original PR108 redelivery.
+Do not weaken/skip the failed test, remove foreign/stale locks, change committed-pointer
+truth, redesign locking architecture or expand catalogue/financial contracts. Persistent
+metadata/cleanup denial remains a controlled explicit limitation, not an unlimited OS
+recovery promise. New marker initialization must retain exception-safe fd/owned-lock
+cleanup rather than reintroduce the acquisition leak.
+
+Prior live owner is unavailable in the new turn; explicit same-role recovery handoff to
+`/root/issue103_linux_repair_owner` retains implementation_worker/gpt-6-sol/medium and
+generation2 frozen capsule. Remaining before reservation: remediation1/final_review1,
+other counts0. Native preflight and durable reservation precede dispatch. This is not an
+owner replacement due to disagreement. Later closure evidence belongs in the excluded
+ledger once documentation is frozen; repeated concerns without new evidence reference
+this decision, while genuine new evidence revises this same episode.
+
+
+## A103-2 new PR evidence during authorized Linux repair
+
+2026-10-15 coordinator refreshed live PR108 threads before dependent handoff and
+found three new P2 comments posted 2026-10-14T18:04:15Z. They were absent from the
+three-comment repair and subsequent inode-reuse authorization. Current phase is
+reserved remediation /root/issue103_linux_repair_owner; counted remaining slots are
+remediation0/final_review1/design_reset0. This dispatch hold is not an offline pause.
+
+| Evidence and path | Frozen criterion / expected versus actual | Classification and disposition |
+| --- | --- | --- |
+| PRRC_kwDOUF1JVc7-xtIF / store.read pointer and blob read_bytes | INV103-4 / AC103-5, controlled unavailable/error at CLI boundary; PermissionError or another OSError escapes read before CLI catches CatalogueError. Source path is store.read -> initial service read -> CatalogueError-only CLI handler. | Demonstrated defect B103-READ-IO; narrow normalization of pointer/blob read failures and focused service/CLI tests required. No implementation authorized by this comment. |
+| PRRC_kwDOUF1JVc7-xtIM / validate_catalogue partition counters | INV103-2 / AC103-2/4, evidence must agree with accepted rows; complete report permits arbitrary nonnegative duplicate_count/rejected_count while accepted unique rows and page total match. Existing exact-key/type repair did not constrain these relationships. | Demonstrated defect B103-EVIDENCE-COUNTERS; strict complete-report counter relationships and correctly re-digested tampering tests required. New material evidence extends the existing schema concern. |
+| PRRC_kwDOUF1JVc7-xtIA / directory fsync after rename | INV103-4 / AC103-5 handoff promises write/flush/validate blob before atomic pointer replacement and interrupted staging preserves prior catalogue. Requested scenario is host/power failure after successful pointer commit; handoff does not promise filesystem metadata durability across host crash. Current file fsync does not prove directory-entry durability. | Outside frozen power-loss guarantee; defer explicit durability design, platform capability and failure semantics to separately authorized work. No claim of crash-durable publication is made. This does not waive either demonstrated current defect. |
+
+Designer evidence is generation2 handoff Cache/publication and Discovery sections;
+owner reports these comments are distinct from the marker repair and has not changed
+them; reviewer evidence is the three linked live PR threads above. Coordinator source
+consolidation confirms direct read-error path and missing counter relationships; no
+new investigation agent or unreserved phase was dispatched. No unanimous agreement
+is needed and no missing test is treated as proof of correctness.
+
+Primary accountable decision: explicit delivery stop. Complete the already authorized
+Linux marker repair and its verification as WIP, preserving its actual outcomes, then
+stop before acceptance/final-review/delivery. Do not spend the one remaining final
+review on known unresolved defects. Reject silent inclusion of new fixes in the narrow
+Linux grant, ignoring fresh material evidence, automatically granting more phases,
+resetting design or claiming clean delivery from Windows/Linux passing suites.
+
+Focused next closure condition: B103-READ-IO and B103-EVIDENCE-COUNTERS must each have
+narrow owner repair plus failing-before/passing-after focused evidence against the IDs
+above, fresh required verification, all-AC acceptance and the existing independent
+final-review gate on identical content. Current owner remains accountable; a further
+remediation reservation requires distinct finite user authority. Existing final_review1
+remains unused. No merge, new PR, successor issue or broader persistence redesign is
+authorized. The Linux defect may close independently, but that does not accept the
+ticket or waive the newly demonstrated defects. Later outcomes use native ledger.

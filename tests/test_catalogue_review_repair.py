@@ -233,6 +233,113 @@ def test_lock_metadata_failure_releases_fd_and_allows_next_writer(
     assert svc.refresh(force=True)["status"] == "published"
 
 
+@pytest.mark.parametrize("failure", ["write_error", "short_write", "close_error"])
+def test_lock_marker_acquisition_failure_releases_owned_resources(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    svc, _, _ = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    before = (tmp_path / "active.json").read_bytes()
+    real_write = os.write
+    real_close = os.close
+    real_fstat = os.fstat
+    acquired_fd: int | None = None
+    failed_once = False
+
+    def capture_fstat(fd: int) -> os.stat_result:
+        nonlocal acquired_fd
+        acquired_fd = fd
+        return real_fstat(fd)
+
+    def broken_write(fd: int, data: bytes) -> int:
+        nonlocal failed_once
+        if not failed_once:
+            failed_once = True
+            if failure == "write_error":
+                raise OSError("fixture_marker_write_failure")
+            return real_write(fd, data[:4])
+        return real_write(fd, data)
+
+    def broken_close(fd: int) -> None:
+        nonlocal failed_once
+        if fd == acquired_fd and not failed_once:
+            failed_once = True
+            raise OSError("fixture_marker_close_failure")
+        real_close(fd)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(os, "fstat", capture_fstat)
+        if failure == "close_error":
+            patch.setattr(os, "close", broken_close)
+        else:
+            patch.setattr(os, "write", broken_write)
+        result = svc.refresh(force=True)
+
+    assert failed_once
+    assert result["status"] == "failed"
+    assert result["reason"] == "store_io_error"
+    assert acquired_fd is not None
+    with pytest.raises(OSError) as closed:
+        real_fstat(acquired_fd)
+    assert closed.value.errno == errno.EBADF
+    assert not (tmp_path / "publish.lock").exists()
+    assert (tmp_path / "active.json").read_bytes() == before
+    assert svc.refresh(force=True)["status"] == "published"
+
+
+def test_persistent_lock_close_failure_is_controlled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, _ = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    before = (tmp_path / "active.json").read_bytes()
+    real_fstat = os.fstat
+    real_close = os.close
+    acquired_fd: int | None = None
+
+    def capture_fstat(fd: int) -> os.stat_result:
+        nonlocal acquired_fd
+        acquired_fd = fd
+        return real_fstat(fd)
+
+    def deny_close(fd: int) -> None:
+        if fd == acquired_fd:
+            raise OSError("fixture_persistent_close_denial")
+        real_close(fd)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(os, "fstat", capture_fstat)
+        patch.setattr(os, "close", deny_close)
+        result = svc.refresh(force=True)
+
+    assert result["status"] == "failed"
+    assert result["reason"] == "lock_release_error"
+    assert (tmp_path / "active.json").read_bytes() == before
+    assert acquired_fd is not None
+    real_close(acquired_fd)
+    # Permanent close denial may leave an unreleased lock; the failure stays explicit.
+    (tmp_path / "publish.lock").unlink(missing_ok=True)
+
+
+def test_lock_marker_read_failure_warns_after_commit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, store = _service(tmp_path)
+    real_open = Path.open
+
+    def deny_marker_read(path: Path, *args: Any, **kwargs: Any) -> Any:
+        if path.name == "publish.lock" and args and args[0] == "rb":
+            raise OSError("fixture_lock_marker_read_failure")
+        return real_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", deny_marker_read)
+    result = svc.refresh()
+    assert result["status"] == "published"
+    assert result["cleanup_error"] == "lock_release_error"
+    assert store.read() is not None
+    assert (tmp_path / "publish.lock").exists()
+
+
 def test_replaced_lock_is_not_removed_after_commit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -250,6 +357,41 @@ def test_replaced_lock_is_not_removed_after_commit(
         real_unlink(path, *args, **kwargs)
 
     monkeypatch.setattr(Path, "unlink", replace_on_unlink)
+    result = svc.refresh()
+    assert replaced
+    assert result["status"] == "published"
+    assert result["cleanup_error"] == "lock_release_error"
+    assert (tmp_path / "publish.lock").read_text(encoding="ascii") == "replacement-owner"
+    assert store.read() is not None
+
+
+def test_reused_inode_replacement_lock_is_not_removed_after_commit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    svc, _, store = _service(tmp_path)
+    real_unlink = Path.unlink
+    real_stat = Path.stat
+    replaced = False
+    original_identity: os.stat_result | None = None
+
+    def replace_on_unlink(path: Path, *args: Any, **kwargs: Any) -> None:
+        nonlocal replaced, original_identity
+        if path.name == "publish.lock" and not replaced:
+            original_identity = real_stat(path)
+            replaced = True
+            real_unlink(path, *args, **kwargs)
+            path.write_text("replacement-owner", encoding="ascii")
+            raise OSError("fixture_lock_replaced_with_reused_inode")
+        real_unlink(path, *args, **kwargs)
+
+    def reused_inode_stat(path: Path, *args: Any, **kwargs: Any) -> os.stat_result:
+        if path.name == "publish.lock" and replaced:
+            assert original_identity is not None
+            return original_identity
+        return real_stat(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", replace_on_unlink)
+    monkeypatch.setattr(Path, "stat", reused_inode_stat)
     result = svc.refresh()
     assert replaced
     assert result["status"] == "published"

@@ -113,3 +113,27 @@ The CAS winner metadata, committed-version cleanup warning, and strict nested
 catalogue evidence validation from the prior repair remain in place. Fresh
 content-bound verification, acceptance and independent final review are required
 before PR 108 can be redelivered; the failed review remains historical evidence.
+
+## Linux lock identity repair (WIP)
+
+Linux CI run 38611336874 failed the existing replacement-lock test after inode
+reuse made a foreign `publish.lock` appear to have the original device/inode.
+The lock now contains a unique marker for each successful acquisition. Release
+checks both the recorded device/inode and that marker before each bounded unlink
+attempt. If a replacement carries the same device/inode but a different marker,
+the committed catalogue version remains published and the service reports
+`cleanup_error=lock_release_error` without removing that replacement. A
+deterministic cross-platform fixture reproduces the equal-device/inode failure
+before this repair, retains the existing Linux-failed test, and checks the
+committed result and foreign marker. Focused acquisition fixtures also cover
+marker write errors, short writes, transient descriptor-close failure and
+explicit persistent-close or marker-read cleanup failure. Persistent OS denial
+can leave a lock requiring manual recovery; no automatic stale-lock removal is
+claimed. This repair changes no catalogue JSON schema, source mapping, financial
+eligibility, research publication, or graph/checkpoint state.
+
+A103-2 currently has separate unresolved `B103-READ-IO` and
+`B103-EVIDENCE-COUNTERS` blockers from later PR feedback. The Linux lock repair is
+WIP within its authorized scope. It does not certify all frozen acceptance
+criteria or authorize final review, redelivery, or merge while those blockers
+remain open.
