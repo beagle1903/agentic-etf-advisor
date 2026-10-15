@@ -380,12 +380,12 @@ def validate_catalogue(cat: Any) -> dict[str, Any]:
                 or not report["source_version"].strip()
                 or not isinstance(report.get("errors"), list)
                 or type(report.get("rejected_count")) is not int
-                or report["rejected_count"] < 0
+                or report["rejected_count"] != 0
                 or report.get("truncation_reason") is not None
                 or type(report.get("unique_count")) is not int
                 or type(report.get("duplicate_count")) is not int
                 or report["unique_count"] < 0
-                or report["duplicate_count"] < 0
+                or report["duplicate_count"] != 0
                 or not isinstance(report.get("pages"), list)
                 or not 1 <= len(report["pages"]) <= MAX_PAGES
             ):

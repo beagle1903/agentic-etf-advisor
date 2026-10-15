@@ -12,7 +12,7 @@ import pytest
 from test_catalogue import T0, FakeProvider, row
 from typer.testing import CliRunner
 
-from etf_advisor import cli
+from etf_advisor import catalogue, cli
 from etf_advisor.catalogue.service import (
     CatalogueError,
     CatalogueService,
@@ -175,6 +175,48 @@ def test_failed_attempt_does_not_label_parent_active_when_readback_fails(
     assert result["attempted_parent_version"] == parent["version"]
     assert result["active_version"] is None
     assert result["active_version_state"] == "unknown"
+
+
+@pytest.mark.parametrize("stage", ["pointer", "blob"])
+def test_catalogue_read_io_failure_is_controlled_at_service_and_cli(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
+) -> None:
+    svc, _, store = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    before = (tmp_path / "active.json").read_bytes()
+    active = store.read()
+    assert active is not None
+    real_read = Path.read_bytes
+    denied_name = "active.json" if stage == "pointer" else f"{active['version']}.json"
+
+    def deny_read(path: Path) -> bytes:
+        if path.name == denied_name:
+            raise PermissionError("fixture_read_denied")
+        return real_read(path)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "read_bytes", deny_read)
+        with pytest.raises(CatalogueError, match="store_io_error"):
+            store.read()
+        with pytest.raises(CatalogueError, match="store_io_error"):
+            svc.refresh(force=True)
+        with pytest.raises(CatalogueError, match="store_io_error"):
+            svc.add_direct("VWCE.DE")
+        with pytest.raises(CatalogueError, match="store_io_error"):
+            svc.local_search("VWCE")
+        patch.setattr(cli, "_catalogue_service", lambda: svc)
+        patch.setattr(catalogue, "CatalogueStore", lambda: store)
+        for command in (
+            ["catalogue", "refresh", "--force"],
+            ["catalogue", "lookup", "VWCE.DE", "--add"],
+            ["catalogue", "search", "VWCE"],
+        ):
+            cli_result = CliRunner().invoke(cli.app, command)
+            assert cli_result.exit_code == 1
+            assert '"reason": "store_io_error"' in cli_result.stdout
+
+    assert (tmp_path / "active.json").read_bytes() == before
+    assert store.read() == active
 
 
 def test_transient_owned_lock_cleanup_allows_next_writer(
@@ -463,6 +505,33 @@ def test_nested_schema_is_checked_on_store_readback(tmp_path: Path) -> None:
         canonical({"schema": "yahoo-catalogue-pointer-v1", "version": mutated["version"]})
     )
     with pytest.raises(CatalogueError, match="invalid_page_report"):
+        store.read()
+
+
+@pytest.mark.parametrize("counter", ["duplicate_count", "rejected_count"])
+def test_complete_partition_rejects_forged_counters_on_readback(
+    tmp_path: Path, counter: str
+) -> None:
+    svc, provider, store = _service(tmp_path)
+    provider.rows[("de", "GER")] = [row()]
+    assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    forged = copy.deepcopy(saved)
+    report = next(
+        p
+        for p in forged["coverage"]["partitions"]
+        if p["country"] == "de" and p["exchange"] == "GER"
+    )
+    report[counter] = 1
+    forged["version"] = digest({k: v for k, v in forged.items() if k != "version"})
+    with pytest.raises(CatalogueError, match="invalid_partition_report"):
+        validate_catalogue(forged)
+    (tmp_path / f"{forged['version']}.json").write_bytes(canonical(forged))
+    (tmp_path / "active.json").write_bytes(
+        canonical({"schema": "yahoo-catalogue-pointer-v1", "version": forged["version"]})
+    )
+    with pytest.raises(CatalogueError, match="invalid_partition_report"):
         store.read()
 
 

@@ -132,8 +132,24 @@ can leave a lock requiring manual recovery; no automatic stale-lock removal is
 claimed. This repair changes no catalogue JSON schema, source mapping, financial
 eligibility, research publication, or graph/checkpoint state.
 
-A103-2 currently has separate unresolved `B103-READ-IO` and
-`B103-EVIDENCE-COUNTERS` blockers from later PR feedback. The Linux lock repair is
-WIP within its authorized scope. It does not certify all frozen acceptance
-criteria or authorize final review, redelivery, or merge while those blockers
-remain open.
+## Read and counter repair awaiting certification
+
+Later PR feedback identified `B103-READ-IO` and `B103-EVIDENCE-COUNTERS` under
+INV103-4/AC103-5 and INV103-2/AC103-2/4 respectively. Focused regressions first
+showed pointer/blob read denial escaping as `PermissionError`, and correctly
+re-digested complete reports accepting forged `duplicate_count` and
+`rejected_count` values. Store reads now translate filesystem read failures to
+`CatalogueError("store_io_error")`, preserving absent-pointer behavior and strict
+corrupt-cache rejection. Refresh, direct addition, local search and their CLI
+paths report a controlled error; a failed initial read cannot alter the active
+pointer. Complete partition reports require both counters to be zero, consistent
+with accepted unique rows and page totals. Incomplete attempts retain their
+diagnostic counters and error evidence without publication. The readback test
+rejects a correctly re-digested forged blob. This changes no persisted JSON
+schema, mapping, financial eligibility or graph/checkpoint state.
+
+The earlier Linux ownership-marker repair remains part of the same final review
+scope. Fresh full verification, acceptance and independent final review must bind
+the saved corrected content before PR 108 can be redelivered. Directory-entry
+durability after a host or power crash is outside this frozen guarantee; no such
+durability claim is made. No merge or successor work is included.

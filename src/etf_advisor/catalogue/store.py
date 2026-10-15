@@ -41,25 +41,28 @@ class CatalogueStore:
         self.lock_timeout = lock_timeout
 
     def read(self) -> dict[str, Any] | None:
-        pointer = self.root / "active.json"
-        if not pointer.exists():
-            return None
-        raw = _strict_json(pointer.read_bytes())
-        if (
-            not isinstance(raw, dict)
-            or set(raw) != {"schema", "version"}
-            or raw["schema"] != "yahoo-catalogue-pointer-v1"
-            or not isinstance(raw["version"], str)
-            or re.fullmatch(r"[0-9a-f]{64}", raw["version"]) is None
-        ):
-            raise CatalogueError("invalid_pointer")
-        path = self.root / f"{raw['version']}.json"
-        if not path.is_file():
-            raise CatalogueError("missing_blob")
-        candidate = _strict_json(path.read_bytes())
-        if not isinstance(candidate, dict) or candidate.get("version") != raw["version"]:
-            raise CatalogueError("pointer_blob_mismatch")
-        return validate_catalogue(candidate)
+        try:
+            pointer = self.root / "active.json"
+            if not pointer.exists():
+                return None
+            raw = _strict_json(pointer.read_bytes())
+            if (
+                not isinstance(raw, dict)
+                or set(raw) != {"schema", "version"}
+                or raw["schema"] != "yahoo-catalogue-pointer-v1"
+                or not isinstance(raw["version"], str)
+                or re.fullmatch(r"[0-9a-f]{64}", raw["version"]) is None
+            ):
+                raise CatalogueError("invalid_pointer")
+            path = self.root / f"{raw['version']}.json"
+            if not path.is_file():
+                raise CatalogueError("missing_blob")
+            candidate = _strict_json(path.read_bytes())
+            if not isinstance(candidate, dict) or candidate.get("version") != raw["version"]:
+                raise CatalogueError("pointer_blob_mismatch")
+            return validate_catalogue(candidate)
+        except OSError as exc:
+            raise CatalogueError("store_io_error") from exc
 
     def publish(self, candidate: dict[str, Any], parent: str | None) -> dict[str, Any]:
         validate_catalogue(candidate)

@@ -1056,6 +1056,143 @@
         "id": "B103-LINUX-LOCK-IDENTITY",
         "evidence": "Scoped marker repair and faithful original/deterministic replacement-lock regressions PASS Windows/nativeLinux on 026c4aceae6d0773378931a333f86efc12d6834efd2ee795f1240ca7d51d7782. New unrelated blockers remain open; resolution is not acceptance or delivery. A103-2 explicit delivery stop remains."
       }
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-15T10:13:54Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-15 latest approved directly accepts proposal one additional remediation for read-error and contradictory audit-counter defects, then existing available final review on original PR108. Distinct grant after Linux WIP9cb9c9a; no merge/newscope/reset."
+        },
+        "seconds": 0,
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 0,
+          "design_reset": 0
+        },
+        "reason": "Open nonterminal blocked ticket uses finite extension for remediation1, preserving existing final_review1. Prior continuation candidate was rejected invalid finite continuation because it would require an added finalreview count; no event/grant consumed. Use supported extension with exactly approved count, no tooling change/waiver."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T10:13:56Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue103_linux_repair_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T10:24:58Z",
+      "data": {
+        "session": "/root/issue103_linux_repair_owner",
+        "outcome": "pass",
+        "evidence": "Authorized B103-READ-IO and B103-EVIDENCE-COUNTERS repair PASS acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3. Four before-fix regressions FAILED: raw pointer/blob PermissionError and correctly re-digested forged duplicate/rejected counters accepted. Afterfix focus33/33 each Windows/nativeLinux, controlled CatalogueError store_io_error at service/CLI, priorpointer preserved, forged complete counters rejected validation+readback. Original marker/acquisition/CAS/schema regressions retained. Final full DEFAULT Windows and nativeLinux ext4 CPython3.13.16 exit0 at100%; Linux1566pass48skip inferred from progress log, no explicit count summary claimed. Earlier full attempts interrupted to fix test import/line formatting, not passes. Final uv frozen57, workflow/ticketvalidators,rufflintformat177,mypy55,all37offlinecases passedtrue,buildwheel+sdist,Composequiet,diffcheck PASS. Docs/selfreview frozen before final gates. No schema/map/finance/graph/directorydurability expansion. Prior rejected continuation truthfully preserved; exact approved remediation1 extension used, finalreview1 remains. Fresh readonlyverification/allACacceptance/independentreview next."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-15T10:24:59Z",
+      "data": {
+        "id": "B103-READ-IO",
+        "evidence": "A103-2 focused closure achieved by approved owner: concrete before-fix failure then narrow production repair and focused/full Windows+Linux PASS on acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3. Strict read errors/counterrelationships and priorpointer/no-foreignlock behavior confirmed; resolution is not independent review or delivery."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-15T10:25:01Z",
+      "data": {
+        "id": "B103-EVIDENCE-COUNTERS",
+        "evidence": "A103-2 focused closure achieved by approved owner: concrete before-fix failure then narrow production repair and focused/full Windows+Linux PASS on acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3. Strict read errors/counterrelationships and priorpointer/no-foreignlock behavior confirmed; resolution is not independent review or delivery."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T10:25:03Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue103_linux_repair_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T10:25:55Z",
+      "data": {
+        "session": "/root/issue103_linux_repair_owner",
+        "outcome": "pass",
+        "evidence": "Fresh reserved READONLY verification PASS: before=after native content acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3; no source/test/docs/config/ledger writes. Workflow/ticketvalidation,focus33/33,offline37cases passedtrue,diffcheck PASS; saved marker/read/counter implementation and regression evidence present. Final full Windows+nativeLinux and required gates samecontent retained, no redundant fullrerun claimed. All native blockers resolved; independent review next."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-15T10:25:56Z",
+      "data": {
+        "ids": [
+          "AC103-1",
+          "AC103-2",
+          "AC103-3",
+          "AC103-4",
+          "AC103-5"
+        ],
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3",
+        "evidence": "AllfrozenAC revalidated currentcorrectedcontent. AC103-1 approvedgen2source/map/query/identity/cachecontractunchanged;AC103-2 strictquery/page/auditablecounts now rejects forged complete duplicate/rejected counters with redigestedblobnegativefixtures;AC103-3 directlookup/CLI/allowedregion preserved and controlledinitialreadfailure;AC103-4 source/pagination/failurefixtures plus4beforefixfailures nowpass;AC103-5 marker/dev/inode foreignlockprotection, exception-safefdcleanup, controlledpointer/blobreaderror, priorpointerpreservation and existingresearch/graphbaseline. Focus33/33 Windows+Linux;finalDEFAULTfull bothOSexit0 and37offlinecases/allrequiredgatesPASS samecontent;freshreadonlyverificationPASS. A103-2 focused closure met, no material unresolvedfrozencontractdefect reported. Powerlossdirectorydurability remains explicitoutsidefrozenguarantee, not waiveddefect. Priorfailures preserved; independentfinalreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T10:25:58Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue103_read_counter_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T10:29:40Z",
+      "data": {
+        "session": "/root/issue103_read_counter_review",
+        "outcome": "fail",
+        "evidence": "Independent readonly code_reviewer Solhigh FINAL REVIEW FAIL exactverifiedaccepted acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3. New material B103-COVERAGE-CONTAINER under INV103-4/AC103-5: correctly re-digested completeblob+matchingpointer with exactcoveragekeys but partitions:null reaches len(coverage[partitions]) service.py343, raw TypeError NoneType has no len through store.py63; CLI catchesCatalogueErroronly cli.py86/108/132. Reviewer reproduced in memory mockingPath existence/read only, nofilesystemwrites. Strict malformedcache controlledrejection violated. ReadOSError/counterrepairs andLinuxmarker inspected; no rollback requested, newmalformedevidence extendsA103-2 nestedschema concern. Stop, no delivery/automaticrepair; allcountedslotsnowconsumed. Separate userfiniteauthority required for narrowcontainer-typeguard/readbackCLIregression plusfreshverification/finalreview."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-15T10:29:42Z",
+      "data": {
+        "id": "B103-COVERAGE-CONTAINER",
+        "criterion": "AC103-5",
+        "scenario": "Correctly re-digested active complete catalogue with exact coverage keys and partitions:null raises raw TypeError at len before schema rejection; store.read OSError normalization and CatalogueError-only CLI do not catch it. Expected controlled malformed-cache rejection, actual traceback.",
+        "evidence": "Independent /root/issue103_read_counter_review reproduced in-memory correctly digestedblob+pointer on acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3, service.py343/store.py63/cli.py86,108,132. FinalreviewFAIL preserved; A103-2 newmaterialevidence, not repeat/assertion."
+      }
     }
   ]
 }

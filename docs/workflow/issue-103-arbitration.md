@@ -272,3 +272,62 @@ remediation reservation requires distinct finite user authority. Existing final_
 remains unused. No merge, new PR, successor issue or broader persistence redesign is
 authorized. The Linux defect may close independently, but that does not accept the
 ticket or waive the newly demonstrated defects. Later outcomes use native ledger.
+
+
+## A103-2 read/counter repair authorization
+
+2026-10-15 latest user `approved` accepts one additional remediation for
+B103-READ-IO and B103-EVIDENCE-COUNTERS, followed by existing final_review1.
+Native continuation candidate was rejected `invalid finite continuation` because
+that event requires a new final-review delta; no event was appended. The current
+nonterminal blocked ticket instead uses supported extension with seconds0,
+remediation1 and all other count deltas0, exactly matching user authority.
+
+Primary accountable decision is narrow repair. Same approved owner session
+/root/issue103_linux_repair_owner (implementation_worker/gpt-6-sol/medium) normalizes
+pointer/blob read failures to controlled catalogue errors and validates complete
+partition counters against accepted rows. Add failing-before/passing-after tests,
+including correctly re-digested evidence tampering, then fresh verification,
+all-AC acceptance and independent review of identical content. Preserve Linux
+ownership-marker repair. Directory power-loss durability remains deferred;
+no schema, finance, persistence redesign, merge or next-child scope is added.
+
+Generation2 capsule and original PR108 identity remain unchanged. Native check
+and reservation precede owner resumption; after reservation remediation0 and
+final_review1 remain. Prior A103-2 focused two-blocker closure condition applies;
+this finite grant does not erase outcomes or certify the WIP snapshot.
+
+
+## A103-2 final-review malformed-container evidence
+
+2026-10-15 independent final reviewer /root/issue103_read_counter_review confirmed
+FAIL on verified/accepted content
+`acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3`.
+Read-error and counter repairs passed their before/after regressions, both full
+OS suites and required gates; this does not waive the newly demonstrated defect.
+
+B103-COVERAGE-CONTAINER, INV103-4 / AC103-5: a complete active catalogue with exact
+coverage keys but `partitions: null`, a recomputed valid digest and matching pointer
+reaches `len(coverage["partitions"])` in service.py343. `CatalogueStore.read` raises
+raw TypeError through store.py63; CLI handlers catch CatalogueError only. Reviewer
+constructed blob/pointer in memory and mocked Path existence/read methods, without
+filesystem writes. Expected strict malformed-cache controlled rejection; actual
+uncontrolled traceback. This is new material container-shape evidence extending
+the existing nested-schema concern, not repetition or a new acceptance criterion.
+
+Primary accountable revision: explicit stop. Record final review FAIL and native
+blocker; preserve narrow approved repairs as WIP on original PR108. Remaining
+counted remediation0/final_review0/design_reset0. No new dependent handoff, automatic
+extension, design reset, silent type-error suppression, delivery or merge. The
+coordinator rejects accepting passing suites as proof of absent malformed-input
+defects. Earlier directory-durability deferral remains unchanged.
+
+Concrete next closure: approved owner adds a container-type guard before the
+coverage partitions length/iteration operation, with correctly re-digested active
+blob/readback and CLI negative fixtures proving controlled schema rejection and
+no active-pointer mutation. Preserve valid empty partitions, approved complete
+reports and existing marker/read/counter behavior. Fresh full required verification,
+all-AC acceptance and independent final review must bind the corrected content.
+This next repair requires distinct finite user authority for one remediation and
+one final review. No such grant is inferred. Later evidence belongs in the excluded
+native ledger; this document revision is WIP, not certification of changed content.
