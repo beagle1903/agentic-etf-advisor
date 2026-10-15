@@ -535,6 +535,50 @@ def test_complete_partition_rejects_forged_counters_on_readback(
         store.read()
 
 
+@pytest.mark.parametrize("partitions", [None, 7, "wrong", {"wrong": "container"}])
+def test_complete_coverage_rejects_invalid_partition_container_on_readback_and_cli(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, partitions: Any
+) -> None:
+    svc, _, store = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    forged = copy.deepcopy(saved)
+    forged["coverage"]["partitions"] = partitions
+    forged["version"] = digest({k: v for k, v in forged.items() if k != "version"})
+    with pytest.raises(CatalogueError, match="invalid_coverage"):
+        validate_catalogue(forged)
+
+    (tmp_path / f"{forged['version']}.json").write_bytes(canonical(forged))
+    pointer = canonical({"schema": "yahoo-catalogue-pointer-v1", "version": forged["version"]})
+    (tmp_path / "active.json").write_bytes(pointer)
+    with pytest.raises(CatalogueError, match="invalid_coverage"):
+        store.read()
+
+    monkeypatch.setattr(cli, "_catalogue_service", lambda: svc)
+    monkeypatch.setattr(catalogue, "CatalogueStore", lambda: store)
+    for command in (
+        ["catalogue", "refresh", "--force"],
+        ["catalogue", "lookup", "VWCE.DE", "--add"],
+        ["catalogue", "search", "VWCE"],
+    ):
+        result = CliRunner().invoke(cli.app, command)
+        assert result.exit_code == 1
+        assert '"reason": "invalid_coverage"' in result.stdout
+        assert (tmp_path / "active.json").read_bytes() == pointer
+
+
+def test_complete_coverage_accepts_empty_provider_partitions(tmp_path: Path) -> None:
+    svc, _, store = _service(tmp_path)
+    assert svc.refresh()["status"] == "published"
+    saved = store.read()
+    assert saved is not None
+    assert saved["coverage"]["status"] == "provider_partitions_complete"
+    assert len(saved["coverage"]["partitions"]) == len(saved["manifest"])
+    assert all(report["unique_count"] == 0 for report in saved["coverage"]["partitions"])
+    assert validate_catalogue(saved) == saved
+
+
 def test_out_of_range_source_time_is_controlled(tmp_path: Path) -> None:
     svc, provider, store = _service(tmp_path)
     huge = 10**100

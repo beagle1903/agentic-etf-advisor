@@ -340,6 +340,7 @@ def validate_catalogue(cat: Any) -> dict[str, Any]:
                 )
                 for code in ["OEM", "OQB", "OQX", "PNK", "YHD", "AQS", "CXE", "IOB", "LSE", "EBS"]
             }
+            or not isinstance(coverage["partitions"], list)
             or len(coverage["partitions"]) != len(MANIFEST)
             or type(coverage["attempts"]) is not int
             or not len(MANIFEST) <= coverage["attempts"] <= MAX_ATTEMPTS

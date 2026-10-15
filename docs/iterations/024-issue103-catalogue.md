@@ -153,3 +153,18 @@ scope. Fresh full verification, acceptance and independent final review must bin
 the saved corrected content before PR 108 can be redelivered. Directory-entry
 durability after a host or power crash is outside this frozen guarantee; no such
 durability claim is made. No merge or successor work is included.
+
+## Complete coverage container repair awaiting certification
+
+Independent final review found `B103-COVERAGE-CONTAINER` under INV103-4/AC103-5:
+a correctly re-digested active blob with `coverage.partitions: null` raised raw
+`TypeError` before the malformed-cache check. Complete coverage validation now
+requires a list before reading its length or iterating its reports. Focused
+persisted-blob fixtures reproduce the failure before repair and verify that
+null, scalar, string and mapping containers produce controlled
+`CatalogueError("invalid_coverage")` through store readback and all three local
+CLI commands, with the active pointer bytes unchanged. A valid complete report
+with 42 empty provider partitions still reads and validates. Self-review of
+adjacent nested accesses found existing guards for report, page and error lists;
+this repair changes no catalogue schema or advisory behavior. Fresh full gates,
+acceptance and independent final review must bind the corrected content.

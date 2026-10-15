@@ -331,3 +331,70 @@ all-AC acceptance and independent final review must bind the corrected content.
 This next repair requires distinct finite user authority for one remediation and
 one final review. No such grant is inferred. Later evidence belongs in the excluded
 native ledger; this document revision is WIP, not certification of changed content.
+
+
+## A103-2 malformed-container continuation
+
+2026-10-15 latest user `continue` resumes the immediately proposed narrow repair,
+including one remediation and one independent final review. Native continuation
+adds exactly those finite counts and clears current certification while preserving
+all failed outcomes, historical deliveries and original PR108 identity. No merge,
+new issue or design reset is authorized. Prior owner is absent from live inventory;
+explicit same-role recovery assigns /root/issue103_container_owner,
+implementation_worker/gpt-6-sol/medium, with original generation2 capsule intact.
+
+Accountable decision resumes narrow repair of B103-COVERAGE-CONTAINER under
+INV103-4/AC103-5. Guard the complete coverage partitions container before length
+or iteration, reject malformed types through existing CatalogueError validation,
+and add correctly re-digested active-cache/readback and CLI negative fixtures.
+Owner self-review checks adjacent existing nested-container access in this same
+validation path to keep the shape rejection consistent; this grants no schema,
+financial, provider, directory-durability or persistence architecture redesign.
+Preserve valid empty/complete reports, pointer bytes, Linux marker and prior read/
+counter repairs. Do not blanket-catch programmer exceptions to mask bad shapes.
+
+The focused closure remains controlled schema rejection, unchanged active pointer
+and positive valid-cache coverage, then fresh required verification, all-AC
+acceptance and independent final review on identical saved content. Native preflight
+and durable reservation precede dispatch. After reservation remediation0/finalreview1
+remain; no automatic additional allowance follows. Later outcomes use excluded
+ledger evidence once reviewable docs freeze.
+
+
+## A103-2 consolidated observation-type evidence
+
+2026-10-15 independent /root/issue103_container_review returned final review FAIL
+on verified/accepted content
+`12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7`.
+The coverage partitions list guard and valid42-empty positive are correct. Both
+full suites1571/48, focused38 and all required gates remain actual passes; this
+new final-review failure is not relabelled.
+
+B103-EXCHANGE-TYPE, INV103-4 / AC103-5: direct-only or complete discovered catalogue
+with observation exchange `[]` or `{}`, a recomputed correct digest and matching
+active pointer, raises unhashable-type TypeError at mapping membership in
+service.py186. Path-mocked in-memory store read and all three CLI commands confirm
+uncaught TypeError instead of controlled CatalogueError schema rejection. Reviewer
+consolidated372 JSON-type perturbations across top-level, direct observation,
+coverage/report/page fields and found this list/map exchange family as the only
+raw exception in that bounded matrix; this is not an exhaustive correctness proof.
+
+New material evidence extends the existing malformed-cache validation concern;
+it is not repetition without evidence or an added AC. Primary accountable decision:
+explicit stop. Preserve the correct partitions repair as WIP on original PR108,
+record final review FAIL and new blocker. Remaining remediation0/finalreview0/
+designreset0. Reject blind acceptance based on passing suites, blanket exception
+suppression, silent schema redesign, automatic count grants, delivery or merge.
+
+Concrete next closure is one bounded observation-type repair: validate exchange
+string type before mapping membership, inspect equivalent type preconditions in
+the existing validation boundary, and add correctly re-digested direct/discovered
+active-cache list/map exchange negatives through store and all CLI paths, with
+valid-cache positives and unchanged pointer. Retain the consolidated malformed-type
+matrix where useful to prevent repeated single-field repair cycles. Current same
+implementation owner remains accountable; fresh required verification, all-AC
+acceptance and independent final review must bind identical corrected content.
+This requires distinct finite user authority for one remediation and one final
+review. No grant is inferred; no new architecture or financial behavior is proposed.
+Directory power-loss durability deferral remains unchanged. Later outcomes belong
+in excluded native ledger; this WIP document revision is not newly certified.

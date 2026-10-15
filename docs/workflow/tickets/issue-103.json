@@ -1193,6 +1193,163 @@
         "scenario": "Correctly re-digested active complete catalogue with exact coverage keys and partitions:null raises raw TypeError at len before schema rejection; store.read OSError normalization and CatalogueError-only CLI do not catch it. Expected controlled malformed-cache rejection, actual traceback.",
         "evidence": "Independent /root/issue103_read_counter_review reproduced in-memory correctly digestedblob+pointer on acfca72564b650dd83317357c41f5caff0b1943a15d13bf17255a886b8602fc3, service.py343/store.py63/cli.py86,108,132. FinalreviewFAIL preserved; A103-2 newmaterialevidence, not repeat/assertion."
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-15T13:46:04Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-15 latest user continue directly resumes immediately proposed B103-COVERAGE-CONTAINER repair: one remediation and one finalreview for malformed-cache container-type guard/readbackCLI regressions on originalPR108. No merge/reset/newscope."
+        },
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Distinct finite resume after failed container review and WIP3835b0e; preserve prior failure/counts/bindings, clear current certification only, same frozen malformed-cache rejection contract."
+      }
+    },
+    {
+      "type": "owner_handoff",
+      "at": "2026-10-15T13:46:04Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Prior owner absent in current liveagentinventory after blockedturn; explicit same-role freshsession recovery under latest continue authority, not replacement due disagreement."
+        },
+        "owner": {
+          "role": "implementation_worker",
+          "model": "gpt-6-sol",
+          "effort": "medium",
+          "session": "/root/issue103_container_owner"
+        },
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "reason": "Same classified implementation role for authorized container-shape repair; preserve all historical authors and unchangedgen2capsule.",
+        "escalation": null
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T13:46:05Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue103_container_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T13:52:22Z",
+      "data": {
+        "session": "/root/issue103_container_owner",
+        "outcome": "pass",
+        "evidence": "Authorized B103-COVERAGE-CONTAINER repair PASS savedcontent 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7. Beforefix null/int partition containers rawTypeError reproduced through persisted activecache; string/mapping initialCLItest failures were harnessinjection errors, not claimedproductionreproduction. Afterfix5/5 focused: redigested null/scalar/string/mapping cache rejected controlled invalid_coverage through store/service/threeCLI paths with unchangedpointer; valid42emptypartitions accepted. One-line listguard beforelen/iteration, adjacent report/page/error shape guards selfreviewed. Final DEFAULT Windows1571passed48skipped181.70s; nativeLinuxext4 same1571/48 73.29s. uv frozen57,workflow/ticketvalidators,rufflintformat177,mypy55,all37offlinecases37correct,buildwheel+sdist,Composequiet,diffcheck PASS. Docs/selfreview/testing frozen before gates. Prior marker/read/counter/CAS/schema behavior retained. No schema/map/finance/directorydurability redesign. Fresh readonlyverification/allACacceptance/independentfinalreview next; no ownerdeliveryclaim."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-15T13:52:22Z",
+      "data": {
+        "id": "B103-COVERAGE-CONTAINER",
+        "evidence": "A103-2 focusedclosure achieved by explicit usercontinue repair on 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7: correctcontainerguard andpersistedredigestednegativefixtures controlledrejection/no pointermutation plusvalidcompletepositive; bothfullOS1571/48 andallrequiredgatesPASS. Review failure preserved; fresh independent review required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T13:52:23Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue103_container_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T13:53:06Z",
+      "data": {
+        "session": "/root/issue103_container_owner",
+        "outcome": "pass",
+        "evidence": "Fresh reserved READONLYverification PASS nativebefore=after 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7,no source/test/docs/config/ledgerwrites. Workflow/ticketvalidators,fullrepairmodule38/38,offlinebaseline37correct37cases,diffcheckPASS; savedguard/tests/docs markerspresent. Both finalDEFAULTfullOS1571/48 andallrequiredgates samecontent retained,no repeatedfullsuite. Allnativeblockersresolved, independentreviewnext."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-15T13:53:06Z",
+      "data": {
+        "ids": [
+          "AC103-1",
+          "AC103-2",
+          "AC103-3",
+          "AC103-4",
+          "AC103-5"
+        ],
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7",
+        "evidence": "All frozenAC revalidated correctedcontainercontent. AC103-1 approvedgen2source/map/query/identity/cachecontracts unchanged; AC103-2 exactattributablepage/count/provenanceevidence andstrictcounterrelationships preserved; AC103-3 directlookup/allowedregion/suffix/controlledCLI retained; AC103-4 positive/negativepaginationsourcefailurefixtures, redigestedmalformedcontainers negative/readbackCLI withvalid42emptyproviders positive; AC103-5 malformedactivecachecontrolledrejection/nopointermutation, Linuxownedmarker/devinodeguard, exception-safefdcleanup, readOSErrornormalization, priorusableversionandbaselinepreserved. FinalWindows+Linux1571passed48skipped,focus38/38,offline37/37,allrequiredgatesPASS;freshreadonlyhashbefore=afterPASS. A103-2 containerfocusedclosuremet; previousreviewFAILremainsFAIL. Directoryhostcrashdurability deferredoutsidefrozenguarantee, no waiveddefect. Independentfinalreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-15T13:53:07Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue103_container_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-103-yahoo-catalogue",
+          "generation": 2,
+          "digest": "b9c97b4c7f067883a8752c7b8846b9cb63c85ca5848c926e3567542074b7a234"
+        },
+        "content": "12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-15T13:58:00Z",
+      "data": {
+        "session": "/root/issue103_container_review",
+        "outcome": "fail",
+        "evidence": "Independent readonly code_reviewer Solhigh FINALREVIEW FAIL exactverifiedaccepted 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7. B103-COVERAGE-CONTAINER guardcorrect,5newfixtures andfull38repairtests/valid42empty positive confirmed. Newmaterial B103-EXCHANGE-TYPE INV103-4/AC103-5: correctlyredigested valid directonly orcompletediscovered activecatalogue with observation.exchange=[] or{} reaches mappingmembership service.py186, rawTypeError unhashabletype throughvalidate_catalogue/store.read63; all3CLI refresh/lookupadd/search uncaughtTypeError at CatalogueError-onlyhandlers86/108/132. Reviewer in-memoryPathmockedstore/CLI confirmed, no writes. Consolidated372JSONtypeperturbations across top/directobservation/coverage/report/page found thislist/dict exchangefamily onlyrawexception, notexhaustiveproof. Earlier marker/read/counter/CAS paths inspectedwithoutnewfailure. Newmaterial A103-2 typepreconditiondefect, notcriterionexpansion. Stopallhandoffs/delivery;countsconsumed. Next boundedproposal typeguardbeforemappingmembership plusboundarytypeaudit/redigestedbothdirectdiscoverednegativeCLI/storefixtures andvalidpositive; no blanketexceptioncatch/schema redesign. Requiresdistinctfiniteuserauthority."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-15T13:58:01Z",
+      "data": {
+        "id": "B103-EXCHANGE-TYPE",
+        "criterion": "AC103-5",
+        "scenario": "Correctly re-digested direct or discovered observation exchange list/map causes raw TypeError at EXCHANGE_MAP membership before controlled schema rejection; readback and three CLI paths escape structured errors.",
+        "evidence": "Independent /root/issue103_container_review reproduced on 12c0cd5529abb97a343f74f6e2592f027d9860b7c86a070d618610045e8d50d7, service.py186/store.py63/cli.py86,108,132. Consolidated372JSONtypeperturbations found list/mapexchange familyonlyrawexception (boundednotexhaustive). CurrentfinalreviewFAILretained, A103-2accountablestop."
+      }
     }
   ]
 }
