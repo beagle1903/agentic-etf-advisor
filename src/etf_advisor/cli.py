@@ -397,8 +397,22 @@ def _publication_diagnostic(stage: str, error: Exception) -> dict[str, str]:
 
     if isinstance(error, IndexConsistencyError):
         return integrity_diagnostic(ResearchIntegrityError("document_integrity"))
-    if isinstance(error, (ResearchIntegrityError, ValidationError)):
+    if isinstance(error, ResearchIntegrityError):
         return integrity_diagnostic(error)
+    if isinstance(error, ValidationError):
+        integrity_codes = {
+            "schema_encoding",
+            "numeric_provenance",
+            "document_integrity",
+            "manifest_integrity",
+            "projection_integrity",
+            "retrieval_unavailable",
+        }
+        for item in error.errors(include_url=False):
+            context = item.get("ctx")
+            cause = context.get("error") if isinstance(context, dict) else None
+            if getattr(cause, "code", None) in integrity_codes:
+                return integrity_diagnostic(error)
     if isinstance(error, MarketDataQualityError):
         return {
             "code": "market_data_quality",
@@ -506,20 +520,21 @@ def publish_research_universe(
                     raise IndexConsistencyError(
                         f"Chroma is missing {len(missing)} active snapshot document(s)."
                     )
+                expected_documents = None
+                if not manifest.fingerprints:
+                    if supplied is not None:
+                        stage = "payload_load"
+                        expected_documents = supplied.to_source_documents()
+                    else:
+                        stage = "graph_readback"
+                        expected_documents = graph_store.snapshot_documents(version)
+                stage = "chroma_readback"
                 verified_count = verify_snapshot_documents(
                     requested_identity,
                     list(manifest.document_ids),
                     chroma_store,
                     manifest=manifest,
-                    expected_documents=(
-                        (
-                            supplied.to_source_documents()
-                            if supplied is not None
-                            else graph_store.snapshot_documents(version)
-                        )
-                        if not manifest.fingerprints
-                        else None
-                    ),
+                    expected_documents=expected_documents,
                 )
                 stage = "graph_readback"
                 graph_store.verify_snapshot(version)
@@ -536,6 +551,7 @@ def publish_research_universe(
                     already_active=True,
                 )
             elif not payload_path.exists():
+                stage = "payload_load"
                 raise ValueError(
                     "The immutable snapshot version already exists, but its canonical payload "
                     "is unavailable. Retry with the original --snapshot-file."

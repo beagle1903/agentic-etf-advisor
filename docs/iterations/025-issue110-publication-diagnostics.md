@@ -36,3 +36,25 @@ with six verified Chroma documents and six Neo4j documents, replacing active
 version `issue79-20260927T0910Z`. The failed version remains a failed attempt;
 the prior snapshot was preserved until the successful activation. Live source
 availability remains outside the application's guarantee.
+
+## PR 111 review repair (2026-10-16)
+
+[Coordinator arbitration A110-1](../workflow/issue-110-arbitration.md) accepted three
+same-scope diagnostic defects under AC110-1/AC110-2. The inactive-version retry now
+marks a missing canonical payload as `payload_load: input_validation`. Ordinary
+Pydantic input errors use their current stage, while a nested error carrying an
+allowlisted research-integrity code keeps that code. On an active legacy snapshot
+without fingerprints or a supplied payload, the required Neo4j document
+reconstruction runs under `graph_readback` before Chroma verification resumes.
+The existing missing-document check still precedes reconstruction.
+
+Three real CLI fault-injection regressions failed on the delivered code with the
+reported wrong stages/categories, then passed after repair. A separate nested
+integrity validation fixture preserves `numeric_provenance`; existing schema-2
+malformed-input cases retain their safe integrity diagnostic. Each CLI failure
+remains nonzero and hides injected private text. This repair changes only the
+CLI's attribution, with no further live publication or store data changes.
+The corrected content passed 30 focused CLI tests and the full service-free
+suite (1,604 passed, 48 skipped). Ruff lint/format, mypy (55 source files),
+`uv build`, static workflow and ticket-ledger validators, and `git diff --check`
+also passed. The separate independent final review remains pending.

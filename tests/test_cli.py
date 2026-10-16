@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from pydantic import BaseModel, ValidationError, field_validator
 from test_research_snapshot import research_snapshot
 from typer.testing import CliRunner
 
@@ -526,6 +527,85 @@ def test_publish_retry_fails_when_active_chroma_documents_are_missing(
     assert "Republish validated evidence" in result.output
 
 
+def test_inactive_retry_without_payload_is_input_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    class InactiveGraph:
+        def active_snapshot_identity(self) -> None:
+            return None
+
+        def snapshot_digest(self, version: str) -> str:
+            return "existing-digest"
+
+        def close(self) -> None:
+            pass
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: InactiveGraph())
+    monkeypatch.setattr(
+        cli, "ChromaDocumentStore", lambda **kwargs: pytest.fail("missing payload reached store")
+    )
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            "inactive-v1",
+            "--snapshot-file",
+            str(tmp_path / "missing-private-token.json"),
+        ],
+    )
+    assert result.exit_code == 1
+    assert "at payload_load: input_validation" in result.output
+    assert "missing-private-token" not in result.output
+
+
+def test_active_legacy_graph_reconstruction_reports_graph_readback(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    identity = ActiveSnapshotIdentity("legacy-v1", "existing-digest")
+    calls: list[str] = []
+    secret = "neo4j://private:password@internal"
+
+    class LegacyGraph:
+        def active_snapshot_identity(self) -> ActiveSnapshotIdentity:
+            return identity
+
+        def snapshot_digest(self, version: str) -> str:
+            return identity.snapshot_digest
+
+        def snapshot_manifest(self, version: str) -> SnapshotManifest:
+            return SnapshotManifest(version, identity.snapshot_digest, 1, ("doc-spy",))
+
+        def snapshot_documents(self, version: str) -> None:
+            calls.append("graph_documents")
+            raise RuntimeError(secret)
+
+        def close(self) -> None:
+            pass
+
+    class ChromaRead:
+        def missing_document_ids(self, document_ids: list[str]) -> list[str]:
+            calls.append("chroma_missing")
+            return []
+
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: LegacyGraph())
+    monkeypatch.setattr(cli, "ChromaDocumentStore", lambda **kwargs: ChromaRead())
+    result = CliRunner().invoke(
+        cli.app,
+        [
+            "publish-research-universe",
+            "--snapshot-version",
+            identity.snapshot_version,
+            "--snapshot-file",
+            str(tmp_path / "missing.json"),
+        ],
+    )
+    assert result.exit_code == 1
+    assert calls == ["chroma_missing", "graph_documents"]
+    assert "at graph_readback: store_failure" in result.output
+    assert secret not in result.output
+
+
 def test_publication_diagnostic_does_not_echo_raw_store_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -604,6 +684,57 @@ def test_publication_graph_lookup_failure_reports_stage_without_private_detail(
     assert "at graph_lookup: store_failure" in result.output
     assert "schema_encoding" not in result.output
     assert private not in result.output
+
+
+def test_plain_universe_validation_error_is_input_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    class EmptyGraph:
+        def active_snapshot_identity(self) -> None:
+            return None
+
+        def snapshot_digest(self, version: str) -> None:
+            return None
+
+        def close(self) -> None:
+            pass
+
+    universe = tmp_path / "universe.json"
+    universe.write_text(
+        json.dumps(
+            {
+                "universe_id": "test",
+                "universe_version": "v1",
+                "members": [{"symbol": "SPY", "private_marker": "private-data"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cli, "Neo4jGraphStore", lambda **kwargs: EmptyGraph())
+    monkeypatch.setattr(
+        cli, "YahooResearchAdapter", lambda **kwargs: pytest.fail("invalid universe reached source")
+    )
+    result = CliRunner().invoke(cli.app, ["publish-research-universe", "--universe", str(universe)])
+    assert result.exit_code == 1
+    assert "at universe_load: input_validation" in result.output
+    assert "schema_encoding" not in result.output
+    assert "private-data" not in result.output
+
+
+def test_nested_integrity_validation_error_retains_allowlisted_code() -> None:
+    class NestedIntegrity(BaseModel):
+        value: int
+
+        @field_validator("value")
+        @classmethod
+        def reject_value(cls, value: int) -> int:
+            raise cli.ResearchIntegrityError("numeric_provenance")
+
+    with pytest.raises(ValidationError) as raised:
+        NestedIntegrity.model_validate({"value": 1})
+    diagnostic = cli._publication_diagnostic("payload_load", raised.value)
+    assert diagnostic["code"] == "numeric_provenance"
+    assert "Republish validated evidence" in diagnostic["message"]
 
 
 @pytest.mark.parametrize(
