@@ -169,6 +169,21 @@
         },
         "content": "acc2941ebddb72565eab566b18809a10e9545071612db11f2e47165268442d44"
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-15T16:07:17Z",
+      "data": {
+        "evidence": "PR111 opened from codex/issue-110-publication-diagnostics after focused/full local gates and content-bound verification/acceptance. Primary dashboard remains on main; new research snapshot data is active. No merge authorized.",
+        "pr": 111,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "acc2941ebddb72565eab566b18809a10e9545071612db11f2e47165268442d44",
+        "capsule": {
+          "id": "issue-110-publication-diagnostics",
+          "generation": 1,
+          "digest": "9ab4571a213a2af1d0f25ea935aa1b329807607470530275c0806a81c313434c"
+        }
+      }
     }
   ]
 }
