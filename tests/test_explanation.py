@@ -563,6 +563,20 @@ def test_numeric_claim_present_in_cited_policy_field_is_allowed() -> None:
     assert bundle.status == "ready"
 
 
+def test_numeric_claim_requires_the_exact_policy_reference_with_its_value() -> None:
+    generated = _generated()
+    generated.policy_points[0].text = "The illustrative growth target is 70%."
+    generated.policy_points[0].references = ["profile.objective"]
+
+    with pytest.raises(ExplanationContractError) as exc:
+        validate_and_bundle_explanation(
+            _request(),
+            ExplanationResult(provider="test", model="fixed", explanation=generated),
+        )
+
+    assert exc.value.code == ExplanationContractFailureCode.UNSUPPORTED_NUMERIC_CLAIM
+
+
 def test_numeric_sector_claim_is_supported_by_structured_graph_context() -> None:
     generated = _generated()
     generated.evidence_points[0].text = "SPY reports technology exposure of 37.4%."
@@ -728,6 +742,198 @@ def test_prompt_json_method_parses_and_validates_one_embedded_object() -> None:
         "BND",
     ]
     assert "exactly one JSON object" in model.input[0][1]
+
+
+def test_prompt_json_preserves_top_level_section_validation_error() -> None:
+    payload = _generated().model_dump(mode="json")
+    payload["summary"]["basis"] = "source_evidence"
+    payload["summary"]["subject_symbols"] = ["SPY"]
+
+    class WrongSummaryModel:
+        def invoke(self, input: object) -> object:
+            return SimpleNamespace(content="```json\n" + json.dumps(payload) + "\n```")
+
+    generator = LangChainExplanationGenerator(
+        WrongSummaryModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
+    assert "summary must be grounded in policy calculation" in str(exc.value.__cause__)
+    assert "summary must be grounded" not in str(exc.value)
+
+
+def test_prompt_json_rejects_multiple_complete_objects() -> None:
+    class DuplicateModel:
+        def invoke(self, input: object) -> object:
+            payload = _generated().model_dump_json()
+            return SimpleNamespace(content=f"```json\n{payload}\n```\n{payload}")
+
+    generator = LangChainExplanationGenerator(
+        DuplicateModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
+    assert "multiple JSON objects" in str(exc.value.__cause__)
+
+
+def test_prompt_json_does_not_salvage_nested_object_from_malformed_envelope() -> None:
+    class MalformedEnvelopeModel:
+        def invoke(self, input: object) -> object:
+            return SimpleNamespace(content='{"incomplete": ' + _generated().model_dump_json())
+
+    generator = LangChainExplanationGenerator(
+        MalformedEnvelopeModel(),
+        provider="ollama",
+        model_name="fixed",
+        structured_method="prompt_json",
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
+    assert "malformed JSON" in str(exc.value.__cause__)
+
+
+@pytest.mark.parametrize(
+    "extra_value",
+    [
+        "fixture-only",
+        "rate limit",
+        "does not support structured output",
+        "authentication failed",
+    ],
+)
+def test_nested_extra_forbidden_is_invalid_response_not_authentication(
+    extra_value: str,
+) -> None:
+    payload = _generated().model_dump(mode="json")
+    payload["evidence_points"][0]["forbidden_extra"] = extra_value
+
+    class ExtraFieldModel:
+        def invoke(self, input: object) -> object:
+            return SimpleNamespace(content=json.dumps(payload))
+
+    generator = LangChainExplanationGenerator(
+        ExtraFieldModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
+    assert "extra_forbidden" in str(exc.value.__cause__)
+    assert extra_value not in str(exc.value)
+
+
+@pytest.mark.parametrize("status_code", [401, 403])
+def test_http_authentication_failure_remains_classified(status_code: int) -> None:
+    class AuthenticationError(ValueError):
+        pass
+
+    class RejectingModel:
+        def invoke(self, input: object) -> object:
+            error = AuthenticationError("fixture credential detail")
+            error.status_code = status_code
+            raise error
+
+    generator = LangChainExplanationGenerator(
+        RejectingModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.AUTHENTICATION
+    assert exc.value.diagnostic.http_status == status_code
+    assert "fixture credential detail" not in str(exc.value)
+
+
+@pytest.mark.parametrize(
+    ("status_code", "expected_code"),
+    [(429, ProviderFailureCode.RATE_LIMIT), (503, ProviderFailureCode.UNAVAILABLE)],
+)
+def test_explicit_http_status_takes_priority_over_valueerror_wrapper(
+    status_code: int, expected_code: ProviderFailureCode
+) -> None:
+    class WrappedFailureModel:
+        def invoke(self, input: object) -> object:
+            error = ValueError("fixture provider detail")
+            error.status_code = status_code
+            raise error
+
+    generator = LangChainExplanationGenerator(
+        WrappedFailureModel(),
+        provider="ollama",
+        model_name="fixed",
+        structured_method="prompt_json",
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == expected_code
+    assert exc.value.diagnostic.http_status == status_code
+    assert "fixture provider detail" not in str(exc.value)
+
+
+def test_provider_capability_valueerror_retains_unsupported_classification() -> None:
+    class UnsupportedModel:
+        def invoke(self, input: object) -> object:
+            raise ValueError("fixture model does not support structured output")
+
+    generator = LangChainExplanationGenerator(
+        UnsupportedModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.UNSUPPORTED_CAPABILITY
+    assert "fixture model" not in str(exc.value)
+
+
+def test_typed_json_error_precedes_provider_text_heuristics() -> None:
+    class MalformedModel:
+        def invoke(self, input: object) -> object:
+            raise json.JSONDecodeError("does not support structured output", "rate limit", 0)
+
+    generator = LangChainExplanationGenerator(
+        MalformedModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
+    )
+    with pytest.raises(ExplanationGenerationError) as exc:
+        generator.generate(_request())
+
+    assert exc.value.diagnostic is not None
+    assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
+    assert "rate limit" not in str(exc.value)
+
+
+def test_prompt_schema_and_instructions_match_section_and_numeric_rules() -> None:
+    system, human = provider_adapter._build_messages(_request(), structured_method="prompt_json")
+    schema = json.loads(human[1].removeprefix("INPUT_JSON:\n"))["output_schema"]
+    properties = schema["properties"]
+
+    assert "summary and every policy_points item use policy_calculation" in system[1]
+    assert "Every evidence_points item uses source_evidence" in system[1]
+    assert "exact references cited by that same statement" in system[1]
+    assert properties["summary"]["allOf"][1]["properties"]["basis"]["const"] == (
+        "policy_calculation"
+    )
+    assert (
+        properties["policy_points"]["items"]["allOf"][1]["properties"]["basis"]["const"]
+        == "policy_calculation"
+    )
+    assert (
+        properties["evidence_points"]["items"]["allOf"][1]["properties"]["basis"]["const"]
+        == "source_evidence"
+    )
 
 
 def test_provider_failure_is_sanitized() -> None:

@@ -1,6 +1,7 @@
 import json
 from datetime import UTC, datetime, timedelta
 from itertools import count
+from types import SimpleNamespace
 from typing import Any
 from uuid import uuid4
 
@@ -20,6 +21,7 @@ from etf_advisor.explanation import (
     ProviderFailureCode,
     ProviderFailureDiagnostic,
 )
+from etf_advisor.explanation.provider import LangChainExplanationGenerator
 from etf_advisor.graph.nodes import draft_explanation
 from etf_advisor.graph.workflow import build_graph
 from etf_advisor.rag.evidence import (
@@ -399,6 +401,48 @@ def test_explanation_failure_persists_redacted_provider_diagnostics() -> None:
         }
     ]
     json.dumps(result["explanation_errors"])
+
+
+def test_fake_prompt_json_provider_reaches_review_or_fails_closed() -> None:
+    valid_payload = _valid_generated_explanation().model_dump(mode="json")
+    invalid_payload = json.loads(json.dumps(valid_payload))
+    invalid_payload["summary"]["basis"] = "source_evidence"
+    invalid_payload["summary"]["subject_symbols"] = ["SPY"]
+
+    class FixedRawModel:
+        def __init__(self, payload: dict[str, object]) -> None:
+            self.payload = payload
+            self.calls = 0
+
+        def invoke(self, input: object) -> object:
+            self.calls += 1
+            return SimpleNamespace(content=json.dumps(self.payload))
+
+    for label, payload in (("valid", valid_payload), ("invalid", invalid_payload)):
+        model = FixedRawModel(payload)
+        generator = LangChainExplanationGenerator(
+            model, provider="test", model_name="fixed", structured_method="prompt_json"
+        )
+        graph = build_graph(
+            checkpointer=InMemorySaver(),
+            candidate_retriever=_current_evidence_retriever(),
+            explanation_generator=generator,
+        )
+        result = graph.invoke(
+            {"profile": valid_profile()},
+            config={"configurable": {"thread_id": f"prompt-json-{label}"}},
+        )
+        assert model.calls == 1
+        if label == "valid":
+            assert result["status"] == "awaiting_human_review"
+            assert result["draft_explanation"]["status"] == "ready"
+            assert result["__interrupt__"]
+        else:
+            assert result["status"] == "explanation_blocked"
+            assert result["draft_explanation"] == {}
+            assert "__interrupt__" not in result
+            assert result["explanation_errors"][0]["code"] == "invalid_response"
+            assert "summary must be grounded" not in json.dumps(result["explanation_errors"])
 
 
 def test_screening_contract_failure_stops_before_explanation_or_review() -> None:
