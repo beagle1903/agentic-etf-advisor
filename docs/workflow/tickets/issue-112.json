@@ -177,6 +177,21 @@
           "AC112-6"
         ]
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-18T08:07:53Z",
+      "data": {
+        "evidence": "PR113 opened after final full/focused gates, content-bound verification/acceptance and delivery preflight. Docker compose config passed. A112-1 focused closure met. No merge; historical numeric cause remains unconfirmed.",
+        "pr": 113,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "22a262f989dc302a40c8e7bfb98807d9a07149a9ab8778659e8320c33de99003",
+        "capsule": {
+          "id": "issue-112-explanation-diagnostics",
+          "generation": 1,
+          "digest": "4bee9e5bef792b501a1b255efbd05782e28268bf041c703ba0ca00b945914b3e"
+        }
+      }
     }
   ]
 }
