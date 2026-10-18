@@ -332,8 +332,16 @@ def _validated_generated_explanation(
         candidate, end = decoder.raw_decode(content, start)
     except json.JSONDecodeError as exc:
         raise ValueError("Provider response contained malformed JSON.") from exc
-    if "{" in content[end:]:
-        raise ValueError("Provider response contained multiple JSON objects.")
+    next_start = content.find("{", end)
+    while next_start >= 0:
+        try:
+            extra, extra_end = decoder.raw_decode(content, next_start)
+        except json.JSONDecodeError:
+            next_start = content.find("{", next_start + 1)
+            continue
+        if isinstance(extra, dict):
+            raise ValueError("Provider response contained multiple JSON objects.")
+        next_start = content.find("{", extra_end)
     if not isinstance(candidate, dict):
         raise ValueError("Provider response did not contain an explanation object.")
     return GeneratedExplanation.model_validate(candidate)

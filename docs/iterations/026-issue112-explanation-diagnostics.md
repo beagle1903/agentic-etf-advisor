@@ -36,3 +36,14 @@ request-schema guidance, exact numeric citation, and the fake-provider graph bou
 valid output reaches human review, while invalid output blocks before review with a
 redacted diagnostic. This does not guarantee that a future model response will pass the
 existing safety and grounding checks.
+
+## PR 113 review repair
+
+The review found that a valid explanation followed by prose such as `Note: use {field}`
+was rejected as a second object solely because the suffix contained `{`. A failing
+regression reproduced this result before repair. The parser now attempts to decode
+each suffix brace and rejects only another complete JSON object. Plain prose with
+non-JSON braces passes; prose with a later complete object still fails. The leading
+JSON parse remains strict, and validation still reports the original failed rule
+for one complete but invalid explanation. The repair makes no provider request and
+does not change grounding or review rules.

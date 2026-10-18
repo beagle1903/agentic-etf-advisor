@@ -765,11 +765,12 @@ def test_prompt_json_preserves_top_level_section_validation_error() -> None:
     assert "summary must be grounded" not in str(exc.value)
 
 
-def test_prompt_json_rejects_multiple_complete_objects() -> None:
+@pytest.mark.parametrize("separator", ["\n", "\nNote: {field} placeholder.\n"])
+def test_prompt_json_rejects_multiple_complete_objects(separator: str) -> None:
     class DuplicateModel:
         def invoke(self, input: object) -> object:
             payload = _generated().model_dump_json()
-            return SimpleNamespace(content=f"```json\n{payload}\n```\n{payload}")
+            return SimpleNamespace(content=f"```json\n{payload}\n```{separator}{payload}")
 
     generator = LangChainExplanationGenerator(
         DuplicateModel(), provider="ollama", model_name="fixed", structured_method="prompt_json"
@@ -780,6 +781,26 @@ def test_prompt_json_rejects_multiple_complete_objects() -> None:
     assert exc.value.diagnostic is not None
     assert exc.value.diagnostic.code == ProviderFailureCode.INVALID_RESPONSE
     assert "multiple JSON objects" in str(exc.value.__cause__)
+
+
+def test_prompt_json_allows_trailing_prose_with_non_json_braces() -> None:
+    class TrailingProseModel:
+        def invoke(self, input: object) -> object:
+            return SimpleNamespace(
+                content=(
+                    _generated().model_dump_json()
+                    + "\nNote: values use {field} placeholders, not another object."
+                )
+            )
+
+    generator = LangChainExplanationGenerator(
+        TrailingProseModel(),
+        provider="ollama",
+        model_name="fixed",
+        structured_method="prompt_json",
+    )
+
+    assert generator.generate(_request()).explanation == _generated()
 
 
 def test_prompt_json_does_not_salvage_nested_object_from_malformed_envelope() -> None:
