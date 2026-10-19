@@ -7,7 +7,7 @@ import json
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -21,13 +21,16 @@ from pydantic import (
 )
 
 from etf_advisor.clock import Clock
+from etf_advisor.data.ecb_fx import FxReferenceProvider
 from etf_advisor.data.quality import (
     FreshnessStatus,
     MarketDataHealthReport,
     assess_observations,
 )
 from etf_advisor.domain.profile import InvestmentObjective, InvestorProfile, RiskTolerance
+from etf_advisor.domain.us_eu import FxReferenceObservation
 from etf_advisor.encoding import (
+    AdvisoryWireModel,
     ResearchIntegrityError,
     StrictWireModel,
     document_schema,
@@ -63,8 +66,9 @@ class SourceProvenance(BaseModel):
     source: str = Field(min_length=1, max_length=80)
     source_url: str = Field(min_length=1, max_length=1000)
     observed_at: datetime
-    quote_type: str = Field(min_length=1, max_length=40)
-    market: str = Field(min_length=1, max_length=80)
+    advisory_contract: Literal["us-eu-v1"] | None = None
+    quote_type: str | None = Field(default=None, min_length=1, max_length=40)
+    market: str | None = Field(default=None, min_length=1, max_length=80)
 
     @field_validator("symbol")
     @classmethod
@@ -85,21 +89,31 @@ class SourceProvenance(BaseModel):
 
     @field_validator("quote_type")
     @classmethod
-    def require_etf_quote_type(cls, value: str) -> str:
-        if value.strip().upper() != "ETF":
-            raise ValueError("Source metadata quote_type must identify an ETF.")
-        return "ETF"
+    def require_etf_quote_type(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip().upper()
 
     @field_validator("market")
     @classmethod
-    def require_us_market(cls, value: str) -> str:
-        if value.strip().lower() != "us_market":
-            raise ValueError("Source metadata market must identify a US listing.")
-        return "us_market"
+    def require_us_market(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip().lower()
+
+    @model_validator(mode="after")
+    def validate_legacy_identity(self) -> SourceProvenance:
+        if self.advisory_contract is None and (
+            self.quote_type != "ETF" or self.market != "us_market"
+        ):
+            raise ValueError("Legacy source quote_type must be ETF and market must be us_market.")
+        return self
 
 
-class CandidateEvidence(StrictWireModel):
+class CandidateEvidence(AdvisoryWireModel):
     """One retrievable ETF fact bundle with its original source identity."""
+
+    legacy_extension_fields = frozenset({"listing_exchange", "trading_currency"})
 
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
@@ -110,8 +124,11 @@ class CandidateEvidence(StrictWireModel):
     source: str = Field(min_length=1, max_length=80)
     source_url: str = Field(min_length=1, max_length=1000)
     observed_at: datetime
-    quote_type: str = Field(min_length=1, max_length=40)
-    market: str = Field(min_length=1, max_length=80)
+    advisory_contract: Literal["us-eu-v1"] | None = None
+    quote_type: str | None = Field(default=None, min_length=1, max_length=40)
+    market: str | None = Field(default=None, min_length=1, max_length=80)
+    listing_exchange: str | None = None
+    trading_currency: str | None = None
     distance: float | None = None
     metadata: dict[str, MetadataValue] = Field(default_factory=dict)
     fund_family: str | None = None
@@ -137,21 +154,37 @@ class CandidateEvidence(StrictWireModel):
 
     @field_validator("quote_type")
     @classmethod
-    def require_etf_quote_type(cls, value: str) -> str:
-        if value.strip().upper() != "ETF":
-            raise ValueError("Candidate evidence quote_type must identify an ETF.")
-        return "ETF"
+    def require_etf_quote_type(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        return value.strip().upper()
 
     @field_validator("market")
     @classmethod
-    def require_us_market(cls, value: str) -> str:
-        if value.strip().lower() != "us_market":
-            raise ValueError("Candidate evidence market must identify a US listing.")
-        return "us_market"
+    def require_us_market(cls, value: str | None) -> str | None:
+        return value.strip().lower() if value is not None else None
+
+    @model_serializer(mode="wrap")
+    def serialize_candidate(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            for name in ("advisory_contract", "listing_exchange", "trading_currency"):
+                result.pop(name, None)
+        return result
 
     @model_validator(mode="after")
     def validate_graph_context_identity(self) -> CandidateEvidence:
         version = validate_document(self.document_id, self.content, self.metadata)
+        marker = self.metadata.get("advisory_contract")
+        if marker != self.advisory_contract:
+            raise ValueError("Candidate advisory contract differs from source metadata.")
+        if marker == "us-eu-v1":
+            if self.listing_exchange != self.metadata.get(
+                "listing_exchange"
+            ) or self.trading_currency != self.metadata.get("trading_currency"):
+                raise ValueError("Candidate listing or currency differs from source metadata.")
+        elif self.quote_type != "ETF" or self.market != "us_market":
+            raise ValueError("Legacy candidate requires ETF and US market.")
         if version == 2:
             expected_attributes = {
                 "symbol": self.symbol,
@@ -169,9 +202,14 @@ class CandidateEvidence(StrictWireModel):
                         "Candidate identity or classification differs from source metadata."
                     )
             if (
-                str(self.metadata.get("quote_type")).strip().upper() != self.quote_type
-                or str(self.metadata.get("market")).strip().lower() != self.market
-            ):
+                str(self.metadata.get("quote_type")).strip().upper()
+                if self.metadata.get("quote_type") is not None
+                else None
+            ) != self.quote_type or (
+                str(self.metadata.get("market")).strip().lower()
+                if self.metadata.get("market") is not None
+                else None
+            ) != self.market:
                 raise ValueError(
                     "Candidate instrument classification differs from source metadata."
                 )
@@ -238,6 +276,8 @@ class CandidateEvidenceBundle(StrictWireModel):
     snapshot_version: str | None = None
     snapshot_digest: str | None = None
     schema_version: int = 1
+    advisory_contract: Literal["us-eu-v1"] | None = None
+    fx_reference: FxReferenceObservation | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -264,11 +304,29 @@ class CandidateEvidenceBundle(StrictWireModel):
             raise ValueError("Evidence document identities must be unique.")
         if len({identity[1] for identity in identities}) != len(identities):
             raise ValueError("Evidence symbols must be unique.")
-        version = next(iter(versions), 1)
+        marker = value.get("advisory_contract")
+        # An empty blocked result has no candidate encoding to infer. Retain the
+        # explicitly selected semantic contract; nonempty candidates remain authoritative.
+        version = next(iter(versions), 2 if marker == "us-eu-v1" else 1)
         if "schema_version" in value and schema_version(value["schema_version"]) != version:
             raise ValueError("Evidence schema differs from its candidates.")
         if version == 2 and "schema_version" not in value:
             raise ValueError("Schema-2 evidence requires an explicit bundle marker.")
+        if marker == "us-eu-v1":
+            if version != 2 or "fx_reference" not in value:
+                raise ValueError("New advisory evidence requires schema 2 and FX status.")
+        elif "advisory_contract" in value or "fx_reference" in value:
+            raise ValueError("Legacy evidence rejects new-contract fields.")
+        if any(
+            (
+                item.advisory_contract
+                if isinstance(item, CandidateEvidence)
+                else item.get("advisory_contract")
+            )
+            != marker
+            for item in value.get("candidates", [])
+        ):
+            raise ValueError("Evidence candidates mix advisory contracts.")
         return value
 
     @model_serializer(mode="wrap")
@@ -276,6 +334,9 @@ class CandidateEvidenceBundle(StrictWireModel):
         result: dict[str, Any] = handler(self)
         if self.schema_version == 1:
             result.pop("schema_version", None)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
+            result.pop("fx_reference", None)
         return result
 
     @field_validator("checked_at")
@@ -422,12 +483,14 @@ class HybridCandidateEvidenceRetriever:
         clock: Clock,
         max_age: timedelta,
         future_tolerance: timedelta = timedelta(minutes=5),
+        fx_provider: FxReferenceProvider | None = None,
     ) -> None:
         _validate_freshness_window(max_age, future_tolerance)
         self._hybrid_search = hybrid_search
         self._clock = clock
         self._max_age = max_age
         self._future_tolerance = future_tolerance
+        self._fx_provider = fx_provider
 
     def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
         _validate_limit(limit)
@@ -444,6 +507,32 @@ class HybridCandidateEvidenceRetriever:
 
         try:
             checked_at = self._clock()
+            fx_reference = None
+            if profile.advisory_contract == "us-eu-v1":
+                needs_rate = any(
+                    result.metadata.get("advisory_contract") == "us-eu-v1"
+                    and result.metadata.get("trading_currency") != profile.base_currency
+                    for result in results
+                )
+                if needs_rate and self._fx_provider is not None:
+                    try:
+                        fx_reference = self._fx_provider.fetch_eur_usd()
+                    except Exception:
+                        fx_reference = FxReferenceObservation(
+                            status="missing",
+                            observed_at=checked_at,
+                            effective_date=None,
+                            rate_decimal=None,
+                            missing_reason="source_unavailable",
+                        )
+                else:
+                    fx_reference = FxReferenceObservation(
+                        status="missing",
+                        observed_at=checked_at,
+                        effective_date=None,
+                        rate_decimal=None,
+                        missing_reason="source_unavailable" if needs_rate else "not_requested",
+                    )
             return select_candidate_evidence(
                 profile,
                 results,
@@ -452,6 +541,7 @@ class HybridCandidateEvidenceRetriever:
                 max_age=self._max_age,
                 future_tolerance=self._future_tolerance,
                 limit=limit,
+                fx_reference=fx_reference,
             )
         except Exception as exc:
             diagnostic = integrity_diagnostic(exc)
@@ -476,8 +566,9 @@ def build_candidate_query(profile: InvestorProfile) -> str:
             + ", ".join(profile.excluded_sectors)
             + "."
         )
+    listing_scope = "US and EU" if profile.advisory_contract == "us-eu-v1" else "US"
     return (
-        f"US-listed ETF research evidence for {objective_text} objectives and "
+        f"{listing_scope}-listed ETF research evidence for {objective_text} objectives and "
         f"{profile.risk_tolerance.value} risk tolerance. Return attributable reported "
         f"category, fund family, expense ratio, latest close, and source timestamps."
         f"{exclusion_text}"
@@ -493,6 +584,7 @@ def select_candidate_evidence(
     max_age: timedelta,
     future_tolerance: timedelta = timedelta(minutes=5),
     limit: int = 5,
+    fx_reference: FxReferenceObservation | None = None,
 ) -> CandidateEvidenceBundle:
     """Validate and preserve ranked source evidence without making ETF recommendations."""
 
@@ -504,6 +596,9 @@ def select_candidate_evidence(
         raise ValueError("checked_at must be timezone-aware.")
 
     bounded_results = list(results[:limit])
+    marker = profile.advisory_contract
+    if any(result.metadata.get("advisory_contract") != marker for result in bounded_results):
+        raise ResearchIntegrityError("schema_encoding")
     versions = {
         schema_version(result.metadata.get("field_provenance_schema_version", 1))
         for result in bounded_results
@@ -568,6 +663,15 @@ def select_candidate_evidence(
                 "the source document."
             )
             graph_context = None
+        new_fields: dict[str, Any] = (
+            {
+                "advisory_contract": marker,
+                "listing_exchange": _optional_metadata_text(result.metadata, "listing_exchange"),
+                "trading_currency": _optional_metadata_text(result.metadata, "trading_currency"),
+            }
+            if marker
+            else {}
+        )
         try:
             candidates.append(
                 CandidateEvidence(
@@ -582,6 +686,7 @@ def select_candidate_evidence(
                     source=provenance.source,
                     source_url=provenance.source_url,
                     observed_at=provenance.observed_at,
+                    **new_fields,
                     quote_type=provenance.quote_type,
                     market=provenance.market,
                     distance=result.distance,
@@ -627,8 +732,26 @@ def select_candidate_evidence(
             )
 
     status = EvidenceStatus.READY if candidates and not errors else EvidenceStatus.BLOCKED
+    extra_fields: dict[str, Any] = (
+        {
+            "advisory_contract": marker,
+            "fx_reference": fx_reference
+            or FxReferenceObservation(
+                status="missing",
+                observed_at=checked_at,
+                effective_date=None,
+                rate_decimal=None,
+                missing_reason="not_requested",
+            ),
+        }
+        if marker
+        else {}
+    )
     return CandidateEvidenceBundle(
-        schema_version=(document_schema(candidates[0].metadata) if candidates else 1),
+        schema_version=(
+            document_schema(candidates[0].metadata) if candidates else (2 if marker else 1)
+        ),
+        **extra_fields,
         query=query,
         objective=profile.objective,
         risk_tolerance=profile.risk_tolerance,
@@ -656,8 +779,11 @@ def _provenance_from_result(result: GraphEnrichedSource) -> SourceProvenance:
         source=_required_metadata_text(result, "source"),
         source_url=_required_metadata_text(result, "source_url"),
         observed_at=observed_at,
-        quote_type=_required_metadata_text(result, "quote_type"),
-        market=_required_metadata_text(result, "market"),
+        advisory_contract="us-eu-v1"
+        if result.metadata.get("advisory_contract") == "us-eu-v1"
+        else None,
+        quote_type=_optional_metadata_text(result.metadata, "quote_type"),
+        market=_optional_metadata_text(result.metadata, "market"),
     )
 
 

@@ -18,6 +18,7 @@ from etf_advisor.checkpoint import (
 )
 from etf_advisor.clock import system_utc_now
 from etf_advisor.config import settings
+from etf_advisor.data.ecb_fx import EcbFxClient
 from etf_advisor.domain.construction import (
     PortfolioConstructionBundle,
     PortfolioConstructionInput,
@@ -423,6 +424,7 @@ def start_dashboard_run(
                 clock=system_utc_now,
                 max_age=timedelta(hours=settings.market_data_max_age_hours),
                 future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+                fx_provider=EcbFxClient(system_utc_now),
             )
 
         explanation_generator = (

@@ -2,6 +2,31 @@
 
 ## Current shape
 
+Issue104 adds the explicitly selected `us-eu-v1` path described in
+[ADR0039](decisions/0039-us-eu-currency-contract.md) and
+[usage](../us-eu-research.md). Absent markers retain the exact legacy US/USD path
+described below; numeric schema2 remains independent of semantic eligibility.
+US/EU mode uses the reviewed Yahoo exchange map, canonical ETF/major-unit currency
+facts, attributed ISIN and issuer fund/subfund groups, and one selected listing per
+economic group. All existing financial thresholds/category rules remain unchanged.
+USD/EUR profile cash uses strict integer minor units and exact base allocation;
+per-position ECB reference conversions use rational half-up rounding without
+changing selection, weights or base cash totals.
+
+Reference facts are injected from a strict local file capped at ten listings and
+one MiB. Fresh collection validates complete input before replacing only detached
+destination ingestion/version coordinates; source facts/citations/observations stay
+exact and retain their original freshness. Canonical payload loading, retry,
+reactivation and restore never rebind or consult the file. The bounded one-shot
+ECB client is injected into retrieval; the original retrieval receipt/output
+artifact binds FX with full profile input, including base currency. No new graph
+key or operation stage is added. Selected cross-currency positions require valid
+FX even with zero cash. Restores and downstream-only revisions use persisted check
+time without network; base changes require both cash amounts and fresh retrieval.
+Saved contract switches reject. Dashboard and exact monetary explanation grounding
+recompute the same contracts. Separate synthetic `evaluate-us-eu` cases supplement
+unchanged Issue99 evaluation bytes; live EU completeness remains unproven.
+
 The system is a LangGraph workflow with explicit boundaries between orchestration,
 deterministic finance logic, retrieval, model providers, and presentation.
 

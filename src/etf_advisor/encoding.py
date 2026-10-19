@@ -9,9 +9,9 @@ import re
 from collections.abc import Mapping
 from decimal import Decimal
 from fractions import Fraction
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 NUMERIC_FIELDS = {"expense_ratio_pct", "average_daily_volume", "top_10_concentration_pct"}
 EXPOSURE_FIELDS = {"top_holdings", "sector_exposures", "geography_exposures"}
@@ -27,6 +27,32 @@ class StrictWireModel(BaseModel):
     def model_validate_json(cls, json_data: str | bytes | bytearray, **kwargs: Any) -> Self:
         text = json_data if isinstance(json_data, str) else bytes(json_data).decode("utf-8")
         return cls.model_validate(strict_json(text), **kwargs)
+
+
+class AdvisoryWireModel(StrictWireModel):
+    """An absent semantic marker means legacy; explicit null is never legacy."""
+
+    legacy_extension_fields: ClassVar[frozenset[str]] = frozenset()
+    new_forbidden_fields: ClassVar[frozenset[str]] = frozenset()
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_semantic_marker(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and "advisory_contract" in value
+            and value["advisory_contract"] != "us-eu-v1"
+        ):
+            raise ValueError("Unknown or null advisory contract.")
+        if isinstance(value, dict):
+            forbidden = (
+                cls.new_forbidden_fields
+                if value.get("advisory_contract") == "us-eu-v1"
+                else cls.legacy_extension_fields
+            )
+            if forbidden.intersection(value):
+                raise ValueError("Cash or source fields belong to another advisory contract.")
+        return value
 
 
 class ResearchIntegrityError(ValueError):
@@ -252,6 +278,11 @@ def document_fingerprint(document_id: str, content: str, metadata: Mapping[str, 
 
 def document_schema(metadata: Mapping[str, object]) -> int:
     version = schema_version(metadata.get("field_provenance_schema_version", 1))
+    marker = metadata.get("advisory_contract")
+    if "advisory_contract" in metadata and marker != "us-eu-v1":
+        raise ResearchIntegrityError("schema_encoding")
+    if marker == "us-eu-v1" and version != 2:
+        raise ResearchIntegrityError("schema_encoding")
     if version == 1 and (
         FINGERPRINT_KEY in metadata or metadata.get("numeric_encoding") is not None
     ):
@@ -316,7 +347,17 @@ def validate_document(
     # Local import avoids the model -> codec dependency cycle.
     from etf_advisor.research.models import ETFResearchRecord, _render_field
 
-    record = ETFResearchRecord.model_validate({"symbol": metadata.get("symbol"), **decoded})
+    record = ETFResearchRecord.model_validate(
+        {
+            "symbol": metadata.get("symbol"),
+            **decoded,
+            **(
+                {"advisory_contract": "us-eu-v1"}
+                if metadata.get("advisory_contract") == "us-eu-v1"
+                else {}
+            ),
+        }
+    )
     fields = record.research_fields()
     if (
         metadata.get("symbol") != record.symbol

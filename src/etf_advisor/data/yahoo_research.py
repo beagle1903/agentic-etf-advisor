@@ -12,8 +12,14 @@ from decimal import Decimal, localcontext
 from typing import Any, TypeVar, cast
 
 from etf_advisor.clock import Clock
+from etf_advisor.data.reference_facts import (
+    LocalReferenceFacts,
+    ReferenceFactsProvider,
+    bound_reference_fields,
+)
 from etf_advisor.data.vanguard import BND_URL, PROVIDER, IssuerHoldingsClient, IssuerSourceError
 from etf_advisor.data.yahoo import MarketDataError
+from etf_advisor.domain.us_eu import contract_fields
 from etf_advisor.encoding import decimal_token
 from etf_advisor.research.models import (
     ETFResearchRecord,
@@ -60,6 +66,8 @@ class YahooResearchAdapter:
         retry_backoff_seconds: float = 0.25,
         sleeper: Callable[[float], None] = time.sleep,
         issuer_client: IssuerHoldingsClient | None = None,
+        advisory_contract: str | None = None,
+        reference_facts: ReferenceFactsProvider | None = None,
     ) -> None:
         if max_attempts < 1:
             raise ValueError("max_attempts must be at least 1.")
@@ -71,6 +79,10 @@ class YahooResearchAdapter:
         self._retry_backoff_seconds = retry_backoff_seconds
         self._sleeper = sleeper
         self._issuer_client = issuer_client
+        if advisory_contract not in (None, "us-eu-v1"):
+            raise ValueError("Unsupported advisory contract.")
+        self._advisory_contract = advisory_contract
+        self._reference_facts = reference_facts
 
     @staticmethod
     def _load_ticker_factory() -> Callable[[str], Any]:
@@ -92,12 +104,22 @@ class YahooResearchAdapter:
         """Fetch every curated member and build one internally consistent snapshot."""
 
         raw_records = [self._fetch_one(symbol) for symbol in universe.symbols]
+        if self._advisory_contract == "us-eu-v1" and isinstance(
+            self._reference_facts, LocalReferenceFacts
+        ):
+            actual = {raw.symbol: raw.info.get("exchange") for raw in raw_records}
+            if any(
+                actual.get(symbol) != exchange for symbol, exchange in self._reference_facts.records
+            ):
+                raise MarketDataError("Reference listing does not match Yahoo exchange.")
         ingested_at = self._clock()
         records = [
             self._build_record(raw, snapshot_version=snapshot_version, ingested_at=ingested_at)
             for raw in raw_records
         ]
         snapshot = ETFResearchSnapshot(
+            schema_version=2 if self._advisory_contract == "us-eu-v1" else 1,
+            **contract_fields("us-eu-v1" if self._advisory_contract == "us-eu-v1" else None),
             snapshot_version=snapshot_version,
             universe_id=universe.universe_id,
             universe_version=universe.universe_version,
@@ -105,7 +127,11 @@ class YahooResearchAdapter:
             records=records,
         )
         # The source adapter owns original decimal proofs. Wire readers never invent them.
-        return snapshot.model_copy(update={"schema_version": 2})
+        return (
+            snapshot
+            if self._advisory_contract == "us-eu-v1"
+            else snapshot.model_copy(update={"schema_version": 2})
+        )
 
     def _fetch_one(self, symbol: str) -> _RawResearch:
         ticker = self._retry(
@@ -234,6 +260,7 @@ class YahooResearchAdapter:
         )
         record = ETFResearchRecord(
             symbol=raw.symbol,
+            **contract_fields("us-eu-v1" if self._advisory_contract == "us-eu-v1" else None),
             name=field(_first_text(info.get("longName"), info.get("shortName")), "text"),
             quote_type=field(_optional_text(info.get("quoteType")), "classification"),
             market=field(_optional_text(info.get("market")), "classification"),
@@ -281,6 +308,11 @@ class YahooResearchAdapter:
                 missing_reason=holdings_reason,
                 provider="yahoo_finance_derived",
             ),
+            **(
+                self._new_listing_fields(raw, field, snapshot_version, ingested_at)
+                if self._advisory_contract == "us-eu-v1"
+                else {}
+            ),
         )
         if raw.symbol == "BND" and holdings is None and self._issuer_client is not None:
             try:
@@ -312,6 +344,43 @@ class YahooResearchAdapter:
                 }
             )
         return record
+
+    def _new_listing_fields(
+        self,
+        raw: _RawResearch,
+        field: Callable[..., ResearchField[Any]],
+        snapshot_version: str,
+        ingested_at: datetime,
+    ) -> dict[str, Any]:
+        exchange = _optional_text(raw.info.get("exchange"))
+        currency = _optional_text(raw.info.get("currency"))
+        reference = (
+            self._reference_facts.lookup(raw.symbol, exchange)
+            if self._reference_facts is not None and exchange is not None
+            else None
+        )
+        if reference is not None and (
+            reference.symbol != raw.symbol or reference.exchange != exchange
+        ):
+            raise MarketDataError("Reference listing does not match Yahoo identity.")
+        return {
+            "listing_exchange": field(exchange, "yahoo_exchange_code"),
+            "trading_currency": field(currency, "iso4217"),
+            "price_unit": field(
+                currency if currency in {"USD", "EUR"} else None,
+                "quote_unit",
+                missing_reason=MissingReason.PROVIDER_UNSUPPORTED
+                if currency is not None
+                else MissingReason.NOT_REPORTED,
+            ),
+            **bound_reference_fields(
+                reference,
+                symbol=raw.symbol,
+                observed_at=raw.observed_at,
+                ingested_at=ingested_at,
+                snapshot_version=snapshot_version,
+            ),
+        }
 
 
 def _required_info(ticker: Any) -> dict[str, Any]:

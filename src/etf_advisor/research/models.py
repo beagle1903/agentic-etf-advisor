@@ -6,7 +6,7 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -18,6 +18,7 @@ from pydantic import (
     model_validator,
 )
 
+from etf_advisor.domain.us_eu import listing_region, valid_group_id, valid_isin
 from etf_advisor.encoding import (
     FINGERPRINT_KEY,
     ResearchIntegrityError,
@@ -116,6 +117,7 @@ class ETFResearchRecord(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
     symbol: str = Field(min_length=1, max_length=12)
+    advisory_contract: Literal["us-eu-v1"] | None = None
     name: ResearchField[str]
     quote_type: ResearchField[str]
     market: ResearchField[str]
@@ -128,6 +130,144 @@ class ETFResearchRecord(BaseModel):
     sector_exposures: ResearchField[list[WeightedExposure]]
     geography_exposures: ResearchField[list[WeightedExposure]]
     top_10_concentration_pct: ResearchField[float]
+    listing_exchange: ResearchField[str] | None = None
+    trading_currency: ResearchField[str] | None = None
+    price_unit: ResearchField[str] | None = None
+    share_class_id: ResearchField[str] | None = None
+    economic_group_id: ResearchField[str] | None = None
+    domicile: ResearchField[str] | None = None
+    fund_base_currency: ResearchField[str] | None = None
+    share_class_currency: ResearchField[str] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_legacy_extensions(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and value.get("advisory_contract") != "us-eu-v1"
+            and (
+                "advisory_contract" in value
+                or any(
+                    name in value
+                    for name in (
+                        "listing_exchange",
+                        "trading_currency",
+                        "price_unit",
+                        "share_class_id",
+                        "economic_group_id",
+                        "domicile",
+                        "fund_base_currency",
+                        "share_class_currency",
+                    )
+                )
+            )
+        ):
+            raise ValueError("Legacy record rejects new-contract fields.")
+        return value
+
+    @model_validator(mode="after")
+    def validate_contract(self) -> ETFResearchRecord:
+        additions = (
+            "listing_exchange",
+            "trading_currency",
+            "price_unit",
+            "share_class_id",
+            "economic_group_id",
+            "domicile",
+            "fund_base_currency",
+            "share_class_currency",
+        )
+        if self.advisory_contract == "us-eu-v1":
+            if any(getattr(self, name) is None for name in additions):
+                raise ValueError("New research requires every explicit source field.")
+            units = {
+                "listing_exchange": "yahoo_exchange_code",
+                "trading_currency": "iso4217",
+                "price_unit": "quote_unit",
+                "share_class_id": "isin",
+                "economic_group_id": "issuer_fund_id",
+                "domicile": "iso3166_alpha2",
+                "fund_base_currency": "iso4217",
+                "share_class_currency": "iso4217",
+            }
+            for name, unit in units.items():
+                if getattr(self, name).unit != unit:
+                    raise ValueError("New research field has invalid unit.")
+            assert self.listing_exchange is not None
+            assert self.trading_currency is not None
+            assert self.price_unit is not None
+            assert self.share_class_id is not None
+            assert self.economic_group_id is not None
+            assert self.domicile is not None
+            if any(
+                fact.value is not None and fact.provider == "yahoo_finance"
+                for fact in (self.share_class_id, self.economic_group_id)
+            ):
+                raise ValueError("Yahoo cannot establish share-class or economic fund identity.")
+            exchange = self.listing_exchange.value
+            currency = self.trading_currency.value
+            price_unit = self.price_unit.value
+            if exchange is not None and (
+                not isinstance(exchange, str) or exchange != exchange.upper()
+            ):
+                raise ValueError("Exchange code is not normalized.")
+            if currency is not None and (
+                not isinstance(currency, str) or currency not in {"USD", "EUR"}
+            ):
+                raise ValueError("Trading currency is unsupported.")
+            if price_unit is not None and price_unit not in {"USD", "EUR"}:
+                raise ValueError("Quote unit is unsupported.")
+            if currency is not None and price_unit is not None and currency != price_unit:
+                raise ValueError("Trading currency and quote unit conflict.")
+            if self.share_class_id.value is not None and (
+                not isinstance(self.share_class_id.value, str)
+                or not valid_isin(self.share_class_id.value)
+            ):
+                raise ValueError("Share-class ISIN is invalid.")
+            if self.economic_group_id.value is not None and (
+                not isinstance(self.economic_group_id.value, str)
+                or not valid_group_id(self.economic_group_id.value)
+            ):
+                raise ValueError("Economic group identifier is invalid.")
+            if self.domicile.value is not None and (
+                not isinstance(self.domicile.value, str)
+                or not __import__("re").fullmatch(r"[A-Z]{2}", self.domicile.value)
+            ):
+                raise ValueError("Domicile is invalid.")
+            for name in ("fund_base_currency", "share_class_currency"):
+                fact = getattr(self, name).value
+                if fact is not None and fact not in {"USD", "EUR"}:
+                    raise ValueError("Fund or share-class currency is unsupported.")
+            region = listing_region(exchange) if isinstance(exchange, str) else None
+            if region == "EU" and self.market.value == "us_market":
+                raise ValueError("Yahoo market conflicts with EU exchange.")
+            if (
+                region == "US"
+                and self.market.value is not None
+                and self.market.value != "us_market"
+            ):
+                raise ValueError("Yahoo market conflicts with US exchange.")
+        elif any(getattr(self, name) is not None for name in additions):
+            raise ValueError("Legacy research rejects new source fields.")
+        return self
+
+    @model_serializer(mode="wrap")
+    def serialize_record(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
+            for name in (
+                "listing_exchange",
+                "trading_currency",
+                "price_unit",
+                "share_class_id",
+                "economic_group_id",
+                "domicile",
+                "fund_base_currency",
+                "share_class_currency",
+            ):
+                result.pop(name, None)
+        return result
 
     @field_validator("symbol")
     @classmethod
@@ -139,7 +279,7 @@ class ETFResearchRecord(BaseModel):
 
         fields: dict[str, ResearchField[object]] = {}
         for field_name in self.__class__.model_fields:
-            if field_name == "symbol":
+            if field_name in {"symbol", "advisory_contract"}:
                 continue
             value = getattr(self, field_name)
             if isinstance(value, ResearchField):
@@ -153,11 +293,23 @@ class ETFResearchSnapshot(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     schema_version: int = Field(default=1, ge=1)
+    advisory_contract: Literal["us-eu-v1"] | None = None
     snapshot_version: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9._:-]+$")
     universe_id: str = Field(min_length=1, max_length=100)
     universe_version: str = Field(min_length=1, max_length=100)
     ingested_at: datetime
     records: list[ETFResearchRecord] = Field(min_length=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_legacy_marker(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and "advisory_contract" in value
+            and value["advisory_contract"] != "us-eu-v1"
+        ):
+            raise ValueError("Unknown or null advisory contract.")
+        return value
 
     @model_validator(mode="before")
     @classmethod
@@ -167,6 +319,12 @@ class ETFResearchSnapshot(BaseModel):
         version = schema_version(value.get("schema_version", 1))
         if version == 2:
             records = value.get("records")
+            if (
+                isinstance(records, list)
+                and records
+                and all(isinstance(record, ETFResearchRecord) for record in records)
+            ):
+                return value
             if (
                 not isinstance(records, list)
                 or not records
@@ -178,7 +336,16 @@ class ETFResearchSnapshot(BaseModel):
                 {
                     "symbol": record["symbol"],
                     **decode_fields(
-                        {key: field for key, field in record.items() if key != "symbol"}
+                        {
+                            key: field
+                            for key, field in record.items()
+                            if key not in {"symbol", "advisory_contract"}
+                        }
+                    ),
+                    **(
+                        {"advisory_contract": record["advisory_contract"]}
+                        if "advisory_contract" in record
+                        else {}
                     ),
                 }
                 for record in records
@@ -187,7 +354,11 @@ class ETFResearchSnapshot(BaseModel):
         for record in value.get("records", []):
             if isinstance(record, dict):
                 reject_schema2_fields(
-                    {key: field for key, field in record.items() if key != "symbol"}
+                    {
+                        key: field
+                        for key, field in record.items()
+                        if key not in {"symbol", "advisory_contract"}
+                    }
                 )
         return value
 
@@ -201,12 +372,23 @@ class ETFResearchSnapshot(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_snapshot(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
         if self.schema_version == 2:
             result["records"] = [
                 {
                     "symbol": record["symbol"],
                     **encode_fields(
-                        {key: field for key, field in record.items() if key != "symbol"}
+                        {
+                            key: field
+                            for key, field in record.items()
+                            if key not in {"symbol", "advisory_contract"}
+                        }
+                    ),
+                    **(
+                        {"advisory_contract": record["advisory_contract"]}
+                        if "advisory_contract" in record
+                        else {}
                     ),
                 }
                 for record in result["records"]
@@ -222,6 +404,10 @@ class ETFResearchSnapshot(BaseModel):
 
     @model_validator(mode="after")
     def validate_snapshot_consistency(self) -> ETFResearchSnapshot:
+        if self.advisory_contract == "us-eu-v1" and self.schema_version != 2:
+            raise ValueError("New advisory research requires numeric schema 2.")
+        if any(record.advisory_contract != self.advisory_contract for record in self.records):
+            raise ValueError("Mixed advisory contracts are not a research snapshot.")
         symbols = [record.symbol for record in self.records]
         if len(symbols) != len(set(symbols)):
             raise ValueError("Research snapshot symbols must be unique.")
@@ -294,6 +480,8 @@ class ETFResearchSnapshot(BaseModel):
                 separators=(",", ":"),
             ),
         }
+        if self.advisory_contract == "us-eu-v1":
+            metadata["advisory_contract"] = "us-eu-v1"
         for field_name, research_field in research_fields.items():
             if isinstance(research_field.value, (str, int, float, bool)):
                 metadata[field_name] = field_provenance[field_name]["value"]
