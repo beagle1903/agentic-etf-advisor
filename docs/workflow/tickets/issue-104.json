@@ -638,6 +638,21 @@
         "outcome": "pass",
         "evidence": "Independent final code_reviewer gpt6-sol/high PASS exact content823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3. No new frozen INV104-4/5 AC104-2/5 failure. Empty explicit us-eu-v1 schema2 fallback correct; blocked graph routing retains evidence artifact;8focused tests PASS zero/invalid/stale, JSON restore, legacy exact empty, nonempty schema rejection/no unintended FX-explanation calls. Prior Streamlit entry repair confirmed. Fresh verification/acceptance bind same content. No edits. Live EU completeness/real-store skips remain stated limits, not frozen offline scope failures. User-authorized additional final-review allowance consumed; both prior FAIL records retained."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-19T17:39:30Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 114,
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3",
+        "evidence": "PR114 opened and attached after clean required owner verification/acceptance and independent final review2 PASS on identical content. Final1722pass40skip;301focused, both evaluations and required lint/type/format/build/workflow gates PASS. Initial Streamlit and final empty-evidence failures retained, both narrow red-before/green-after repairs complete with explicit extra user repair/review grant; blocker resolved. User model/session exception documented issue/PR/record. Delivery preflight PASS before and after source commit; no merge, live publication, saved-review mutation or live EU completeness claim. CI monitored separately."
+      }
     }
   ]
 }
