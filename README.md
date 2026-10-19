@@ -1,5 +1,9 @@
 # Agentic ETF Advisor
 
+Optional US/EU research with exact USD/EUR cash is explicitly selected as
+`us-eu-v1`; the dashboard defaults to legacy US/USD. See
+[reference inputs, FX, compatibility and source limits](docs/us-eu-research.md).
+
 An educational, source-grounded US ETF portfolio decision-support project built with
 LangGraph. The project is designed as a sequence of small, testable vertical slices.
 

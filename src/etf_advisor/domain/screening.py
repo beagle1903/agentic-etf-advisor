@@ -22,7 +22,9 @@ from pydantic import (
 
 from etf_advisor.data.quality import FreshnessStatus, ObservationHealth
 from etf_advisor.data.research_quality import field_max_age, is_issuer_field, validate_issuer_pair
+from etf_advisor.domain.us_eu import contract_fields, listing_region
 from etf_advisor.encoding import (
+    AdvisoryWireModel,
     StrictWireModel,
     binary_token,
     binary_value,
@@ -64,8 +66,15 @@ class ScreeningReason(StrEnum):
 
     US_LISTING_CONFIRMED = "us_listing_confirmed"
     US_LISTING_UNKNOWN = "us_listing_unknown"
+    LISTING_CONFIRMED = "listing_confirmed"
+    LISTING_UNKNOWN = "listing_unknown"
+    LISTING_UNSUPPORTED = "listing_unsupported"
+    TRADING_CURRENCY_CONFIRMED = "trading_currency_confirmed"
+    TRADING_CURRENCY_UNKNOWN = "trading_currency_unknown"
+    TRADING_CURRENCY_UNSUPPORTED = "trading_currency_unsupported"
     ETF_TYPE_CONFIRMED = "etf_type_confirmed"
     ETF_TYPE_UNKNOWN = "etf_type_unknown"
+    ETF_TYPE_UNSUPPORTED = "etf_type_unsupported"
     SOURCE_CURRENT = "source_current"
     SOURCE_HEALTH_UNKNOWN = "source_health_unknown"
     EXPENSE_RATIO_WITHIN_LIMIT = "expense_ratio_within_limit"
@@ -155,7 +164,7 @@ class ScreeningRuleResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
-    criterion: ScreeningCriterion
+    criterion: ScreeningCriterion | Literal["listing", "trading_currency"]
     verdict: ScreeningVerdict
     reason_code: ScreeningReason
     message: str = Field(min_length=1, max_length=1000)
@@ -193,7 +202,7 @@ class ScreeningRuleResult(BaseModel):
         return self
 
 
-class CandidateScreeningResult(StrictWireModel):
+class CandidateScreeningResult(AdvisoryWireModel):
     """Deterministic comparison result for one retrieved candidate."""
 
     model_config = ConfigDict(extra="forbid")
@@ -204,6 +213,7 @@ class CandidateScreeningResult(StrictWireModel):
     verdict: ScreeningVerdict
     rules: list[ScreeningRuleResult]
     schema_version: int = 1
+    advisory_contract: Literal["us-eu-v1"] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -239,6 +249,8 @@ class CandidateScreeningResult(StrictWireModel):
         result: dict[str, Any] = handler(self)
         if self.schema_version == 1:
             result.pop("schema_version", None)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
         return result
 
     @field_validator("symbol")
@@ -248,7 +260,15 @@ class CandidateScreeningResult(StrictWireModel):
 
     @model_validator(mode="after")
     def validate_rule_summary(self) -> CandidateScreeningResult:
-        expected = list(ScreeningCriterion)
+        expected = (
+            ["listing", "trading_currency"]
+            if self.advisory_contract == "us-eu-v1"
+            else [ScreeningCriterion.US_LISTING]
+        ) + [
+            criterion
+            for criterion in ScreeningCriterion
+            if criterion != ScreeningCriterion.US_LISTING
+        ]
         actual = [rule.criterion for rule in self.rules]
         if actual != expected:
             raise ValueError("Candidate screening rules must appear exactly once in stable order.")
@@ -274,6 +294,7 @@ class CandidateScreeningBundle(StrictWireModel):
     policy: CandidateScreeningPolicy
     candidates: list[CandidateScreeningResult]
     schema_version: int = 1
+    advisory_contract: Literal["us-eu-v1"] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -288,6 +309,15 @@ class CandidateScreeningBundle(StrictWireModel):
                 )
                 if schema_version(marker) != version:
                     raise ValueError("Screening bundle cannot mix encodings.")
+                semantic = (
+                    item.advisory_contract
+                    if isinstance(item, CandidateScreeningResult)
+                    else item.get("advisory_contract")
+                )
+                if semantic != value.get("advisory_contract"):
+                    raise ValueError("Screening bundle cannot mix advisory contracts.")
+            if "advisory_contract" in value and value["advisory_contract"] != "us-eu-v1":
+                raise ValueError("Unknown advisory contract.")
         return value
 
     @model_serializer(mode="wrap")
@@ -295,6 +325,8 @@ class CandidateScreeningBundle(StrictWireModel):
         result: dict[str, Any] = handler(self)
         if self.schema_version == 1:
             result.pop("schema_version", None)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
         return result
 
     @field_validator("checked_at")
@@ -360,6 +392,7 @@ def screen_candidate_evidence(
     results = [
         _screen_candidate(
             candidate,
+            new_contract=validated_evidence.advisory_contract == "us-eu-v1",
             excluded_sectors=validated_evidence.excluded_sectors,
             policy=validated_policy,
             health=health_by_identity.get(
@@ -397,6 +430,7 @@ def screen_candidate_evidence(
         ]
     return CandidateScreeningBundle(
         schema_version=validated_evidence.schema_version,
+        **contract_fields(validated_evidence.advisory_contract),
         checked_at=validated_evidence.checked_at,
         excluded_sectors=list(validated_evidence.excluded_sectors),
         policy=validated_policy,
@@ -407,6 +441,7 @@ def screen_candidate_evidence(
 def _screen_candidate(
     candidate: CandidateEvidence,
     *,
+    new_contract: bool,
     excluded_sectors: list[str],
     policy: CandidateScreeningPolicy,
     health: ObservationHealth | None,
@@ -425,12 +460,14 @@ def _screen_candidate(
         excluded_sectors=excluded_sectors,
     )
     freshness_fields = [
-        "market",
         "quote_type",
         "expense_ratio_pct",
         "average_daily_volume",
         "top_10_concentration_pct",
     ]
+    freshness_fields.insert(0, "listing_exchange" if new_contract else "market")
+    if new_contract:
+        freshness_fields.extend(["market", "trading_currency", "price_unit"])
     if excluded_sectors:
         freshness_fields.append("sector_exposures")
     for field_name in freshness_fields:
@@ -442,26 +479,36 @@ def _screen_candidate(
             max_age_hours=max_age_hours,
             future_tolerance_minutes=future_tolerance_minutes,
         )
-    rules = [
-        _confirmed_rule(
+    listing_rule = (
+        _new_listing_rule(candidate, provenance)
+        if new_contract
+        else _confirmed_rule(
             candidate,
             criterion=ScreeningCriterion.US_LISTING,
             reason=ScreeningReason.US_LISTING_CONFIRMED,
             unknown_reason=ScreeningReason.US_LISTING_UNKNOWN,
             message="Source metadata confirms a US-market listing.",
-            observed_value=candidate.market,
+            observed_value=candidate.market or "",
             field_name="market",
             provenance=provenance.get("market"),
-        ),
-        _confirmed_rule(
-            candidate,
-            criterion=ScreeningCriterion.INSTRUMENT_TYPE,
-            reason=ScreeningReason.ETF_TYPE_CONFIRMED,
-            unknown_reason=ScreeningReason.ETF_TYPE_UNKNOWN,
-            message="Source metadata confirms the instrument is an ETF.",
-            observed_value=candidate.quote_type,
-            field_name="quote_type",
-            provenance=provenance.get("quote_type"),
+        )
+    )
+    rules = [
+        listing_rule,
+        *([_new_currency_rule(candidate, provenance)] if new_contract else []),
+        (
+            _new_type_rule(candidate, provenance)
+            if new_contract
+            else _confirmed_rule(
+                candidate,
+                criterion=ScreeningCriterion.INSTRUMENT_TYPE,
+                reason=ScreeningReason.ETF_TYPE_CONFIRMED,
+                unknown_reason=ScreeningReason.ETF_TYPE_UNKNOWN,
+                message="Source metadata confirms the instrument is an ETF.",
+                observed_value=candidate.quote_type or "",
+                field_name="quote_type",
+                provenance=provenance.get("quote_type"),
+            )
         ),
         _freshness_rule(candidate, health, max_age_hours=max_age_hours),
         _numeric_rule(
@@ -525,6 +572,7 @@ def _screen_candidate(
             if rule.criterion == ScreeningCriterion.FRESHNESS:
                 rule.message += "; official BND holdings use a 1080-hour field window."
     return CandidateScreeningResult(
+        **contract_fields("us-eu-v1" if new_contract else None),
         document_id=candidate.document_id,
         symbol=candidate.symbol,
         name=candidate.name,
@@ -539,17 +587,45 @@ def _validate_consumed_field_contracts(
     *,
     excluded_sectors: list[str],
 ) -> None:
-    for field_name, observed_value in (
-        ("market", candidate.market),
-        ("quote_type", candidate.quote_type),
-    ):
+    identity_fields = [("market", candidate.market), ("quote_type", candidate.quote_type)]
+    if candidate.advisory_contract == "us-eu-v1":
+        identity_fields.extend(
+            [
+                ("listing_exchange", candidate.listing_exchange),
+                ("trading_currency", candidate.trading_currency),
+            ]
+        )
+    for field_name, observed_value in identity_fields:
         field = provenance.get(field_name)
         if field is not None and (
-            field.missing_reason is not None or field.value != observed_value
+            field.value != observed_value
+            or (field.missing_reason is not None and observed_value is not None)
         ):
             raise ScreeningContractError(
                 f"{candidate.document_id}: {field_name} provenance conflicts with evidence."
             )
+
+    if candidate.advisory_contract == "us-eu-v1":
+        unit = provenance.get("price_unit")
+        if (
+            unit is None
+            or unit.unit != "quote_unit"
+            or (
+                unit.value != candidate.trading_currency
+                and unit.value is not None
+                and candidate.trading_currency is not None
+            )
+        ):
+            raise ScreeningContractError("Trading quote unit conflicts with source provenance.")
+        for name, expected_unit in (
+            ("listing_exchange", "yahoo_exchange_code"),
+            ("trading_currency", "iso4217"),
+        ):
+            fact = provenance.get(name)
+            if fact is None or fact.unit != expected_unit:
+                raise ScreeningContractError(
+                    "New listing or currency field is missing or has invalid units."
+                )
 
     for field_name, expected_unit, maximum_value in (
         ("expense_ratio_pct", "percent", 100.0),
@@ -618,6 +694,90 @@ def _confirmed_rule(
         message=message,
         observed_value=observed_value,
         citation=_field_citation(candidate, field_name, provenance),
+    )
+
+
+def _new_listing_rule(
+    candidate: CandidateEvidence, fields: dict[str, ResearchField[Any]]
+) -> ScreeningRuleResult:
+    field = fields["listing_exchange"]
+    exchange = candidate.listing_exchange
+    if field.value is None or exchange is None:
+        return ScreeningRuleResult(
+            criterion="listing",
+            verdict=ScreeningVerdict.UNKNOWN,
+            reason_code=ScreeningReason.LISTING_UNKNOWN,
+            message="No verified listing exchange.",
+            citation=_field_citation(candidate, "listing_exchange", field),
+        )
+    region = listing_region(exchange)
+    return ScreeningRuleResult(
+        criterion="listing",
+        verdict=ScreeningVerdict.PASS if region else ScreeningVerdict.FAIL,
+        reason_code=ScreeningReason.LISTING_CONFIRMED
+        if region
+        else ScreeningReason.LISTING_UNSUPPORTED,
+        message="Yahoo exchange mapping establishes the listing region."
+        if region
+        else "Listing exchange is outside the supported US/EU mapping.",
+        observed_value=exchange,
+        citation=_field_citation(candidate, "listing_exchange", field),
+    )
+
+
+def _new_currency_rule(
+    candidate: CandidateEvidence, fields: dict[str, ResearchField[Any]]
+) -> ScreeningRuleResult:
+    field = fields["trading_currency"]
+    currency = candidate.trading_currency
+    if currency is None or field.value is None or fields["price_unit"].value is None:
+        return ScreeningRuleResult(
+            criterion="trading_currency",
+            verdict=ScreeningVerdict.UNKNOWN,
+            reason_code=ScreeningReason.TRADING_CURRENCY_UNKNOWN,
+            message="Trading currency is not reported.",
+            citation=_field_citation(candidate, "trading_currency", field),
+        )
+    supported = currency in {"USD", "EUR"} and fields["price_unit"].value == currency
+    return ScreeningRuleResult(
+        criterion="trading_currency",
+        verdict=ScreeningVerdict.PASS if supported else ScreeningVerdict.FAIL,
+        reason_code=ScreeningReason.TRADING_CURRENCY_CONFIRMED
+        if supported
+        else ScreeningReason.TRADING_CURRENCY_UNSUPPORTED,
+        message="Trading currency and major quote unit are supported."
+        if supported
+        else "Currency or quote unit is unsupported.",
+        observed_value=currency,
+        citation=_field_citation(candidate, "trading_currency", field),
+    )
+
+
+def _new_type_rule(
+    candidate: CandidateEvidence, fields: dict[str, ResearchField[Any]]
+) -> ScreeningRuleResult:
+    field = fields.get("quote_type")
+    value = candidate.quote_type
+    if field is None or field.value is None or value is None:
+        return ScreeningRuleResult(
+            criterion=ScreeningCriterion.INSTRUMENT_TYPE,
+            verdict=ScreeningVerdict.UNKNOWN,
+            reason_code=ScreeningReason.ETF_TYPE_UNKNOWN,
+            message="ETF classification is missing.",
+            citation=_field_citation(candidate, "quote_type", field) if field else None,
+        )
+    passed = field is not None and field.value == "ETF" and value == "ETF"
+    return ScreeningRuleResult(
+        criterion=ScreeningCriterion.INSTRUMENT_TYPE,
+        verdict=ScreeningVerdict.PASS if passed else ScreeningVerdict.FAIL,
+        reason_code=ScreeningReason.ETF_TYPE_CONFIRMED
+        if passed
+        else ScreeningReason.ETF_TYPE_UNSUPPORTED,
+        message="Yahoo classifies this listing as ETF."
+        if passed
+        else "ETF classification is missing or unsupported.",
+        observed_value=value,
+        citation=_field_citation(candidate, "quote_type", field) if field else None,
     )
 
 

@@ -1,0 +1,794 @@
+{
+  "dataset_version": "us-eu-contract-v1",
+  "limitations": [
+    "Entirely synthetic metrics and identity fixtures. No live EU readiness, Yahoo completeness, investment performance or regulatory eligibility claim.",
+    "Issue99 datasets and legacy rejection expectations remain unchanged."
+  ],
+  "checked_at": "2026-10-19T10:00:00+00:00",
+  "profile": {
+    "horizon_years": 12,
+    "risk_tolerance": "moderate",
+    "objective": "balanced",
+    "max_drawdown_pct": 25.0,
+    "advisory_contract": "us-eu-v1",
+    "base_currency": "USD",
+    "initial_investment_minor": 100001,
+    "recurring_monthly_minor": 1,
+    "excluded_sectors": []
+  },
+  "snapshot": {
+    "schema_version": 2,
+    "advisory_contract": "us-eu-v1",
+    "snapshot_version": "synthetic-1",
+    "universe_id": "synthetic",
+    "universe_version": "1",
+    "ingested_at": "2026-10-19T10:00:00Z",
+    "records": [
+      {
+        "symbol": "SPY",
+        "name": {
+          "value": "Synthetic SPY",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "quote_type": {
+          "value": "ETF",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "market": {
+          "value": "us_market",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "category": {
+          "value": "Large Blend",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_family": {
+          "value": "Synthetic family",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "benchmark": {
+          "value": null,
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "expense_ratio_pct": {
+          "value": "0.1",
+          "unit": "percent",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "average_daily_volume": {
+          "value": "200000.0",
+          "unit": "shares_per_day",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "top_holdings": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "sector_exposures": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "geography_exposures": {
+          "value": null,
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "top_10_concentration_pct": {
+          "value": "10.0",
+          "unit": "percent",
+          "provider": "yahoo_finance_derived",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "listing_exchange": {
+          "value": "NYQ",
+          "unit": "yahoo_exchange_code",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "trading_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "price_unit": {
+          "value": "USD",
+          "unit": "quote_unit",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_id": {
+          "value": "US78462F1030",
+          "unit": "isin",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "economic_group_id": {
+          "value": "issuer:spy",
+          "unit": "issuer_fund_id",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "domicile": {
+          "value": "US",
+          "unit": "iso3166_alpha2",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_base_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "advisory_contract": "us-eu-v1"
+      },
+      {
+        "symbol": "CSPX.AS",
+        "name": {
+          "value": "Synthetic CSPX.AS",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "quote_type": {
+          "value": "ETF",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "market": {
+          "value": "de_market",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "category": {
+          "value": "Large Growth",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_family": {
+          "value": "Synthetic family",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "benchmark": {
+          "value": null,
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "expense_ratio_pct": {
+          "value": "0.1",
+          "unit": "percent",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "average_daily_volume": {
+          "value": "200000.0",
+          "unit": "shares_per_day",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "top_holdings": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "sector_exposures": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "geography_exposures": {
+          "value": null,
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "top_10_concentration_pct": {
+          "value": "10.0",
+          "unit": "percent",
+          "provider": "yahoo_finance_derived",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "listing_exchange": {
+          "value": "AMS",
+          "unit": "yahoo_exchange_code",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "trading_currency": {
+          "value": "EUR",
+          "unit": "iso4217",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "price_unit": {
+          "value": "EUR",
+          "unit": "quote_unit",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_id": {
+          "value": "IE00B5BMR087",
+          "unit": "isin",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "economic_group_id": {
+          "value": "issuer:cspx.as",
+          "unit": "issuer_fund_id",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "domicile": {
+          "value": "IE",
+          "unit": "iso3166_alpha2",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_base_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "advisory_contract": "us-eu-v1"
+      },
+      {
+        "symbol": "BND",
+        "name": {
+          "value": "Synthetic BND",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "quote_type": {
+          "value": "ETF",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "market": {
+          "value": "us_market",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "category": {
+          "value": "Intermediate Core Bond",
+          "unit": "classification",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_family": {
+          "value": "Synthetic family",
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "benchmark": {
+          "value": null,
+          "unit": "text",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "expense_ratio_pct": {
+          "value": "0.1",
+          "unit": "percent",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "average_daily_volume": {
+          "value": "200000.0",
+          "unit": "shares_per_day",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "top_holdings": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "sector_exposures": {
+          "value": [
+            {
+              "name": "Synthetic Holding",
+              "symbol": null,
+              "weight_pct_token": "10.0",
+              "source_weight_pct_decimal": "1e1"
+            }
+          ],
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "geography_exposures": {
+          "value": null,
+          "unit": "percent_of_fund",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": "provider_unsupported"
+        },
+        "top_10_concentration_pct": {
+          "value": "10.0",
+          "unit": "percent",
+          "provider": "yahoo_finance_derived",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "listing_exchange": {
+          "value": "NYQ",
+          "unit": "yahoo_exchange_code",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "trading_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "price_unit": {
+          "value": "USD",
+          "unit": "quote_unit",
+          "provider": "yahoo_finance",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_id": {
+          "value": "US9219378356",
+          "unit": "isin",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "economic_group_id": {
+          "value": "issuer:bnd",
+          "unit": "issuer_fund_id",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "domicile": {
+          "value": "US",
+          "unit": "iso3166_alpha2",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "fund_base_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "share_class_currency": {
+          "value": "USD",
+          "unit": "iso4217",
+          "provider": "issuer",
+          "source_url": "https://example.com/source",
+          "observed_at": "2026-10-19T10:00:00Z",
+          "ingested_at": "2026-10-19T10:00:00Z",
+          "snapshot_version": "synthetic-1",
+          "missing_reason": null
+        },
+        "advisory_contract": "us-eu-v1"
+      }
+    ]
+  },
+  "fx_reference": {
+    "status": "available",
+    "provider": "ecb",
+    "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+    "effective_date": "2026-10-19",
+    "observed_at": "2026-10-19T10:00:00Z",
+    "base_currency": "EUR",
+    "quote_currency": "USD",
+    "rate_decimal": "1.1253",
+    "missing_reason": null
+  },
+  "cases": [
+    {
+      "case_id": "usd-mixed",
+      "scenario": "mixed",
+      "profile": {},
+      "expected": {
+        "status": "ready",
+        "reason": null
+      }
+    },
+    {
+      "case_id": "eur-mixed",
+      "scenario": "mixed",
+      "profile": {
+        "base_currency": "EUR"
+      },
+      "expected": {
+        "status": "ready",
+        "reason": null
+      }
+    },
+    {
+      "case_id": "one-minor",
+      "scenario": "mixed",
+      "profile": {
+        "initial_investment_minor": 1,
+        "recurring_monthly_minor": 0
+      },
+      "expected": {
+        "status": "ready",
+        "reason": null
+      }
+    },
+    {
+      "case_id": "zero-cash",
+      "scenario": "mixed",
+      "profile": {
+        "initial_investment_minor": 0,
+        "recurring_monthly_minor": 0
+      },
+      "expected": {
+        "status": "ready",
+        "reason": null
+      }
+    },
+    {
+      "case_id": "required-fx-missing",
+      "scenario": "missing_fx",
+      "profile": {},
+      "expected": {
+        "status": "blocked",
+        "reason": "fx_missing"
+      }
+    },
+    {
+      "case_id": "required-fx-stale",
+      "scenario": "stale_fx",
+      "profile": {},
+      "expected": {
+        "status": "blocked",
+        "reason": "fx_stale"
+      }
+    },
+    {
+      "case_id": "unknown-group",
+      "scenario": "unknown_identity",
+      "profile": {},
+      "expected": {
+        "status": "blocked",
+        "reason": "insufficient_eligible_candidates"
+      }
+    },
+    {
+      "case_id": "duplicate-group",
+      "scenario": "duplicate_group",
+      "profile": {},
+      "expected": {
+        "status": "blocked",
+        "reason": "missing_sleeve_coverage"
+      }
+    },
+    {
+      "case_id": "unsupported-category",
+      "scenario": "unsupported_category",
+      "profile": {},
+      "expected": {
+        "status": "blocked",
+        "reason": "insufficient_eligible_candidates"
+      }
+    },
+    {
+      "case_id": "same-currency",
+      "scenario": "same_currency",
+      "profile": {},
+      "expected": {
+        "status": "ready",
+        "reason": null
+      }
+    }
+  ]
+}

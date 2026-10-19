@@ -2,7 +2,7 @@
 
 ## Goal
 
-Build an educational US ETF portfolio decision-support system that combines current
+Build an educational ETF portfolio decision-support system that combines current
 market data, source-grounded retrieval, relationship-aware graph context, deterministic
 risk controls, and explicit human review.
 
@@ -17,7 +17,8 @@ risk controls, and explicit human review.
 
 ## Phase-one scope
 
-- US-listed ETFs only.
+- Default legacy US-listed ETF research; explicit `us-eu-v1` opt-in adds mapped
+  US/EU listings and exact USD/EUR cash, with attributed share-class/fund identity.
 - A simple dashboard.
 - Read-only market and reference data.
 - Chroma for unstructured source chunks.
@@ -33,6 +34,8 @@ risk controls, and explicit human review.
 - Tax, legal, or jurisdiction-specific advice.
 - High-frequency or intraday trading.
 - Production redistribution of Yahoo Finance data.
+- Worldwide eligibility, catalogue-wide ingestion, inferred European category
+  mapping, brokerage eligibility and automatic migration of saved reviews.
 
 ## Success criteria
 

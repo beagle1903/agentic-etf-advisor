@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import MutableMapping
+from decimal import Decimal
 from importlib import import_module
 from typing import Any
 
@@ -17,6 +19,7 @@ from etf_advisor.dashboard import (
     review_payload,
     start_dashboard_run,
 )
+from etf_advisor.domain.us_eu import listing_region
 
 _CREATION_IN_PROGRESS_KEY = "review_creation_in_progress"
 _CREATION_ERROR_KEY = "review_creation_error"
@@ -69,16 +72,32 @@ def main() -> None:
         max_drawdown_pct = st.number_input(
             "Maximum tolerable drawdown (%)", 0.1, 100.0, 25.0, step=0.5
         )
-        initial_investment_usd = st.number_input(
-            "Initial amount (USD)", 0.0, 1_000_000_000_000.0, 25_000.0, step=500.0
-        )
-        recurring_monthly_usd = st.number_input(
-            "Recurring monthly amount (USD)",
-            0.0,
-            1_000_000_000_000.0,
-            500.0,
-            step=50.0,
-        )
+
+        advisory_mode = st.selectbox("Advisory scope", ["Legacy US / USD", "US / EU (us-eu-v1)"])
+
+        new_contract = advisory_mode == "US / EU (us-eu-v1)"
+
+        if new_contract:
+            base_currency = st.selectbox("Base currency", ["USD", "EUR"])
+
+            initial_text = st.text_input("Initial amount (base currency)", value="25000.00")
+
+            monthly_text = st.text_input("Recurring monthly amount (base currency)", value="500.00")
+
+            st.caption(
+                "USD/EUR major units, at most two decimal places. "
+                "FX is illustrative ECB reference data."
+            )
+
+        else:
+            initial_investment_usd = st.number_input(
+                "Initial amount (USD)", 0.0, 1_000_000_000_000.0, 25_000.0, step=500.0
+            )
+
+            recurring_monthly_usd = st.number_input(
+                "Recurring monthly amount (USD)", 0.0, 1_000_000_000_000.0, 500.0, step=50.0
+            )
+
         excluded_sectors = st.text_input(
             "Excluded sectors", help="Optional comma-separated research constraints."
         )
@@ -104,11 +123,23 @@ def main() -> None:
             "risk_tolerance": risk_tolerance,
             "objective": objective,
             "max_drawdown_pct": float(max_drawdown_pct),
-            "initial_investment_usd": float(initial_investment_usd),
-            "recurring_monthly_usd": float(recurring_monthly_usd),
             "excluded_sectors": parse_excluded_sectors(excluded_sectors),
         }
         try:
+            profile.update(
+                {
+                    "advisory_contract": "us-eu-v1",
+                    "base_currency": base_currency,
+                    "initial_investment_minor": _decimal_minor(initial_text),
+                    "recurring_monthly_minor": _decimal_minor(monthly_text),
+                }
+                if new_contract
+                else {
+                    "initial_investment_usd": float(initial_investment_usd),
+                    "recurring_monthly_usd": float(recurring_monthly_usd),
+                }
+            )
+
             st.session_state["dashboard_run"] = start_dashboard_run(
                 profile,
                 DashboardOptions(
@@ -311,8 +342,18 @@ def _render_policy(st: Any, policy: dict[str, Any]) -> None:
 
     st.dataframe(
         [
-            _cash_flow_row("Initial", policy["initial_investment_usd"]),
-            _cash_flow_row("Monthly", policy["recurring_monthly_usd"]),
+            _cash_flow_row(
+                "Initial",
+                policy["initial_investment"]
+                if policy.get("advisory_contract")
+                else policy["initial_investment_usd"],
+            ),
+            _cash_flow_row(
+                "Monthly",
+                policy["recurring_monthly"]
+                if policy.get("advisory_contract")
+                else policy["recurring_monthly_usd"],
+            ),
         ],
         hide_index=True,
         width="stretch",
@@ -340,6 +381,15 @@ def _render_policy(st: Any, policy: dict[str, Any]) -> None:
 
 
 def _cash_flow_row(label: str, allocation: dict[str, Any]) -> dict[str, str]:
+
+    if "currency" in allocation:
+        return {
+            "Cash flow": label,
+            "Total": _currency_minor(allocation["currency"], allocation["total_minor"]),
+            "Growth": _currency_minor(allocation["currency"], allocation["growth_minor"]),
+            "Defensive": _currency_minor(allocation["currency"], allocation["defensive_minor"]),
+        }
+
     return {
         "Cash flow": label,
         "Total": _usd(allocation["total_usd"]),
@@ -353,6 +403,18 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
     st.caption(f"Freshness checked at {bundle['checked_at']} · Query: {bundle['query']}")
     for warning in bundle.get("warnings", []):
         st.warning(warning)
+
+    fx = bundle.get("fx_reference")
+
+    if fx and fx["status"] == "available":
+        st.caption(
+            f"ECB reference: {fx['rate_decimal']} USD per EUR · "
+            f"effective {fx['effective_date']} · observed {fx['observed_at']}. "
+            "Conversions are illustrative."
+        )
+
+        st.link_button("ECB reference source", fx["source_url"])
+
     for candidate in bundle["candidates"]:
         with st.expander(f"{candidate['symbol']} · {candidate['name']}"):
             left, right = st.columns(2)
@@ -360,6 +422,19 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
             left.write(f"Fund family/provider: {candidate.get('fund_family') or 'Not reported'}")
             right.write(f"Source: {candidate['source']}")
             right.write(f"Observed: {candidate['observed_at']}")
+
+            if candidate.get("advisory_contract"):
+                left.write(f"Listing exchange: {candidate.get('listing_exchange') or 'Unknown'}")
+                region = listing_region(candidate.get("listing_exchange") or "")
+                left.write(f"Listing region: {region or 'Unsupported / unknown'}")
+                right.write(f"Trading currency: {candidate.get('trading_currency') or 'Unknown'}")
+                for key, label in (
+                    ("domicile", "Domicile"),
+                    ("fund_base_currency", "Fund base currency"),
+                    ("share_class_currency", "Share-class currency"),
+                ):
+                    right.write(f"{label}: {candidate['metadata'].get(key) or 'Not reported'}")
+
             st.text(candidate["content"])
             st.link_button("Open source", candidate["source_url"])
 
@@ -421,8 +496,22 @@ def _render_portfolio(st: Any, bundle: dict[str, Any]) -> None:
     first, second, third, fourth = st.columns(4)
     first.metric("Total weight", _bps(draft["total_weight_bps"]))
     second.metric("Positions", str(len(draft["positions"])))
-    third.metric("Initial total", _usd_cents(draft["initial_total_cents"]))
-    fourth.metric("Monthly total", _usd_cents(draft["recurring_total_cents"]))
+
+    new_contract = draft.get("advisory_contract") == "us-eu-v1"
+
+    third.metric(
+        "Initial total",
+        _currency_minor(draft["base_currency"], draft["initial_total_minor"])
+        if new_contract
+        else _usd_cents(draft["initial_total_cents"]),
+    )
+
+    fourth.metric(
+        "Monthly total",
+        _currency_minor(draft["base_currency"], draft["recurring_total_minor"])
+        if new_contract
+        else _usd_cents(draft["recurring_total_cents"]),
+    )
 
     st.dataframe(
         [
@@ -431,8 +520,32 @@ def _render_portfolio(st: Any, bundle: dict[str, Any]) -> None:
                 "Sleeve": position["sleeve"],
                 "Source category": position["source_category"],
                 "Weight": _bps(position["weight_bps"]),
-                "Initial": _usd_cents(position["initial_usd_cents"]),
-                "Monthly": _usd_cents(position["recurring_usd_cents"]),
+                "Initial": _currency_minor(
+                    position["base_currency"], position["initial_base_minor"]
+                )
+                if new_contract
+                else _usd_cents(position["initial_usd_cents"]),
+                "Monthly": _currency_minor(
+                    position["base_currency"], position["recurring_base_minor"]
+                )
+                if new_contract
+                else _usd_cents(position["recurring_usd_cents"]),
+                **(
+                    {
+                        "Exchange": position["listing_exchange"],
+                        "Share-class ISIN": position["share_class_id"],
+                        "Economic fund group": position["economic_group_id"],
+                        "Initial trading currency": _currency_minor(
+                            position["trading_currency"], position["initial_trading_minor"]
+                        ),
+                        "Monthly trading currency": _currency_minor(
+                            position["trading_currency"], position["recurring_trading_minor"]
+                        ),
+                        "FX reference": position["fx_reference_id"] or "Not needed",
+                    }
+                    if new_contract
+                    else {}
+                ),
                 "Deterministic reason": position["reason_code"],
             }
             for position in draft["positions"]
@@ -656,24 +769,6 @@ def _render_feedback_fields(
                     key=widget + "-drawdown",
                 )
             ),
-            "initial_investment_usd": float(
-                st.number_input(
-                    "Revised initial amount (USD)",
-                    0.0,
-                    1_000_000_000_000.0,
-                    float(profile["initial_investment_usd"]),
-                    key=widget + "-initial",
-                )
-            ),
-            "recurring_monthly_usd": float(
-                st.number_input(
-                    "Revised monthly amount (USD)",
-                    0.0,
-                    1_000_000_000_000.0,
-                    float(profile["recurring_monthly_usd"]),
-                    key=widget + "-monthly",
-                )
-            ),
             "excluded_sectors": parse_excluded_sectors(
                 st.text_input(
                     "Revised excluded sectors",
@@ -682,6 +777,53 @@ def _render_feedback_fields(
                 )
             ),
         }
+
+        if profile.get("advisory_contract") == "us-eu-v1":
+            values["profile"].update(
+                {
+                    "base_currency": st.selectbox(
+                        "Revised base currency",
+                        ["USD", "EUR"],
+                        index=["USD", "EUR"].index(profile["base_currency"]),
+                        key=widget + "-currency",
+                    ),
+                    "initial_decimal_input": st.text_input(
+                        "Revised initial amount (base currency)",
+                        value=f"{Decimal(profile['initial_investment_minor']) / 100:.2f}",
+                        key=widget + "-initial",
+                    ),
+                    "recurring_decimal_input": st.text_input(
+                        "Revised monthly amount (base currency)",
+                        value=f"{Decimal(profile['recurring_monthly_minor']) / 100:.2f}",
+                        key=widget + "-monthly",
+                    ),
+                }
+            )
+
+        else:
+            values["profile"].update(
+                {
+                    "initial_investment_usd": float(
+                        st.number_input(
+                            "Revised initial amount (USD)",
+                            0.0,
+                            1_000_000_000_000.0,
+                            float(profile["initial_investment_usd"]),
+                            key=widget + "-initial",
+                        )
+                    ),
+                    "recurring_monthly_usd": float(
+                        st.number_input(
+                            "Revised monthly amount (USD)",
+                            0.0,
+                            1_000_000_000_000.0,
+                            float(profile["recurring_monthly_usd"]),
+                            key=widget + "-monthly",
+                        )
+                    ),
+                }
+            )
+
     if "evidence" in selected:
         values["evidence"] = {
             "candidate_limit": int(
@@ -770,7 +912,10 @@ def _render_feedback_fields(
 def _build_feedback_items(selected: list[str], values: dict[str, Any]) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for kind in selected:
-        value = values.get(kind, {})
+        value = dict(values.get(kind, {}))
+        if kind == "profile" and "initial_decimal_input" in value:
+            value["initial_investment_minor"] = _decimal_minor(value.pop("initial_decimal_input"))
+            value["recurring_monthly_minor"] = _decimal_minor(value.pop("recurring_decimal_input"))
         if kind == "profile":
             items.append({"kind": kind, "patch": value})
         elif kind == "evidence":
@@ -1003,6 +1148,24 @@ def _bps(value: int) -> str:
 
 def _pct_band(values: list[float]) -> str:
     return f"{values[0]:.2f}% to {values[1]:.2f}%"
+
+
+def _decimal_minor(value: str) -> int:
+
+    if re.fullmatch(r"[0-9]+(?:\.[0-9]{1,2})?", value.strip()) is None:
+        raise ValueError("Use a nonnegative decimal amount with at most two decimal places.")
+
+    result = int(Decimal(value.strip()) * 100)
+
+    if result > 100_000_000_000_000:
+        raise ValueError("Cash amount exceeds the supported bound.")
+
+    return result
+
+
+def _currency_minor(currency: str, value: int) -> str:
+
+    return f"{currency} {Decimal(value) / 100:,.2f}"
 
 
 if __name__ == "__main__":

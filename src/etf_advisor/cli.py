@@ -17,12 +17,14 @@ from pydantic import ValidationError
 
 from etf_advisor.clock import Clock, system_utc_now
 from etf_advisor.config import settings
+from etf_advisor.data.ecb_fx import EcbFxClient
 from etf_advisor.data.models import ETFObservation
 from etf_advisor.data.quality import (
     MarketDataHealthReport,
     MarketDataQualityError,
     assess_observations,
 )
+from etf_advisor.data.reference_facts import load_reference_facts
 from etf_advisor.data.research_quality import assess_research_fields
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo import MarketDataError, YahooFinanceAdapter
@@ -35,6 +37,7 @@ from etf_advisor.evaluation import (
     run_offline_explanation_evaluation,
 )
 from etf_advisor.evaluation.analysis import load_analysis_dataset, run_analysis_baseline
+from etf_advisor.evaluation.us_eu import run_us_eu_baseline
 from etf_advisor.explanation.provider import (
     ProviderConfigurationError,
     create_explanation_generator,
@@ -268,6 +271,7 @@ def demo(
                 clock=system_utc_now,
                 max_age=timedelta(hours=settings.market_data_max_age_hours),
                 future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+                fx_provider=EcbFxClient(system_utc_now),
             )
 
         explanation_generator = create_explanation_generator(settings) if with_explanation else None
@@ -469,12 +473,30 @@ def publish_research_universe(
             ),
         ),
     ] = None,
+    advisory_contract: Annotated[
+        str | None,
+        typer.Option("--advisory-contract", help="Explicit opt-in semantic contract: us-eu-v1."),
+    ] = None,
+    reference_facts: Annotated[
+        Path | None,
+        typer.Option(
+            "--reference-facts",
+            exists=True,
+            dir_okay=False,
+            readable=True,
+            help="Attributed local reference facts for fresh us-eu-v1 collection.",
+        ),
+    ] = None,
 ) -> None:
     """Fetch, validate, stage, and atomically activate the curated research universe."""
 
     graph_store: Neo4jGraphStore | None = None
     stage = "graph_connect"
     try:
+        if advisory_contract not in (None, "us-eu-v1") or (
+            reference_facts is not None and advisory_contract != "us-eu-v1"
+        ):
+            raise ValueError("Unsupported advisory contract or reference-facts option.")
         version = snapshot_version or system_utc_now().strftime("%Y%m%dT%H%M%SZ")
         payload_path = snapshot_file or default_snapshot_path(version)
         graph_store = Neo4jGraphStore(
@@ -491,6 +513,11 @@ def publish_research_universe(
                 if payload_path.exists():
                     stage = "payload_load"
                     supplied = load_research_snapshot(payload_path)
+                    if (
+                        advisory_contract is not None
+                        and supplied.advisory_contract != advisory_contract
+                    ):
+                        raise ValueError("Retry payload advisory contract differs from request.")
                     if (
                         supplied.snapshot_version != version
                         or supplied.content_digest() != existing_digest
@@ -560,6 +587,11 @@ def publish_research_universe(
                 stage = "payload_load"
                 snapshot = load_research_snapshot(payload_path)
                 if (
+                    advisory_contract is not None
+                    and snapshot.advisory_contract != advisory_contract
+                ):
+                    raise ValueError("Retry payload advisory contract differs from request.")
+                if (
                     snapshot.snapshot_version != version
                     or snapshot.content_digest() != existing_digest
                 ):
@@ -590,6 +622,11 @@ def publish_research_universe(
             if payload_path.exists():
                 stage = "payload_load"
                 snapshot = load_research_snapshot(payload_path)
+                if (
+                    advisory_contract is not None
+                    and snapshot.advisory_contract != advisory_contract
+                ):
+                    raise ValueError("Canonical payload advisory contract differs from request.")
                 if snapshot.snapshot_version != version:
                     raise ValueError(
                         "The canonical snapshot payload does not match --snapshot-version."
@@ -605,6 +642,10 @@ def publish_research_universe(
                     clock=system_utc_now,
                     max_attempts=settings.yahoo_max_attempts,
                     retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
+                    advisory_contract=advisory_contract,
+                    reference_facts=load_reference_facts(reference_facts, universe.symbols)
+                    if advisory_contract == "us-eu-v1"
+                    else None,
                 )
                 snapshot = adapter.fetch_snapshot(universe, snapshot_version=version)
                 persist_payload = True
@@ -835,6 +876,15 @@ def evaluate_analysis(
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         typer.echo(f"Analysis evaluation failed: {exc}", err=True)
         raise typer.Exit(code=1) from exc
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
+    if not report["passed"]:
+        raise typer.Exit(code=1)
+
+
+@app.command("evaluate-us-eu")
+def evaluate_us_eu() -> None:
+    """Replay the separate synthetic US/EU contract baseline without network or providers."""
+    report = run_us_eu_baseline()
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
     if not report["passed"]:
         raise typer.Exit(code=1)

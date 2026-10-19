@@ -180,6 +180,17 @@ def plan_revision(decision: ReviewDecision, inputs: dict[str, Any]) -> RevisionP
     updated = dict(inputs)
     for item in decision.feedback:
         if item.kind == "profile":
+            if "advisory_contract" in item.patch and item.patch["advisory_contract"] != inputs[
+                "profile"
+            ].get("advisory_contract"):
+                raise ValueError("A saved revision cannot change advisory contracts.")
+            if (
+                inputs["profile"].get("advisory_contract") == "us-eu-v1"
+                and item.patch.get("base_currency", inputs["profile"]["base_currency"])
+                != inputs["profile"]["base_currency"]
+                and not {"initial_investment_minor", "recurring_monthly_minor"} <= set(item.patch)
+            ):
+                raise ValueError("Changing base currency requires both cash amounts.")
             updated["profile"] = InvestorProfile.model_validate(
                 {**inputs["profile"], **item.patch}
             ).model_dump(mode="json")

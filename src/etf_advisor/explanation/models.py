@@ -7,9 +7,9 @@ import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
-from typing import Final, Protocol
+from typing import Any, Final, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from etf_advisor.domain.construction import (
     PortfolioConstructionBundle,
@@ -19,7 +19,8 @@ from etf_advisor.domain.construction import (
 from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import CandidateScreeningBundle
-from etf_advisor.encoding import StrictWireModel
+from etf_advisor.domain.us_eu import contract_fields
+from etf_advisor.encoding import AdvisoryWireModel
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 
 MAX_EXPLANATION_CANDIDATES = 10
@@ -155,6 +156,7 @@ class ExplanationContractFailureCode(StrEnum):
     UNKNOWN_SOURCE_REFERENCE = "unknown_source_reference"
     SUBJECT_MISMATCH = "subject_mismatch"
     UNSUPPORTED_NUMERIC_CLAIM = "unsupported_numeric_claim"
+    UNSUPPORTED_MONETARY_CLAIM = "unsupported_monetary_claim"
     CONTRACT_VALIDATION_ERROR = "contract_validation_error"
 
 
@@ -245,7 +247,7 @@ class GeneratedExplanation(BaseModel):
         return self
 
 
-class ExplanationRequest(StrictWireModel):
+class ExplanationRequest(AdvisoryWireModel):
     """Validated inputs exposed to an explanation generator."""
 
     model_config = ConfigDict(extra="forbid")
@@ -256,9 +258,29 @@ class ExplanationRequest(StrictWireModel):
     candidate_screening: CandidateScreeningBundle
     portfolio_construction: PortfolioConstructionBundle
     revision_instruction: str = Field(default="", max_length=2000)
+    advisory_contract: Literal["us-eu-v1"] | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_request(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
+        return result
 
     @model_validator(mode="after")
     def validate_consistency(self) -> ExplanationRequest:
+        marker = self.profile.advisory_contract
+        if any(
+            other != marker
+            for other in (
+                self.draft_policy.advisory_contract,
+                self.candidate_evidence.advisory_contract,
+                self.candidate_screening.advisory_contract,
+                self.portfolio_construction.advisory_contract,
+                self.advisory_contract,
+            )
+        ):
+            raise ValueError("Explanation inputs mix advisory contracts.")
         if self.candidate_evidence.status != EvidenceStatus.READY:
             raise ValueError("Explanation generation requires ready source evidence.")
         if self.draft_policy != calculate_policy(self.profile):
@@ -316,7 +338,7 @@ class ExplanationCitation(BaseModel):
     observed_at: str
 
 
-class ExplanationBundle(BaseModel):
+class ExplanationBundle(AdvisoryWireModel):
     """Review-ready explanation after deterministic grounding validation."""
 
     model_config = ConfigDict(extra="forbid")
@@ -327,6 +349,14 @@ class ExplanationBundle(BaseModel):
     explanation: GeneratedExplanation
     citations: list[ExplanationCitation]
     limitations: list[str]
+    advisory_contract: Literal["us-eu-v1"] | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_bundle(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
+        return result
 
     @model_validator(mode="after")
     def validate_ready_bundle(self) -> ExplanationBundle:
@@ -361,6 +391,7 @@ def build_explanation_request(
     """Revalidate graph state before exposing it to a model provider."""
 
     return ExplanationRequest(
+        **contract_fields("us-eu-v1" if profile.get("advisory_contract") == "us-eu-v1" else None),
         profile=InvestorProfile.model_validate(profile),
         draft_policy=PolicyCalculation.model_validate(draft_policy),
         candidate_evidence=CandidateEvidenceBundle.model_validate(candidate_evidence),
@@ -374,7 +405,7 @@ def policy_reference_index(request: ExplanationRequest) -> dict[str, object]:
 
     profile = request.profile
     policy = request.draft_policy
-    return {
+    references: dict[str, object] = {
         "profile.horizon_years": profile.horizon_years,
         "profile.max_drawdown_pct": profile.max_drawdown_pct,
         "profile.objective": profile.objective.value,
@@ -382,10 +413,35 @@ def policy_reference_index(request: ExplanationRequest) -> dict[str, object]:
         "profile.excluded_sectors": list(profile.excluded_sectors),
         "policy.allocation_bands": policy.allocation_bands,
         "policy.target_allocation": policy.target_allocation.model_dump(mode="json"),
-        "policy.initial_investment_usd": policy.initial_investment_usd.model_dump(mode="json"),
-        "policy.recurring_monthly_usd": policy.recurring_monthly_usd.model_dump(mode="json"),
         "policy.notes": list(policy.notes),
     }
+    if request.advisory_contract == "us-eu-v1":
+        references["policy.base_currency"] = policy.base_currency
+        for key, cash in (
+            ("policy.initial_investment", policy.initial_investment),
+            ("policy.recurring_monthly", policy.recurring_monthly),
+        ):
+            assert cash is not None
+            values = cash.model_dump(mode="json")
+            values.update(
+                {
+                    name.replace("_minor", "_amount"): _minor_amount(amount)
+                    for name, amount in values.items()
+                    if name.endswith("_minor")
+                }
+            )
+            values["minor_exponent"] = 2
+            references[key] = values
+    else:
+        assert policy.initial_investment_usd is not None
+        assert policy.recurring_monthly_usd is not None
+        references["policy.initial_investment_usd"] = policy.initial_investment_usd.model_dump(
+            mode="json"
+        )
+        references["policy.recurring_monthly_usd"] = policy.recurring_monthly_usd.model_dump(
+            mode="json"
+        )
+    return references
 
 
 def exposed_candidates(request: ExplanationRequest) -> list[CandidateEvidence]:
@@ -410,6 +466,56 @@ def portfolio_reference_index(request: ExplanationRequest) -> dict[str, object]:
     draft = construction.draft
     if draft is None:  # Defensive after request validation.
         return {}
+    if request.advisory_contract == "us-eu-v1":
+        fx = request.candidate_evidence.fx_reference
+        position_refs: dict[str, object] = {
+            f"portfolio.positions.{index}": {
+                "document_id": position.document_id,
+                "symbol": position.symbol,
+                "listing_exchange": position.listing_exchange,
+                "share_class_id": position.share_class_id,
+                "economic_group_id": position.economic_group_id,
+                "sleeve": position.sleeve.value,
+                "source_category": position.source_category,
+                "weight_bps": position.weight_bps,
+                "base_currency": position.base_currency,
+                "trading_currency": position.trading_currency,
+                "minor_exponent": 2,
+                "initial_base_minor": position.initial_base_minor,
+                "recurring_base_minor": position.recurring_base_minor,
+                "initial_trading_minor": position.initial_trading_minor,
+                "recurring_trading_minor": position.recurring_trading_minor,
+                "initial_base_amount": _minor_amount(position.initial_base_minor),
+                "recurring_base_amount": _minor_amount(position.recurring_base_minor),
+                "initial_trading_amount": _minor_amount(position.initial_trading_minor),
+                "recurring_trading_amount": _minor_amount(position.recurring_trading_minor),
+                "fx_reference_id": position.fx_reference_id,
+                **(
+                    {
+                        "fx_provider": fx.provider,
+                        "fx_source_url": fx.source_url,
+                        "fx_effective_date": fx.effective_date.isoformat(),
+                        "fx_rate_decimal": fx.rate_decimal,
+                    }
+                    if position.fx_reference_id and fx and fx.effective_date
+                    else {}
+                ),
+            }
+            for index, position in enumerate(draft.positions)
+        }
+        return {
+            "portfolio.totals": {
+                "total_weight_bps": draft.total_weight_bps,
+                "base_currency": draft.base_currency,
+                "minor_exponent": 2,
+                "initial_total_minor": draft.initial_total_minor,
+                "recurring_total_minor": draft.recurring_total_minor,
+                "initial_total_amount": _minor_amount(draft.initial_total_minor),
+                "recurring_total_amount": _minor_amount(draft.recurring_total_minor),
+            },
+            "portfolio.constraints": construction.policy.model_dump(mode="json"),
+            **position_refs,
+        }
     position_refs = {
         f"portfolio.positions.{index}": {
             "document_id": position.document_id,
@@ -419,9 +525,11 @@ def portfolio_reference_index(request: ExplanationRequest) -> dict[str, object]:
             "weight_bps": position.weight_bps,
             "weight_pct": str(Decimal(position.weight_bps) / Decimal(100)),
             "initial_usd_cents": position.initial_usd_cents,
-            "initial_usd": str(Decimal(position.initial_usd_cents) / Decimal(100)),
+            "initial_usd": str(Decimal(_required_minor(position.initial_usd_cents)) / Decimal(100)),
             "recurring_usd_cents": position.recurring_usd_cents,
-            "recurring_usd": str(Decimal(position.recurring_usd_cents) / Decimal(100)),
+            "recurring_usd": str(
+                Decimal(_required_minor(position.recurring_usd_cents)) / Decimal(100)
+            ),
             "reason_code": position.reason_code,
             "policy_reference": position.policy_reference,
             "screening_reason_codes": list(position.screening_reason_codes),
@@ -436,9 +544,13 @@ def portfolio_reference_index(request: ExplanationRequest) -> dict[str, object]:
                 sleeve.value: value for sleeve, value in draft.sleeve_weight_bps.items()
             },
             "initial_total_cents": draft.initial_total_cents,
-            "initial_total_usd": str(Decimal(draft.initial_total_cents) / Decimal(100)),
+            "initial_total_usd": str(
+                Decimal(_required_minor(draft.initial_total_cents)) / Decimal(100)
+            ),
             "recurring_total_cents": draft.recurring_total_cents,
-            "recurring_total_usd": str(Decimal(draft.recurring_total_cents) / Decimal(100)),
+            "recurring_total_usd": str(
+                Decimal(_required_minor(draft.recurring_total_cents)) / Decimal(100)
+            ),
         },
         "portfolio.constraints": construction.policy.model_dump(mode="json"),
         **position_refs,
@@ -500,6 +612,8 @@ def validate_and_bundle_explanation(
             )
 
     _validate_numeric_claim_support(request, validated.explanation, source_by_id)
+    if request.advisory_contract == "us-eu-v1":
+        _validate_monetary_claim_support(request, validated.explanation, source_by_id)
 
     referenced_ids = {
         reference
@@ -532,6 +646,7 @@ def validate_and_bundle_explanation(
             "this explanation does not replace or extend those results."
         )
     return ExplanationBundle(
+        **contract_fields("us-eu-v1" if request.advisory_contract == "us-eu-v1" else None),
         provider=validated.provider,
         model=validated.model,
         explanation=validated.explanation,
@@ -693,6 +808,88 @@ def _validate_numeric_claim_support(
                 ExplanationContractFailureCode.UNSUPPORTED_NUMERIC_CLAIM,
                 "Generated explanation contains a numeric claim absent from its cited support.",
             )
+
+
+def _required_minor(value: int | None) -> int:
+    assert value is not None
+    return value
+
+
+def _minor_amount(value: int | None) -> str:
+    assert value is not None
+    return f"{Decimal(value) / Decimal(100):.2f}"
+
+
+_CURRENCY_AMOUNT = re.compile(
+    r"\b(?:(USD|EUR)\s+(\d+(?:,\d{3})*(?:\.\d{1,2})?)|"
+    r"(\d+(?:,\d{3})*(?:\.\d{1,2})?)\s+(USD|EUR))\b"
+)
+_UNSUPPORTED_CURRENCY = re.compile(r"\b(?:GBP|GBp|GBX|JPY|CHF|CAD|AUD)\b", re.IGNORECASE)
+
+
+def _money_support(value: object) -> set[tuple[str, int]]:
+    if not isinstance(value, dict):
+        return set()
+    supported: set[tuple[str, int]] = set()
+    for key, amount in value.items():
+        if not key.endswith("_minor") or type(amount) is not int:
+            continue
+        currency = value.get(
+            "trading_currency" if "trading" in key else "base_currency", value.get("currency")
+        )
+        if currency in {"USD", "EUR"}:
+            supported.add((currency, amount))
+    return supported
+
+
+def _validate_monetary_claim_support(
+    request: ExplanationRequest,
+    explanation: GeneratedExplanation,
+    source_by_id: dict[str, CandidateEvidence],
+) -> None:
+    policy = policy_reference_index(request)
+    construction = portfolio_reference_index(request)
+    for statement in _all_statements(explanation):
+        text = statement.text
+        if any(symbol in text for symbol in ("$", "€", "£")) or _UNSUPPORTED_CURRENCY.search(text):
+            raise ExplanationContractError(
+                ExplanationContractFailureCode.UNSUPPORTED_MONETARY_CLAIM,
+                "Monetary wording uses an unsupported currency or symbol shorthand.",
+            )
+        pairs = _CURRENCY_AMOUNT.findall(text)
+        if (
+            re.search(r"\b(?:cash|amount|initial|recurring|converted)\b", text, re.IGNORECASE)
+            and _numeric_tokens(text)
+            and not pairs
+        ):
+            raise ExplanationContractError(
+                ExplanationContractFailureCode.UNSUPPORTED_MONETARY_CLAIM,
+                "Monetary amounts require an explicit USD or EUR label.",
+            )
+        cited = (
+            policy
+            if statement.basis == GroundingBasis.POLICY
+            else construction
+            if statement.basis == GroundingBasis.CONSTRUCTION
+            else {}
+        )
+        supported = (
+            set().union(*(_money_support(cited[reference]) for reference in statement.references))
+            if cited
+            else set()
+        )
+        for prefix_currency, prefix_amount, suffix_amount, suffix_currency in pairs:
+            currency = prefix_currency or suffix_currency
+            amount = prefix_amount or suffix_amount
+            try:
+                cents = Decimal(amount.replace(",", "")) * 100
+            except InvalidOperation:
+                cents = Decimal("-1")
+            if cents != cents.to_integral_value() or (currency, int(cents)) not in supported:
+                raise ExplanationContractError(
+                    ExplanationContractFailureCode.UNSUPPORTED_MONETARY_CLAIM,
+                    "Monetary amount or currency is absent from the exact cited record.",
+                )
 
 
 def _construction_reference_symbols(value: object) -> set[str]:

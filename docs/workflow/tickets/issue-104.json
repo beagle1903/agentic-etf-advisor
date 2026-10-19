@@ -1,0 +1,643 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-18T17:23:54Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 104,
+        "classification": "consequential",
+        "scope": [
+          "S104-1"
+        ],
+        "invariants": [
+          "INV104-1",
+          "INV104-2",
+          "INV104-3",
+          "INV104-4",
+          "INV104-5"
+        ],
+        "acceptance": [
+          "AC104-1",
+          "AC104-2",
+          "AC104-3",
+          "AC104-4",
+          "AC104-5"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "User approved start; live Issue104 open, dependencies99/103 closed, clean main ae5196995839f7cbc26c59a1aacba531f497d7a5 synchronized with origin/main; native prospective owner-led ticket, sequential gates only."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 104,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue104_owner"
+          },
+          "rationale": "Listing eligibility, financial currency meaning, cross-listing identity and persisted restoration change consequential contracts; separate architect and independent challenge precede ordinary implementation and independent review.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat 01a14e21-a9d4-7953-a208-4fb02fdf03db on 2026-10-18: user approved starting queued Issue104 and its sequential consequential workflow."
+          },
+          "scope": {
+            "S104-1": "Design and implement explicitly supported US/EU ETF listing eligibility and currency-aware portfolios through source evidence, screening, deterministic policy/construction, explanation, dashboard and persisted restoration; extend vision/current architecture via new ADR."
+          },
+          "non_goals": [
+            "No authentication, brokerage, trades, external financial writes, tax or suitability assurance, hosting or worldwide listings.",
+            "No broad catalogue ingestion or candidate selection UI from Issue105, comparison/overlap project from Issues100/101, optimizer or arbitrary category inference.",
+            "No historical ticket reset, old certificate or allowance transfer, unrelated cleanup or live saved-review mutation."
+          ],
+          "invariants": {
+            "INV104-1": "Listing exchange/region, ETF verification, domicile, underlying geography, trading currency and portfolio base currency remain distinct source-attributed concepts; unknown, unsupported or contradictory required identity never silently qualifies.",
+            "INV104-2": "Known cross-listings/share classes cannot count the same known economic exposure as independent diversification; unknown economic identity is explicit under a frozen conservative policy.",
+            "INV104-3": "Deterministic weights total exactly 10000 basis points; initial and recurring cash reconcile independently and exactly in declared base-currency minor units. Mixed currencies are never summed or relabelled without approved attributable fresh conversion evidence.",
+            "INV104-4": "Financial category, liquidity unit, FX source/freshness/missingness and eligibility policies are frozen in separate approved design before implementation; missing/stale/conflicting required evidence produces explicit exclusions or blockers.",
+            "INV104-5": "JSON serialization, revision/restoration, dashboard recomputation, source timestamps, explanation grounding/safety and deterministic side-effect boundaries remain fail closed; existing supported US behavior is preserved or explicitly versioned by approved design."
+          },
+          "interfaces": [
+            "Evidence/source research models and provenance; listing eligibility/screening; profile and deterministic policy/construction; explanation references; dashboard presentation; checkpoint/revision restoration. Exact affected signatures/versioning are to be frozen in architect handoff before implementation.",
+            "Replaceable external data interfaces only where required by approved FX policy; no financial-write interface."
+          ],
+          "json_state_impact": "Nested typed source/evidence, profile/policy/construction, explanation and restoration JSON will need explicit listing/currency/identity semantics and compatibility dispatch. Architect must freeze exact schema/version/default/rejection behavior before writes; no implicit relabelling or historical checkpoint repair.",
+          "acceptance": {
+            "AC104-1": "Separate architect handoff, independent challenge and coordinator approval freeze supported exchanges, ETF verification, identity/cross-listings, base/trading currencies, category coverage, liquidity units and attributable FX/freshness policy before implementation.",
+            "AC104-2": "US and exchange-qualified EU positive controls pass the frozen contract; non-ETF, non-US/EU, unknown, absent or conflicting required identity fail with explicit reasons. Domicile or asset geography never substitutes for listing.",
+            "AC104-3": "Known duplicate economic exposure across cross-listings/share classes is not counted as distinct diversification; unknown identity has explicit deterministic behavior and focused tests.",
+            "AC104-4": "Exact weights, initial and recurring cash reconcile in declared base currency, including zero/tiny totals and mixed currency cases; missing/stale/unsupported conversion evidence and unsupported categories yield explained blocked outcomes under approved policy.",
+            "AC104-5": "JSON round-trip, tampered/restored state, revision invalidation, dashboard recomputation and explanation grounding tests cover new contracts and existing US regressions. Update vision, architecture, new ADR, iteration evidence and reproducible offline evaluation comparisons with actual coverage limitations."
+          },
+          "verification": [
+            "Focused source identity/listing/currency/FX/category/liquidity/cross-listing boundary tests using attributed deterministic fixtures.",
+            "Exact cents/basis-point and JSON round-trip/restoration/dashboard/explanation/revision tests; US regression and same-case offline baseline comparison.",
+            "Repository required test/lint/type/build/workflow gates and independent implementation review. Live probes only where needed to establish source contract, with explicit limits; no live trade or saved-review mutation."
+          ],
+          "documentation": [
+            "New ADR freezing consequential US/EU and currency contract; update product vision/current architecture.",
+            "Issue104 design/implementation iteration records, user-facing limitations and verification evidence; durable ticket ledger and issue/PR gate records."
+          ],
+          "risks": [
+            "Yahoo identity/currency/category/FX coverage may be missing or conflict; supported eligibility must remain explicit and fail closed.",
+            "Cross-listing identity and historical JSON integrity may require conservative exclusions/versioning rather than guessed migrations.",
+            "Broad interface reach must not expand into Issue105 or change unrelated portfolio optimization."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity requires architect clarification within finite design allowance and independent challenge; repeated concerns require coordinator arbitration.",
+            "Concrete unresolved implementation failure, concurrency or migration complexity may justify specialist with recorded evidence.",
+            "Independent review required for financial and persistence contracts; failed final review stops for explicit finite decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-18T17:24:07Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue104_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 1,
+          "digest": "4ef81eb8df7c89f8dbd0e7f36720cc2a9544467b4c5e5c6763967ee5b6d1f3a6"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-18T17:32:04Z",
+      "data": {
+        "session": "/root/issue104_design",
+        "outcome": "pass",
+        "evidence": "Separate read-only design_architect gpt-6-astra/high DESIGN_READY; full returned contract persisted docs/iterations/027-issue104-us-eu-design.md SHA256 180b9454fd24b6ff693649c4b1c635099e38ca561d298f48c799ad6c8f9e26c3. Opt-in us-eu-v1, legacy US preservation, exact USD/EUR base cash, conservative fund identity, ECB FX, reference facts and restoration/explanation contract supplement frozen gen1 capsule. Independent challenge and coordinator approval required before implementation. No code edits or tests by architect."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-18T17:32:13Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue104_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 1,
+          "digest": "4ef81eb8df7c89f8dbd0e7f36720cc2a9544467b4c5e5c6763967ee5b6d1f3a6"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-18T17:35:49Z",
+      "data": {
+        "session": "/root/issue104_challenge",
+        "outcome": "fail",
+        "evidence": "Independent code_reviewer gpt-6-sol/high design challenge FAIL: INV104-1/2/5 AC104-1/3/5 ambiguity whether reusable reference ResearchField publication metadata is rejected or rebound to new snapshot while preserving source facts. Exact handoff SHA180b9454fd24b6ff693649c4b1c635099e38ca561d298f48c799ad6c8f9e26c3 verified. A104-1 chooses narrow architect clarification in remaining design_reset; no implementation authority or new slots."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-18T17:35:51Z",
+      "data": {
+        "phase": "design_reset",
+        "session": "/root/issue104_design_reset",
+        "role": "design_architect",
+        "criterion": "INV104-5",
+        "reason": "A104-1 consequential reference-fact reuse provenance ambiguity; freeze ingestion/snapshot rebinding versus rejection and immutable observation fields within unchanged AC104-1/3/5.",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 1,
+          "digest": "4ef81eb8df7c89f8dbd0e7f36720cc2a9544467b4c5e5c6763967ee5b6d1f3a6"
+        }
+      }
+    },
+    {
+      "type": "capsule_update",
+      "at": "2026-10-18T17:38:23Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "A104-1 fresh separate architect clarification preserves frozen scope/INV/AC/non-goals/owner and binds complete gen2 handoff SHA256 84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874"
+        },
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 104,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue104_owner"
+          },
+          "rationale": "Listing eligibility, financial currency meaning, cross-listing identity and persisted restoration change consequential contracts; separate architect and independent challenge precede ordinary implementation and independent review.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Chat 01a14e21-a9d4-7953-a208-4fb02fdf03db on 2026-10-18: user approved starting queued Issue104 and its sequential consequential workflow."
+          },
+          "scope": {
+            "S104-1": "Design and implement explicitly supported US/EU ETF listing eligibility and currency-aware portfolios through source evidence, screening, deterministic policy/construction, explanation, dashboard and persisted restoration; extend vision/current architecture via new ADR."
+          },
+          "non_goals": [
+            "No authentication, brokerage, trades, external financial writes, tax or suitability assurance, hosting or worldwide listings.",
+            "No broad catalogue ingestion or candidate selection UI from Issue105, comparison/overlap project from Issues100/101, optimizer or arbitrary category inference.",
+            "No historical ticket reset, old certificate or allowance transfer, unrelated cleanup or live saved-review mutation."
+          ],
+          "invariants": {
+            "INV104-1": "Listing exchange/region, ETF verification, domicile, underlying geography, trading currency and portfolio base currency remain distinct source-attributed concepts; unknown, unsupported or contradictory required identity never silently qualifies.",
+            "INV104-2": "Known cross-listings/share classes cannot count the same known economic exposure as independent diversification; unknown economic identity is explicit under a frozen conservative policy.",
+            "INV104-3": "Deterministic weights total exactly 10000 basis points; initial and recurring cash reconcile independently and exactly in declared base-currency minor units. Mixed currencies are never summed or relabelled without approved attributable fresh conversion evidence.",
+            "INV104-4": "Financial category, liquidity unit, FX source/freshness/missingness and eligibility policies are frozen in separate approved design before implementation; missing/stale/conflicting required evidence produces explicit exclusions or blockers.",
+            "INV104-5": "JSON serialization, revision/restoration, dashboard recomputation, source timestamps, explanation grounding/safety and deterministic side-effect boundaries remain fail closed; existing supported US behavior is preserved or explicitly versioned by approved design."
+          },
+          "interfaces": [
+            "Evidence/source research models and provenance; listing eligibility/screening; profile and deterministic policy/construction; explanation references; dashboard presentation; checkpoint/revision restoration. Exact affected signatures/versioning are to be frozen in architect handoff before implementation.",
+            "Replaceable external data interfaces only where required by approved FX policy; no financial-write interface.",
+            "A104-1: validate complete reusable reference input before fresh-collection-only detached destination ingestion/version binding, preserving normalized value/missingness/unit/provider/URL/observed_at exactly. Canonical snapshots and retained artifacts never rebind."
+          ],
+          "json_state_impact": "Nested typed source/evidence, profile/policy/construction, explanation and restoration JSON will need explicit listing/currency/identity semantics and compatibility dispatch. Architect must freeze exact schema/version/default/rejection behavior before writes; no implicit relabelling or historical checkpoint repair. A104-1 source tuple remains immutable; only fresh collection binds destination publication coordinates; no additional historical-input fields. Complete consequential handoff docs/iterations/027-issue104-us-eu-design.md SHA256 84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874.",
+          "acceptance": {
+            "AC104-1": "Separate architect handoff, independent challenge and coordinator approval freeze supported exchanges, ETF verification, identity/cross-listings, base/trading currencies, category coverage, liquidity units and attributable FX/freshness policy before implementation.",
+            "AC104-2": "US and exchange-qualified EU positive controls pass the frozen contract; non-ETF, non-US/EU, unknown, absent or conflicting required identity fail with explicit reasons. Domicile or asset geography never substitutes for listing.",
+            "AC104-3": "Known duplicate economic exposure across cross-listings/share classes is not counted as distinct diversification; unknown identity has explicit deterministic behavior and focused tests.",
+            "AC104-4": "Exact weights, initial and recurring cash reconcile in declared base currency, including zero/tiny totals and mixed currency cases; missing/stale/unsupported conversion evidence and unsupported categories yield explained blocked outcomes under approved policy.",
+            "AC104-5": "JSON round-trip, tampered/restored state, revision invalidation, dashboard recomputation and explanation grounding tests cover new contracts and existing US regressions. Update vision, architecture, new ADR, iteration evidence and reproducible offline evaluation comparisons with actual coverage limitations."
+          },
+          "verification": [
+            "Focused source identity/listing/currency/FX/category/liquidity/cross-listing boundary tests using attributed deterministic fixtures.",
+            "Exact cents/basis-point and JSON round-trip/restoration/dashboard/explanation/revision tests; US regression and same-case offline baseline comparison.",
+            "Repository required test/lint/type/build/workflow gates and independent implementation review. Live probes only where needed to establish source contract, with explicit limits; no live trade or saved-review mutation."
+          ],
+          "documentation": [
+            "New ADR freezing consequential US/EU and currency contract; update product vision/current architecture.",
+            "Issue104 design/implementation iteration records, user-facing limitations and verification evidence; durable ticket ledger and issue/PR gate records.",
+            "Complete frozen gen2 handoff: docs/iterations/027-issue104-us-eu-design.md SHA256 84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874"
+          ],
+          "risks": [
+            "Yahoo identity/currency/category/FX coverage may be missing or conflict; supported eligibility must remain explicit and fail closed.",
+            "Cross-listing identity and historical JSON integrity may require conservative exclusions/versioning rather than guessed migrations.",
+            "Broad interface reach must not expand into Issue105 or change unrelated portfolio optimization."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity requires architect clarification within finite design allowance and independent challenge; repeated concerns require coordinator arbitration.",
+            "Concrete unresolved implementation failure, concurrency or migration complexity may justify specialist with recorded evidence.",
+            "Independent review required for financial and persistence contracts; failed final review stops for explicit finite decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-18T17:38:36Z",
+      "data": {
+        "session": "/root/issue104_design_reset",
+        "outcome": "pass",
+        "evidence": "Fresh separate read-only architect gpt-6-astra/high DESIGN_READY A104-1: validate reusable source fields first, fresh collection alone detaches and rebinds ingestion/version preserving exact normalized source tuple; stale source never refreshed, canonical retry/restoration never rebound. Complete amended handoff SHA84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874 now embedded in gen2 capsule e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c. Frozen scope/INV/AC/owner unchanged. No resets remain; fresh independent challenge required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-18T17:38:39Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue104_challenge2",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-18T17:40:50Z",
+      "data": {
+        "session": "/root/issue104_challenge2",
+        "outcome": "pass",
+        "evidence": "Fresh independent code_reviewer gpt-6-sol/high PASS gen2 capsule e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c exact handoff SHA84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874. A104-1 T0/T1 ambiguity resolved: validated detached fresh binding preserves source tuple/time, retry/restoration never rebind; focused tests defined. No remaining material frozen-contract blocker. Original failed challenge remains failed. Coordinator approval next."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-18T17:41:10Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "User approved Issue104 start on 2026-10-18. Separate architect, narrow A104-1 fresh reset and independent generation2 challenge completed; approve exact bounded contract with original scope and finite owner allowances."
+        },
+        "evidence": "DESIGN_READY gen2: complete handoff SHA84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874; independent challenge PASS verified capsule and doc. A104-1 closed. Approve implementation_worker gpt-6-sol/medium /root/issue104_owner only; no worldwide/auth/Issue105/optimizer/financial writes, no live readiness claim, no old certificate transfer. Financial/persistence changes require independent implementation review.",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-18T17:41:12Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        }
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-19T08:27:08Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "interrupted",
+        "evidence": "2026-10-19 user continue resumed same active owner after prior quota interruption; several retries progressed saved edits, then three consecutive same pinned implementation_worker gpt-6-sol/medium resume attempts failed Selected model is at capacity despite backoff. No model/role substitution authorized. Truthful interruption now preserves same implementation reservation and all counters; all elapsed audit time through this event retained, no retroactive subtraction. Partial implementation is incomplete and unverified: initial synthetic schema2 US/EU evidence-screening-construction mixed-currency vector reported passing; full graph/dashboard/publication/explanation/tamper/evaluation/docs/full gates and independent implementation review remain. No commit, PR, acceptance or delivery. Resume same owner/reservation via phase_resume once model available; no new implementation slot."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-19T08:33:26Z",
+      "data": {
+        "session": "/root/issue104_owner"
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-19T08:35:33Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "interrupted",
+        "evidence": "User explicitly requested or switch to sol 6.1 med on 2026-10-19. Coordinator interrupted old actual session /root/issue104_owner before fresh successor /root/issue104_owner_sol61 gpt-6.1-sol/medium. Explicit one-off model/session exception recorded docs/workflow/issue-104-model-exception.md and issue comment; native pinned ledger metadata remains original logical reservation only, actual successor provenance recorded externally and in evidence. No new slot, scope, design change or overlapping owner; both actual author sessions excluded from review."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-19T08:35:35Z",
+      "data": {
+        "session": "/root/issue104_owner"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T08:54:54Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "Implementation ready, all writes stopped. Actual successor /root/issue104_owner_sol61 gpt-6.1-sol/medium under explicit user model/session exception docs/workflow/issue-104-model-exception.md; original /root/issue104_owner also write author. 123 focused tests PASS (82 US/EU cases), ruff check/format, mypy59 modules, workflow validators/diff checks PASS; evaluate-analysis legacy bytes unchanged and separate 10-case evaluate-us-eu PASS. ADR0039/iteration027/usage/vision/system/README complete. Full suite pre-final inputs1631 pass40skip; reserved verification must rerun exact final content full pytest/build/evals. No commit/PR/live publication/saved-review changes. Approved handoff SHA unchanged."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T08:54:58Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "76aaee278b0ec5681c482b1d54fb0a98ccd20ec0f7e5d54f68aeb687e9c60f60"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T09:01:05Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "Final content-bound verification PASS by actual successor /root/issue104_owner_sol61 gpt-6.1-sol/medium per explicit user exception; native owner is logical reservation. Unchanged content 76aaee278b0ec5681c482b1d54fb0a98ccd20ec0f7e5d54f68aeb687e9c60f60. uv run pytest1712pass40skip304.02s; ruff check ., format --check .192files, mypy59modules, uv build wheel/sdist, evaluate-analysis, evaluate-us-eu10/10, both workflow validators and git diff --check PASS. Approved handoff SHA84ab2407b145c1c5a0fb887f66b169436ffd42423249f560ddf8444b8d0f9874 exact; original analysis/retrieval/explanation dataset bytes equal HEAD.40 opt-in real-store skips; no live provider/store publication or saved-review mutation; synthetic success not live EU completeness."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-19T09:01:05Z",
+      "data": {
+        "ids": [
+          "AC104-1",
+          "AC104-2",
+          "AC104-3",
+          "AC104-4",
+          "AC104-5"
+        ],
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "76aaee278b0ec5681c482b1d54fb0a98ccd20ec0f7e5d54f68aeb687e9c60f60",
+        "evidence": "AC104-1 gen2 full consequential handoff hash bound, separate architect/reset, fresh independent challenge and coordinator approval; A104-1 source reuse clarification closed. AC104-2 opt-in source-attributed US/EU42 exchange mapping, missing/conflicting/unsupported identity and quote units fail closed, distinct listing/fund/trading/base semantics. AC104-3 known economic groups limited one per feasible subset with alternative representative search and explicit unknown/contradictory identity behavior. AC104-4 exact USD/EUR basis points/base minor cash, both FX directions, zero/one/max amounts, ECB transport/parser/freshness and missing FX/category blockers tested. AC104-5 strict JSON marker dispatch, source/cash/FX tamper, managed graph restore/downstream reuse/base revision/approval, explanation monetary negatives, dashboard create/render/revise and CLI publication contract implemented; original datasets unchanged, separate10case evaluation passes. Final1712pass40skip, lint/format/type/build/evaluations/workflow gates pass identical content. ADR0039/vision/system/usage/iteration updated. Live EU completeness not established; opt-in real-store tests skipped. Independent implementation review remains required before delivery."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T09:01:09Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue104_initial_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "76aaee278b0ec5681c482b1d54fb0a98ccd20ec0f7e5d54f68aeb687e9c60f60"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T09:07:17Z",
+      "data": {
+        "session": "/root/issue104_initial_review",
+        "outcome": "fail",
+        "evidence": "Independent code_reviewer gpt-6-sol/high FAIL AC104-5 INV104-5 on unchanged content76aaee278b0ec5681c482b1d54fb0a98ccd20ec0f7e5d54f68aeb687e9c60f60: dashboard_app.py __main__ line1153 calls main before _decimal_minor/_currency_minor definitions. US/EU profile submit line133 and cash rendering line388 raise NameError under Streamlit script execution; import-only tests miss. Narrow remedy move helpers above entry invocation and regression exercise script entry. No source edits. Same approved owner will use existing single remediation slot; review stays failed."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T09:07:19Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T09:10:11Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "Same actual owner /root/issue104_owner_sol61 gpt6.1-sol/medium under user exception repaired initial-review AC104-5/INV104-5 dashboard NameError by moving __main__ invocation below helpers. Two real Streamlit AppTest script-entry regressions failed before and pass after: EUR0.01/0 creation/render and managed USD-to-EUR explicit1/0 cash child revision. Focused US/EU/dashboard/revision245pass; changed-file lint/format/diff pass. Implementation iteration repair evidence updated before recertification. Hash-bound design unchanged. Writes stopped, new content09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236. Original review remains fail; fresh verification/acceptance and independent final review required. No commit/PR."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T09:10:13Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T17:12:33Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "Fresh repaired-content verification PASS by actual /root/issue104_owner_sol61 gpt6.1-sol/medium per user exception; native owner logical reservation. Unchanged content 09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236. Final persisted pytest1714pass40skip373.89s exit0; ignored .artifacts/issue104/final-pytest.txt and exit file retained. Lint/format192files/mypy59modules/build/static+ticket validators/diff PASS; evaluate-analysis37/37 and evaluate-us-eu10/10 PASS. Approved handoff hash and legacy dataset bytes unchanged. Two real Streamlit script-entry regressions red before/green after repair; focused245pass. No tracked writes during verification, live publication or saved-review mutation.40 opt-in real-store skips, live EU completeness unproven."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-19T17:12:33Z",
+      "data": {
+        "ids": [
+          "AC104-1",
+          "AC104-2",
+          "AC104-3",
+          "AC104-4",
+          "AC104-5"
+        ],
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236",
+        "evidence": "Fresh acceptance on repaired content retains all frozen AC104-1..5 proof: approved complete gen2 consequential contract and A104-1 closure;42 mapped exchange identity and unsupported/conflicting/missing cases; known-group representative selection and explicit unknown; exact USD/EUR base money/FX/category boundaries; strict JSON/revision/restoration/explanation/dashboard/CLI plus unchanged legacy datasets and separate10case evaluation. Initial-review AC104-5 dashboard execution-order defect repaired narrowly: helpers now defined before main invocation; real Streamlit creation/render and managed USD-to-EUR revision tests failed before/pass after. Full1714pass40skip, focused245pass, all required type/lint/format/build/eval/workflow gates PASS identical hash. User implementation model exception and both actual authors documented; no scope expansion/live completeness claim. Independent final review still required, original initial-review FAIL retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T17:12:36Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue104_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T17:15:35Z",
+      "data": {
+        "session": "/root/issue104_final_review",
+        "outcome": "fail",
+        "evidence": "Independent final code_reviewer gpt-6-sol/high FAIL on unchanged content09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236. INV104-4/5 AC104-2/5: new us-eu-v1 zero-result search intends BLOCKED No source evidence matched; select_candidate_evidence line713 constructs schema2 bundle, CandidateEvidenceBundle.validate_encoding line307 infers schema1 from empty candidates and raises ValidationError Evidence schema differs from its candidates. Also affects all-invalid candidate blocked results. Read-only reproduction established. Prior Streamlit entry repair confirmed, helpers before main and2 script-entry tests PASS;1714pass40skip do not cover empty-result bug. No writes; design/content hashes unchanged. No remediation/final-review allowance remains: BLOCKED_FOR_DECISION, no delivery until explicit finite user repair+review counts."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-19T17:15:36Z",
+      "data": {
+        "id": "B104-EMPTY-EVIDENCE",
+        "criterion": "AC104-5",
+        "scenario": "us-eu-v1 retrieval with no results or all candidates rejected must return attributable blocked outcome; empty list schema inference instead forces legacy schema1 and raises Pydantic ValidationError.",
+        "evidence": "Independent final reviewer read-only reproduction on09247548d4f5763adba822e9393bb259f70ba62a0c8f3d0b5d40aa494834d236; rag/evidence.py lines307 and713. Narrow proposed repair: preserve explicitly selected new-contract schema2 when candidate list empty, retain legacy empty schema1 behavior, test zero-result and all-rejected plus graph blocked routing/JSON restore. No contract redesign. Requires explicit finite one additional remediation and one final-review allowance; no implementation/initial-review/reset extension."
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-19T17:22:23Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-19 chat01a14e21-a9d4-7953-a208-4fb02fdf03db user approved immediately after explicit request for one additional repair attempt and one independent final review for demonstrated empty-US/EU-evidence bug after failed final review."
+        },
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Narrow same-owner B104-EMPTY-EVIDENCE repair under AC104-2/5 INV104-4/5: honor new-contract schema2 for empty blocked candidates, preserve legacy schema1 and test zero-result/all-invalid plus graph/JSON blocked paths; fresh verification/acceptance and independent final review. No scope/design/model changes or time/counter reset."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T17:22:25Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T17:29:48Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "User-approved finite B104-EMPTY-EVIDENCE same-owner repair complete, writes frozen. Actual /root/issue104_owner_sol61 gpt6.1-sol/medium under existing explicit exception. Only source change empty encoding fallback honors explicit us-eu-v1 schema2; nonempty candidate-derived encoding and legacy exact-empty dump unchanged.6 model/graph regressions failed before,8 final empty tests pass incl JSON/strict schema-marker/all-invalid/all-stale/graph restore/no unintended FX-provider calls. Focused301pass102.78s; prior Streamlit10s timeout retained as transient evidence: isolated1pass6.68s and final focused serial pass, no timeout workaround. Lint/format/diff pass. Iteration evidence updated, approved design unchanged. New content823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3; fresh verification/acceptance and independent final review required. No ledger/commit/PR writes by owner."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-19T17:29:50Z",
+      "data": {
+        "id": "B104-EMPTY-EVIDENCE",
+        "evidence": "Authorized completed remediation2 provides red-before/green-after proof: empty new-contract bundle remains schema2 and returns BLOCKED with explicit reasons for zero/all-invalid/all-stale, legacy exact-empty schema1 preserved, nonempty mismatch still rejects; graph/JSON restore/no side-effect tests pass. Focused301pass; new content823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3. Resolves demonstrated blocker only, not acceptance/delivery; fresh certification and independent final review still required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T17:29:52Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue104_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T17:36:36Z",
+      "data": {
+        "session": "/root/issue104_owner",
+        "outcome": "pass",
+        "evidence": "Verification3 PASS same actual owner /root/issue104_owner_sol61 gpt6.1-sol/medium under explicit exception, logical native owner unchanged. Final full pytest run once1722pass40skip354.52s exit0 persisted ignored verification3-pytest*.txt. Ruff lint/format192files, mypy59modules, build, static/ticket validators/diff all PASS. evaluate-analysis37/37 evaluate-us-eu10/10 PASS; approved design hash/original dataset bytes unchanged. Content 823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3 identical before/after, no tracked writes. Empty-result red-before/green-after and301focused proof retained.40 opt-in real-store skips, no live publication/saved-review mutation/live EU completeness claim."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-19T17:36:36Z",
+      "data": {
+        "ids": [
+          "AC104-1",
+          "AC104-2",
+          "AC104-3",
+          "AC104-4",
+          "AC104-5"
+        ],
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3",
+        "evidence": "Fresh AC104-1..5 acceptance after user-approved finite empty-result continuation. All original consequential design/exchange/identity/group/exact USD-EUR/FX/JSON/restoration/revision/explanation/UI/CLI/evaluation proof retained. B104-EMPTY-EVIDENCE resolved on6 red-before/green-after paths,8 new checks including legacy exact-empty schema1 and strict nonempty/downgrade rejection, new zero/all-invalid/all-stale schema2 blocked bundles and graph/JSON restore/no unintended calls. Prior Streamlit helper-order repair and real script-entry tests retained; transient10s timeout isolated and serial focused reruns passed unchanged. Full1722pass40skip, focused301pass, all required lint/type/format/build/eval/workflow gates PASS identical content. Original failed reviews remain failed, final independent review under explicit +1 allowance still required. No scope/design changes; both actual write authors excluded from review; live EU completeness unproven."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-19T17:36:38Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue104_final_review2",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-104-us-eu-currency",
+          "generation": 2,
+          "digest": "e93ab282dac4f49b5e7f8c2d9f1dec224cd1bef85c9ff427ffa1103e9db77c6c"
+        },
+        "content": "823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-19T17:39:06Z",
+      "data": {
+        "session": "/root/issue104_final_review2",
+        "outcome": "pass",
+        "evidence": "Independent final code_reviewer gpt6-sol/high PASS exact content823518baaff439085c279a5d8efc694a1bdc500543cad266d85e629f565d84b3. No new frozen INV104-4/5 AC104-2/5 failure. Empty explicit us-eu-v1 schema2 fallback correct; blocked graph routing retains evidence artifact;8focused tests PASS zero/invalid/stale, JSON restore, legacy exact empty, nonempty schema rejection/no unintended FX-explanation calls. Prior Streamlit entry repair confirmed. Fresh verification/acceptance bind same content. No edits. Live EU completeness/real-store skips remain stated limits, not frozen offline scope failures. User-authorized additional final-review allowance consumed; both prior FAIL records retained."
+      }
+    }
+  ]
+}

@@ -440,6 +440,7 @@ class RevisionRuntime:
             profile = InvestorProfile.model_validate(state["profile"])
             if (
                 bundle.status != EvidenceStatus.READY
+                or bundle.advisory_contract != profile.advisory_contract
                 or bundle.objective != profile.objective
                 or bundle.risk_tolerance != profile.risk_tolerance
                 or bundle.excluded_sectors != profile.excluded_sectors

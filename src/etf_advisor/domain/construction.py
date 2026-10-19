@@ -12,19 +12,29 @@ from itertools import combinations
 from typing import Any, Final, Literal
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from etf_advisor.domain.policy import PolicyCalculation, calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
 from etf_advisor.domain.screening import (
     CandidateScreeningBundle,
     CandidateScreeningResult,
+    ScreeningCitation,
     ScreeningContractError,
     ScreeningFieldFreshnessError,
     ScreeningVerdict,
     screen_candidate_evidence,
 )
-from etf_advisor.encoding import StrictWireModel
+from etf_advisor.domain.us_eu import FxReferenceObservation, contract_fields, convert_minor
+from etf_advisor.encoding import AdvisoryWireModel, StrictWireModel
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 from etf_advisor.research.models import ResearchField
 
@@ -64,6 +74,13 @@ class ConstructionReason(StrEnum):
     CASH_RECONCILIATION_FAILED = "cash_reconciliation_failed"
     PERSISTED_CONSTRUCTION_MISMATCH = "persisted_construction_mismatch"
     CANDIDATE_POOL_LIMIT_EXCEEDED = "candidate_pool_limit_exceeded"
+    ADVISORY_CONTRACT_MISMATCH = "advisory_contract_mismatch"
+    ECONOMIC_IDENTITY_UNKNOWN = "economic_identity_unknown"
+    ECONOMIC_IDENTITY_CONFLICT = "economic_identity_conflict"
+    DUPLICATE_ECONOMIC_EXPOSURE = "duplicate_economic_exposure"
+    FX_MISSING = "fx_missing"
+    FX_STALE = "fx_stale"
+    FX_FUTURE = "fx_future"
 
 
 class ConstructionCheckName(StrEnum):
@@ -163,6 +180,14 @@ class ExcludedCandidate(BaseModel):
     reason_code: ConstructionReason
     screening_verdict: ScreeningVerdict
     screening_reason_codes: list[str]
+    selected_representative_id: str | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_exclusion(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.selected_representative_id is None:
+            result.pop("selected_representative_id", None)
+        return result
 
     @field_validator("symbol")
     @classmethod
@@ -170,8 +195,24 @@ class ExcludedCandidate(BaseModel):
         return value.strip().upper()
 
 
-class PortfolioPosition(BaseModel):
+class PortfolioPosition(AdvisoryWireModel):
     """One fully attributable position in an illustrative model portfolio."""
+
+    legacy_extension_fields = frozenset(
+        [
+            "listing_exchange",
+            "share_class_id",
+            "economic_group_id",
+            "base_currency",
+            "trading_currency",
+            "initial_base_minor",
+            "recurring_base_minor",
+            "initial_trading_minor",
+            "recurring_trading_minor",
+            "fx_reference_id",
+        ]
+    )
+    new_forbidden_fields = frozenset(["initial_usd_cents", "recurring_usd_cents"])
 
     model_config = ConfigDict(extra="forbid")
 
@@ -184,14 +225,94 @@ class PortfolioPosition(BaseModel):
     sleeve: PortfolioSleeve
     source_category: str = Field(min_length=1, max_length=200)
     weight_bps: int = Field(ge=0, le=TOTAL_WEIGHT_BPS)
-    initial_usd_cents: int = Field(ge=0)
-    recurring_usd_cents: int = Field(ge=0)
+    advisory_contract: Literal["us-eu-v1"] | None = None
+    initial_usd_cents: int | None = Field(default=None, ge=0)
+    recurring_usd_cents: int | None = Field(default=None, ge=0)
+    listing_exchange: str | None = None
+    share_class_id: str | None = None
+    economic_group_id: str | None = None
+    base_currency: Literal["USD", "EUR"] | None = None
+    trading_currency: Literal["USD", "EUR"] | None = None
+    initial_base_minor: int | None = Field(default=None, ge=0)
+    recurring_base_minor: int | None = Field(default=None, ge=0)
+    initial_trading_minor: int | None = Field(default=None, ge=0)
+    recurring_trading_minor: int | None = Field(default=None, ge=0)
+    fx_reference_id: str | None = None
     reason_code: Literal["supports_growth_target", "supports_defensive_target"]
     policy_reference: Literal[
         "policy.target_allocation.growth_assets_pct",
         "policy.target_allocation.defensive_assets_pct",
     ]
     screening_reason_codes: list[str]
+
+    @model_validator(mode="after")
+    def validate_money_contract(self) -> PortfolioPosition:
+        if self.advisory_contract == "us-eu-v1":
+            if (
+                self.initial_usd_cents is not None
+                or self.recurring_usd_cents is not None
+                or any(
+                    getattr(self, name) is None
+                    for name in (
+                        "listing_exchange",
+                        "share_class_id",
+                        "economic_group_id",
+                        "base_currency",
+                        "trading_currency",
+                        "initial_base_minor",
+                        "recurring_base_minor",
+                        "initial_trading_minor",
+                        "recurring_trading_minor",
+                    )
+                )
+            ):
+                raise ValueError(
+                    "New position requires listing, identity and exact currency amounts."
+                )
+        elif (
+            self.initial_usd_cents is None
+            or self.recurring_usd_cents is None
+            or any(
+                getattr(self, name) is not None
+                for name in (
+                    "listing_exchange",
+                    "share_class_id",
+                    "economic_group_id",
+                    "base_currency",
+                    "trading_currency",
+                    "initial_base_minor",
+                    "recurring_base_minor",
+                    "initial_trading_minor",
+                    "recurring_trading_minor",
+                    "fx_reference_id",
+                )
+            )
+        ):
+            raise ValueError("Legacy position rejects new-contract fields.")
+        return self
+
+    @model_serializer(mode="wrap")
+    def serialize_position(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract == "us-eu-v1":
+            result.pop("initial_usd_cents", None)
+            result.pop("recurring_usd_cents", None)
+        else:
+            for name in (
+                "advisory_contract",
+                "listing_exchange",
+                "share_class_id",
+                "economic_group_id",
+                "base_currency",
+                "trading_currency",
+                "initial_base_minor",
+                "recurring_base_minor",
+                "initial_trading_minor",
+                "recurring_trading_minor",
+                "fx_reference_id",
+            ):
+                result.pop(name, None)
+        return result
 
     @field_validator("symbol")
     @classmethod
@@ -215,16 +336,64 @@ class PortfolioPosition(BaseModel):
         return value.astimezone(UTC)
 
 
-class PortfolioDraft(BaseModel):
+class PortfolioDraft(AdvisoryWireModel):
     """Exact integer allocation produced by the deterministic constructor."""
+
+    legacy_extension_fields = frozenset(
+        ["base_currency", "initial_total_minor", "recurring_total_minor"]
+    )
+    new_forbidden_fields = frozenset(["initial_total_cents", "recurring_total_cents"])
 
     model_config = ConfigDict(extra="forbid")
 
     positions: list[PortfolioPosition]
     total_weight_bps: int = Field(ge=0, le=TOTAL_WEIGHT_BPS)
     sleeve_weight_bps: dict[PortfolioSleeve, int]
-    initial_total_cents: int = Field(ge=0)
-    recurring_total_cents: int = Field(ge=0)
+    advisory_contract: Literal["us-eu-v1"] | None = None
+    base_currency: Literal["USD", "EUR"] | None = None
+    initial_total_cents: int | None = Field(default=None, ge=0)
+    recurring_total_cents: int | None = Field(default=None, ge=0)
+    initial_total_minor: int | None = Field(default=None, ge=0)
+    recurring_total_minor: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def validate_contract(self) -> PortfolioDraft:
+        if self.advisory_contract == "us-eu-v1":
+            if (
+                self.base_currency is None
+                or self.initial_total_minor is None
+                or self.recurring_total_minor is None
+                or self.initial_total_cents is not None
+                or self.recurring_total_cents is not None
+                or any(position.advisory_contract != "us-eu-v1" for position in self.positions)
+            ):
+                raise ValueError("New draft requires base currency and minor-unit totals.")
+        elif (
+            self.base_currency is not None
+            or self.initial_total_minor is not None
+            or self.recurring_total_minor is not None
+            or self.initial_total_cents is None
+            or self.recurring_total_cents is None
+            or any(position.advisory_contract is not None for position in self.positions)
+        ):
+            raise ValueError("Legacy draft rejects new-contract money.")
+        return self
+
+    @model_serializer(mode="wrap")
+    def serialize_draft(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract == "us-eu-v1":
+            result.pop("initial_total_cents", None)
+            result.pop("recurring_total_cents", None)
+        else:
+            for name in (
+                "advisory_contract",
+                "base_currency",
+                "initial_total_minor",
+                "recurring_total_minor",
+            ):
+                result.pop(name, None)
+        return result
 
 
 class ConstructionValidationCheck(BaseModel):
@@ -261,7 +430,7 @@ class PortfolioValidationResult(BaseModel):
         return self
 
 
-class PortfolioConstructionBundle(BaseModel):
+class PortfolioConstructionBundle(AdvisoryWireModel):
     """One JSON-safe construction result checkpointed by the workflow."""
 
     model_config = ConfigDict(extra="forbid")
@@ -272,6 +441,14 @@ class PortfolioConstructionBundle(BaseModel):
     validation: PortfolioValidationResult
     excluded_candidates: list[ExcludedCandidate]
     errors: list[ConstructionError]
+    advisory_contract: Literal["us-eu-v1"] | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_bundle(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.advisory_contract is None:
+            result.pop("advisory_contract", None)
+        return result
 
     @model_validator(mode="after")
     def validate_status(self) -> PortfolioConstructionBundle:
@@ -303,6 +480,8 @@ class _EligibleCandidate:
     sleeve: PortfolioSleeve
     category: str
     category_provenance: ResearchField[Any]
+    share_class_id: str | None = None
+    economic_group_id: str | None = None
 
 
 class _CategoryConflict(ValueError):
@@ -315,10 +494,13 @@ def construct_model_portfolio(
     """Construct the same draft or blocker for the same validated inputs."""
 
     inputs = PortfolioConstructionInput.model_validate(construction_input.model_dump(mode="python"))
+    new_contract = inputs.profile.advisory_contract == "us-eu-v1"
     policy = inputs.construction_policy
     upstream_error = _validate_upstream(inputs)
     if upstream_error is not None:
-        return _blocked_bundle(policy, upstream_error)
+        return _blocked_bundle(
+            policy, upstream_error, advisory_contract=inputs.profile.advisory_contract
+        )
 
     target_or_error = _target_basis_points(inputs.policy_calculation, policy)
     if isinstance(target_or_error, ConstructionReason):
@@ -326,6 +508,7 @@ def construct_model_portfolio(
             policy,
             target_or_error,
             passed_checks={ConstructionCheckName.UPSTREAM_CONSISTENCY},
+            advisory_contract=inputs.profile.advisory_contract,
         )
     targets = target_or_error
 
@@ -335,27 +518,42 @@ def construct_model_portfolio(
         ConstructionCheckName.ALLOCATION_BAND_CONSISTENCY,
     }
     if category_error is not None:
-        return _blocked_bundle(policy, category_error, excluded, passed_checks=passed)
+        return _blocked_bundle(
+            policy,
+            category_error,
+            excluded,
+            passed_checks=passed,
+            advisory_contract=inputs.profile.advisory_contract,
+        )
     if len(eligible) < policy.min_positions:
         return _blocked_bundle(
             policy,
             ConstructionReason.INSUFFICIENT_ELIGIBLE_CANDIDATES,
             excluded,
             passed_checks=passed,
+            advisory_contract=inputs.profile.advisory_contract,
         )
     passed.add(ConstructionCheckName.ELIGIBILITY)
 
     selected, failure = _select_subset(eligible, targets, policy)
     if selected is None:
-        return _blocked_bundle(policy, failure, excluded, passed_checks=passed)
+        return _blocked_bundle(
+            policy,
+            failure,
+            excluded,
+            passed_checks=passed,
+            advisory_contract=inputs.profile.advisory_contract,
+        )
 
     positions_without_cash, weights = selected
     try:
         initial_by_sleeve, initial_total = _policy_cash_cents(
-            inputs.policy_calculation, "initial_investment_usd"
+            inputs.policy_calculation,
+            "initial_investment" if new_contract else "initial_investment_usd",
         )
         recurring_by_sleeve, recurring_total = _policy_cash_cents(
-            inputs.policy_calculation, "recurring_monthly_usd"
+            inputs.policy_calculation,
+            "recurring_monthly" if new_contract else "recurring_monthly_usd",
         )
         initial_cents = _allocate_all_cash(positions_without_cash, weights, initial_by_sleeve)
         recurring_cents = _allocate_all_cash(positions_without_cash, weights, recurring_by_sleeve)
@@ -365,21 +563,73 @@ def construct_model_portfolio(
             ConstructionReason.CASH_RECONCILIATION_FAILED,
             excluded,
             passed_checks=passed,
+            advisory_contract=inputs.profile.advisory_contract,
         )
 
+    selected_needs_fx = new_contract and any(
+        item.candidate.trading_currency != inputs.profile.base_currency
+        for item in positions_without_cash
+    )
+    fx = inputs.candidate_evidence.fx_reference if selected_needs_fx else None
+    if selected_needs_fx:
+        fx_status = (
+            "fx_missing" if fx is None else fx.validate_at(inputs.candidate_evidence.checked_at)
+        )
+        if fx_status is not None:
+            return _blocked_bundle(
+                policy,
+                ConstructionReason(fx_status),
+                excluded,
+                passed_checks=passed,
+                advisory_contract="us-eu-v1",
+            )
     positions = [
-        _position_from_candidate(item, weights[index], initial_cents[index], recurring_cents[index])
+        _position_from_candidate(
+            item,
+            weights[index],
+            initial_cents[index],
+            recurring_cents[index],
+            base_currency=inputs.profile.base_currency if new_contract else None,
+            fx=fx,
+        )
         for index, item in enumerate(positions_without_cash)
     ]
+    if new_contract:
+        selected_by_group = {
+            item.economic_group_id: item.candidate.document_id for item in positions_without_cash
+        }
+        selected_ids = {item.candidate.document_id for item in positions_without_cash}
+        for item in eligible:
+            if (
+                item.candidate.document_id not in selected_ids
+                and item.economic_group_id in selected_by_group
+            ):
+                excluded.append(
+                    _excluded(
+                        item.candidate,
+                        item.screening,
+                        ConstructionReason.DUPLICATE_ECONOMIC_EXPOSURE,
+                        [],
+                        selected_representative_id=selected_by_group[item.economic_group_id],
+                    )
+                )
     draft = PortfolioDraft(
+        **(
+            {
+                "advisory_contract": "us-eu-v1",
+                "base_currency": inputs.profile.base_currency,
+                "initial_total_minor": initial_total,
+                "recurring_total_minor": recurring_total,
+            }
+            if new_contract
+            else {"initial_total_cents": initial_total, "recurring_total_cents": recurring_total}
+        ),
         positions=positions,
         total_weight_bps=sum(weights),
         sleeve_weight_bps={
             sleeve: sum(position.weight_bps for position in positions if position.sleeve == sleeve)
             for sleeve in PortfolioSleeve
         },
-        initial_total_cents=initial_total,
-        recurring_total_cents=recurring_total,
     )
     validation = validate_portfolio_draft(inputs, draft)
     if not validation.valid:
@@ -389,8 +639,10 @@ def construct_model_portfolio(
             failed.reason_code or ConstructionReason.WEIGHT_RECONCILIATION_FAILED,
             excluded,
             validation=validation,
+            advisory_contract=inputs.profile.advisory_contract,
         )
     return PortfolioConstructionBundle(
+        **contract_fields("us-eu-v1" if new_contract else None),
         status="ready",
         policy=policy,
         draft=draft,
@@ -431,6 +683,9 @@ def validate_portfolio_draft(
     identities_unique = len(
         {position.document_id for position in validated_draft.positions}
     ) == len(validated_draft.positions)
+    if inputs.profile.advisory_contract == "us-eu-v1":
+        groups = [position.economic_group_id for position in validated_draft.positions]
+        identities_unique = identities_unique and len(groups) == len(set(groups))
     eligibility_ok = upstream_ok and category_error is None and identities_unique
     attribution_ok = eligibility_ok
     for position in validated_draft.positions:
@@ -439,11 +694,37 @@ def validate_portfolio_draft(
             eligibility_ok = False
             attribution_ok = False
             continue
+        if inputs.profile.advisory_contract != validated_draft.advisory_contract:
+            eligibility_ok = attribution_ok = False
+            continue
+        if (
+            inputs.profile.advisory_contract == "us-eu-v1"
+            and position.trading_currency != inputs.profile.base_currency
+            and (
+                inputs.candidate_evidence.fx_reference is None
+                or inputs.candidate_evidence.fx_reference.validate_at(
+                    inputs.candidate_evidence.checked_at
+                )
+                is not None
+            )
+        ):
+            eligibility_ok = attribution_ok = False
+            continue
         expected = _position_from_candidate(
             item,
             position.weight_bps,
-            position.initial_usd_cents,
-            position.recurring_usd_cents,
+            position.initial_base_minor
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else position.initial_usd_cents,
+            position.recurring_base_minor
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else position.recurring_usd_cents,
+            base_currency=inputs.profile.base_currency
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else None,
+            fx=inputs.candidate_evidence.fx_reference
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else None,
         )
         if (
             position.model_copy(
@@ -451,6 +732,8 @@ def validate_portfolio_draft(
                     "weight_bps": expected.weight_bps,
                     "initial_usd_cents": expected.initial_usd_cents,
                     "recurring_usd_cents": expected.recurring_usd_cents,
+                    "initial_base_minor": expected.initial_base_minor,
+                    "recurring_base_minor": expected.recurring_base_minor,
                 }
             )
             != expected
@@ -530,10 +813,21 @@ def validate_persisted_construction(
         ConstructionReason.PERSISTED_CONSTRUCTION_MISMATCH,
         expected.excluded_candidates,
         validation=validation,
+        advisory_contract=expected.advisory_contract,
     )
 
 
 def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason | None:
+    marker = inputs.profile.advisory_contract
+    if any(
+        actual != marker
+        for actual in (
+            inputs.policy_calculation.advisory_contract,
+            inputs.candidate_evidence.advisory_contract,
+            inputs.candidate_screening.advisory_contract,
+        )
+    ):
+        return ConstructionReason.ADVISORY_CONTRACT_MISMATCH
     if inputs.candidate_evidence.status != EvidenceStatus.READY:
         return ConstructionReason.EVIDENCE_NOT_READY
     if (
@@ -608,6 +902,16 @@ def _classify_candidates(
     inputs: PortfolioConstructionInput,
     policy: PortfolioConstructionPolicy,
 ) -> tuple[list[_EligibleCandidate], list[ExcludedCandidate], ConstructionReason | None]:
+    try:
+        return _classify_candidates_impl(inputs, policy)
+    except ScreeningFieldFreshnessError:
+        return [], [], ConstructionReason.EVIDENCE_NOT_READY
+
+
+def _classify_candidates_impl(
+    inputs: PortfolioConstructionInput,
+    policy: PortfolioConstructionPolicy,
+) -> tuple[list[_EligibleCandidate], list[ExcludedCandidate], ConstructionReason | None]:
     eligible: list[_EligibleCandidate] = []
     excluded: list[ExcludedCandidate] = []
     category_map = {
@@ -618,6 +922,16 @@ def _classify_candidates(
     screening_by_id = {
         result.document_id: result for result in inputs.candidate_screening.candidates
     }
+    seen_isins: dict[str, str] = {}
+    if inputs.profile.advisory_contract == "us-eu-v1":
+        for candidate in inputs.candidate_evidence.candidates:
+            identity = _economic_identity(candidate, inputs.candidate_evidence)
+            if identity is None:
+                continue
+            isin, group = identity
+            if isin in seen_isins and seen_isins[isin] != group:
+                return [], [], ConstructionReason.ECONOMIC_IDENTITY_CONFLICT
+            seen_isins[isin] = group
     for index, candidate in enumerate(inputs.candidate_evidence.candidates):
         screening = screening_by_id[candidate.document_id]
         nonpassing_reasons = [
@@ -650,6 +964,16 @@ def _classify_candidates(
             )
             continue
         sleeve, canonical_category = mapped
+        identity = (
+            _economic_identity(candidate, inputs.candidate_evidence)
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else None
+        )
+        if inputs.profile.advisory_contract == "us-eu-v1" and identity is None:
+            excluded.append(
+                _excluded(candidate, screening, ConstructionReason.ECONOMIC_IDENTITY_UNKNOWN, [])
+            )
+            continue
         eligible.append(
             _EligibleCandidate(
                 index=index,
@@ -658,6 +982,8 @@ def _classify_candidates(
                 sleeve=sleeve,
                 category=canonical_category,
                 category_provenance=provenance,
+                share_class_id=identity[0] if identity else None,
+                economic_group_id=identity[1] if identity else None,
             )
         )
     return eligible, excluded, None
@@ -721,6 +1047,37 @@ def _category_is_current(
     return observed_at <= checked_at + future_tolerance and checked_at - observed_at <= max_age
 
 
+def _economic_identity(
+    candidate: CandidateEvidence, evidence: CandidateEvidenceBundle
+) -> tuple[str, str] | None:
+    raw = candidate.metadata.get("field_provenance_json")
+    if not isinstance(raw, str):
+        return None
+    payload = json.loads(raw)
+    fields = []
+    incomplete = False
+    for name in ("share_class_id", "economic_group_id"):
+        fact = ResearchField[str].model_validate(payload[name])
+        if fact.value is None:
+            incomplete = True
+            continue
+        if not _category_is_current(fact, evidence):
+            raise ScreeningFieldFreshnessError(
+                code="field_stale" if fact.observed_at < evidence.checked_at else "field_future",
+                citation=ScreeningCitation(
+                    document_id=candidate.document_id,
+                    symbol=candidate.symbol,
+                    field_name=name,
+                    source=fact.provider,
+                    source_url=fact.source_url,
+                    observed_at=fact.observed_at,
+                ),
+                checked_at=evidence.checked_at,
+            )
+        fields.append(fact.value)
+    return None if incomplete else (fields[0], fields[1])
+
+
 def _select_subset(
     eligible: list[_EligibleCandidate],
     targets: dict[PortfolioSleeve, int],
@@ -735,6 +1092,11 @@ def _select_subset(
     for size in range(maximum, policy.min_positions - 1, -1):
         for indexes in combinations(range(len(eligible)), size):
             subset = [eligible[index] for index in indexes]
+            groups = [
+                item.economic_group_id for item in subset if item.economic_group_id is not None
+            ]
+            if len(groups) != len(set(groups)):
+                continue
             if not required_sleeves <= {item.sleeve for item in subset}:
                 continue
             saw_covered = True
@@ -776,14 +1138,21 @@ def _equal_sleeve_weights(
 
 def _policy_cash_cents(
     calculation: PolicyCalculation,
-    field_name: Literal["initial_investment_usd", "recurring_monthly_usd"],
+    field_name: str,
 ) -> tuple[dict[PortfolioSleeve, int], int]:
     cash = getattr(calculation, field_name)
-    total = _exact_cents(cash.total_usd)
-    by_sleeve = {
-        PortfolioSleeve.GROWTH: _exact_cents(cash.growth_assets_usd),
-        PortfolioSleeve.DEFENSIVE: _exact_cents(cash.defensive_assets_usd),
-    }
+    if calculation.advisory_contract == "us-eu-v1":
+        total = cash.total_minor
+        by_sleeve = {
+            PortfolioSleeve.GROWTH: cash.growth_minor,
+            PortfolioSleeve.DEFENSIVE: cash.defensive_minor,
+        }
+    else:
+        total = _exact_cents(cash.total_usd)
+        by_sleeve = {
+            PortfolioSleeve.GROWTH: _exact_cents(cash.growth_assets_usd),
+            PortfolioSleeve.DEFENSIVE: _exact_cents(cash.defensive_assets_usd),
+        }
     if sum(by_sleeve.values()) != total:
         raise ValueError("Policy cash sleeves do not reconcile.")
     return by_sleeve, total
@@ -831,11 +1200,49 @@ def _allocate_all_cash(
 def _position_from_candidate(
     item: _EligibleCandidate,
     weight_bps: int,
-    initial_cents: int,
-    recurring_cents: int,
+    initial_cents: int | None,
+    recurring_cents: int | None,
+    *,
+    base_currency: str | None = None,
+    fx: FxReferenceObservation | None = None,
 ) -> PortfolioPosition:
     provenance = item.category_provenance
+    new_fields: dict[str, Any] = {}
+    assert initial_cents is not None and recurring_cents is not None
+    if base_currency is not None:
+        trading = item.candidate.trading_currency
+        assert (
+            trading in {"USD", "EUR"}
+            and item.share_class_id is not None
+            and item.economic_group_id is not None
+        )
+        cross = trading != base_currency
+        assert not cross or (fx is not None and fx.rate_decimal is not None)
+        new_fields = {
+            "advisory_contract": "us-eu-v1",
+            "listing_exchange": item.candidate.listing_exchange,
+            "share_class_id": item.share_class_id,
+            "economic_group_id": item.economic_group_id,
+            "base_currency": base_currency,
+            "trading_currency": trading,
+            "initial_base_minor": initial_cents,
+            "recurring_base_minor": recurring_cents,
+            "initial_trading_minor": convert_minor(
+                initial_cents, base_currency, trading, fx.rate_decimal
+            )
+            if cross and fx is not None and fx.rate_decimal is not None
+            else initial_cents,
+            "recurring_trading_minor": convert_minor(
+                recurring_cents, base_currency, trading, fx.rate_decimal
+            )
+            if cross and fx is not None and fx.rate_decimal is not None
+            else recurring_cents,
+            "fx_reference_id": fx.identity() if cross and fx is not None else None,
+        }
+    else:
+        new_fields = {"initial_usd_cents": initial_cents, "recurring_usd_cents": recurring_cents}
     return PortfolioPosition(
+        **new_fields,
         document_id=item.candidate.document_id,
         symbol=item.candidate.symbol,
         name=item.candidate.name,
@@ -845,8 +1252,6 @@ def _position_from_candidate(
         sleeve=item.sleeve,
         source_category=item.category,
         weight_bps=weight_bps,
-        initial_usd_cents=initial_cents,
-        recurring_usd_cents=recurring_cents,
         reason_code=(
             "supports_growth_target"
             if item.sleeve == PortfolioSleeve.GROWTH
@@ -868,8 +1273,10 @@ def _validate_cash_allocations(
     recurring: bool,
 ) -> bool:
     try:
-        field_name: Literal["initial_investment_usd", "recurring_monthly_usd"] = (
-            "recurring_monthly_usd" if recurring else "initial_investment_usd"
+        field_name = (
+            ("recurring_monthly" if recurring else "initial_investment")
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else ("recurring_monthly_usd" if recurring else "initial_investment_usd")
         )
         expected_by_sleeve, expected_total = _policy_cash_cents(
             inputs.policy_calculation, field_name
@@ -888,11 +1295,22 @@ def _validate_cash_allocations(
             weights.append(position.weight_bps)
         expected = _allocate_all_cash(subset, weights, expected_by_sleeve)
         actual = [
-            position.recurring_usd_cents if recurring else position.initial_usd_cents
+            (position.recurring_base_minor if recurring else position.initial_base_minor)
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else (position.recurring_usd_cents if recurring else position.initial_usd_cents)
             for position in draft.positions
         ]
-        reported_total = draft.recurring_total_cents if recurring else draft.initial_total_cents
-        return actual == expected and sum(actual) == expected_total == reported_total
+        reported_total = (
+            (draft.recurring_total_minor if recurring else draft.initial_total_minor)
+            if inputs.profile.advisory_contract == "us-eu-v1"
+            else (draft.recurring_total_cents if recurring else draft.initial_total_cents)
+        )
+        return (
+            actual == expected
+            and sum(value for value in actual if value is not None)
+            == expected_total
+            == reported_total
+        )
     except (KeyError, TypeError, ValueError):
         return False
 
@@ -902,6 +1320,8 @@ def _excluded(
     screening: CandidateScreeningResult,
     reason: ConstructionReason,
     screening_reasons: list[str],
+    *,
+    selected_representative_id: str | None = None,
 ) -> ExcludedCandidate:
     return ExcludedCandidate(
         document_id=candidate.document_id,
@@ -910,6 +1330,7 @@ def _excluded(
         reason_code=reason,
         screening_verdict=screening.verdict,
         screening_reason_codes=screening_reasons,
+        selected_representative_id=selected_representative_id,
     )
 
 
@@ -963,11 +1384,13 @@ def _blocked_bundle(
     *,
     passed_checks: set[ConstructionCheckName] | None = None,
     validation: PortfolioValidationResult | None = None,
+    advisory_contract: Literal["us-eu-v1"] | None = None,
 ) -> PortfolioConstructionBundle:
     if validation is None:
         passed = passed_checks or set()
         validation = _validation_result({name: name in passed for name in ConstructionCheckName})
     return PortfolioConstructionBundle(
+        **({"advisory_contract": advisory_contract} if advisory_contract else {}),
         status="blocked",
         policy=policy,
         draft=None,
@@ -979,6 +1402,13 @@ def _blocked_bundle(
 
 def _error_message(reason: ConstructionReason) -> str:
     messages = {
+        ConstructionReason.ADVISORY_CONTRACT_MISMATCH: "Advisory contracts do not match.",
+        ConstructionReason.ECONOMIC_IDENTITY_UNKNOWN: "Attributed economic identity is missing.",
+        ConstructionReason.ECONOMIC_IDENTITY_CONFLICT: "Share-class and fund group conflict.",
+        ConstructionReason.DUPLICATE_ECONOMIC_EXPOSURE: "Another listing represents this fund.",
+        ConstructionReason.FX_MISSING: "Selected conversion requires an ECB reference rate.",
+        ConstructionReason.FX_STALE: "The required ECB effective date is stale.",
+        ConstructionReason.FX_FUTURE: "The required ECB reference is future-dated.",
         ConstructionReason.CATEGORY_PROVENANCE_CONFLICT: (
             "Candidate category provenance conflicts with flattened source evidence."
         ),
