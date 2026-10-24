@@ -549,6 +549,26 @@ def test_app_prepares_40_and_creates_review_with_outside_six_member(
     assert len(collector.calls) == 40
     from etf_advisor.graph.revision import validate_revision_state
 
+    comparison_before = json.dumps(
+        {k: v for k, v in state.items() if k != "__interrupt__"}, sort_keys=True
+    )
+    outside = next(
+        candidate
+        for candidate in state["candidate_evidence"]["candidates"]
+        if candidate["symbol"] not in {"SPY", "VTI", "QQQ", "BND", "VEA", "VWO"}
+    )
+    next(
+        item for item in app.multiselect if item.label == "Choose candidates to compare"
+    ).set_value([outside["document_id"]])
+    app.run(timeout=60)
+    assert not app.exception
+    assert any(outside["symbol"] in str(item.value) for item in app.dataframe)
+    assert (
+        json.dumps({k: v for k, v in state.items() if k != "__interrupt__"}, sort_keys=True)
+        == comparison_before
+    )
+    assert len(collector.calls) == 40
+
     restored = json.loads(json.dumps({k: v for k, v in state.items() if k != "__interrupt__"}))
     validate_revision_state(restored, app.session_state["dashboard_run"].thread_id)
     assert restored["status"] == "awaiting_human_review"
