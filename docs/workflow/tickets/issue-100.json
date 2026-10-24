@@ -174,6 +174,21 @@
         ],
         "evidence": "AC100-1 eight exact fields, fixture cases and selection flow frozen in 029 iteration before product edits; per-field values/units/provider/URL/observation and explicit gaps displayed. AC100-2 focused schema1/2 exact proof, true zero/missing, stale/future/conflict, arbitrary exchange-qualified members and official BND existing monthly-boundary tests pass. AC100-3 actual Streamlit chosen comparison AppTest and 40-member outside-six saved offline review with zero provider/store calls and unchanged exact state/decisions/totals pass. AC100-4 final focused and locked minimal full suites, Ruff/format/mypy/build/workflow/Compose/diff gates pass; documented synthetic/live limits and self-review. Current-content verification PASS, no independent review trigger or blocker."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-24T17:29:09Z",
+      "data": {
+        "evidence": "PR118 opened after passing final focused/full minimal gates, self-review and content-bound verification/acceptance. Ordinary presentation scope; no independent-review trigger. Final CI/comments checked after publication; no merge authorized.",
+        "pr": 118,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        },
+        "content": "c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86"
+      }
     }
   ]
 }
