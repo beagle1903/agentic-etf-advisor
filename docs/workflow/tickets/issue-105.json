@@ -1,0 +1,656 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-23T08:02:31Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 105,
+        "classification": "consequential",
+        "scope": [
+          "S105-1"
+        ],
+        "invariants": [
+          "INV105-1",
+          "INV105-2",
+          "INV105-3",
+          "INV105-4",
+          "INV105-5"
+        ],
+        "acceptance": [
+          "AC105-1",
+          "AC105-2",
+          "AC105-3",
+          "AC105-4",
+          "AC105-5",
+          "AC105-6"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Human approved starting Issue105 in chat 01a1556c-af89-7582-8ac7-a3d4e1ff6ebb on 2026-10-23; dependencies103/104 closed, PR114 merged; clean main749feeb synchronized with origin. New prospective owner-led ticket; no transferred grants."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 105,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue105_owner"
+          },
+          "rationale": "Broad catalogue ingestion, publication, financial candidate selection and persisted replay change consequential contracts; separate architect, independent challenge, coordinator approval and independent code review required.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "2026-10-23 in chat 01a1556c-af89-7582-8ac7-a3d4e1ff6ebb: approved, in direct response to queued Issue105 start boundary."
+          },
+          "scope": {
+            "S105-1": "Integrate the Yahoo US/EU catalogue into bounded cached research ingestion, validated snapshot publication and explicit dashboard candidate selection, with justified bounded shortlisting across requested scope and reproducible restoration."
+          },
+          "non_goals": [
+            "No global optimizer, wholesale exhaustive enumeration, constructor cap increase or first-ten shortcut.",
+            "No unrelated sources, inferred categories, authentication, hosting, trades, external financial writes or live saved-review mutation.",
+            "No Issue115 ECB optimization or changes to Issue104 financial/replay staging; no historical allowance/certificate transfers."
+          ],
+          "invariants": {
+            "INV105-1": "Catalogue discovery, researched coverage, usable evidence and per-request shortlisted membership remain distinct; source identity, timestamps, coverage limitations and omissions remain explicit and attributable.",
+            "INV105-2": "Provider calls, work and memory are bounded/configurable under approved design; cache/failure/resume/publication preserve original evidence and prior validated active data, with consistent cross-store identity and no silent membership truncation.",
+            "INV105-3": "Deterministic shortlisting considers the requested catalogue scope through an approved bounded path, reports reasons and omissions, respects constructor exhaustive-search cap and leaves explanation independent of membership.",
+            "INV105-4": "Preserve Issue104 us-eu-v1 listing/economic identity, category, FX, exact cash/weights, JSON/replay/explanation, missingness and freshness contracts plus exact legacy paths; absent evidence cannot become qualification.",
+            "INV105-5": "Persisted selection and restoration are source-bound, JSON-safe, reproducible and fail closed on tampering/inconsistent stores; side effects remain behind replaceable interfaces and existing receipt boundaries."
+          },
+          "interfaces": [
+            "Catalogue cache/search and bounded research collector/cache/publication interfaces; candidate retrieval/selection and dashboard controls/rendering. Architect freezes precise signatures and compatibility before implementation.",
+            "Existing construction/screening/revision/explanation boundaries preserve financial meaning; no external financial-write interface."
+          ],
+          "json_state_impact": "Architect must freeze nested typed catalogue scope/selection/coverage metadata, research artifact identities and persistence/replay compatibility before writes. Preserve JSON serialization, existing side-effect receipts and exact absent-marker legacy behavior; no inferred saved-checkpoint migration.",
+          "acceptance": {
+            "AC105-1": "Separate read-only architect handoff, independent challenge and coordinator approval freeze batching, caching, failure/publication/resume semantics, scope selection, deterministic shortlisting, coverage presentation, affected interfaces and JSON compatibility before implementation.",
+            "AC105-2": "Versioned large offline US/EU fixture well beyond the original six is discoverable and enters research, screening and a valid portfolio through actual dashboard execution; no static-six fallback restricts selected catalogue membership.",
+            "AC105-3": "Approved configurable bounds hold for calls/work/memory; transient failure does not silently truncate membership or activate inconsistent data; prior validated data remains reachable and resume preserves exact source observations.",
+            "AC105-4": "Approved selection examines requested scope, records deterministic inclusion/omission reasons, preserves the ten-candidate constructor bound, and contrasting profile/constraint fixtures affect selection/allocation when warranted without forced variety; identical inputs/evidence reproduce.",
+            "AC105-5": "Focused end-to-end snapshot restoration/selection tests preserve timestamps, cross-store consistency, exact totals, explicit category/FX/evidence gaps, Issue104 entry-order/empty-schema2 regressions and existing offline/legacy behavior.",
+            "AC105-6": "Dashboard separately reports discovered, researched, usable and shortlisted counts and coverage/fallback limits; document frozen contract, architecture/product updates, new ADR, usage and measured verification with no universal Yahoo eligibility/completeness claim."
+          },
+          "verification": [
+            "Large versioned offline US/EU fixtures, call/work bounds, failure/cache/resume/publication consistency and tamper/restoration tests.",
+            "Actual Streamlit AppTest catalogue selection through research/screening/construction with outside-six portfolio member, contrasting profiles and exact totals; preserve Issue104 regression suites and Issue99 fixture bytes.",
+            "Focused/full offline pytest, Ruff, mypy, build, workflow/config validators, independent content-bound implementation review and CI required by repository."
+          ],
+          "documentation": [
+            "Issue105 complete design and implementation iteration records; new consequential ADR; current architecture/product scope and usage/coverage limits.",
+            "Durable owner-led ledger and issue/PR gate evidence."
+          ],
+          "risks": [
+            "Yahoo metadata/category/FX/identity coverage remains incomplete; catalogue membership never guarantees usability.",
+            "Bounded shortlisting may miss global feasible/best subsets; explain bounded policy and omissions without optimizer claims.",
+            "Publication/cache/resume identities and historical payload compatibility require explicit fail-closed contracts."
+          ],
+          "escalation_triggers": [
+            "Unresolved consequential ambiguity returns to separate architect within finite allowances; recurring concerns require coordinator arbitration.",
+            "Concrete implementation failure/concurrency/migration evidence may justify fresh specialist session; no role change from unfamiliarity alone.",
+            "Independent implementation review required; failed final review/exhausted counts stop for explicit finite user decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T08:02:39Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue105_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 1,
+          "digest": "38a418bebc1692e4ee3f7ca31de84c5fbf387b2ed1f79093aa1be74018261798"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T08:19:21Z",
+      "data": {
+        "session": "/root/issue105_design",
+        "outcome": "pass",
+        "evidence": "Separate read-only design_architect gpt-6-astra/high returned DESIGN_READY; coordinator persisted full contract in docs/iterations/028-issue105-catalogue-design.md. Opt-in pinned scope<=100, explicit bounded cached job, exact complete publication/retrieval, pure sleeve-category shortlist<=10, unchanged FX/replay/legacy. No implementation authority until independent challenge/coordinator approval."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T08:19:24Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue105_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 1,
+          "digest": "38a418bebc1692e4ee3f7ca31de84c5fbf387b2ed1f79093aa1be74018261798"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T08:23:20Z",
+      "data": {
+        "session": "/root/issue105_challenge",
+        "outcome": "fail",
+        "evidence": "Independent code_reviewer gpt-6-sol/high FAIL: INV105-1/2/4 AC105-3/5 timestamp conflict; common ingested_at pinned at job creation can predate next-day source collection/observation, contrary ADR0008 and Issue104 destination-ingestion contract. No other concrete design blocker. A105-1 narrow architect clarification in single available design_reset; original fail retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T08:23:33Z",
+      "data": {
+        "phase": "design_reset",
+        "session": "/root/issue105_design_reset",
+        "role": "design_architect",
+        "criterion": "INV105-4",
+        "reason": "A105-1 truthful destination-ingestion coordinates across delayed batches; clarify job creation versus canonical finalization, preserve source facts/cache/retry.",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 1,
+          "digest": "38a418bebc1692e4ee3f7ca31de84c5fbf387b2ed1f79093aa1be74018261798"
+        }
+      }
+    },
+    {
+      "type": "capsule_update",
+      "at": "2026-10-23T08:28:23Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "A105-1 fresh read-only architect clarification preserves frozen definitions/owner/scope/non-goals; amended handoff SHA256 b65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261"
+        },
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 105,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue105_owner"
+          },
+          "rationale": "Broad catalogue ingestion, publication, financial candidate selection and persisted replay change consequential contracts; separate architect, independent challenge, coordinator approval and independent code review required.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "2026-10-23 in chat 01a1556c-af89-7582-8ac7-a3d4e1ff6ebb: approved, in direct response to queued Issue105 start boundary."
+          },
+          "scope": {
+            "S105-1": "Integrate the Yahoo US/EU catalogue into bounded cached research ingestion, validated snapshot publication and explicit dashboard candidate selection, with justified bounded shortlisting across requested scope and reproducible restoration."
+          },
+          "non_goals": [
+            "No global optimizer, wholesale exhaustive enumeration, constructor cap increase or first-ten shortcut.",
+            "No unrelated sources, inferred categories, authentication, hosting, trades, external financial writes or live saved-review mutation.",
+            "No Issue115 ECB optimization or changes to Issue104 financial/replay staging; no historical allowance/certificate transfers."
+          ],
+          "invariants": {
+            "INV105-1": "Catalogue discovery, researched coverage, usable evidence and per-request shortlisted membership remain distinct; source identity, timestamps, coverage limitations and omissions remain explicit and attributable.",
+            "INV105-2": "Provider calls, work and memory are bounded/configurable under approved design; cache/failure/resume/publication preserve original evidence and prior validated active data, with consistent cross-store identity and no silent membership truncation.",
+            "INV105-3": "Deterministic shortlisting considers the requested catalogue scope through an approved bounded path, reports reasons and omissions, respects constructor exhaustive-search cap and leaves explanation independent of membership.",
+            "INV105-4": "Preserve Issue104 us-eu-v1 listing/economic identity, category, FX, exact cash/weights, JSON/replay/explanation, missingness and freshness contracts plus exact legacy paths; absent evidence cannot become qualification.",
+            "INV105-5": "Persisted selection and restoration are source-bound, JSON-safe, reproducible and fail closed on tampering/inconsistent stores; side effects remain behind replaceable interfaces and existing receipt boundaries."
+          },
+          "interfaces": [
+            "Catalogue cache/search and bounded research collector/cache/publication interfaces; candidate retrieval/selection and dashboard controls/rendering. Architect freezes precise signatures and compatibility before implementation.",
+            "Existing construction/screening/revision/explanation boundaries preserve financial meaning; no external financial-write interface.",
+            "A105-1 collector caches truthful per-listing intermediate ingestion; fresh-only detached finalization commits one destination ingestion after complete collection, preserving all source tuples."
+          ],
+          "json_state_impact": "Architect must freeze nested typed catalogue scope/selection/coverage metadata, research artifact identities and persistence/replay compatibility before writes. Preserve JSON serialization, existing side-effect receipts and exact absent-marker legacy behavior; no inferred saved-checkpoint migration. A105-1 job creation/cache timestamps are operational only; immutable canonical finalization record fixes destination coordinates exactly once. Complete amended handoff SHA256 b65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261",
+          "acceptance": {
+            "AC105-1": "Separate read-only architect handoff, independent challenge and coordinator approval freeze batching, caching, failure/publication/resume semantics, scope selection, deterministic shortlisting, coverage presentation, affected interfaces and JSON compatibility before implementation.",
+            "AC105-2": "Versioned large offline US/EU fixture well beyond the original six is discoverable and enters research, screening and a valid portfolio through actual dashboard execution; no static-six fallback restricts selected catalogue membership.",
+            "AC105-3": "Approved configurable bounds hold for calls/work/memory; transient failure does not silently truncate membership or activate inconsistent data; prior validated data remains reachable and resume preserves exact source observations.",
+            "AC105-4": "Approved selection examines requested scope, records deterministic inclusion/omission reasons, preserves the ten-candidate constructor bound, and contrasting profile/constraint fixtures affect selection/allocation when warranted without forced variety; identical inputs/evidence reproduce.",
+            "AC105-5": "Focused end-to-end snapshot restoration/selection tests preserve timestamps, cross-store consistency, exact totals, explicit category/FX/evidence gaps, Issue104 entry-order/empty-schema2 regressions and existing offline/legacy behavior.",
+            "AC105-6": "Dashboard separately reports discovered, researched, usable and shortlisted counts and coverage/fallback limits; document frozen contract, architecture/product updates, new ADR, usage and measured verification with no universal Yahoo eligibility/completeness claim."
+          },
+          "verification": [
+            "Large versioned offline US/EU fixtures, call/work bounds, failure/cache/resume/publication consistency and tamper/restoration tests.",
+            "Actual Streamlit AppTest catalogue selection through research/screening/construction with outside-six portfolio member, contrasting profiles and exact totals; preserve Issue104 regression suites and Issue99 fixture bytes.",
+            "Focused/full offline pytest, Ruff, mypy, build, workflow/config validators, independent content-bound implementation review and CI required by repository."
+          ],
+          "documentation": [
+            "Issue105 complete design and implementation iteration records; new consequential ADR; current architecture/product scope and usage/coverage limits.",
+            "Durable owner-led ledger and issue/PR gate evidence.",
+            "Complete generation2 handoff docs/iterations/028-issue105-catalogue-design.md SHA256 b65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261"
+          ],
+          "risks": [
+            "Yahoo metadata/category/FX/identity coverage remains incomplete; catalogue membership never guarantees usability.",
+            "Bounded shortlisting may miss global feasible/best subsets; explain bounded policy and omissions without optimizer claims.",
+            "Publication/cache/resume identities and historical payload compatibility require explicit fail-closed contracts."
+          ],
+          "escalation_triggers": [
+            "Unresolved consequential ambiguity returns to separate architect within finite allowances; recurring concerns require coordinator arbitration.",
+            "Concrete implementation failure/concurrency/migration evidence may justify fresh specialist session; no role change from unfamiliarity alone.",
+            "Independent implementation review required; failed final review/exhausted counts stop for explicit finite user decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T08:28:25Z",
+      "data": {
+        "session": "/root/issue105_design_reset",
+        "outcome": "pass",
+        "evidence": "Fresh separate read-only design_architect gpt-6-astra/high DESIGN_READY A105-1. Job created_at operational; intermediate cache ingestion truthful after per-listing reads; detached canonical finalization validates all source records then atomically fixes common T_final/version/digest. Cached source facts immutable, finalized payload never rebuilt/rebound; crash-before versus committed-lost-ack explicit. Oct23/24 and age/crash/restore tests frozen. Gen2 capsule binds amended handoff; sole reset consumed; independent challenge next."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T08:28:28Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue105_challenge2",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T08:31:18Z",
+      "data": {
+        "session": "/root/issue105_challenge2",
+        "outcome": "pass",
+        "evidence": "Fresh independent code_reviewer gpt-6-sol/high PASS gen2 capsule c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072, handoff SHAb65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261 verified. A105-1 closed: created_at operational, truthful post-read cache coordinates, complete detached atomic canonical T_final and exact lost-ack recovery; source tuples unchanged, publication/restore no rebind. No remaining material frozen-contract failure; initial failed challenge remains failed."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-23T08:31:20Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Coordinator /root approves exact gen2 capsule c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072 and complete handoff SHAb65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261 after separate architect, narrow reset and fresh independent PASS. Human approved2026-10-23; A105-1 focused closure satisfied, original failed challenge retained. Authorize only implementation_worker gpt-6-sol/medium /root/issue105_owner within frozen scope/default finite allowances. No Issue115, optimizer, new source/auth/trades/financial writes or live readiness claim. Independent content-bound implementation review required."
+        },
+        "evidence": "Coordinator /root approves exact gen2 capsule c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072 and complete handoff SHAb65c7dd9ad694bf81d5c364f6cb87a6094fe9e976f9389c757ca7c50a7b6d261 after separate architect, narrow reset and fresh independent PASS. Human approved2026-10-23; A105-1 focused closure satisfied, original failed challenge retained. Authorize only implementation_worker gpt-6-sol/medium /root/issue105_owner within frozen scope/default finite allowances. No Issue115, optimizer, new source/auth/trades/financial writes or live readiness claim. Independent content-bound implementation review required.",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T08:31:23Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-23T16:52:29Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "interrupted",
+        "evidence": "Actual owner turn failed with usage-limit error after partial scope/job/transport/collector edits. No successful implementation, focused/full behavior verification, review, acceptance, commit or PR. All elapsed audit time through this truthful interruption retained; user continue2026-10-23 authorizes resuming same owner/reservation, no new slot/model exception."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-23T16:52:31Z",
+      "data": {
+        "session": "/root/issue105_owner"
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-23T17:32:14Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "interrupted",
+        "evidence": "Coordinator interrupted actual owner after self-review report changed shortlist to stop at one candidate per group, conflicting approved handoff section7 explicit remaining-space alternative-listing second pass. A105-2 dispatch hold for clear-contract arbitration; implementation incomplete, no certification. First full pytest passed earlier content; new full/focused commands may still run read-only and require truthful result accounting. Preserve same reservation/counters; all elapsed retained."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-23T17:32:46Z",
+      "data": {
+        "session": "/root/issue105_owner"
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-23T17:38:19Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "interrupted",
+        "evidence": "A105-2 material recurrence: owner reported resorting priority-selected shortlist into original classified input order, while frozen section7 makes resulting round-robin shortlist order the unchanged constructor upstream order. Coordinator interrupted before certification to consolidate exact text/code and clarify existing decision, preserving same reservation/all audit time; no new phase slot/reset."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-23T17:38:40Z",
+      "data": {
+        "session": "/root/issue105_owner"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T17:48:13Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "Approved implementation_worker gpt-6-sol/medium completed frozen gen2 scope. 240-listing fixture/actual Streamlit40-listing8batch finalize/publish ready outside-six portfolio/offline restore; A105-2 exact two-pass append order and alternatives/final group uniqueness repaired, focused9/9 and broader Issue104/dashboard/revision/evidence/construction passed. Final full uv run pytest -q reached100% exit0 with40 skips; Ruff check/format203files,mypy63modules,build,both workflow validators,Compose config,diff all exit0. Source/tests/docs quiescent; docs/iterations/028-issue105-catalogue-implementation.md records exact outcomes/synthetic real-store limits. Earlier interrupted runs not acceptance. No commit/PR/delivery; native verification and independent code review next."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T17:48:19Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "6567f2fdbc7b47bdedb5e18c79dfa1acfef8c9e34d7d3bd7126971dedd06d87a"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T17:50:18Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "fail",
+        "evidence": "Content-bound verification FAIL at unchanged6567f2fdbc7b47bdedb5e18c79dfa1acfef8c9e34d7d3bd7126971dedd06d87a. AC105-6 missing explicit assertions of all displayed coverage/job generation/publication counts, discovered/matched/provider/unsupported limits, unknown/omission totals. AC105-3/4/5 required started/result/staging/activation crash, request-specific tamper/exclusion/infeasible-shortlist cases partly unmeasured. Actual positive AppTest and full tests pass but do not close frozen acceptance uncertainty. Read-only workflow/Ruff/format/Compose/diff pass; no edits. Same-scope remediation required before fresh verification; no acceptance/delivery."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-23T17:50:19Z",
+      "data": {
+        "id": "B105-AC-EVIDENCE",
+        "criterion": "AC105-6",
+        "scenario": "Coverage/job UI can regress discovered/matched/provider limits/unknown/omission counts without existing Issue105 assertions failing; related frozen AC105-3/4/5 crash/tamper/exclusion/feasibility scenarios remain incompletely measured. Material acceptance uncertainty prevents certification.",
+        "evidence": "Separate content-bound same-owner verification FAIL at content6567f2fdbc7b47bdedb5e18c79dfa1acfef8c9e34d7d3bd7126971dedd06d87a; tests/test_issue105_app.py and tests/test_issue105_catalogue.py assert only subset of required counts/cases; no product defect inferred from missing evidence."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T17:50:21Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T18:17:22Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "REMEDIATION PASS A105-3, same approved owner. Complete AC105-1..6 scenario/test map in iteration note; all coverage/job/provider/unknown/omission counters, crash/publication uncertainty/tamper/exclusion/full-pool contradiction/infeasibility/transport/reference/BND bounds measured. Repairs: truthful scope/UI counts,101-ID over-limit reason,unsupported research-symbol reason,pre-rebinding cache member/coordinate validation. Exact two-pass append order/Issue104 FX/legacy intact. Broad final focused suite100% exit0; full pytest100% exit0 with40skips on same product source, only later additive2BND tests passed in rerun broad focused suite; precise combined provenance documented. Ruff/format/mypy63/build/workflow/Compose/diff pass. Quiescent files, no commit/PR; fresh verification/independent final review required."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-23T18:17:23Z",
+      "data": {
+        "id": "B105-AC-EVIDENCE",
+        "evidence": "Successful sole remediation closes concrete frozen evidence gaps via explicit AC105-1..6 scenario/test map, new actual AppTest count assertions and crash/tamper/constraint/bounds regressions; all focused/full-source/static gates pass with exact combined provenance documented. No acceptance/delivery until fresh current-content verification and independent final review."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T18:17:31Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "b27a9b06822ea16396e2657193e0a2f5b15b0ad660e26f3cd95f8ff876aea5cf"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T18:18:24Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "Fresh content-bound VERIFICATION PASS b27a9b06822ea16396e2657193e0a2f5b15b0ad660e26f3cd95f8ff876aea5cf; staged files match, full AC105-1..6 scenario map closes frozen material gaps. Exact combined full-source pytest100% exit0 with40skips plus additive2BND tests in passing final focused suite accurately recorded. Read-only Ruff/format/workflow validators/Compose/staged+unstageddiff pass, no edits; original verification FAIL retained. Independent final review required."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-23T18:18:25Z",
+      "data": {
+        "ids": [
+          "AC105-1",
+          "AC105-2",
+          "AC105-3",
+          "AC105-4",
+          "AC105-5",
+          "AC105-6"
+        ],
+        "evidence": "Coordinator acceptance evidence: complete approved gen2 design/independent challenge;240-listing fixture/actual40-scope AppTest through production preparation/publication/review/outside-six portfolio/offline restore; complete counts/omissions/unknown/provider limits; crash/bounds/reference/BND/tamper/exclusion/contradiction/infeasibility/alternatives/order regressions mapped in iteration note. Same-content verification PASS after A105-3 sole remediation, original failure retained. All focused/full-source/static gates pass with exact additive-test provenance; synthetic/live-store limits explicit. Independent final review still required for delivery.",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "b27a9b06822ea16396e2657193e0a2f5b15b0ad660e26f3cd95f8ff876aea5cf"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-23T18:18:26Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue105_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "b27a9b06822ea16396e2657193e0a2f5b15b0ad660e26f3cd95f8ff876aea5cf"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-23T18:23:00Z",
+      "data": {
+        "session": "/root/issue105_final_review",
+        "outcome": "fail",
+        "evidence": "Independent code_reviewer gpt-6-sol/high FINAL_REVIEW FAIL on verified/accepted contentb27a9b06822ea16396e2657193e0a2f5b15b0ad660e26f3cd95f8ff876aea5cf. HIGH INV105-2 AC105-3: YahooCatalogueResearchCollector installs bounded yf.Ticker session at yahoo_research.py408-419 but never restores process-wide YfData; installed yfinance1.7.0 retains explicit session when later Ticker(session=None), so expired/request-exhausted budget breaks subsequent ordinary legacy/Issue104 research. MEDIUM INV105-1 AC105-6: scope planner reports matched101 limit100 but dashboard_app.py1343 preview handler catches/clears and renders generic unavailable message, hiding required over-limit count/reason. No edits/index changes by reviewer. Both require narrow repair+focused regressions; sole remediation/final-review/reset consumed. Coordinator explicit STOP/BLOCKED_FOR_DECISION, no further dispatch/acceptance/delivery without distinct finite human grant."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-23T18:23:01Z",
+      "data": {
+        "id": "B105-YF-SESSION",
+        "criterion": "AC105-3",
+        "scenario": "After catalogue collector installs bounded yfinance session, process-wide YfData retains it. A later ordinary Ticker(session=None) inherits expired/exhausted budget and legacy/Issue104 Yahoo research fails. Expected bounded attempt isolation with preserved ordinary path.",
+        "evidence": "Independent final review HIGH, src/etf_advisor/data/yahoo_research.py408-419; installed yfinance1.7.0 data.py67-76,136-149,base.py100,135,182 and history.py278 confirm retention/use. Existing transport test lacks following ordinary Ticker regression. Frozen INV105-2/4 AC105-3; no repair authorized after exhausted sole remediation/final review. BLOCKED_FOR_DECISION."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-23T18:23:02Z",
+      "data": {
+        "id": "B105-PREVIEW-LIMIT",
+        "criterion": "AC105-6",
+        "scenario": "Dashboard preview of101 matching listings catches scope_limit_exceeded matched101 limit100, clears preview and shows only generic error, preventing user from seeing count/limit or distinguishing unavailable scope. Expected explicit counted over-limit rejection per frozen section9.",
+        "evidence": "Independent final review MEDIUM: research_scope.py145-146 correct controlled count, dashboard_app.py1343 preview catch hides it; design handoff section9 lines299ff and INV105-1 AC105-6. AppTest only asserts successful preview. Coordinator narrow repair proposal preserved for future explicit finite user grant, no current remaining remediation/final-review allowance."
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-24T15:41:15Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-24 chat01a1556c-af89-7582-8ac7-a3d4e1ff6ebb: approved and switch to english, explicitly approving prior request for one repair and one independent final review limited to B105-YF-SESSION and B105-PREVIEW-LIMIT."
+        },
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Finite same-scope repair of failed final review: isolate/restore bounded yfinance session so ordinary legacy/Issue104 research remains functional; expose safe measured over-limit preview count/reason. Preserve prior failures/counters/blockers, clear current certification, same owner/branch; no scope/reset/model/merge grant."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T15:41:17Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T15:56:32Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "A105-4 finite REMEDIATION PASS, same approved owner. Both final-review negatives reproduced pre-fix and passing after: bounded yfinance context restores prior singleton transport/auth state in finally under existing lock, including success/failure and first-use/preexisting cases with subsequent ordinary research; actual Streamlit101 preview exposes allowlisted matched/limit, clears stale scope/disables start, sanitizes unexpected errors. Source scope only these two defects, frozen shortlist/FX/replay/legacy intact. Focused11-file suite/full offline pytest100% exit0 with40skips; Ruff/format206/mypy63/build/workflow/Compose/diff pass, docs-sensitive checks repeated after exact measured note. Quiescent files, no commit/PR; fresh verification and independent final review required."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-24T15:56:32Z",
+      "data": {
+        "id": "B105-YF-SESSION",
+        "evidence": "Successful user-granted A105-4 remediation restores prior actual yfinance singleton session/auth state in finally under shared exclusion, with pre-fix failures and post-fix success/failure/first-use/preexisting/subsequent ordinary research regressions. Full/focused/static gates pass; independent final review remains required."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-24T15:56:33Z",
+      "data": {
+        "id": "B105-PREVIEW-LIMIT",
+        "evidence": "Successful user-granted A105-4 remediation shows fixed allowlisted matched/limit diagnostics in actual101-ID Streamlit preview, clears stale scope/disables start and sanitizes arbitrary errors. Pre-fix negative and post-fix AppTest pass; full/focused/static gates pass, fresh certification/review next."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T15:56:47Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "cfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T15:57:31Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "Fresh VERIFICATION PASS currentcontentcfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1. Staged source/tests/docs match; only excluded ledger differs by live events. A105-4 both reproduced bugs repaired with actual singleton/ordinary-research and Streamlit over-limit/sanitization regressions; full repaired-source pytest100% exit0 with40skips and focused/static gates pass, AC105 evidence map complete. Read-only workflow/Ruff/format/Compose/staged+unstageddiff pass. No edits/unnecessary full rerun. Independent final review next."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-24T15:57:32Z",
+      "data": {
+        "ids": [
+          "AC105-1",
+          "AC105-2",
+          "AC105-3",
+          "AC105-4",
+          "AC105-5",
+          "AC105-6"
+        ],
+        "evidence": "Coordinator fresh acceptance evidence after explicit2026-10-24 finite continuation: complete original AC105 map plus A105-4 negative-before/positive-after actual yfinance singleton first-use/preexisting success/failure ordinary research and actual101-ID Streamlit matched/limit rejection, stale-scope clearing/start disable/unexpected-error sanitization. Both blockers resolved after successful remediation; full offline/focused/static/build/config gates pass on repaired source, synthetic/live-store limitations retained. Current-content verification PASS, prior failures preserved; independent final review required before delivery.",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "cfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T15:57:33Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue105_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "cfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T16:00:20Z",
+      "data": {
+        "session": "/root/issue105_final_review",
+        "outcome": "pass",
+        "evidence": "Independent code_reviewer gpt-6-sol/high user-authorized SECOND FINAL_REVIEW PASS exactcontentcfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1. Prior failed review retained. B105-YF-SESSION closed: actual YfData transport/auth restored success/failure, first-use/preexisting followed by ordinary ticker regressions. B105-PREVIEW-LIMIT closed: strict numeric allowlist,101 count/limit,failed preview cleared,unexpected errors sanitized,actual AppTest. No remaining material frozen repair defect; no edits/live calls. Coordinator bounded disposition for candidate library-concurrency concern: no demonstrated same-process product path via price adapter (separate CLI commands/subprocess); actual legacy research fetch and catalogue page/search hold shared lock. Generic separately-threaded library possibility outside frozen product closure deferred, no new criterion/phase. Frozen INV105-1/2/4 AC105-3/5/6 satisfied; proceed delivery gate with same content."
+      }
+    }
+  ]
+}

@@ -444,6 +444,12 @@ class RevisionRuntime:
                 or bundle.objective != profile.objective
                 or bundle.risk_tolerance != profile.risk_tolerance
                 or bundle.excluded_sectors != profile.excluded_sectors
+                or (
+                    bundle.catalogue_context.request
+                    if bundle.catalogue_context is not None
+                    else None
+                )
+                != profile.catalogue_request
                 or bundle.requested_limit
                 != state["revision_ledger"]["revisions"][-1]["inputs"]["candidate_limit"]
             ):

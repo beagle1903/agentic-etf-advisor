@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import defaultdict
 from dataclasses import dataclass
@@ -430,10 +431,50 @@ class PortfolioValidationResult(BaseModel):
         return self
 
 
+class CatalogueDisposition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    listing_id: str
+    document_id: str
+    symbol: str
+    reason: str
+    shortlisted: bool
+    selected_representative_id: str | None = None
+
+
+class CatalogueSelectionReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    algorithm: Literal["sleeve-category-round-robin-v1"] = "sleeve-category-round-robin-v1"
+    scope_digest: str
+    snapshot_version: str
+    snapshot_digest: str
+    input_digest: str
+    capacity: int = Field(ge=1, le=10)
+    target_bps: dict[PortfolioSleeve, int]
+    usable_count: int | None
+    shortlist_ids: list[str]
+    final_position_ids: list[str]
+    dispositions: list[CatalogueDisposition]
+    not_evaluated_reason: str | None = None
+
+    @model_validator(mode="after")
+    def validate_report(self) -> CatalogueSelectionReport:
+        ids = [item.listing_id for item in self.dispositions]
+        if len(ids) != len(set(ids)) or len(self.shortlist_ids) > self.capacity:
+            raise ValueError("Catalogue report has duplicate or over-limit membership.")
+        if self.usable_count is None and self.not_evaluated_reason is None:
+            raise ValueError("Unreached catalogue counts require an explicit reason.")
+        if self.usable_count is not None and self.not_evaluated_reason is not None:
+            raise ValueError("Evaluated catalogue counts cannot claim not evaluated.")
+        return self
+
+
 class PortfolioConstructionBundle(AdvisoryWireModel):
     """One JSON-safe construction result checkpointed by the workflow."""
 
     model_config = ConfigDict(extra="forbid")
+    legacy_extension_fields = frozenset({"catalogue_selection"})
 
     status: Literal["ready", "blocked"]
     policy: PortfolioConstructionPolicy
@@ -442,12 +483,26 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
     excluded_candidates: list[ExcludedCandidate]
     errors: list[ConstructionError]
     advisory_contract: Literal["us-eu-v1"] | None = None
+    catalogue_selection: CatalogueSelectionReport | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_null_selection(cls, value: Any) -> Any:
+        if (
+            isinstance(value, dict)
+            and "catalogue_selection" in value
+            and value["catalogue_selection"] is None
+        ):
+            raise ValueError("Catalogue selection cannot be null.")
+        return value
 
     @model_serializer(mode="wrap")
     def serialize_bundle(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.catalogue_selection is None:
+            result.pop("catalogue_selection", None)
         return result
 
     @model_validator(mode="after")
@@ -457,6 +512,8 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
                 raise ValueError("Ready construction requires a valid draft and no errors.")
         elif self.draft is not None or not self.errors:
             raise ValueError("Blocked construction requires errors and cannot expose a draft.")
+        if self.catalogue_selection is not None and self.advisory_contract != "us-eu-v1":
+            raise ValueError("Catalogue selection requires US/EU construction.")
         return self
 
 
@@ -499,7 +556,10 @@ def construct_model_portfolio(
     upstream_error = _validate_upstream(inputs)
     if upstream_error is not None:
         return _blocked_bundle(
-            policy, upstream_error, advisory_contract=inputs.profile.advisory_contract
+            policy,
+            upstream_error,
+            advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=_catalogue_not_evaluated(inputs, upstream_error),
         )
 
     target_or_error = _target_basis_points(inputs.policy_calculation, policy)
@@ -509,6 +569,7 @@ def construct_model_portfolio(
             target_or_error,
             passed_checks={ConstructionCheckName.UPSTREAM_CONSISTENCY},
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=_catalogue_not_evaluated(inputs, target_or_error),
         )
     targets = target_or_error
 
@@ -524,7 +585,9 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=_catalogue_not_evaluated(inputs, category_error),
         )
+    eligible, catalogue_report = _catalogue_shortlist(inputs, eligible, excluded, targets)
     if len(eligible) < policy.min_positions:
         return _blocked_bundle(
             policy,
@@ -532,6 +595,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=catalogue_report,
         )
     passed.add(ConstructionCheckName.ELIGIBILITY)
 
@@ -543,6 +607,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=catalogue_report,
         )
 
     positions_without_cash, weights = selected
@@ -564,6 +629,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=catalogue_report,
         )
 
     selected_needs_fx = new_contract and any(
@@ -582,6 +648,7 @@ def construct_model_portfolio(
                 excluded,
                 passed_checks=passed,
                 advisory_contract="us-eu-v1",
+                catalogue_selection=catalogue_report,
             )
     positions = [
         _position_from_candidate(
@@ -632,6 +699,10 @@ def construct_model_portfolio(
         },
     )
     validation = validate_portfolio_draft(inputs, draft)
+    if catalogue_report is not None:
+        catalogue_report = catalogue_report.model_copy(
+            update={"final_position_ids": [position.document_id for position in draft.positions]}
+        )
     if not validation.valid:
         failed = next(check for check in validation.checks if not check.passed)
         return _blocked_bundle(
@@ -640,16 +711,20 @@ def construct_model_portfolio(
             excluded,
             validation=validation,
             advisory_contract=inputs.profile.advisory_contract,
+            catalogue_selection=catalogue_report,
         )
-    return PortfolioConstructionBundle(
+    payload: dict[str, Any] = {
         **contract_fields("us-eu-v1" if new_contract else None),
-        status="ready",
-        policy=policy,
-        draft=draft,
-        validation=validation,
-        excluded_candidates=excluded,
-        errors=[],
-    )
+        "status": "ready",
+        "policy": policy,
+        "draft": draft,
+        "validation": validation,
+        "excluded_candidates": excluded,
+        "errors": [],
+    }
+    if catalogue_report is not None:
+        payload["catalogue_selection"] = catalogue_report
+    return PortfolioConstructionBundle.model_validate(payload)
 
 
 def blocked_model_portfolio(
@@ -676,6 +751,12 @@ def validate_portfolio_draft(
     upstream_ok = _validate_upstream(inputs) is None
     if upstream_ok:
         eligible, _, category_error = _classify_candidates(inputs, policy)
+        if (
+            category_error is None
+            and targets is not None
+            and inputs.profile.catalogue_request is not None
+        ):
+            eligible, _ = _catalogue_shortlist(inputs, eligible, [], targets)
     else:
         eligible, category_error = [], None
     eligible_by_id = {item.candidate.document_id: item for item in eligible}
@@ -833,8 +914,12 @@ def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason
     if (
         len(inputs.candidate_evidence.candidates)
         > inputs.construction_policy.max_candidate_pool_size
+        and inputs.profile.catalogue_request is None
     ):
         return ConstructionReason.CANDIDATE_POOL_LIMIT_EXCEEDED
+    context = inputs.candidate_evidence.catalogue_context
+    if (context.request if context is not None else None) != inputs.profile.catalogue_request:
+        return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
     for candidate in inputs.candidate_evidence.candidates:
         try:
             category_result = _category_provenance(candidate)
@@ -906,6 +991,151 @@ def _classify_candidates(
         return _classify_candidates_impl(inputs, policy)
     except ScreeningFieldFreshnessError:
         return [], [], ConstructionReason.EVIDENCE_NOT_READY
+
+
+def _catalogue_input_digest(inputs: PortfolioConstructionInput) -> str:
+    payload = inputs.model_dump(mode="json")
+    return hashlib.sha256(
+        json.dumps(
+            payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _catalogue_not_evaluated(
+    inputs: PortfolioConstructionInput, reason: ConstructionReason
+) -> CatalogueSelectionReport | None:
+    request = inputs.profile.catalogue_request
+    if request is None:
+        return None
+    return CatalogueSelectionReport(
+        scope_digest=request.scope.digest,
+        snapshot_version=request.snapshot_version,
+        snapshot_digest=request.snapshot_digest,
+        input_digest=_catalogue_input_digest(inputs),
+        capacity=min(
+            inputs.candidate_evidence.requested_limit,
+            inputs.construction_policy.max_candidate_pool_size,
+        ),
+        target_bps={},
+        usable_count=None,
+        shortlist_ids=[],
+        final_position_ids=[],
+        dispositions=[
+            CatalogueDisposition(
+                listing_id=member.listing_id,
+                document_id=f"research:{request.snapshot_version}:"
+                f"{request.snapshot_digest}:{member.symbol.lower()}",
+                symbol=member.symbol,
+                reason="not_evaluated",
+                shortlisted=False,
+            )
+            for member in request.scope.members
+        ],
+        not_evaluated_reason=reason.value,
+    )
+
+
+def _catalogue_shortlist(
+    inputs: PortfolioConstructionInput,
+    eligible: list[_EligibleCandidate],
+    excluded: list[ExcludedCandidate],
+    targets: dict[PortfolioSleeve, int],
+) -> tuple[list[_EligibleCandidate], CatalogueSelectionReport | None]:
+    request = inputs.profile.catalogue_request
+    if request is None:
+        return eligible, None
+    capacity = min(
+        inputs.candidate_evidence.requested_limit,
+        inputs.construction_policy.max_candidate_pool_size,
+    )
+    listing_by_symbol = {member.symbol: member.listing_id for member in request.scope.members}
+    available = [item for item in eligible if targets[item.sleeve] > 0]
+    selected: list[_EligibleCandidate] = []
+    selected_ids: set[str] = set()
+    selected_groups: set[str] = set()
+    sleeve_counts = {sleeve: 0 for sleeve in PortfolioSleeve}
+    category_counts: dict[str, int] = defaultdict(int)
+    while len(selected) < capacity:
+        remaining = [item for item in available if item.candidate.document_id not in selected_ids]
+        if not remaining:
+            break
+        unrepresented = [
+            item for item in remaining if item.economic_group_id not in selected_groups
+        ]
+        choices = unrepresented if unrepresented else remaining
+        sleeves = {item.sleeve for item in choices}
+        slot = len(selected)
+        sleeve = max(
+            sleeves,
+            key=lambda value: (
+                (slot + 1) * targets[value] - TOTAL_WEIGHT_BPS * sleeve_counts[value],
+                value == PortfolioSleeve.GROWTH,
+            ),
+        )
+        sleeve_choices = [item for item in choices if item.sleeve == sleeve]
+        category = min(
+            {_normalize_category(item.category) for item in sleeve_choices},
+            key=lambda value: (category_counts[value], value),
+        )
+        winner = min(
+            (item for item in sleeve_choices if _normalize_category(item.category) == category),
+            key=lambda item: (
+                item.economic_group_id or "",
+                item.share_class_id or "",
+                listing_by_symbol[item.candidate.symbol],
+            ),
+        )
+        selected.append(winner)
+        selected_ids.add(winner.candidate.document_id)
+        if winner.economic_group_id is not None:
+            selected_groups.add(winner.economic_group_id)
+        sleeve_counts[sleeve] += 1
+        category_counts[category] += 1
+    excluded_by_id = {item.document_id: item.reason_code.value for item in excluded}
+    eligible_by_id = {item.candidate.document_id: item for item in eligible}
+    representative = {item.economic_group_id: item.candidate.document_id for item in selected}
+    dispositions = []
+    for member in request.scope.members:
+        document_id = (
+            f"research:{request.snapshot_version}:{request.snapshot_digest}:{member.symbol.lower()}"
+        )
+        item = eligible_by_id.get(document_id)
+        if document_id in excluded_by_id:
+            reason = excluded_by_id[document_id]
+        elif item is not None and targets[item.sleeve] == 0:
+            reason = "zero_target_sleeve"
+        elif document_id in selected_ids:
+            reason = "shortlisted_sleeve_category_coverage"
+        else:
+            reason = "bounded_shortlist_omission"
+        dispositions.append(
+            CatalogueDisposition(
+                listing_id=member.listing_id,
+                document_id=document_id,
+                symbol=member.symbol,
+                reason=reason,
+                shortlisted=document_id in selected_ids,
+                selected_representative_id=(
+                    representative.get(item.economic_group_id)
+                    if item is not None and document_id not in selected_ids
+                    else None
+                ),
+            )
+        )
+    report = CatalogueSelectionReport(
+        scope_digest=request.scope.digest,
+        snapshot_version=request.snapshot_version,
+        snapshot_digest=request.snapshot_digest,
+        input_digest=_catalogue_input_digest(inputs),
+        capacity=capacity,
+        target_bps=targets,
+        usable_count=len(eligible),
+        shortlist_ids=[item.candidate.document_id for item in selected],
+        final_position_ids=[],
+        dispositions=dispositions,
+    )
+    return selected, report
 
 
 def _classify_candidates_impl(
@@ -1385,19 +1615,24 @@ def _blocked_bundle(
     passed_checks: set[ConstructionCheckName] | None = None,
     validation: PortfolioValidationResult | None = None,
     advisory_contract: Literal["us-eu-v1"] | None = None,
+    catalogue_selection: CatalogueSelectionReport | None = None,
 ) -> PortfolioConstructionBundle:
     if validation is None:
         passed = passed_checks or set()
         validation = _validation_result({name: name in passed for name in ConstructionCheckName})
-    return PortfolioConstructionBundle(
-        **({"advisory_contract": advisory_contract} if advisory_contract else {}),
-        status="blocked",
-        policy=policy,
-        draft=None,
-        validation=validation,
-        excluded_candidates=list(excluded or []),
-        errors=[ConstructionError(code=reason, message=_error_message(reason))],
-    )
+    payload: dict[str, Any] = {
+        "status": "blocked",
+        "policy": policy,
+        "draft": None,
+        "validation": validation,
+        "excluded_candidates": list(excluded or []),
+        "errors": [ConstructionError(code=reason, message=_error_message(reason))],
+    }
+    if advisory_contract is not None:
+        payload["advisory_contract"] = advisory_contract
+    if catalogue_selection is not None:
+        payload["catalogue_selection"] = catalogue_selection
+    return PortfolioConstructionBundle.model_validate(payload)
 
 
 def _error_message(reason: ConstructionReason) -> str:

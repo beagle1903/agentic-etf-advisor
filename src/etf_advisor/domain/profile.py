@@ -5,6 +5,8 @@ from typing import Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
+from etf_advisor.catalogue.research_scope import CatalogueRequestV1
+
 MAX_CASH_FLOW_USD: Final[int] = 1_000_000_000_000
 
 
@@ -40,6 +42,7 @@ class InvestorProfile(BaseModel):
         default=None, ge=0, le=100_000_000_000_000, strict=True
     )
     excluded_sectors: list[str] = Field(default_factory=list, max_length=25)
+    catalogue_request: CatalogueRequestV1 | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -47,6 +50,10 @@ class InvestorProfile(BaseModel):
         if not isinstance(value, dict):
             return value
         marker = value.get("advisory_contract")
+        if "catalogue_request" in value and (
+            value["catalogue_request"] is None or marker != "us-eu-v1"
+        ):
+            raise ValueError("Catalogue request requires an explicit US/EU profile.")
         if marker == "us-eu-v1":
             if "initial_investment_usd" in value or "recurring_monthly_usd" in value:
                 raise ValueError("New contract rejects legacy USD cash keys.")
@@ -75,6 +82,8 @@ class InvestorProfile(BaseModel):
                 raise ValueError("New contract requires currency and both minor-unit amounts.")
         elif self.initial_investment_usd is None:
             raise ValueError("Legacy profile requires initial USD cash.")
+        if self.advisory_contract is None and self.catalogue_request is not None:
+            raise ValueError("Legacy profile rejects catalogue selection.")
         return self
 
     @model_serializer(mode="wrap")
@@ -83,12 +92,15 @@ class InvestorProfile(BaseModel):
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_investment_usd", None)
             result.pop("recurring_monthly_usd", None)
+            if self.catalogue_request is None:
+                result.pop("catalogue_request", None)
         else:
             for name in (
                 "advisory_contract",
                 "base_currency",
                 "initial_investment_minor",
                 "recurring_monthly_minor",
+                "catalogue_request",
             ):
                 result.pop(name, None)
         return result

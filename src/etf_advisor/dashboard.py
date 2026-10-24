@@ -11,6 +11,8 @@ from langgraph.types import Command
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from etf_advisor.audit import reconstruct_audit
+from etf_advisor.catalogue.retrieval import CatalogueSnapshotReader
+from etf_advisor.catalogue.store import CatalogueStore
 from etf_advisor.checkpoint import (
     DashboardCheckpointStore,
     MemoryCheckpointStore,
@@ -406,6 +408,11 @@ def start_dashboard_run(
     """Build and invoke one local workflow, closing retrieval resources after drafting."""
 
     validated_options = DashboardOptions.model_validate(options.model_dump(mode="python"))
+    catalogue_selected = "catalogue_request" in profile
+    if catalogue_selected:
+        InvestorProfile.model_validate(profile)
+        if not validated_options.with_evidence:
+            raise ValueError("Catalogue review requires source evidence.")
     graph_store: Neo4jGraphStore | None = None
     try:
         candidate_retriever: HybridCandidateEvidenceRetriever | None = None
@@ -425,6 +432,11 @@ def start_dashboard_run(
                 max_age=timedelta(hours=settings.market_data_max_age_hours),
                 future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
                 fx_provider=EcbFxClient(system_utc_now),
+                catalogue_reader=(
+                    CatalogueSnapshotReader(CatalogueStore(), semantic_store, graph_store)
+                    if catalogue_selected
+                    else None
+                ),
             )
 
         explanation_generator = (
