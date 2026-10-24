@@ -41,6 +41,7 @@ from etf_advisor.dashboard import (
     review_payload,
     start_dashboard_run,
 )
+from etf_advisor.dashboard_comparison import comparison_rows
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
 from etf_advisor.domain.us_eu import listing_region
@@ -479,6 +480,23 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
         )
 
         st.link_button("ECB reference source", fx["source_url"])
+
+    candidates = bundle["candidates"]
+    candidate_by_id = {candidate["document_id"]: candidate for candidate in candidates}
+    selected_ids = st.multiselect(
+        "Choose candidates to compare",
+        options=list(candidate_by_id),
+        format_func=lambda document_id: candidate_by_id[document_id]["symbol"],
+        key=f"source_comparison_{bundle['snapshot_digest']}",
+        help="Compare field-attributed facts from this validated evidence snapshot.",
+    )
+    if selected_ids:
+        st.caption(
+            "Comparison shows only reported, current, consistent facts. Unavailable, stale, "
+            "future or conflicting fields stay explicit. Source coverage is not eligibility or "
+            "investment suitability."
+        )
+        st.dataframe(comparison_rows(bundle, selected_ids), hide_index=True, width="stretch")
 
     for candidate in bundle["candidates"]:
         with st.expander(f"{candidate['symbol']} · {candidate['name']}"):
