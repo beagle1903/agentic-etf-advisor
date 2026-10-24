@@ -15,8 +15,12 @@ ETF or of usable research.
 Start a job with up to ten existing local reference-fact files, if needed.
 **Collect next catalogue batch** runs up to five listings per click and saves
 each successful record. On failure, inspect the failed listing and use its
-explicit exact retry; saved successes are not refetched. A job can be reopened
-by its local manifest under `.artifacts/catalogue-research`. Requests are
+explicit exact retry; saved successes are not refetched. Copy the job ID shown
+in the panel. After a new dashboard session, enter it under **Saved catalogue
+research job ID** and click **Load saved catalogue research job**. Loading
+reads the local manifest under `.artifacts/catalogue-research` without
+collecting, retrying or publishing. An unavailable or invalid ID clears the
+selection and shows a fixed error. Requests are
 limited per attempt, including HTTP count, timeout, received bytes and overall
 deadline. The panel distinguishes requested, researched successful, pending,
 failed, generation, finalized and publication state. A stopped job does not

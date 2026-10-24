@@ -4,6 +4,7 @@ import json
 from datetime import timedelta
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from test_dashboard import DurableMemoryCheckpointStore
@@ -233,6 +234,111 @@ def test_app_over_limit_preview_shows_measured_count_without_stale_scope(
     assert "catalogue_scope_preview" not in app.session_state
     assert all("private-provider-payload" not in item.value for item in app.error)
     assert any("Scope unavailable" in item.value for item in app.error)
+
+
+def test_fresh_app_session_reopens_partial_job_without_automatic_calls(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    testing = pytest.importorskip("streamlit.testing.v1")
+    import etf_advisor.catalogue.research_job as jobs
+    import etf_advisor.catalogue.store as catalogue_store
+    import etf_advisor.data.yahoo_research as yahoo_research
+
+    catalogue = validate_catalogue(json.loads(FIXTURE.read_text(encoding="utf-8")))
+    ids = [row["listing_id"] for row in catalogue["direct"][:6]]
+    from etf_advisor.catalogue.research_scope import plan_catalogue_scope
+
+    scope = plan_catalogue_scope(catalogue, {"listing_ids": ids})
+    store = ResearchJobStore(tmp_path)
+    collector = _Collector(scope.members)
+    monkeypatch.setattr(catalogue_store, "CatalogueStore", lambda: _Catalogue(catalogue))
+    monkeypatch.setattr(jobs, "ResearchJobStore", lambda: store)
+    monkeypatch.setattr(
+        yahoo_research, "YahooCatalogueResearchCollector", lambda **kwargs: collector
+    )
+    script = Path(__file__).parents[1] / "src/etf_advisor/dashboard_app.py"
+
+    first = testing.AppTest.from_file(str(script)).run(timeout=60)
+    next(item for item in first.sidebar.selectbox if item.label == "Advisory scope").set_value(
+        "US / EU catalogue research"
+    )
+    first.run(timeout=60)
+    next(
+        item
+        for item in first.sidebar.text_input
+        if item.label == "Exact listing IDs (comma separated)"
+    ).set_value(",".join(ids))
+    next(item for item in first.sidebar.button if item.label == "Preview catalogue scope").click()
+    first.run(timeout=60)
+    next(
+        item for item in first.sidebar.button if item.label == "Begin catalogue research job"
+    ).click()
+    first.run(timeout=60)
+    job_id = first.session_state["catalogue_research_job_id"]
+    next(
+        item for item in first.sidebar.button if item.label == "Collect next catalogue batch"
+    ).click()
+    first.run(timeout=60)
+    partial = store.read(job_id)
+    assert len(partial.cached) == 5
+    assert len(collector.calls) == 5
+    cache = {key: value.model_dump(mode="json") for key, value in partial.cached.items()}
+    identity = (partial.snapshot_version, partial.generation)
+
+    fresh = testing.AppTest.from_file(str(script)).run(timeout=60)
+    next(item for item in fresh.sidebar.selectbox if item.label == "Advisory scope").set_value(
+        "US / EU catalogue research"
+    )
+    fresh.run(timeout=60)
+    assert "catalogue_research_job_id" not in fresh.session_state
+    assert len(collector.calls) == 5
+    next(
+        item for item in fresh.sidebar.text_input if item.label == "Saved catalogue research job ID"
+    ).set_value(job_id)
+    next(
+        item for item in fresh.sidebar.button if item.label == "Load saved catalogue research job"
+    ).click()
+    fresh.run(timeout=60)
+    assert not fresh.exception
+    assert fresh.session_state["catalogue_research_job_id"] == job_id
+    loaded = store.read(job_id)
+    assert (loaded.snapshot_version, loaded.generation) == identity
+    assert {key: value.model_dump(mode="json") for key, value in loaded.cached.items()} == cache
+    assert len(collector.calls) == 5
+    next(
+        item for item in fresh.sidebar.button if item.label == "Collect next catalogue batch"
+    ).click()
+    fresh.run(timeout=60)
+    complete = store.read(job_id)
+    assert len(complete.cached) == 6
+    assert {
+        key: value.model_dump(mode="json") for key, value in complete.cached.items() if key in cache
+    } == cache
+    assert len(collector.calls) == 6
+    assert collector.calls[-1] == next(
+        member.symbol for member in scope.members if member.listing_id not in cache
+    )
+
+    missing_id, corrupt_id = str(uuid4()), str(uuid4())
+    (tmp_path / f"{corrupt_id}.json").write_text("private-invalid-manifest", encoding="utf-8")
+    for invalid_id in ("not-a-job-id", missing_id, corrupt_id):
+        next(
+            item
+            for item in fresh.sidebar.text_input
+            if item.label == "Saved catalogue research job ID"
+        ).set_value(invalid_id)
+        next(
+            item
+            for item in fresh.sidebar.button
+            if item.label == "Load saved catalogue research job"
+        ).click()
+        fresh.run(timeout=60)
+        assert "catalogue_research_job_id" not in fresh.session_state
+        assert len(collector.calls) == 6
+        assert all("private-invalid-manifest" not in item.value for item in fresh.error)
+        assert any(
+            "Saved research job is unavailable or invalid" in item.value for item in fresh.error
+        )
 
 
 def test_app_prepares_40_and_creates_review_with_outside_six_member(

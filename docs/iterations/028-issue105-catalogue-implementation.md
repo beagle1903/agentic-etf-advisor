@@ -127,3 +127,46 @@ reached 100% and exited 0. Full offline `uv run pytest -q` then reached
 review on the old content remain historical failures, not certification of
 this repair. No real Chroma/Neo4j/PostgreSQL or live Yahoo integration was
 exercised by these offline positives.
+
+## A105-5 post-delivery repair, 2026-10-24
+
+The subsequent PR review found two more concrete failures. A locked minimal
+development installation lacks optional `yfinance` and `curl_cffi`, so four
+installed-singleton regressions imported those packages unconditionally and two
+bounded issuer-fallback tests imported `yfinance` through the collector. A
+separate ignored `.artifacts/issue105-minimal-venv` created with
+`UV_PROJECT_ENVIRONMENT` and `uv sync --frozen` confirmed those packages and
+Streamlit are absent. The singleton regressions now skip only when their real
+optional dependencies are absent; in the optional-enabled environment all four
+run. The two bound-reservation cases inject the optional module boundary and
+run in both environments. The six-case targeted minimal run gave four skips
+and two passes; the optional-enabled run passed all six.
+
+A fresh Streamlit session previously had no saved-job load control. Before the
+source fix, the new AppTest failed looking for that control. The dashboard now
+accepts an exact saved job ID and calls the strict store read without collecting,
+retrying or publishing. Invalid, missing and corrupt IDs clear the selected
+job and show a fixed error; store reads also reject a valid manifest placed
+under a different ID. The actual two-session AppTest creates a five-of-six
+partial job, reopens it in a new session with zero automatic collector calls,
+compares the saved cache bytes, source timestamps, version and generation,
+then explicitly advances only the sixth member. A separate store test covers
+the mismatched manifest identity. These are offline injected local doubles,
+not live Yahoo or database integration.
+
+On the final A105-5 product source, the optional-enabled focused command
+`uv run pytest -q tests/test_issue105_final_review_repair.py tests/test_issue105_catalogue.py tests/test_issue105_remediation.py tests/test_issue105_app.py tests/test_us_eu_contract.py tests/test_yahoo_research.py tests/test_catalogue.py tests/test_dashboard.py tests/test_revision.py tests/test_evidence.py tests/test_construction.py`
+reached 100% and exited 0. In the isolated minimal environment,
+`uv run --frozen pytest -q` reached 100% and exited 0 with optional-dependent
+tests skipped. The targeted minimal and optional-enabled six-case commands
+above confirm that only the four real-singleton cases skip under minimal CI;
+the two bound-reservation cases run in both environments.
+
+`uv run ruff check .`, `uv run ruff format --check .` (207 files),
+`uv run mypy src` (63 modules), `uv build`,
+`uv run python scripts/validate_codex_workflow.py`,
+`uv run python scripts/ticket_workflow.py validate`,
+`docker compose config --quiet`, and `git diff --check` all exited 0.
+The minimal full run uses locked default and development dependencies; the
+installed optional packages are exercised only by the focused run. Neither
+positive run demonstrates live Yahoo availability or external database health.

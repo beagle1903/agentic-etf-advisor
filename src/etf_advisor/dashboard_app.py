@@ -1397,6 +1397,19 @@ def _render_catalogue_preparation(st: Any) -> CatalogueRequestV1 | None:
             st.caption("Displayed pages do not change the pinned requested membership.")
         reference_paths = st.text_input("Reference fact files (comma separated paths)", value="")
         job_store = ResearchJobStore()
+        saved_job_id = st.text_input("Saved catalogue research job ID", value="")
+        if st.button("Load saved catalogue research job"):
+            st.session_state.pop("catalogue_research_job_id", None)
+            st.session_state.pop("catalogue_review_request", None)
+            try:
+                loaded_job = job_store.read(saved_job_id.strip())
+            except Exception:
+                st.session_state["catalogue_preparation_error"] = (
+                    "Saved research job is unavailable or invalid."
+                )
+            else:
+                st.session_state["catalogue_research_job_id"] = loaded_job.job_id
+                st.session_state.pop("catalogue_preparation_error", None)
         if st.button("Begin catalogue research job", disabled=preview is None):
             try:
                 new_job = begin_catalogue_research(
@@ -1418,6 +1431,8 @@ def _render_catalogue_preparation(st: Any) -> CatalogueRequestV1 | None:
             try:
                 job = job_store.read(job_id)
             except Exception:
+                st.session_state.pop("catalogue_research_job_id", None)
+                st.session_state.pop("catalogue_review_request", None)
                 st.session_state["catalogue_preparation_error"] = (
                     "Saved research job is unavailable or invalid."
                 )

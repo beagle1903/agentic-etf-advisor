@@ -1,6 +1,7 @@
 """Missing frozen Issue105 crash, bounds, and identity scenarios."""
 
 import json
+from contextlib import nullcontext
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -42,6 +43,16 @@ def _job(tmp_path: Path, count: int = 2, policy: ResearchJobPolicy | None = None
         scope, [], policy or ResearchJobPolicy(batch_size=count), clock=lambda: CREATED, store=store
     )
     return scope, store, job
+
+
+def test_saved_job_read_rejects_mismatched_manifest_identity(tmp_path: Path) -> None:
+    scope, store, first = _job(tmp_path, 1)
+    second = begin_catalogue_research(
+        scope, [], ResearchJobPolicy(), clock=lambda: CREATED, store=store
+    )
+    store._path(second.job_id).write_bytes(store._path(first.job_id).read_bytes())
+    with pytest.raises(ResearchJobError, match="job_identity_mismatch"):
+        store.read(second.job_id)
 
 
 def test_started_attempt_crash_requires_exact_retry(tmp_path: Path, monkeypatch) -> None:
@@ -112,6 +123,17 @@ def test_bnd_issuer_fallback_reserves_time_and_requests_before_invocation(
     import etf_advisor.data.yahoo_research as yahoo_research
 
     monkeypatch.setattr(yahoo_research, "bounded_yahoo_session", lambda budget: object())
+    monkeypatch.setattr(yahoo_research, "restore_yahoo_data_session", nullcontext)
+    original_import = yahoo_research.importlib.import_module
+    monkeypatch.setattr(
+        yahoo_research.importlib,
+        "import_module",
+        lambda name: (
+            SimpleNamespace(Ticker=lambda symbol, session: object())
+            if name == "yfinance"
+            else original_import(name)
+        ),
+    )
     monkeypatch.setattr(
         yahoo_research.YahooResearchAdapter,
         "_fetch_one",

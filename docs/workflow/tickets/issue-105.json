@@ -666,6 +666,201 @@
         },
         "content": "cfe15ea5e1fdbe341a2842295da77094815ffb69f2507174373324e83070c2c1"
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-10-24T16:11:38Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "2026-10-24 chat01a1556c-af89-7582-8ac7-a3d4e1ff6ebb: approved, %26 left, explicitly approving one additional repair and one independent final review on original PR116 for six CI optional-dependency failures and missing saved research-job reopening."
+        },
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Bounded post-delivery repair on original PR116: make six optional-provider tests compatible with minimal CI while retaining meaningful extra-enabled coverage, and add explicit validated read-only reopening of persisted research jobs after new Streamlit session. Preserve original delivery/history/counters; no scope/reset/model/merge grant."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-10-24T16:11:39Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Explicit2026-10-24 approved post-delivery continuation for PR116; resume same owner after terminal delivery stopped audit clock, no retroactive subtraction."
+        },
+        "evidence": "Resume bounded PR116 repair of CI optional-dependency failures and persisted-job reopening; same gen2 scope/owner and finite grant."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-24T16:11:39Z",
+      "data": {
+        "id": "B105-CI-OPTIONAL",
+        "criterion": "AC105-5",
+        "scenario": "Minimal uv sync --frozen CI lacks optional curl_cffi/yfinance; four singleton tests and two BND reservation tests import them unconditionally, yielding6failures while optional-enabled local suite passes.",
+        "evidence": "CI40109595789 head4d2147ebb22177c23b534a37e783b91cd25f16db:6failed1739passed52skipped; tests/test_issue105_final_review_repair.py18 and test_issue105_remediation.py123. https://github.com/beagle1903/agentic-etf-advisor/actions/runs/40109595789"
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-24T16:11:40Z",
+      "data": {
+        "id": "B105-JOB-REOPEN",
+        "criterion": "AC105-3",
+        "scenario": "After Streamlit session loss, persisted partial research job cannot be selected/reopened; dashboard only obtains job ID from session state set by creating a new job. Successful cached members remain on disk but are inaccessible to resume UI.",
+        "evidence": "Unresolved GitHub P2 https://github.com/beagle1903/agentic-etf-advisor/pull/116#discussion_r4367665020; coordinator confirmed dashboard_app.py1409,1415,1419 and no UI/CLI assignment for existing ID. Frozen job cache/resume and explicit user actions INV105-2/5 AC105-3/5/6."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T16:11:42Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T16:23:57Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "A105-5 finite post-delivery REMEDIATION PASS on originalPR116, same approved owner. CI optional dependency compatibility: separate ignored locked minimal env full uv run --frozen pytest -q100% exit0, targeted4optional skips+2BND core passes; extras focused11file suite100% and all6CI-related cases pass. Actual fresh Streamlit session reopens partial job read-only, preserves cache/version/generation, explicit pending-only advance; invalid/missing/corrupt inputs clear stale selected state, strict manifest identity check. Negative-before/positive-after tests, usage/architecture/iteration evidence updated. Ruff/format/mypy63/build/workflow/Compose/diff exit0, quiescent files, no commit/push. Fresh verification/independent final review/redelivery required, no broadened financial/FX/shortlist/replay contracts."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-24T16:23:58Z",
+      "data": {
+        "id": "B105-CI-OPTIONAL",
+        "evidence": "Successful A105-5 remediation: full locked minimal-env suite passes; only4 optional provider cases skip,2BND core tests execute/pass; extras execute all6 and broader focused suite. Existing workspace optional dependencies preserved. Fresh native verification/independent review and latest-head CI pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-24T16:23:59Z",
+      "data": {
+        "id": "B105-JOB-REOPEN",
+        "evidence": "Successful A105-5 remediation adds explicit validated saved-job load; actual fresh-session AppTest retains5 cached successes of6 with same bytes/time/version/generation, zero collection on load, explicit only-pending advance. Invalid/missing/corrupt IDs clear stale state; manifest identity mismatch rejects. Fresh native verification/independent review/redelivery onPR116 pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T16:24:18Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue105_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T16:24:57Z",
+      "data": {
+        "session": "/root/issue105_owner",
+        "outcome": "pass",
+        "evidence": "Fresh content-bound VERIFICATION PASS e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d; staged/working intended content matches except excluded ledger. Complete AC105-1..6 map plus A105-5 negative/positive saved-job/new-session and minimal-full/extras-focused dependency provenance verified, no material gap. Read-only staged/unstageddiff,Ruff format207,workflow and ticket validators pass. No edits/full rerun; independent final review required."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-24T16:24:58Z",
+      "data": {
+        "ids": [
+          "AC105-1",
+          "AC105-2",
+          "AC105-3",
+          "AC105-4",
+          "AC105-5",
+          "AC105-6"
+        ],
+        "evidence": "Fresh same-content acceptance after explicit A105-5 continuation: complete frozen AC map and prior required contracts retained; full locked minimal suite passes,optional-enabled focused suite executes all6CI-related cases; fresh-session actual AppTest validates strict read-only persisted partial-job load, preserved cache/time/version/generation,explicit pending-only continuation and stale-state clearing for invalid/missing/corrupt IDs. Store mismatched manifest identity rejects. Both blockers resolved after successful remediation; verification PASS, all required static/build/config checks pass. Independent final review required before redelivery on original PR116.",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T16:24:59Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue105_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d"
+      }
+    },
+    {
+      "type": "pause",
+      "at": "2026-10-24T16:42:05Z",
+      "data": {
+        "session": "/root/issue105_final_review",
+        "outcome": "interrupted",
+        "evidence": "Actual independent reviewer turn errored usage limit before verdict on A105-5 content e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d. Truthful interruption preserves SAME third final-review reservation, all elapsed audit time/counters. No pass/fail product finding inferred, no new phase/model exception. User continue authorizes same approved pass; bounded retry same reviewer only."
+      }
+    },
+    {
+      "type": "phase_resume",
+      "at": "2026-10-24T16:42:05Z",
+      "data": {
+        "session": "/root/issue105_final_review"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T16:43:23Z",
+      "data": {
+        "session": "/root/issue105_final_review",
+        "outcome": "pass",
+        "evidence": "Independent THIRD FINAL_REVIEW PASS exactcontente55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d after truthful same-slot quota interruption/resume. B105-CI-OPTIONAL closed:4real-provider cases skip only absent optional dependencies,2BND core cases execute in minimal; extras all6 and isolated locked full suite pass without CI/dependency broadening. B105-JOB-REOPEN closed: explicit strict read-only load clears stale selection/request,jobstore enforces requested manifest ID,button-gated continuation; actual fresh-session AppTest preserves5of6cachebytes/time/version/generation,zeroautomaticcalls,explicit pending-only6th and invalid/missing/corrupt rejection. No material frozen repair regression, no edits/live calls; prior review failures preserved."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-24T16:43:25Z",
+      "data": {
+        "evidence": "REDELIVERY originalPR116 same repo/branch after explicit A105-5 finite continuation, successful remediation, resolved CI/job-reopen blockers, current-content verification/AC105-1..6 acceptance and independent third final review PASS. Exactcontent e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d; full isolated locked minimal suite and optional-enabled focused regressions pass plus all required static/build/config gates. Preserve original delivery/history/failures; latest-head GitHub CI and unresolved thread closure still must be checked before readiness claim. No merge/financial writes or scope expansion.",
+        "pr": 116,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-105-catalogue-selection",
+          "generation": 2,
+          "digest": "c1aed72e5deb532209ecc230180ddecc03f42df1b025ef7960a99592d7396072"
+        },
+        "content": "e55e2f7d5f42f24d2d912333dba0d889cc4a54444ed181be42af45cc9fa5eb5d"
+      }
     }
   ]
 }

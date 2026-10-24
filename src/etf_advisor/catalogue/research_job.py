@@ -195,7 +195,10 @@ class ResearchJobStore:
         data = path.read_bytes()
         if len(data) > 64 * 1024 * 1024:
             raise ResearchJobError("job_manifest_limit_exceeded")
-        return ResearchJob.model_validate(strict_json(data.decode("utf-8")))
+        job = ResearchJob.model_validate(strict_json(data.decode("utf-8")))
+        if job.job_id != job_id:
+            raise ResearchJobError("job_identity_mismatch")
+        return job
 
     def write(self, job: ResearchJob, *, expected_generation: int) -> ResearchJob:
         path = self._path(job.job_id)

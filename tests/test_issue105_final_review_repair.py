@@ -15,6 +15,8 @@ from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector, Yah
 def test_catalogue_attempt_does_not_poison_later_ordinary_yahoo_research(
     monkeypatch: pytest.MonkeyPatch, attempt_fails: bool, preexisting: bool
 ) -> None:
+    pytest.importorskip("curl_cffi.requests")
+    pytest.importorskip("yfinance")
     import curl_cffi.requests
     import yfinance as yf
     from test_issue105_catalogue import _isin

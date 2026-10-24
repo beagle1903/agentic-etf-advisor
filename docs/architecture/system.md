@@ -34,6 +34,9 @@ scope rejects empty or over-100 membership before collection. Local jobs cache
 bounded per-listing source observations and attempts, then finalize one detached
 schema-2 snapshot after complete source validation; finalization never renews
 source time. Existing complete Chroma/Neo4j publication activates that snapshot.
+The dashboard can reopen a persisted partial job by exact ID in a fresh session;
+the strict manifest read changes no job state and performs no collection or
+publication. Invalid, missing or corrupt IDs clear the selected job.
 The bounded Yahoo attempt holds the shared session exclusion and restores
 yfinance's prior singleton transport and session authentication state on both
 success and failure, so later ordinary research does not inherit its budget.
