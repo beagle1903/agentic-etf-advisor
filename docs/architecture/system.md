@@ -27,6 +27,27 @@ Saved contract switches reject. Dashboard and exact monetary explanation groundi
 recompute the same contracts. Separate synthetic `evaluate-us-eu` cases supplement
 unchanged Issue99 evaluation bytes; live EU completeness remains unproven.
 
+Issue105 extends only the explicit evidence-enabled `us-eu-v1` path through
+[ADR0040](decisions/0040-bounded-catalogue-research-selection.md) and the
+[local usage guide](../catalogue-research.md). A pinned, filtered directory
+scope rejects empty or over-100 membership before collection. Local jobs cache
+bounded per-listing source observations and attempts, then finalize one detached
+schema-2 snapshot after complete source validation; finalization never renews
+source time. Existing complete Chroma/Neo4j publication activates that snapshot.
+The dashboard can reopen a persisted partial job by exact ID in a fresh session;
+the strict manifest read changes no job state and performs no collection or
+publication. Invalid, missing or corrupt IDs clear the selected job.
+The bounded Yahoo attempt holds the shared session exclusion and restores
+yfinance's prior singleton transport and session authentication state on both
+success and failure, so later ordinary research does not inherit its budget.
+Exact retrieval verifies all requested documents and graph links against the
+pinned directory and active manifest, delivering the full <=100 pool. The pure
+round-robin shortlist selects <=10 for the existing portfolio enumerator and
+records per-listing coverage and exclusion reasons. Request identity is carried
+through receipts, JSON checkpoints, revisions and offline restore. Absent
+markers still serialize exactly as the legacy contract; FX needs-rate staging
+still observes the full retrieved pool.
+
 The system is a LangGraph workflow with explicit boundaries between orchestration,
 deterministic finance logic, retrieval, model providers, and presentation.
 

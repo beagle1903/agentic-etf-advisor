@@ -5,10 +5,32 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import MutableMapping
+from datetime import timedelta
 from decimal import Decimal
 from importlib import import_module
+from pathlib import Path
 from typing import Any
 
+from etf_advisor.catalogue.mapping import EXCLUDED_CODES, UNSUPPORTED_EU
+from etf_advisor.catalogue.research_job import (
+    ResearchJob,
+    ResearchJobPolicy,
+    ResearchJobStore,
+    advance_catalogue_research,
+    begin_catalogue_research,
+    finalize_catalogue_research,
+    publish_catalogue_research,
+    retry_catalogue_research,
+)
+from etf_advisor.catalogue.research_scope import (
+    CatalogueRequestV1,
+    ScopeError,
+    ScopeFilters,
+    plan_catalogue_scope,
+)
+from etf_advisor.catalogue.store import CatalogueStore
+from etf_advisor.clock import system_utc_now
+from etf_advisor.config import settings
 from etf_advisor.dashboard import (
     DashboardOptions,
     DashboardRun,
@@ -19,7 +41,12 @@ from etf_advisor.dashboard import (
     review_payload,
     start_dashboard_run,
 )
+from etf_advisor.data.vanguard import VanguardHoldingsClient
+from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
 from etf_advisor.domain.us_eu import listing_region
+from etf_advisor.rag.chroma_store import ChromaDocumentStore
+from etf_advisor.rag.neo4j_store import Neo4jGraphStore
+from etf_advisor.rag.snapshots import publish_research_snapshot
 
 _CREATION_IN_PROGRESS_KEY = "review_creation_in_progress"
 _CREATION_ERROR_KEY = "review_creation_error"
@@ -28,6 +55,25 @@ _CREATION_ERROR_MESSAGE = (
     "The workflow could not create a review draft. Check the local services and "
     "provider configuration, then try again."
 )
+_SCOPE_PREVIEW_ERROR = (
+    "Scope unavailable or exceeds the requested limit. Narrow the filters and preview again."
+)
+
+
+def _scope_preview_error(error: ScopeError) -> str:
+    """Expose only the planner's fixed over-limit count, never arbitrary error text."""
+    match = re.fullmatch(
+        r"scope_limit_exceeded: matched=([0-9]{1,8}) limit=([0-9]{1,3})", str(error)
+    )
+    if match is None:
+        return _SCOPE_PREVIEW_ERROR
+    matched, limit = (int(value) for value in match.groups())
+    if not 1 <= limit <= 100 or matched <= limit:
+        return _SCOPE_PREVIEW_ERROR
+    return (
+        f"Scope limit exceeded: matched={matched} limit={limit}. "
+        "Narrow the filters and preview again."
+    )
 
 
 def main() -> None:
@@ -73,9 +119,14 @@ def main() -> None:
             "Maximum tolerable drawdown (%)", 0.1, 100.0, 25.0, step=0.5
         )
 
-        advisory_mode = st.selectbox("Advisory scope", ["Legacy US / USD", "US / EU (us-eu-v1)"])
+        advisory_mode = st.selectbox(
+            "Advisory scope",
+            ["Legacy US / USD", "US / EU (us-eu-v1)", "US / EU catalogue research"],
+        )
 
-        new_contract = advisory_mode == "US / EU (us-eu-v1)"
+        new_contract = advisory_mode != "Legacy US / USD"
+        catalogue_mode = advisory_mode == "US / EU catalogue research"
+        catalogue_request = _render_catalogue_preparation(st) if catalogue_mode else None
 
         if new_contract:
             base_currency = st.selectbox("Base currency", ["USD", "EUR"])
@@ -139,6 +190,10 @@ def main() -> None:
                     "recurring_monthly_usd": float(recurring_monthly_usd),
                 }
             )
+            if catalogue_mode:
+                if catalogue_request is None:
+                    raise ValueError("Select a published catalogue research scope first.")
+                profile["catalogue_request"] = catalogue_request.model_dump(mode="json")
 
             st.session_state["dashboard_run"] = start_dashboard_run(
                 profile,
@@ -291,6 +346,14 @@ def _render_run(st: Any, run: DashboardRun) -> None:
         st.warning(state.get("final_message", "The draft needs revision."))
     else:
         st.error("The workflow stopped before human review.")
+        if isinstance(state.get("candidate_evidence"), dict) and state["candidate_evidence"].get(
+            "catalogue_context"
+        ):
+            _render_catalogue_evidence_counts(st, state["candidate_evidence"])
+        if isinstance(state.get("portfolio_construction"), dict) and state[
+            "portfolio_construction"
+        ].get("catalogue_selection"):
+            _render_catalogue_selection(st, state["portfolio_construction"])
         errors = [
             *state.get("validation_errors", []),
             *state.get("evidence_errors", []),
@@ -400,6 +463,8 @@ def _cash_flow_row(label: str, allocation: dict[str, Any]) -> dict[str, str]:
 
 def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
     st.subheader("Source evidence")
+    if bundle.get("catalogue_context"):
+        _render_catalogue_evidence_counts(st, bundle)
     st.caption(f"Freshness checked at {bundle['checked_at']} · Query: {bundle['query']}")
     for warning in bundle.get("warnings", []):
         st.warning(warning)
@@ -437,6 +502,95 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
 
             st.text(candidate["content"])
             st.link_button("Open source", candidate["source_url"])
+
+
+def _catalogue_coverage_summary(coverage: dict[str, Any]) -> dict[str, Any]:
+    provider = coverage["provider"]
+    return {
+        "discovered": coverage["discovered"],
+        "direct": coverage["direct"],
+        "direct_only": coverage["direct_only"],
+        "overlap": coverage["overlap"],
+        "combined": coverage["combined"],
+        "matched": coverage["matched"],
+        "requested": coverage["requested"],
+        "provider_status": provider["status"],
+        "provider_partitions": len(provider["partitions"]),
+        "unsupported_eu_countries": list(UNSUPPORTED_EU),
+        "excluded_venues": list(EXCLUDED_CODES),
+        "full_refresh_at": coverage["full_refresh_at"],
+    }
+
+
+def _catalogue_job_summary(job: ResearchJob) -> dict[str, Any]:
+    return {
+        "job_id": job.job_id,
+        "requested": len(job.scope.members),
+        "researched": len(job.cached),
+        "pending": len(job.scope.members) - len(job.cached),
+        "failed": sum(
+            1 for attempts in job.attempts.values() if attempts and attempts[-1].status == "failed"
+        ),
+        "generation": job.generation,
+        "finalized": job.finalization is not None,
+        "publication": job.publication,
+    }
+
+
+def _catalogue_selection_summary(report: dict[str, Any]) -> dict[str, Any]:
+    reasons: dict[str, int] = {}
+    for item in report["dispositions"]:
+        reason = item["reason"]
+        reasons[reason] = reasons.get(reason, 0) + 1
+    return {
+        "usable_before_shortlist": report["usable_count"],
+        "shortlisted": len(report["shortlist_ids"]),
+        "final_positions": len(report["final_position_ids"]),
+        "capacity": report["capacity"],
+        "requested_dispositions": len(report["dispositions"]),
+        "omitted": reasons.get("bounded_shortlist_omission", 0),
+        "unknown": sum(count for reason, count in reasons.items() if "unknown" in reason),
+        "reason_counts": reasons,
+        "not_evaluated_reason": report.get("not_evaluated_reason"),
+    }
+
+
+def _render_catalogue_evidence_counts(st: Any, bundle: dict[str, Any]) -> None:
+    context = bundle["catalogue_context"]
+    scope = context["request"]["scope"]
+    coverage = scope["coverage"]
+    st.write(
+        {
+            **_catalogue_coverage_summary(coverage),
+            "researched_in_published_snapshot": len(context["retrieved_listing_ids"]),
+            "source_candidates_current": len(bundle.get("candidates", [])),
+        }
+    )
+    st.caption(
+        "Requested catalogue research is bounded and pinned. Missing, stale, or unsupported "
+        "facts remain visible in screening; source coverage is not eligibility."
+    )
+
+
+def _render_catalogue_selection(st: Any, bundle: dict[str, Any]) -> None:
+    report = bundle["catalogue_selection"]
+    st.write(_catalogue_selection_summary(report))
+    st.caption(
+        "Sleeve and category round-robin covers the requested pool before the existing "
+        "ten-candidate construction search. It may miss a feasible full-pool combination."
+    )
+    st.dataframe(
+        [
+            {
+                "Symbol": item["symbol"],
+                "Listing ID": item["listing_id"],
+                "Reason": item["reason"],
+                "Shortlisted": item["shortlisted"],
+                "Selected group representative": item.get("selected_representative_id") or "—",
+            }
+            for item in report["dispositions"]
+        ]
+    )
 
 
 def _render_screening(st: Any, bundle: dict[str, Any]) -> None:
@@ -486,6 +640,8 @@ def _render_screening(st: Any, bundle: dict[str, Any]) -> None:
 
 def _render_portfolio(st: Any, bundle: dict[str, Any]) -> None:
     st.subheader("Illustrative model portfolio")
+    if bundle.get("catalogue_selection"):
+        _render_catalogue_selection(st, bundle)
     st.caption(
         "Deterministically constructed from the validated policy and source evidence. "
         "The model and dashboard do not select instruments or change allocations. This is "
@@ -1166,6 +1322,221 @@ def _decimal_minor(value: str) -> int:
 def _currency_minor(currency: str, value: int) -> str:
 
     return f"{currency} {Decimal(value) / 100:,.2f}"
+
+
+class _LocalCataloguePublisher:
+    """Replaceable publication adapter using the existing complete snapshot protocol."""
+
+    def publish(self, snapshot: Any) -> Any:
+        graph = Neo4jGraphStore(uri=settings.neo4j_uri, auth=settings.neo4j_credentials())
+        try:
+            documents = ChromaDocumentStore(
+                host=settings.chroma_host,
+                port=settings.chroma_port,
+                collection_name=settings.chroma_collection,
+            )
+            return publish_research_snapshot(
+                snapshot,
+                documents,
+                graph,
+                clock=system_utc_now,
+                max_age=timedelta(hours=settings.market_data_max_age_hours),
+                future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+            )
+        finally:
+            graph.close()
+
+
+def _render_catalogue_preparation(st: Any) -> CatalogueRequestV1 | None:
+    """Explicit read-only preview and button-driven bounded job transitions."""
+    with st.expander("Catalogue research preparation", expanded=True):
+        st.caption(
+            "Choose at most 100 pinned Yahoo US/EU listings. Catalogue membership does not "
+            "prove source coverage, eligibility, or portfolio suitability."
+        )
+        region = st.selectbox("Catalogue region", ["Any", "US", "EU"])
+        country = st.text_input("Catalogue country code", value="")
+        exchange = st.text_input("Catalogue exchange code", value="")
+        text = st.text_input("Catalogue symbol or name contains", value="")
+        listing_ids = st.text_input("Exact listing IDs (comma separated)", value="")
+        scope_limit = st.number_input("Maximum requested listings", 1, 100, 100)
+        if st.button("Preview catalogue scope"):
+            try:
+                catalogue = CatalogueStore().read()
+                if catalogue is None:
+                    raise ValueError("catalogue_unavailable")
+                filters = ScopeFilters(
+                    region=None if region == "Any" else region,
+                    country=country.strip() or None,
+                    exchange=exchange.strip() or None,
+                    text=text,
+                    listing_ids=[item.strip() for item in listing_ids.split(",") if item.strip()],
+                )
+                st.session_state["catalogue_scope_preview"] = plan_catalogue_scope(
+                    catalogue, filters, limit=int(scope_limit)
+                )
+                st.session_state.pop("catalogue_preparation_error", None)
+            except ScopeError as exc:
+                st.session_state.pop("catalogue_scope_preview", None)
+                st.session_state["catalogue_preparation_error"] = _scope_preview_error(exc)
+            except Exception:
+                st.session_state.pop("catalogue_scope_preview", None)
+                st.session_state["catalogue_preparation_error"] = _SCOPE_PREVIEW_ERROR
+        preview = st.session_state.get("catalogue_scope_preview")
+        if preview is not None:
+            st.write(_catalogue_coverage_summary(preview.coverage))
+            page = st.number_input(
+                "Scope preview page", 1, max(1, (len(preview.members) + 24) // 25), 1
+            )
+            st.dataframe(
+                [
+                    member.model_dump(mode="json")
+                    for member in preview.members[(int(page) - 1) * 25 : int(page) * 25]
+                ]
+            )
+            st.caption("Displayed pages do not change the pinned requested membership.")
+        reference_paths = st.text_input("Reference fact files (comma separated paths)", value="")
+        job_store = ResearchJobStore()
+        saved_job_id = st.text_input("Saved catalogue research job ID", value="")
+        if st.button("Load saved catalogue research job"):
+            st.session_state.pop("catalogue_research_job_id", None)
+            st.session_state.pop("catalogue_review_request", None)
+            try:
+                loaded_job = job_store.read(saved_job_id.strip())
+            except Exception:
+                st.session_state["catalogue_preparation_error"] = (
+                    "Saved research job is unavailable or invalid."
+                )
+            else:
+                st.session_state["catalogue_research_job_id"] = loaded_job.job_id
+                st.session_state.pop("catalogue_preparation_error", None)
+        if st.button("Begin catalogue research job", disabled=preview is None):
+            try:
+                new_job = begin_catalogue_research(
+                    preview,
+                    [Path(value.strip()) for value in reference_paths.split(",") if value.strip()],
+                    ResearchJobPolicy(),
+                    clock=system_utc_now,
+                    store=job_store,
+                )
+                st.session_state["catalogue_research_job_id"] = new_job.job_id
+                st.session_state.pop("catalogue_preparation_error", None)
+            except Exception:
+                st.session_state["catalogue_preparation_error"] = (
+                    "Research job could not start. Check the scope and bounded reference inputs."
+                )
+        job_id = st.session_state.get("catalogue_research_job_id")
+        job: ResearchJob | None = None
+        if isinstance(job_id, str):
+            try:
+                job = job_store.read(job_id)
+            except Exception:
+                st.session_state.pop("catalogue_research_job_id", None)
+                st.session_state.pop("catalogue_review_request", None)
+                st.session_state["catalogue_preparation_error"] = (
+                    "Saved research job is unavailable or invalid."
+                )
+        if job is not None:
+            st.write(_catalogue_job_summary(job))
+            next_member = next(
+                (member for member in job.scope.members if member.listing_id not in job.cached),
+                None,
+            )
+            attempts = job.attempts[next_member.listing_id] if next_member is not None else []
+            retryable = bool(
+                attempts
+                and attempts[-1].status in {"failed", "started"}
+                and len(attempts) < job.policy.attempts_per_listing
+            )
+            if attempts:
+                assert next_member is not None
+                st.warning(
+                    {
+                        "listing": next_member.symbol,
+                        "attempt": attempts[-1].attempt_id,
+                        "status": attempts[-1].status,
+                        "reason": attempts[-1].code,
+                    }
+                )
+            if st.button(
+                "Collect next catalogue batch", disabled=next_member is None or bool(attempts)
+            ):
+                try:
+                    advance_catalogue_research(
+                        job.job_id,
+                        job.generation,
+                        collector=YahooCatalogueResearchCollector(
+                            issuer_client=VanguardHoldingsClient()
+                        ),
+                        store=job_store,
+                        clock=system_utc_now,
+                    )
+                    st.rerun()
+                except Exception:
+                    st.session_state["catalogue_preparation_error"] = (
+                        "Research batch failed before completion. Refresh status and "
+                        "retry explicitly."
+                    )
+            if st.button("Retry exact catalogue attempt", disabled=not retryable):
+                try:
+                    assert next_member is not None
+                    retry_catalogue_research(
+                        job.job_id,
+                        next_member.listing_id,
+                        attempts[-1].attempt_id,
+                        job.generation,
+                        collector=YahooCatalogueResearchCollector(
+                            issuer_client=VanguardHoldingsClient()
+                        ),
+                        store=job_store,
+                        clock=system_utc_now,
+                    )
+                    st.rerun()
+                except Exception:
+                    st.session_state["catalogue_preparation_error"] = (
+                        "Exact retry was rejected or failed. Review saved job status."
+                    )
+            complete = len(job.cached) == len(job.scope.members)
+            if st.button(
+                "Finalize complete catalogue snapshot",
+                disabled=not complete or job.finalization is not None,
+            ):
+                try:
+                    finalize_catalogue_research(job.job_id, store=job_store, clock=system_utc_now)
+                    st.rerun()
+                except Exception:
+                    st.session_state["catalogue_preparation_error"] = (
+                        "Finalization rejected incomplete, stale, or inconsistent source evidence."
+                    )
+            if st.button("Publish complete catalogue snapshot", disabled=job.finalization is None):
+                try:
+                    publish_catalogue_research(
+                        job.job_id, publisher=_LocalCataloguePublisher(), store=job_store
+                    )
+                    st.rerun()
+                except Exception:
+                    st.session_state["catalogue_preparation_error"] = (
+                        "Publication outcome requires store verification before another attempt."
+                    )
+            if st.button(
+                "Use published scope for new review", disabled=job.publication != "succeeded"
+            ):
+                assert job.finalization is not None
+                st.session_state["catalogue_review_request"] = CatalogueRequestV1(
+                    scope=job.scope,
+                    snapshot_version=job.snapshot_version,
+                    snapshot_digest=job.finalization["digest"],
+                )
+        error = st.session_state.get("catalogue_preparation_error")
+        if isinstance(error, str):
+            st.error(error)
+        selected = st.session_state.get("catalogue_review_request")
+        if isinstance(selected, CatalogueRequestV1):
+            st.success(
+                f"Pinned {len(selected.scope.members)} researched listings for a new review."
+            )
+            return selected
+        return None
 
 
 if __name__ == "__main__":

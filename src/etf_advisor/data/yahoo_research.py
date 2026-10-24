@@ -19,6 +19,13 @@ from etf_advisor.data.reference_facts import (
 )
 from etf_advisor.data.vanguard import BND_URL, PROVIDER, IssuerHoldingsClient, IssuerSourceError
 from etf_advisor.data.yahoo import MarketDataError
+from etf_advisor.data.yahoo_budget import (
+    YAHOO_SESSION_LOCK,
+    YahooBudgetError,
+    YahooRequestBudget,
+    bounded_yahoo_session,
+    restore_yahoo_data_session,
+)
 from etf_advisor.domain.us_eu import contract_fields
 from etf_advisor.encoding import decimal_token
 from etf_advisor.research.models import (
@@ -103,7 +110,8 @@ class YahooResearchAdapter:
     ) -> ETFResearchSnapshot:
         """Fetch every curated member and build one internally consistent snapshot."""
 
-        raw_records = [self._fetch_one(symbol) for symbol in universe.symbols]
+        with YAHOO_SESSION_LOCK:
+            raw_records = [self._fetch_one(symbol) for symbol in universe.symbols]
         if self._advisory_contract == "us-eu-v1" and isinstance(
             self._reference_facts, LocalReferenceFacts
         ):
@@ -381,6 +389,63 @@ class YahooResearchAdapter:
                 snapshot_version=snapshot_version,
             ),
         }
+
+
+class YahooCatalogueResearchCollector:
+    """One source-normalized listing attempt under a real HTTP transport budget."""
+
+    def __init__(self, *, issuer_client: IssuerHoldingsClient | None = None) -> None:
+        self._issuer_client = issuer_client
+
+    def collect(
+        self,
+        listing: Any,
+        snapshot_version: str,
+        references: LocalReferenceFacts,
+        budget: YahooRequestBudget,
+        *,
+        clock: Clock,
+    ) -> ETFResearchRecord:
+        session = bounded_yahoo_session(budget)
+        yf = importlib.import_module("yfinance")
+        with YAHOO_SESSION_LOCK, restore_yahoo_data_session():
+            adapter = YahooResearchAdapter(
+                clock=clock,
+                ticker_factory=lambda symbol: yf.Ticker(symbol, session=session),
+                max_attempts=1,
+                issuer_client=self._issuer_client,
+                advisory_contract="us-eu-v1",
+                reference_facts=references,
+            )
+            raw = adapter._fetch_one(listing.symbol)
+            budget.check()  # Optional yfinance accessors may have swallowed a budget exception.
+            if raw.info.get("exchange") != listing.exchange:
+                raise MarketDataError("Yahoo exchange differs from pinned catalogue listing.")
+            if (
+                listing.symbol == "BND"
+                and raw.top_holdings is None
+                and self._issuer_client is not None
+                and (
+                    budget.deadline - budget.monotonic() < 90
+                    or budget.requests + 2 > budget.max_requests
+                )
+            ):
+                raise YahooBudgetError("bnd_issuer_reservation_unavailable")
+            provisional = clock()
+            record = adapter._build_record(
+                raw, snapshot_version=snapshot_version, ingested_at=provisional
+            )
+            budget.check()
+            ingested_at = clock()
+            if ingested_at.tzinfo is None or ingested_at.utcoffset() is None:
+                raise MarketDataError("Research clock requires an aware UTC timestamp.")
+            updates = {
+                name: field.model_copy(update={"ingested_at": ingested_at.astimezone(UTC)})
+                for name, field in record.research_fields().items()
+            }
+            return ETFResearchRecord.model_validate(
+                record.model_copy(update=updates).model_dump(mode="python")
+            )
 
 
 def _required_info(ticker: Any) -> dict[str, Any]:

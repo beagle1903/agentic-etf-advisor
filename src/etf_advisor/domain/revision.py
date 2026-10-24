@@ -90,6 +90,8 @@ class RevisionInputs(Contract):
     def dependencies(self) -> RevisionInputs:
         if self.with_explanation and not self.with_evidence:
             raise ValueError("Explanation requires evidence.")
+        if self.profile.catalogue_request is not None and not self.with_evidence:
+            raise ValueError("Catalogue selection requires evidence.")
         if self.explanation_instruction and not self.with_explanation:
             raise ValueError("Instruction targets a disabled provider.")
         return self
@@ -180,6 +182,8 @@ def plan_revision(decision: ReviewDecision, inputs: dict[str, Any]) -> RevisionP
     updated = dict(inputs)
     for item in decision.feedback:
         if item.kind == "profile":
+            if "catalogue_request" in item.patch:
+                raise ValueError("A saved revision cannot change the pinned catalogue request.")
             if "advisory_contract" in item.patch and item.patch["advisory_contract"] != inputs[
                 "profile"
             ].get("advisory_contract"):

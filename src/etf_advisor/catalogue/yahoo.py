@@ -6,6 +6,8 @@ import importlib
 import time
 from typing import Any
 
+from etf_advisor.data.yahoo_budget import YAHOO_SESSION_LOCK
+
 from .service import CatalogueError
 
 
@@ -46,27 +48,29 @@ class YahooCatalogueProvider:
                 self._yf.ETFQuery("eq", ["exchange", exchange]),
             ],
         )
-        result = self._yf.screen(
-            q, offset=offset, size=size, sortField="ticker", sortAsc=True, session=self._session
-        )
+        with YAHOO_SESSION_LOCK:
+            result = self._yf.screen(
+                q, offset=offset, size=size, sortField="ticker", sortAsc=True, session=self._session
+            )
         if not isinstance(result, dict):
             raise CatalogueError("invalid_provider_page")
         return result
 
     def search(self, query: str, limit: int, deadline: float) -> list[dict[str, Any]]:
         self._session.deadline = deadline
-        result = self._yf.Search(
-            query,
-            max_results=limit,
-            news_count=0,
-            lists_count=0,
-            include_cb=False,
-            include_nav_links=False,
-            include_research=False,
-            include_cultural_assets=False,
-            enable_fuzzy_query=False,
-            recommended=0,
-            session=self._session,
-            timeout=min(10.0, max(0.001, deadline - time.monotonic())),
-        )
+        with YAHOO_SESSION_LOCK:
+            result = self._yf.Search(
+                query,
+                max_results=limit,
+                news_count=0,
+                lists_count=0,
+                include_cb=False,
+                include_nav_links=False,
+                include_research=False,
+                include_cultural_assets=False,
+                enable_fuzzy_query=False,
+                recommended=0,
+                session=self._session,
+                timeout=min(10.0, max(0.001, deadline - time.monotonic())),
+            )
         return list(result.quotes)

@@ -64,6 +64,22 @@ class CatalogueStore:
         except OSError as exc:
             raise CatalogueError("store_io_error") from exc
 
+    def read_version(self, version: str, *, max_bytes: int = 32 * 1024 * 1024) -> dict[str, Any]:
+        """Read one immutable pinned blob without substituting the active pointer."""
+        if re.fullmatch(r"[0-9a-f]{64}", version) is None or not 1 <= max_bytes <= 32 * 1024 * 1024:
+            raise CatalogueError("invalid_version_or_bound")
+        try:
+            with (self.root / f"{version}.json").open("rb") as source:
+                payload = source.read(max_bytes + 1)
+        except OSError as exc:
+            raise CatalogueError("version_unavailable") from exc
+        if len(payload) > max_bytes:
+            raise CatalogueError("catalogue_input_limit_exceeded")
+        value = validate_catalogue(_strict_json(payload))
+        if value["version"] != version:
+            raise CatalogueError("version_identity_mismatch")
+        return value
+
     def publish(self, candidate: dict[str, Any], parent: str | None) -> dict[str, Any]:
         validate_catalogue(candidate)
         if candidate["parent"] != parent:

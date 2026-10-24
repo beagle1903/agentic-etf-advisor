@@ -134,6 +134,10 @@ def retrieve_candidate_evidence(
         contract_errors.append("Evidence exclusions do not match the validated profile.")
     if bundle.requested_limit != limit:
         contract_errors.append("Evidence candidate limit does not match the workflow request.")
+    if (
+        bundle.catalogue_context.request if bundle.catalogue_context is not None else None
+    ) != profile.catalogue_request:
+        contract_errors.append("Evidence catalogue request does not match the pinned profile.")
     if contract_errors:
         payload["status"] = EvidenceStatus.BLOCKED
         payload["errors"] = [*bundle.errors, *contract_errors]

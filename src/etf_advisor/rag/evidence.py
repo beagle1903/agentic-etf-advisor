@@ -20,6 +20,7 @@ from pydantic import (
     model_validator,
 )
 
+from etf_advisor.catalogue.research_scope import CatalogueRequestV1
 from etf_advisor.clock import Clock
 from etf_advisor.data.ecb_fx import FxReferenceProvider
 from etf_advisor.data.quality import (
@@ -257,6 +258,21 @@ class CandidateEvidence(AdvisoryWireModel):
         return self
 
 
+class CatalogueEvidenceContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    request: CatalogueRequestV1
+    retrieved_listing_ids: list[str] = Field(min_length=1, max_length=100)
+
+    @model_validator(mode="after")
+    def validate_membership(self) -> CatalogueEvidenceContext:
+        if self.retrieved_listing_ids != [
+            member.listing_id for member in self.request.scope.members
+        ]:
+            raise ValueError("Catalogue retrieval omitted or reordered scope members.")
+        return self
+
+
 class CandidateEvidenceBundle(StrictWireModel):
     """Review-ready evidence, including freshness results and explicit blockers."""
 
@@ -278,6 +294,7 @@ class CandidateEvidenceBundle(StrictWireModel):
     schema_version: int = 1
     advisory_contract: Literal["us-eu-v1"] | None = None
     fx_reference: FxReferenceObservation | None = None
+    catalogue_context: CatalogueEvidenceContext | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -305,6 +322,10 @@ class CandidateEvidenceBundle(StrictWireModel):
         if len({identity[1] for identity in identities}) != len(identities):
             raise ValueError("Evidence symbols must be unique.")
         marker = value.get("advisory_contract")
+        if "catalogue_context" in value and (
+            value["catalogue_context"] is None or marker != "us-eu-v1"
+        ):
+            raise ValueError("Catalogue evidence requires a non-null US/EU context.")
         # An empty blocked result has no candidate encoding to infer. Retain the
         # explicitly selected semantic contract; nonempty candidates remain authoritative.
         version = next(iter(versions), 2 if marker == "us-eu-v1" else 1)
@@ -337,6 +358,8 @@ class CandidateEvidenceBundle(StrictWireModel):
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
             result.pop("fx_reference", None)
+        if self.catalogue_context is None:
+            result.pop("catalogue_context", None)
         return result
 
     @field_validator("checked_at")
@@ -348,6 +371,8 @@ class CandidateEvidenceBundle(StrictWireModel):
 
     @model_validator(mode="after")
     def validate_ready_bundle(self) -> CandidateEvidenceBundle:
+        if self.catalogue_context is not None and self.requested_limit > 10:
+            raise ValueError("Catalogue shortlist capacity cannot exceed ten.")
         if self.checked_at != self.health.checked_at:
             raise ValueError("Evidence and health checks must use the same timestamp.")
         if self.health.checked_at.tzinfo is None or self.health.checked_at.utcoffset() is None:
@@ -401,11 +426,29 @@ class CandidateEvidenceBundle(StrictWireModel):
                 if (
                     health_sources != candidate_sources
                     or len(self.health.observations) != len(self.candidates)
-                    or len(self.candidates) > self.requested_limit
+                    or (
+                        self.catalogue_context is None
+                        and len(self.candidates) > self.requested_limit
+                    )
                 ):
                     raise ValueError(
                         "Schema-2 evidence has duplicate or omitted candidate observations."
                     )
+                if self.catalogue_context is not None:
+                    request = self.catalogue_context.request
+                    if (
+                        len(self.candidates) != len(request.scope.members)
+                        or [candidate.symbol for candidate in self.candidates]
+                        != [member.symbol for member in request.scope.members]
+                        or any(
+                            candidate.document_id != f"research:{request.snapshot_version}:"
+                            f"{request.snapshot_digest}:{member.symbol.lower()}"
+                            for candidate, member in zip(
+                                self.candidates, request.scope.members, strict=True
+                            )
+                        )
+                    ):
+                        raise ValueError("Catalogue evidence must contain the complete scope.")
             for candidate in self.candidates:
                 candidate_source = (
                     candidate.symbol,
@@ -457,6 +500,11 @@ class CandidateEvidenceBundle(StrictWireModel):
             self.snapshot_version != expected_version or self.snapshot_digest != expected_digest
         ):
             raise ValueError("Evidence snapshot identity mismatch.")
+        if self.catalogue_context is not None and (
+            expected_version != self.catalogue_context.request.snapshot_version
+            or expected_digest != self.catalogue_context.request.snapshot_digest
+        ):
+            raise ValueError("Catalogue evidence differs from pinned snapshot.")
         self.snapshot_version, self.snapshot_digest = expected_version, expected_digest
         return self
 
@@ -484,6 +532,7 @@ class HybridCandidateEvidenceRetriever:
         max_age: timedelta,
         future_tolerance: timedelta = timedelta(minutes=5),
         fx_provider: FxReferenceProvider | None = None,
+        catalogue_reader: Any | None = None,
     ) -> None:
         _validate_freshness_window(max_age, future_tolerance)
         self._hybrid_search = hybrid_search
@@ -491,12 +540,24 @@ class HybridCandidateEvidenceRetriever:
         self._max_age = max_age
         self._future_tolerance = future_tolerance
         self._fx_provider = fx_provider
+        self._catalogue_reader = catalogue_reader
 
     def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
         _validate_limit(limit)
+        if profile.catalogue_request is not None and limit > 10:
+            raise EvidenceRetrievalError(
+                "Catalogue shortlist capacity cannot exceed ten.", code="retrieval_unavailable"
+            )
         query = build_candidate_query(profile)
         try:
-            results = self._hybrid_search.search(query, limit=limit)
+            if profile.catalogue_request is not None:
+                if self._catalogue_reader is None:
+                    raise EvidenceRetrievalError(
+                        "Catalogue reader unavailable.", code="retrieval_unavailable"
+                    )
+                results = self._catalogue_reader.load_catalogue_scope(profile.catalogue_request)
+            else:
+                results = self._hybrid_search.search(query, limit=limit)
         except Exception as exc:
             diagnostic = integrity_diagnostic(exc)
             if getattr(exc, "code", None) is None:
@@ -590,12 +651,24 @@ def select_candidate_evidence(
 
     _validate_limit(limit)
     _validate_freshness_window(max_age, future_tolerance)
+    if profile.catalogue_request is not None and limit > 10:
+        raise ValueError("Catalogue shortlist capacity cannot exceed ten.")
     if not query.strip():
         raise ValueError("Evidence query must not be empty.")
     if checked_at.tzinfo is None or checked_at.utcoffset() is None:
         raise ValueError("checked_at must be timezone-aware.")
 
-    bounded_results = list(results[:limit])
+    if profile.catalogue_request is not None:
+        request = profile.catalogue_request
+        expected_ids = [
+            f"research:{request.snapshot_version}:{request.snapshot_digest}:{member.symbol.lower()}"
+            for member in request.scope.members
+        ]
+        if [result.document_id for result in results] != expected_ids:
+            raise ResearchIntegrityError("catalogue_scope_integrity")
+        bounded_results = list(results)
+    else:
+        bounded_results = list(results[:limit])
     marker = profile.advisory_contract
     if any(result.metadata.get("advisory_contract") != marker for result in bounded_results):
         raise ResearchIntegrityError("schema_encoding")
@@ -747,7 +820,7 @@ def select_candidate_evidence(
         if marker
         else {}
     )
-    return CandidateEvidenceBundle(
+    bundle_fields: dict[str, Any] = dict(
         schema_version=(
             document_schema(candidates[0].metadata) if candidates else (2 if marker else 1)
         ),
@@ -764,6 +837,14 @@ def select_candidate_evidence(
         errors=errors,
         warnings=warnings,
     )
+    if profile.catalogue_request is not None:
+        bundle_fields["catalogue_context"] = CatalogueEvidenceContext(
+            request=profile.catalogue_request,
+            retrieved_listing_ids=[
+                member.listing_id for member in profile.catalogue_request.scope.members
+            ],
+        )
+    return CandidateEvidenceBundle.model_validate(bundle_fields)
 
 
 def _provenance_from_result(result: GraphEnrichedSource) -> SourceProvenance:
