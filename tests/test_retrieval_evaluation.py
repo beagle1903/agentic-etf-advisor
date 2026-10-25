@@ -1,4 +1,6 @@
+import hashlib
 import json
+from importlib.resources import files
 
 import pytest
 from pydantic import ValidationError
@@ -37,6 +39,39 @@ def test_offline_evaluation_compares_ranking_and_context_deterministically() -> 
     assert first.deltas.graph_context_field_accuracy == 1.0
     assert first.deltas.sector_constraint_exact_match_rate == 1.0
     assert "without changing semantic ranking" in first.conclusion
+
+
+def test_original_controls_and_case_level_paired_sources() -> None:
+    resource = files("etf_advisor.evaluation")
+    baseline_digest = hashlib.sha256(resource.joinpath("retrieval_baseline.json").read_bytes())
+    assert baseline_digest.hexdigest() == (
+        "9d159ac7eb6b4bae9eec36aaf829bd22dacdf8efac42964c8c369c344b2a5a4e"
+    )
+    assert (
+        hashlib.sha256(
+            resource.joinpath("retrieval_expected_metrics.json").read_bytes()
+        ).hexdigest()
+        == "af28ed7c9889e2e399fc2d8f871889bc1dbbc9ae195c9dd8b1884989dab90415"
+    )
+    report = run_offline_evaluation(load_evaluation_dataset())
+    assert len(report.cases) == 5
+    for case in report.cases:
+        expected = [(item.document_id, item.distance) for item in case.semantic_candidates]
+        for results in (case.semantic_only_results, case.graph_enriched_results):
+            assert [(item.document_id, item.distance) for item in results] == expected
+            assert [item.rank for item in results] == [1, 2, 3]
+            assert all(item.source == "Yahoo Finance" for item in results)
+            assert all(item.source_url and item.observed_at for item in results)
+            assert all(item.snapshot_identity is None for item in results)
+            assert all(item.field_provenance is None for item in results)
+        assert all(item.graph_context is None for item in case.semantic_only_results)
+        assert case.deltas.mean_reciprocal_rank == 0
+    sector = report.cases[-1]
+    assert sector.case_id == "technology-sector-threshold"
+    assert sector.graph_enriched_results[0].observed_at == "2026-08-28T20:00:00Z"
+    assert sector.graph_enriched_results[0].sector_exposures_status == "available"
+    assert sector.semantic_only_results[0].sector_exposures_status is None
+    assert sector.deltas.sector_constraint_exact_match_rate == 1
 
 
 def test_missing_graph_context_lowers_context_metrics() -> None:

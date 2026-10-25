@@ -29,14 +29,10 @@ from etf_advisor.evaluation.explanation_offline import (
 )
 from etf_advisor.evaluation.models import MetricDeltas, RetrievalMetrics
 from etf_advisor.evaluation.offline import (
-    CuratedRelationshipStore,
-    CuratedSemanticStore,
-    evaluate_strategy,
     load_evaluation_dataset,
     run_offline_evaluation,
 )
 from etf_advisor.rag.evidence import select_candidate_evidence
-from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, SectorExposure
 from etf_advisor.research.models import MissingReason, ResearchField, WeightedExposure
 
@@ -458,16 +454,11 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
         [case.case_id for case in retrieval_dataset.cases]
     )
     explanation = run_offline_explanation_evaluation(explanation_dataset)
-    semantic = CuratedSemanticStore(retrieval_dataset)
-    graph = HybridRetriever(semantic, CuratedRelationshipStore(retrieval_dataset))
     retrieval_cases = []
-    for case in retrieval_dataset.cases:
-        semantic_metrics = evaluate_strategy(semantic, [case], limit=3)
-        graph_metrics = evaluate_strategy(graph, [case], limit=3)
-        retrieved = list(graph.search(case.query, limit=3))
+    for case in retrieval.cases:
         actual_metrics = {
-            "semantic_only": semantic_metrics.model_dump(mode="json"),
-            "graph_enriched": graph_metrics.model_dump(mode="json"),
+            "semantic_only": case.semantic_only.model_dump(mode="json"),
+            "graph_enriched": case.graph_enriched.model_dump(mode="json"),
         }
         expected_metrics = retrieval_expectations["cases"][case.case_id]
         failures = _metric_failures(expected_metrics, actual_metrics)
@@ -486,19 +477,20 @@ def run_analysis_baseline(dataset: AnalysisDataset | None = None) -> dict[str, A
                     "results": [
                         {
                             "document_id": item.document_id,
-                            "source": item.metadata.get("source"),
-                            "source_url": item.metadata.get("source_url"),
-                            "observed_at": item.metadata.get("observed_at"),
+                            "source": item.source,
+                            "source_url": item.source_url,
+                            "observed_at": item.observed_at,
                         }
-                        for item in retrieved
+                        for item in case.graph_enriched_results
                     ],
                 },
+                "paired": case.model_dump(mode="json"),
                 "passed": not failures,
                 "failures": failures,
                 "limitation": LIMITATION,
             }
         )
-    actual_aggregate = retrieval.model_dump(mode="json")
+    actual_aggregate = retrieval.model_dump(mode="json", exclude={"cases"})
     aggregate_failures = _metric_failures(retrieval_expectations["aggregate"], actual_aggregate)
     analysis_cases = []
     for analysis_case in dataset.cases:

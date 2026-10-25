@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-25T16:24:05Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 102,
+        "classification": "ordinary",
+        "scope": [
+          "S102-1"
+        ],
+        "invariants": [
+          "INV102-1",
+          "INV102-2",
+          "INV102-3"
+        ],
+        "acceptance": [
+          "AC102-1",
+          "AC102-2",
+          "AC102-3",
+          "AC102-4"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct user approved in Issue102 chat on 2026-10-25 after explicit queued WAIT FOR HUMAN APPROVAL. Authorizes bounded Issue102 execution, commit/push and one PR, not merge or other tickets."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 102,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue102_owner"
+          },
+          "rationale": "Extend evaluation/presentation within existing metrics and retrieval boundaries; no consequential contract changes. Authorized owner owns capsule implementation focused verification and self-review in one sequential session.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct user approved in Issue102 chat on 2026-10-25 after explicit queued WAIT FOR HUMAN APPROVAL. Authorizes bounded Issue102 execution, commit/push and one PR, not merge or other tickets."
+          },
+          "scope": {
+            "S102-1": "Extend EXISTING reproducible retrieval evaluator on unchanged retrieval-baseline v3 bytes SHA256 9d159ac7eb6b4bae9eec36aaf829bd22dacdf8efac42964c8c369c344b2a5a4e and retrieval_expected_metrics.json from Issue99, K=3. Exact cases broad-us-equity, total-market-specificity, large-growth-equity, core-bond, technology-sector-threshold. Compare CuratedSemanticStore and existing HybridRetriever/CuratedRelationshipStore on identical queries, source documents, candidate order/distances and source-linked contexts. Expose case-level inputs, actual returned source provenance/observation times, missing context/fields and metric expectations/deltas; retain aggregate report and evaluation entry point. Baseline sources are curated Yahoo reference documents including distinct sector observation snapshots, not a new live research snapshot. Explicitly mark absent snapshot/field metadata rather than inventing it."
+          },
+          "non_goals": [
+            "No graph expansion, reranking/new algorithm, provider/model changes, stronger metric definition or fixture expectation edits, guaranteed improvement.",
+            "No financial eligibility/allocation/persistence/replay/safety changes, #115/#117 work, external financial writes, merge or parent #24 closure."
+          ],
+          "invariants": {
+            "INV102-1": "Preserve Issue99 dataset and expected-metric bytes, identities, K=3 and existing evaluate_strategy metric definitions/expectations; report ranking (hit/recall/MRR), attribution and context/sector judgments separately. No context lift relabelled as ranking lift.",
+            "INV102-2": "Both variants use identical versioned input sources, queries, snapshots and semantic candidate controls. Every reported result carries actual document identity/provider/source URL/observation timestamp; absent snapshot/field provenance, graph context and sector status remain explicit, never inferred zero or live facts.",
+            "INV102-3": "Evaluation only; preserve all eligibility, allocation, exact weights/cash, schema2 numeric tokens/proofs, legacy serializers, source activation, financial safety, per-field freshness, pure overlap and saved offline validation contracts. No graph schema, provider, ranking, persistence/replay or model behavior change."
+          },
+          "interfaces": [
+            "Existing offline retrieval evaluation report and CLI JSON output extended additively; pure evaluation helpers/tests. Product retrieval/data/provider/financial interfaces unchanged."
+          ],
+          "json_state_impact": "none to product graph/checkpoint/source schemas or serializers; additive evaluation-only JSON report fields.",
+          "acceptance": {
+            "AC102-1": "Before implementation freeze exact case IDs, dataset/expected-control identities, K=3, source/snapshot identities and existing metric meanings in iteration/capsule; unchanged original controls are verified.",
+            "AC102-2": "Existing reproducible evaluator exposes case-level paired actual results/provenance, observations, explicit missing context/data, expected relevance/context/sector controls, individual metric comparisons and aggregate comparison using identical inputs. Tests detect ranking, graph-field/context/sector regressions independently and validate unchanged controls.",
+            "AC102-3": "Document measured no ranking lift versus graph context benefit, exact case-level readout and deterministic replay versus untested live embedding/store/retrieval/model/source coverage limits. No promised gain or unmeasured graph expansion; separately scope improvements only with evidence.",
+            "AC102-4": "Focused regression and locked minimal required gates pass; self-review documented. Commit/push one branch and create/attach one PR; inspect latest-head CI plus real comments/review threads before readiness claim. No merge or parent closure."
+          },
+          "verification": [
+            "Focused retrieval/analysis/hybrid evaluator tests; explicit baseline SHA/control checks and deterministic output comparison.",
+            "Locked minimal uv sync --frozen; pytest; ruff check and format check; mypy src; uv build; workflow and ledger validation; docker compose config --quiet; git diff --check. Relevant optional tests meaningful if touched.",
+            "Content-bound verification/acceptance and native delivery check before delivery; actual latest-head CI/comments/threads after PR."
+          ],
+          "documentation": [
+            "Issue102 iteration with frozen metric/case/source controls before product edits, measured case-level report and self-review/limitations; existing evaluator usage docs as appropriate."
+          ],
+          "risks": [
+            "Accidental metric drift or presenting curated replay as live retrieval/graph ranking lift; aggregate-only reporting hiding missing data."
+          ],
+          "escalation_triggers": [
+            "Consequential financial/persistence/safety change or architectural ambiguity returns to separate architect/challenge/approval gates.",
+            "Concrete high-risk/disputed output adds independent reviewer; concrete complexity/unresolved failure may require specialist. Recurrent or shifted concerns trigger bounded coordinator arbitration."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-25T16:24:16Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct Issue102 approval; complete ordinary capsule frozen before implementation. No consequential change authorized."
+        },
+        "evidence": "DESIGN_READY complete generation1 ledger capsule; unchanged Issue99 controls and exact five cases; ordinary implementation owner; no independent review trigger.",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T16:24:17Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue102_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T16:32:38Z",
+      "data": {
+        "session": "/root/issue102_owner",
+        "outcome": "pass",
+        "evidence": "Owner completed capsule/iteration freeze before source edits, additive existing evaluator paired case reports and Issue99 reuse, focused tests and self-review. Final-source locked MINIMAL uv sync --frozen 57 packages; focused retrieval+analysis 26 passed; full pytest exit0 100% with optional skips; Ruff check and format216, mypy65, build, workflow/ledger validation, Compose and diff gates passed. evaluate-analysis 37/37, five retrieval expectation cases pass and aggregate no failures. Original dataset/expected controls unchanged. No independent-review trigger in ordinary evaluation diff. Complete readout and synthetic/live limits in iteration031. Owner stopped edits at content 5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T16:32:39Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue102_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        },
+        "content": "5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T16:33:31Z",
+      "data": {
+        "session": "/root/issue102_owner",
+        "outcome": "pass",
+        "evidence": "Read-only content-bound verification PASS: content remained 5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2 before/after. Locked minimal focused retrieval+analysis26 passed, Ruff check/format216, workflow and ledger validation and diff check passed. Retrieval CLI byte-identical across two runs, five paired cases; MRR delta0 and graph context/sector exact match deltas+1. Analysis CLI37/37, no aggregate metric failures. Prior final-source full minimal pytest/mypy65/build/Compose passed; no broad rerun needed. No product or fixture changes or review escalation trigger."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-25T16:33:32Z",
+      "data": {
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        },
+        "content": "5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2",
+        "ids": [
+          "AC102-1",
+          "AC102-2",
+          "AC102-3",
+          "AC102-4"
+        ],
+        "evidence": "AC102-1 iteration031 froze five exact cases/queries/candidates, original dataset/expected hashes, K3, observation dates and snapshot/provenance absences before source edits. AC102-2 additive existing evaluator paired per-case actual ordered results, source URL/observed timestamp, null missing data, expected judgments and existing metric deltas; frozen controls and independent ranking/context/field/sector mutations pass. AC102-3 documented no ranking lift, useful structured context, no evidence for expansion, replay/live limitations and full case readout. AC102-4 final-source locked minimal full suite and required local gates pass; owner self-review and content-bound verification pass. One branch/PR publication authorized and checked next; latest-head CI and actual comments/threads inspected after publication before readiness claim. No independent-review trigger, financial or persistence change, unresolved blocker, merge or parent closure."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-25T16:33:58Z",
+      "data": {
+        "evidence": "PR120 created and attached after native delivery preflight PASS, final-source locked minimal full gates and content-bound verification/acceptance PASS. Ordinary evaluation-only capsule; no independent-review trigger. This binding certifies final reviewed content for PR120 only. Latest-head CI and actual review comments/threads will be inspected after delivery push before readiness claim. No merge authority.",
+        "pr": 120,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        },
+        "content": "5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2"
+      }
+    }
+  ]
+}
