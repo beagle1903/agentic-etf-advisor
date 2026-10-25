@@ -62,3 +62,18 @@ Yahoo completeness, regulatory eligibility, suitability, returns or independent
 risks. Live EU fee/category/volume/holdings completeness remains unproven. Local
 curation is structurally checked, not independently authenticated. Evaluation does
 not publish data or mutate saved reviews.
+# Reported-holdings overlap in Source evidence
+
+The review dashboard lets you choose two exact candidate documents from the
+validated evidence pool, including catalogue members outside the packaged six.
+The diagnostic shows the sum of matching reported holding weights in percentage
+points and each candidate's reported-row weight sum. It uses only current,
+attributed `top_holdings` observations and shows each original provider, URL,
+observation time and the persisted freshness check time. The calculation details
+show exact rational amounts; visible values are approximate six-place rounded
+figures. Zero means no overlap among these reported identities under the stated
+rule. The lists may be partial; the result is not complete fund or portfolio
+overlap and does not affect selection or weights. Missing symbols, repeated or
+conflicting identities, invalid provenance, stale or future fields and diagnostic
+size limits make overlap unavailable. Official BND repeated bond rows remain
+valid source evidence even when they prevent a match.
