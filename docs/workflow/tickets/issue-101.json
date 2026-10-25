@@ -1,0 +1,253 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-25T03:35:14Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 101,
+        "classification": "consequential",
+        "scope": [
+          "S101-1"
+        ],
+        "invariants": [
+          "INV101-1",
+          "INV101-2",
+          "INV101-3",
+          "INV101-4"
+        ],
+        "acceptance": [
+          "AC101-1",
+          "AC101-2",
+          "AC101-3",
+          "AC101-4"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved; live Issue101 open, dependencies99/100 closed; clean main ad0a76e synchronized origin; fresh prospective owner-led ticket, sequential only."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 101,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue101_owner"
+          },
+          "rationale": "Derived financial overlap meaning requires independent consequential design, challenge and coordinator approval before ordinary implementation; independent implementation review applies.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "2026-10-25 direct human approved in this Issue101 chat after explicit WAIT FOR HUMAN APPROVAL queue; authorizes sequential finite Issue101 workflow only."
+          },
+          "scope": {
+            "S101-1": "One pairwise reported-holdings overlap diagnostic derived from existing attributed holdings; freeze exact identity, units, formula, coverage, missingness, arithmetic, fixtures and user flow before implementation."
+          },
+          "non_goals": [
+            "No diversification threshold, selection or weighting penalty, optimizer, invented full holdings, provider or graph expansion.",
+            "No changes to financial screening, construction, exact cash, selection, weights, external financial writes, authentication or hosting.",
+            "No Issue102/115/117 work or historical allowance/certificate transfers."
+          ],
+          "invariants": {
+            "INV101-1": "Report only attributable reported-holdings overlap, with original observation timestamps and available coverage beside every result; never imply complete fund or portfolio overlap from partial lists.",
+            "INV101-2": "Exact identity matching and numeric treatment are frozen by separate design/challenge/approval; missing, invalid, conflicting or duplicate evidence cannot silently reduce measured overlap or become a zero.",
+            "INV101-3": "Preserve schema2 exact numeric tokens/decimal proofs, complete source/snapshot identity, legacy absent-marker serializers, per-field freshness including official BND monthly window and zero issuer future tolerance, and saved offline validation.",
+            "INV101-4": "Diagnostic does not change selection, weights, financial screening, exact cash or construction; JSON-safe state and replaceable side-effect boundaries are preserved without new provider or graph expansion."
+          },
+          "interfaces": [
+            "Pure reported-holdings diagnostic and dashboard presentation over existing validated evidence; exact signatures and output units frozen in architect handoff.",
+            "No external financial-write interface."
+          ],
+          "json_state_impact": "Architect freezes exact impact before implementation; prefer ephemeral pure presentation and no checkpoint/schema changes. Preserve all absent-marker legacy dumps and saved offline semantics.",
+          "acceptance": {
+            "AC101-1": "Separate read-only architect, independent design challenge and coordinator approval freeze exact formula, holding identity, units, numeric treatment, coverage/missingness, interfaces/state impact, fixtures and user flow before edits.",
+            "AC101-2": "Independent hand-calculated positive controls for disjoint, identical, partial, missing, conflicting and duplicate identities match frozen expectations; invalid evidence never silently reduces measured overlap.",
+            "AC101-3": "Actual Streamlit script entry displays reported-holdings limits, original source timestamps and available coverage beside results, with missing/stale/future/conflicting evidence explicit.",
+            "AC101-4": "Focused regression and offline restored review demonstrate unchanged selection, weights, financial screening, exact cash, construction and serialized source/state identities; preserve official BND and legacy/schema2 contracts."
+          },
+          "verification": [
+            "Focused independently calculated diagnostic and boundary fixtures; schema1/schema2 numeric/provenance/freshness tests.",
+            "Actual Streamlit AppTest and saved offline review with forbidden external adapters; existing financial/US-EU/catalogue regressions.",
+            "Locked minimal default/development full suite, meaningful optional-enabled relevant tests, Ruff/mypy/build/workflow gates and independent same-content implementation review; latest-head CI and review-thread checks."
+          ],
+          "documentation": [
+            "New consequential ADR and complete architect design handoff; iteration evidence, current architecture and usage/limits.",
+            "Native owner-led ledger and issue/PR gate evidence before commit/push/one attached PR."
+          ],
+          "risks": [
+            "Partial holdings and ambiguous labels can understate duplicated exposure; no unsupported completeness or identity inference.",
+            "Duplicate official bond labels and legacy binary64 values require explicit conservative handling; saved validation and exact source facts remain authoritative."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity requires separate architect within finite design allowance and independent challenge; returning concerns invoke coordinator arbitration.",
+            "Concrete unresolved failure, concurrency or migration evidence may justify separate specialist; failed final review or exhausted finite slots stops for explicit user decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T03:35:23Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue101_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T03:42:23Z",
+      "data": {
+        "session": "/root/issue101_design",
+        "outcome": "pass",
+        "evidence": "Separate read-only design_architect gpt-6-astra/high DESIGN_READY; complete operative handoff transcribed docs/iterations/030-issue101-overlap-design.md, same gen1 capsule. Exact provider-local symbol/name ambiguity veto, Fraction minimum-sum percentage points, row-sum coverage, strict field validation/freshness, ephemeral API/UI and independent controls. No implementation authority before independent challenge and coordinator approval."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T03:42:32Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue101_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T03:44:28Z",
+      "data": {
+        "session": "/root/issue101_challenge",
+        "outcome": "pass",
+        "evidence": "Independent read-only code_reviewer gpt-6-sol/high PASS; exact handoff SHA256 e37d193fb7ab7295dd606c28f09c4aebe8e7182d954c2fdfe41ee655ce461451, gen1 capsule unchanged. Independently checked partial35/2, schema1 binary64 sum10808639105689191/36028797018963968 and adjacent schema2 token control. No material ambiguity/frozen failure. Require independent schema1 consumed-field validation, decoding before issuer validation and actual restored AppTest. Design challenge only."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-25T03:44:30Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Human approved Issue101 in this chat on 2026-10-25. Separate design_architect /root/issue101_design and independent code_reviewer /root/issue101_challenge completed sequentially with PASS against unchanged capsule. Coordinator approves exact handoff docs/iterations/030-issue101-overlap-design.md raw SHA256 e37d193fb7ab7295dd606c28f09c4aebe8e7182d954c2fdfe41ee655ce461451."
+        },
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        },
+        "evidence": "DESIGN_READY approved: exact provider-local identities with ambiguity veto; rational minimum-sum percentage points, separate row-sum coverage; unchanged source/proof/freshness and state/finance; bounds, fixed reasons, actual ephemeral UI and restored offline controls. Owner implementation_worker gpt-6-sol medium /root/issue101_owner; finite initial implementation and independent implementation review only. No waiver, extension, reset or merge authority."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T03:44:32Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue101_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T04:25:12Z",
+      "data": {
+        "session": "/root/issue101_owner",
+        "outcome": "pass",
+        "evidence": "Approved owner implemented pure reported-holdings helper/UI, exact/provenance/freshness/identity controls, actual restored outside-six AppTest and ADR0041/architecture/usage/iteration docs. Self-review repaired empty-list coverage, subresolution display, cross-list identity labels, detached JSON equality and malformed UTF8 before final frozen runtime/test runs. Final optional-enabled seven-file regression and full locked minimal pytest both100% exit0; Ruff format215/mypy65/build/workflow/Compose/diff pass. Earlier pre-repair full run is historical only. Complete evidence docs/iterations/030-issue101-overlap.md; no frozen handoff/ledger edits by owner."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T04:25:15Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue101_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        },
+        "content": "230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T04:26:34Z",
+      "data": {
+        "session": "/root/issue101_owner",
+        "outcome": "pass",
+        "evidence": "Formal same-owner content-bound verification PASS on230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8; before/after identical. Focused Issue101 and40-member actual catalogue AppTests with Streamlit enabled100% exit0, Ruff check/format215, both workflow validators and diff check exit0. Final repaired runtime/test full minimal and seven-file optional regression previously passed; final docs included in this certification. No edits during verification."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-25T04:26:37Z",
+      "data": {
+        "ids": [
+          "AC101-1",
+          "AC101-2",
+          "AC101-3",
+          "AC101-4"
+        ],
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        },
+        "content": "230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8",
+        "evidence": "AC101-1 separate read-only architect, independent challenge and coordinator approval froze exact handoff before edits. AC101-2 independently specified positive/negative controls verify rational minima, reported-row coverage, schema1 binary64/schema2 original decimal proofs, ambiguous/missing/duplicate/conflicting identities, malformed late rows, UTF8 and bounds without survivor overlap. AC101-3 actual Streamlit script tests zero/one/two selection, partial/zero/unavailable/stale, adjacent provenance and partial limits; exact subresolution display covered. AC101-4 actual40-member outside-six JSON-roundtrip/restored rendering under forbidden adapters preserves complete financial state, selection, bps/exact cash and source identities; BND monthly/zero future and legacy/schema2 controls pass. Final repaired frozen runtime/tests full locked minimal and seven-file optional regression pass; required static/build/workflow/Compose gates pass. Final documented content verified unchanged by formal focused checks. Synthetic/live limitations documented; independent implementation review still required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T04:26:40Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue101_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        },
+        "content": "230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-25T16:07:26Z",
+      "data": {
+        "session": "/root/issue101_review",
+        "outcome": "pass",
+        "evidence": "Independent code_reviewer gpt-6-sol/high initial_review PASS on230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8 before/after unchanged. Same original reservation resumed after usage-limit error; no findings returned before interruption, no extra slot or time subtraction. Reviewed all tracked/untracked code/tests/docs against frozen INV101-1..4/AC101-1..4: strict full-list numeric/provenance and issuer/freshness checks, ambiguity veto, rational minima, ephemeral UI, actual restored40-member controls. No demonstrated frozen failure/material acceptance gap; no edits or redundant broad rerun. Final minimal/optional verification evidence applies to same content."
+      }
+    }
+  ]
+}

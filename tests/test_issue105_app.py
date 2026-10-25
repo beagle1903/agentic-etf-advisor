@@ -568,6 +568,24 @@ def test_app_prepares_40_and_creates_review_with_outside_six_member(
         == comparison_before
     )
     assert len(collector.calls) == 40
+    overlap_other = next(
+        candidate
+        for candidate in state["candidate_evidence"]["candidates"]
+        if candidate["document_id"] != outside["document_id"]
+    )
+    next(
+        item
+        for item in app.multiselect
+        if item.label == "Choose two candidates for reported-holdings overlap"
+    ).set_value([outside["document_id"], overlap_other["document_id"]])
+    app.run(timeout=60)
+    assert not app.exception
+    assert any("Reported holdings only; lists may be partial" in item.value for item in app.caption)
+    assert any("Reported overlap" in str(item.value) for item in (*app.markdown, *app.warning))
+    assert (
+        json.dumps({k: v for k, v in state.items() if k != "__interrupt__"}, sort_keys=True)
+        == comparison_before
+    )
 
     restored = json.loads(json.dumps({k: v for k, v in state.items() if k != "__interrupt__"}))
     validate_revision_state(restored, app.session_state["dashboard_run"].thread_id)
@@ -585,6 +603,18 @@ def test_app_prepares_40_and_creates_review_with_outside_six_member(
         offline_patches.setattr(Fx, "fetch_eur_usd", forbidden)
         offline_patches.setattr(_Collector, "collect", forbidden)
         offline = dashboard.load_dashboard_run(token, checkpoint_store=checkpoint_store)
+        app.session_state["dashboard_run"] = offline
+        app.run(timeout=60)
+        assert not app.exception
+        picker = next(
+            item
+            for item in app.multiselect
+            if item.label == "Choose two candidates for reported-holdings overlap"
+        )
+        picker.set_value([outside["document_id"], overlap_other["document_id"]])
+        app.run(timeout=60)
+        assert not app.exception
+        assert any("Reported overlap" in str(item.value) for item in (*app.markdown, *app.warning))
     assert offline.state["status"] == "awaiting_human_review"
     assert len(offline.state["candidate_evidence"]["candidates"]) == 40
     assert len(collector.calls) == 40

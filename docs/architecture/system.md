@@ -1,5 +1,14 @@
 # System architecture
 
+Issue 101 adds the ephemeral Source evidence reported-holdings overlap view in
+[ADR 0041](decisions/0041-reported-holdings-overlap.md). Its pure helper works
+only from a detached, validated review bundle. It conservatively compares
+provider-local reported symbols and names with exact rational percentage-point
+weights, displays each side's reported-row sum and original field provenance,
+and fails closed on ambiguous, invalid, stale or future holdings. The result is
+recomputed after offline restore and does not enter graph state, screening,
+construction, selection, cash, FX, receipts or source artifacts.
+
 ## Current shape
 
 Issue104 adds the explicitly selected `us-eu-v1` path described in

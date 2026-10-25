@@ -42,6 +42,7 @@ from etf_advisor.dashboard import (
     start_dashboard_run,
 )
 from etf_advisor.dashboard_comparison import comparison_rows
+from etf_advisor.dashboard_overlap import display_amount, reported_holdings_overlap
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
 from etf_advisor.domain.us_eu import listing_region
@@ -497,6 +498,57 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
             "investment suitability."
         )
         st.dataframe(comparison_rows(bundle, selected_ids), hide_index=True, width="stretch")
+
+    overlap_ids = st.multiselect(
+        "Choose two candidates for reported-holdings overlap",
+        options=list(candidate_by_id),
+        format_func=lambda document_id: candidate_by_id[document_id]["symbol"],
+        max_selections=2,
+        key=f"reported_holdings_overlap_{bundle['snapshot_version']}_{bundle['snapshot_digest']}",
+    )
+    st.caption(
+        "Reported holdings only; lists may be partial. This is not complete fund or "
+        "portfolio overlap and does not affect selection or weights."
+    )
+    if len(overlap_ids) < 2:
+        st.info("Choose two candidates to compare reported holdings.")
+    else:
+        result = reported_holdings_overlap(bundle, overlap_ids[0], overlap_ids[1])
+        pair_identity_unresolved = any(
+            reason in {"conflicting_holding_identity", "identity_namespace_mismatch"}
+            for reason in result["reason_codes"]
+        )
+        if result["status"] == "available":
+            st.write(f"Reported overlap: {display_amount(result['overlap_pp'])} percentage points")
+            st.write(f"Matched reported identities: {result['matched_holdings']}")
+            if result["overlap_pp"]["numerator"] == "0":
+                st.info("No overlap among these reported identities.")
+        else:
+            st.warning("Reported overlap unavailable: " + ", ".join(result["reason_codes"]))
+        st.caption(
+            f"Persisted check: {result['checked_at'] or 'Unavailable'} · "
+            f"Snapshot: {result['snapshot_version'] or 'Unavailable'} · "
+            f"Digest: {result['snapshot_digest'] or 'Unavailable'}"
+        )
+        for label in ("left", "right"):
+            side = result[label]
+            st.write(
+                f"{side['symbol'] or 'Unavailable'} · Reported-row weight sum: "
+                f"{display_amount(side['row_sum_pp'])} percentage points · "
+                f"Rows: {side['count'] if side['count'] is not None else 'Unavailable'} · "
+                f"Status: {side['status']}"
+            )
+            if side["row_sum_pp"] is not None and (
+                side["reason_codes"] or pair_identity_unresolved
+            ):
+                st.caption("Reported-row weight sum; identity unresolved")
+            st.caption(
+                f"Provider: {side['provider'] or 'Unavailable'} · "
+                f"Observed: {side['observed_at'] or 'Unavailable'} · "
+                f"Source URL: {side['source_url'] or 'Unavailable'}"
+            )
+        with st.expander("Reported-holdings calculation details"):
+            st.json(result)
 
     for candidate in bundle["candidates"]:
         with st.expander(f"{candidate['symbol']} · {candidate['name']}"):
