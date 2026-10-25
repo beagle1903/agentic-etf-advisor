@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-24T17:01:24Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 100,
+        "classification": "ordinary",
+        "scope": [
+          "S100-1"
+        ],
+        "invariants": [
+          "INV100-1",
+          "INV100-2",
+          "INV100-3"
+        ],
+        "acceptance": [
+          "AC100-1",
+          "AC100-2",
+          "AC100-3",
+          "AC100-4"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "2026-10-24 direct user approved in current Issue100 chat, following queued no-action boundary; authorizes Issue100 only and commit/push/PR, no merge."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 100,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue100_owner"
+          },
+          "rationale": "Read-only dashboard presentation of existing validated evidence within established contracts. No financial or persistence change.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "2026-10-24 direct user approved in current Issue100 chat, following queued no-action boundary; authorizes Issue100 only and commit/push/PR, no merge."
+          },
+          "scope": {
+            "S100-1": "Add chosen-candidate comparison to existing dashboard Source evidence view. Freeze fields: expense_ratio_pct (percent), average_daily_volume (shares_per_day), category and benchmark (classification/text), top_holdings, sector_exposures, geography_exposures and top_10_concentration_pct (percent). Use existing validated field provenance/status and existing freshness semantics only. User selects members from actual validated evidence; comparison renders selected members with labelled facts and gaps; existing detail expanders remain. No data retrieval for comparison. Fixtures: comparable supported facts; absent field/provenance; stale/future and conflicting evidence; true zero versus missing; arbitrary non-six members including exchange-qualified US/EU symbols; schema1/schema2 exact numeric provenance; saved offline review."
+          },
+          "non_goals": [
+            "No eligibility, selection, weights, category maps, group/ISIN identity, exact cash, FX staging, JSON/replay/restore/explanation contract changes.",
+            "No holdings overlap (#101), providers, optimization, authentication, hosting, live readiness (#117), FX optimization (#115), financial writes or merge."
+          ],
+          "invariants": {
+            "INV100-1": "Comparison is a pure presentation projection: no mutation of evidence, state, serializers, financial decisions, exact totals, source/snapshot identity, saved offline validation or side-effect boundaries.",
+            "INV100-2": "Every material fact retains its own unit, provider/source URL and observation timestamp. Never infer values from ETF names, missing values as zero, source age from fetch time, or eligibility from membership. Missing, stale, future, conflicting or unsupported evidence remains explicit; never presented as a supported comparable fact.",
+            "INV100-3": "Use arbitrary validated membership and exact exchange-qualified symbols within current bounded catalogue/evidence limits; preserve schema1 absent markers and schema2 numeric/source proofs."
+          },
+          "interfaces": [
+            "Dashboard evidence presentation and pure comparison helper only; existing evidence/data/financial/provider interfaces unchanged."
+          ],
+          "json_state_impact": "none; ephemeral UI selection only, no graph/checkpoint/snapshot schema or serialization changes.",
+          "acceptance": {
+            "AC100-1": "Versioned iteration capsule freezes the eight exact fields, fixtures and chosen-candidate user flow before product edits; display supported facts with field-specific units/source/observation, explicit unavailable/stale/conflict limitations.",
+            "AC100-2": "Focused fixture tests prove supported comparable values, true zero versus missing, absent provenance, stale/future/conflicting evidence, schema1/schema2 precision and arbitrary exchange-qualified membership without inferred facts.",
+            "AC100-3": "Actual Streamlit script AppTest exercises chosen-candidate comparison and explanatory limitations; saved offline review stays valid with zero provider/store calls and unchanged exact financial decisions/totals and serialization.",
+            "AC100-4": "Focused regressions and required repository gates pass in locked minimal dev environment; relevant optional dependency tests remain meaningful with extras if touched. Document synthetic versus live limitations, self-review, commit/push and one PR with current-head CI/comment/thread inspection."
+          },
+          "verification": [
+            "Focused comparison tests and actual dashboard script AppTest; existing dashboard, us-eu, catalogue app and saved review/revision regressions as relevant.",
+            "Required ruff check/format, mypy src, pytest under locked minimal dev dependencies, build, workflow/ledger validation, compose config and diff checks. No repeated broad suites absent new failures/changes."
+          ],
+          "documentation": [
+            "New Issue100 iteration record with frozen fields/fixtures/user flow before product edits; user-facing comparison limitations and measured verification/self-review evidence. Update architecture presentation description only if needed before certification."
+          ],
+          "risks": [
+            "Display rounding could lose exact source precision; preserve tokens/proofs.",
+            "Candidate-level provenance may mask missing or differing field sources; use validated field provenance and status.",
+            "AppTest must execute actual script rather than helper-only rendering."
+          ],
+          "escalation_triggers": [
+            "Any required financial, eligibility, safety, authentication, persistence/replay or architecture contract change stops ordinary implementation for separate consequential gates.",
+            "Concrete high-risk/disputed implementation adds independent review; recurrent concerns or shifting frozen criteria require coordinator arbitration before dependent handoff.",
+            "Concrete unresolved complexity needs recorded sequential specialist escalation; failed final review or exhausted slots stops for explicit finite decision."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-24T17:01:25Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "2026-10-24 direct user approved in current Issue100 chat, following queued no-action boundary; authorizes Issue100 only and commit/push/PR, no merge."
+        },
+        "evidence": "DESIGN_READY: full ordinary capsule frozen in initialize; exact fields, fixture cases, flow, scope and no-state-change boundaries approved.",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T17:01:27Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue100_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T17:27:10Z",
+      "data": {
+        "session": "/root/issue100_owner",
+        "outcome": "pass",
+        "evidence": "INV100-1..3 and AC100-1..4 implementation/self-review pass on content c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86. Exact eight-field frozen iteration record preceded product edits. Pure field-provenance comparison uses document IDs, retains schema1/2 values and official BND 1080h/zero-future resolver; no graph, finance or side-effect contract changes. Final six-file focused tests 100% exit0 incl actual Streamlit chosen comparison, 40-member outside-six offline saved review; locked minimal full suite 100% exit0 with expected optional skips. Ruff lint/format210, mypy64, build, workflow validators, Compose and diff checks pass. Earlier incomplete full runs were interrupted before final repair, not acceptance evidence. Synthetic/live limits documented."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-24T17:27:28Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue100_owner",
+        "role": "implementation_worker",
+        "content": "c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-24T17:27:56Z",
+      "data": {
+        "session": "/root/issue100_owner",
+        "outcome": "pass",
+        "evidence": "Content-bound verification PASS on c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86 after final docs. Five focused comparison tests including actual Streamlit script passed; Ruff check/format210, workflow and ticket validators and git diff check passed with no edits. Prior final-source six-file focused suite passed 100%; locked minimal full suite passed 100% with expected optional skips; mypy64, build and Compose passed. The complete frozen AC100 map and synthetic/live limits are in docs/iterations/029-issue100-source-comparison.md. Interrupted pre-repair broad runs remain incomplete. No content change since reservation."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-24T17:28:11Z",
+      "data": {
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        },
+        "content": "c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86",
+        "ids": [
+          "AC100-1",
+          "AC100-2",
+          "AC100-3",
+          "AC100-4"
+        ],
+        "evidence": "AC100-1 eight exact fields, fixture cases and selection flow frozen in 029 iteration before product edits; per-field values/units/provider/URL/observation and explicit gaps displayed. AC100-2 focused schema1/2 exact proof, true zero/missing, stale/future/conflict, arbitrary exchange-qualified members and official BND existing monthly-boundary tests pass. AC100-3 actual Streamlit chosen comparison AppTest and 40-member outside-six saved offline review with zero provider/store calls and unchanged exact state/decisions/totals pass. AC100-4 final focused and locked minimal full suites, Ruff/format/mypy/build/workflow/Compose/diff gates pass; documented synthetic/live limits and self-review. Current-content verification PASS, no independent review trigger or blocker."
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-24T17:29:09Z",
+      "data": {
+        "evidence": "PR118 opened after passing final focused/full minimal gates, self-review and content-bound verification/acceptance. Ordinary presentation scope; no independent-review trigger. Final CI/comments checked after publication; no merge authorized.",
+        "pr": 118,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-100-source-comparison",
+          "generation": 1,
+          "digest": "5ec9729ac7f7576a4f1d737be08067b714ca0be918978908c5e287e3dbdad240"
+        },
+        "content": "c84c0d87172ee792d68c6fa2d1e02ca32e10d19e4d82ae504032b9703eb56d86"
+      }
+    }
+  ]
+}

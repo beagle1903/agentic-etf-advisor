@@ -393,6 +393,12 @@ restored explanation rebuilds the explanation request from that revalidated cons
 passing the same grounding, selected-position, numeric-support, and prohibited-claim validation used
 before the original interrupt. Any absence, substitution, malformed artifact, or recomputation
 mismatch produces a controlled error without review controls.
+The Source evidence view also offers an ephemeral chosen-candidate comparison keyed by validated
+document identity. Its pure projection reads eight existing field provenance records, retains
+schema-2 numeric tokens and exposure decimal proofs, and labels missing, stale, future or
+conflicting fields instead of inferring facts. It uses the existing per-field freshness resolver,
+including official BND's monthly composition window. Selection changes no checkpoint or
+financial decision and performs no retrieval.
 Policy-only review remains offline by default, while PostgreSQL persistence, evidence, and provider
 generation are explicit opt-ins. PostgreSQL durability is not authentication or multi-user
 authorization; this remains a local development workflow.
