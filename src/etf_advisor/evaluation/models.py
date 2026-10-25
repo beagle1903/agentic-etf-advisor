@@ -185,6 +185,38 @@ class MetricDeltas(BaseModel):
     sector_constraint_exact_match_rate: float
 
 
+class EvaluationResult(BaseModel):
+    """Actual returned source and context; absent metadata stays explicit."""
+
+    rank: int
+    document_id: str
+    distance: float | None
+    symbol: str | None
+    source: str | None
+    source_url: str | None
+    observed_at: str | None
+    snapshot_identity: str | None
+    field_provenance: dict[str, object] | None
+    graph_context: GraphContext | None
+    sector_exposures_status: str | None
+
+
+class EvaluationCaseReport(BaseModel):
+    """Paired readout over one unchanged query and candidate control."""
+
+    case_id: str
+    query: str
+    semantic_candidates: list[EvaluationCandidate]
+    relevant_document_ids: list[str]
+    expected_graph_contexts: list[GraphContext]
+    sector_constraint_judgments: list[SectorConstraintJudgment]
+    semantic_only_results: list[EvaluationResult]
+    graph_enriched_results: list[EvaluationResult]
+    semantic_only: RetrievalMetrics
+    graph_enriched: RetrievalMetrics
+    deltas: MetricDeltas
+
+
 class RetrievalEvaluationReport(BaseModel):
     """Stable comparison report with no wall-clock dependency."""
 
@@ -193,4 +225,5 @@ class RetrievalEvaluationReport(BaseModel):
     semantic_only: RetrievalMetrics
     graph_enriched: RetrievalMetrics
     deltas: MetricDeltas
+    cases: list[EvaluationCaseReport] = Field(default_factory=list)
     conclusion: str

@@ -11,6 +11,8 @@ from typing import Any, Protocol
 from etf_advisor.evaluation.models import (
     DatasetProvenance,
     EvaluationCase,
+    EvaluationCaseReport,
+    EvaluationResult,
     MetricDeltas,
     RetrievalEvaluationDataset,
     RetrievalEvaluationReport,
@@ -110,14 +112,28 @@ def run_offline_evaluation(
     )
     semantic_metrics = evaluate_strategy(semantic_store, dataset.cases, limit=limit)
     graph_metrics = evaluate_strategy(hybrid_retriever, dataset.cases, limit=limit)
+    case_reports = []
+    for case in dataset.cases:
+        semantic_case = evaluate_strategy(semantic_store, [case], limit=limit)
+        graph_case = evaluate_strategy(hybrid_retriever, [case], limit=limit)
+        case_reports.append(
+            EvaluationCaseReport(
+                case_id=case.case_id,
+                query=case.query,
+                semantic_candidates=case.semantic_candidates[:limit],
+                relevant_document_ids=case.relevant_document_ids,
+                expected_graph_contexts=case.expected_graph_contexts,
+                sector_constraint_judgments=case.sector_constraint_judgments,
+                semantic_only_results=_case_results(semantic_store, case, limit),
+                graph_enriched_results=_case_results(hybrid_retriever, case, limit),
+                semantic_only=semantic_case,
+                graph_enriched=graph_case,
+                deltas=_metric_deltas(semantic_case, graph_case),
+            )
+        )
     documents = [item.source_document for item in dataset.documents]
     observed_at = [document.observed_at for document in documents]
-    deltas = MetricDeltas(
-        **{
-            field: _rounded(getattr(graph_metrics, field) - getattr(semantic_metrics, field))
-            for field in MetricDeltas.model_fields
-        }
-    )
+    deltas = _metric_deltas(semantic_metrics, graph_metrics)
     ranking_lift = max(
         abs(deltas.hit_rate_at_k),
         abs(deltas.recall_at_k),
@@ -147,8 +163,50 @@ def run_offline_evaluation(
         semantic_only=semantic_metrics,
         graph_enriched=graph_metrics,
         deltas=deltas,
+        cases=case_reports,
         conclusion=conclusion,
     )
+
+
+def _metric_deltas(semantic: RetrievalMetrics, graph: RetrievalMetrics) -> MetricDeltas:
+    return MetricDeltas(
+        **{
+            field: _rounded(getattr(graph, field) - getattr(semantic, field))
+            for field in MetricDeltas.model_fields
+        }
+    )
+
+
+def _case_results(
+    strategy: RetrievalStrategy, case: EvaluationCase, limit: int
+) -> list[EvaluationResult]:
+    results = strategy.search(case.query, limit=limit)
+    output = []
+    for rank, result in enumerate(results, start=1):
+        metadata = result.metadata
+        context = result.graph_context if isinstance(result, GraphEnrichedSource) else None
+        output.append(
+            EvaluationResult(
+                rank=rank,
+                document_id=result.document_id,
+                distance=result.distance,
+                symbol=_metadata_string(metadata.get("symbol")),
+                source=_metadata_string(metadata.get("source")),
+                source_url=_metadata_string(metadata.get("source_url")),
+                observed_at=_metadata_string(metadata.get("observed_at")),
+                snapshot_identity=_metadata_string(metadata.get("snapshot_identity")),
+                field_provenance=None,
+                graph_context=context,
+                sector_exposures_status=(
+                    context.sector_exposures_status if context is not None else None
+                ),
+            )
+        )
+    return output
+
+
+def _metadata_string(value: object) -> str | None:
+    return value if isinstance(value, str) else None
 
 
 def evaluate_strategy(
