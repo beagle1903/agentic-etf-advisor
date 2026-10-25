@@ -172,6 +172,21 @@
         ],
         "evidence": "AC102-1 iteration031 froze five exact cases/queries/candidates, original dataset/expected hashes, K3, observation dates and snapshot/provenance absences before source edits. AC102-2 additive existing evaluator paired per-case actual ordered results, source URL/observed timestamp, null missing data, expected judgments and existing metric deltas; frozen controls and independent ranking/context/field/sector mutations pass. AC102-3 documented no ranking lift, useful structured context, no evidence for expansion, replay/live limitations and full case readout. AC102-4 final-source locked minimal full suite and required local gates pass; owner self-review and content-bound verification pass. One branch/PR publication authorized and checked next; latest-head CI and actual comments/threads inspected after publication before readiness claim. No independent-review trigger, financial or persistence change, unresolved blocker, merge or parent closure."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-25T16:33:58Z",
+      "data": {
+        "evidence": "PR120 created and attached after native delivery preflight PASS, final-source locked minimal full gates and content-bound verification/acceptance PASS. Ordinary evaluation-only capsule; no independent-review trigger. This binding certifies final reviewed content for PR120 only. Latest-head CI and actual review comments/threads will be inspected after delivery push before readiness claim. No merge authority.",
+        "pr": 120,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-102-retrieval-contribution",
+          "generation": 1,
+          "digest": "4994a3d11541a735f3ed26d80718a063368f42947275b784ea82ac15f31d8f62"
+        },
+        "content": "5782c397b561c1413fae50ba94896c02587f60e17352a190fff34fb99ddf02e2"
+      }
     }
   ]
 }
