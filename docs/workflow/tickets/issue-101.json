@@ -248,6 +248,21 @@
         "outcome": "pass",
         "evidence": "Independent code_reviewer gpt-6-sol/high initial_review PASS on230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8 before/after unchanged. Same original reservation resumed after usage-limit error; no findings returned before interruption, no extra slot or time subtraction. Reviewed all tracked/untracked code/tests/docs against frozen INV101-1..4/AC101-1..4: strict full-list numeric/provenance and issuer/freshness checks, ambiguity veto, rational minima, ephemeral UI, actual restored40-member controls. No demonstrated frozen failure/material acceptance gap; no edits or redundant broad rerun. Final minimal/optional verification evidence applies to same content."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-25T16:07:59Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 119,
+        "capsule": {
+          "id": "issue-101-reported-holdings-overlap",
+          "generation": 1,
+          "digest": "b93474d07d80f9030d1110fa5b564ec80a29108bd7739df6f24a4920248c6e41"
+        },
+        "content": "230894b1cb945d7ecf7794cad04c2ccb741415884807251e9ad5cb757ff71fa8",
+        "evidence": "PR119 created and attached after separate design/challenge/coordinator approval, approved-owner final minimal/optional verification and acceptance, independent implementation initial_review PASS on identical content. Native delivery check PASS; original repository/PR binding119. Published implementation commit8d88969; mutable ledger-only binding commit follows. Latest-head CI and live review-thread inspection follow publication; no merge authority inferred. Usage-limit interrupted reviewer resumed same original reservation with full elapsed audit time and no count reset."
+      }
     }
   ]
 }
