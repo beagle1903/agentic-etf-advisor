@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-25T17:33:16Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 121,
+        "classification": "ordinary",
+        "scope": [
+          "S121-1"
+        ],
+        "invariants": [
+          "INV121-1",
+          "INV121-2",
+          "INV121-3"
+        ],
+        "acceptance": [
+          "AC121-1",
+          "AC121-2",
+          "AC121-3",
+          "AC121-4",
+          "AC121-5"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved in Issue117 chat on 2026-10-25 to separately scoped source-backed candidate and reference preparation sufficient for >=3 eligible positions across unchanged growth/defensive sleeves. New Issue121 preparation only; no resumed Issue117 verification, transferred grant or failed-history reset."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 121,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue121_owner"
+          },
+          "rationale": "Ordinary data/input preparation and measured verification through established strict reference/Yahoo/pure screening interfaces. No financial, persistence, source-adapter or product contract change. Independent deliverable, not replacement or successor to stopped Issue117.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human approved in Issue117 chat on 2026-10-25 to separately scoped source-backed candidate and reference preparation sufficient for >=3 eligible positions across unchanged growth/defensive sleeves. New Issue121 preparation only; no resumed Issue117 verification, transferred grant or failed-history reset."
+          },
+          "scope": {
+            "S121-1": "Prepare and structurally validate source-backed reference inputs for <=10 exact US/EU listings selected with official source rationale and frozen before Yahoo collection. One detached isolated preparation dataset; assess current existing screening/category/identity/currency and min3/both-sleeve feasibility. Keep raw inputs ignored and commit sanitized reproducible report/runbook plus bounded helper only if needed. Source acquisition restricted to official issuer/exchange pages/documents and existing Yahoo/BND interfaces with explicit finite budgets. Missing facts valid negative outcome; no manufactured eligibility."
+          },
+          "non_goals": [
+            "No Issue117 collection/publication/dashboard review/partial-job/saved-review verification, certification, count reset, continuation or closure; no parent24 acceptance/closure. No live store activation or mutation of user artifacts/reviews.",
+            "No financial/category mappings/weights/ranking/FX/optimizer/graph changes, new source adapters/currencies, inferred identity/category, fabricated source times or renamed synthetic evidence. No schema2/legacy/persistence/replay/security/auth/hosting changes or trades/external financial writes."
+          ],
+          "invariants": {
+            "INV121-1": "Every prepared reference fact traces to inspected official issuer/exchange evidence with exact listing/share-class/fund identity, original observation separately from collection/check times. No inference of issuer group from ticker/name/family/index, no invented ISIN or source dates; unknowns remain explicit.",
+            "INV121-2": "Preserve all established financial eligibility/category/sleeve/min-position/economic-group/FX/freshness/serialization contracts. Existing strict reference parser complete-file limits ten listings and1MiB, schema2 numeric/proofs and legacy paths unchanged. No product code contract changes.",
+            "INV121-3": "Isolated detached local preparation only. No publication/activation, mutation of existing data/reviews, provider credentials/raw private data in Git. Freeze exact <=10 listings and bounded per-source/overall attempt/time/byte policy before Yahoo; no automatic replacements/retry loop. Preserve stopped Issue117 files/counts/blockers; no certification of its missing proofs."
+          },
+          "interfaces": [
+            "none changed; existing reference-file parser, ResearchField, Yahoo/official-BND source adapters and pure screening/construction validation used as clients; optional verification helper/report only"
+          ],
+          "json_state_impact": "none; prepared local input uses existing schema1 reference format; no graph/checkpoint/schema changes",
+          "acceptance": {
+            "AC121-1": "Freeze exact <=10 source-justified listings, acquisition caps, attempts/deadlines/bytes and check-time policy before Yahoo collection; no arbitrary prefix/replacement loop. Sources official issuer/exchange plus existing providers only.",
+            "AC121-2": "Prepare ignored <=10-listing <=1MiB existing-schema1 reference input and validate through existing complete-file parser; per-field identity/group/domicile/base/share currencies attributable or explicitly unavailable. Preserve URLs and distinct observations/collection/check times and no synthetic substitutions.",
+            "AC121-3": "Measure current unchanged-rule screening/category/identity eligibility and min3/both-sleeve feasibility on one detached isolated data preparation pass, reporting failures and source limitations. Negative source coverage acceptable report, never readiness claim. No Issue117 proof execution or store activation.",
+            "AC121-4": "Sanitized durable report/runbook contains exact bounds/commands/source identities/times, input/snapshot hashes, measured coverage/eligibility, expiry/recollection guidance and narrowly identified followups. Raw downloaded/reference/private artifacts ignored; Issue117 failures and acceptance remain separate.",
+            "AC121-5": "Focused parser/identity/source/financial regression relevant to helper, self-review, locked MINIMAL default/dev CI checks and meaningful optional-enabled validation. Content-bound native verification/acceptance/delivery; one commit branch PR, latest-head CI and actual review threads before readiness report. No merge."
+          },
+          "verification": [
+            "Native workflow checks/reservations, strict reference parser with current exact supplied universe, source attribution/identity and timestamp audit; pure unchanged screening/construction feasibility and arithmetic where applicable.",
+            "Focused existing source/reference/category/identity tests and helper tests if behavior added. Locked MINIMAL uv sync --frozen, pytest, ruff check/format, mypy src, uv build, workflow/ledger validate, docker compose config --quiet, git diff --check; meaningful optional extras in isolated environment without changing lock.",
+            "Finish reviewable docs before content-bound verification/acceptance/delivery. Check actual current PR latest head CI/comments/unresolved threads. No Issue117 certification or provider-readiness implication."
+          ],
+          "documentation": [
+            "New Issue121 iteration preparation report/runbook with exact bounded sources/listings/times/commands, input hashes/strict validation and honest eligibility/coverage; sanitized local helper if reproducibility requires, ignored raw/reference input paths."
+          ],
+          "risks": [
+            "Official pages may omit explicit source effective dates, exact subfund group/currency/domicile/ISIN or reject bounded requests. Do not equate fetch time with source publication date; document response observation separately.",
+            "Candidate Yahoo categories/concentration/volume may still fail; no replacements or relaxed checks to force success. Raw issuer data restricted to ignored artifacts. Worktree isolated from uncommitted stopped Issue117 history."
+          ],
+          "escalation_triggers": [
+            "Consequential identity/freshness/financial interpretation ambiguity or product contract repair stops for separate architect/challenge/coordinator approval; reference curation cannot redefine eligibility.",
+            "Concrete high-risk/disputed curation requires independent reviewer; recurrent/shifted concern triggers coordinator arbitration. Finite native gates/owner session remain, no silent additional attempt or successor evasion."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-25T17:33:35Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct user approved separate source-backed candidate/reference preparation. Existing strict input/data interfaces only, no consequential contract change or Issue117 resumed proof."
+        },
+        "evidence": "DESIGN_READY complete ordinary prep capsule generation1, exact bounded listing/source manifest required before Yahoo collection. New independent preparation deliverable preserves Issue117 failures/counts.",
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "digest": "e6f505167eb7b82e6cb116d4be59db3469d80f811bcf84b193636133f256d581"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-25T17:33:36Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue121_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "digest": "e6f505167eb7b82e6cb116d4be59db3469d80f811bcf84b193636133f256d581"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T03:14:29Z",
+      "data": {
+        "session": "/root/issue121_owner",
+        "outcome": "pass",
+        "evidence": "Issue121 ordinary preparation implemented without product contract edits: exact four candidates frozen before Yahoo, eight official issuer responses under caps, strict ignored reference file 4/9954 bytes with 0/20 usable facts, one bounded Yahoo attempt each with 3/4 records and one BND MarketDataError, detached observed-only snapshot and unchanged pure screening/construction measured three market screening passes but zero identity-eligible positions and no defensive sleeve. Sanitized report and offline verifier, focused helper/US-EU/construction suite, full locked minimal pytest exit0, ruff check/format, mypy src65, build, workflow/ticket validation, Compose and diff gates passed. Optional-enabled yfinance1.7.0 isolated live collector pass completed. Self-review found no contract change, no store activation, no raw response in Git and no Issue117 proof or readiness claim. Final documentation notes helper does not certify reference-to-snapshot rebinding; separate read-only source-field comparison of three records matched exactly excluding destination ingestion/version. BND cause and fallback invocation remain unknown."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T03:14:42Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue121_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "digest": "e6f505167eb7b82e6cb116d4be59db3469d80f811bcf84b193636133f256d581"
+        },
+        "content": "a7870060c79ca4cddc34ff5fa1c4fd28f809f5544b92e54469e64a9ac5c4c9cb"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T03:15:12Z",
+      "data": {
+        "session": "/root/issue121_owner",
+        "outcome": "pass",
+        "evidence": "Read-only final-content verification PASS at a7870060c79ca4cddc34ff5fa1c4fd28f809f5544b92e54469e64a9ac5c4c9cb before/after. Final-source locked MINIMAL full pytest 100% exit0 with optional skips, uv sync --frozen, ruff check/format219, mypy src65, uv build, workflow/ledger validators, Compose and diff passed. Content-bound focused helper/US-EU/construction suite exit0, offline helper replay exit0 with exact reference SHA256 abab952f3ace83c8150781734dd3b01f5ed8561a9f4d1e119ac0958f27fe79f7 and snapshot SHA256 a9a859d962731e45caaa75a0e33477acad6d267c3785e7d4d11ac6beae75cc57; 4 references/0 available, 3/4 records, 60/60 current timestamp observations, three growth screening passes, constructor blocked insufficient_eligible_candidates with zero positions. Optional-enabled isolated yfinance1.7.0 live collector previously measured one attempt per listing; no provider refetch in verification. Documentation-only clarification after full suite did not change source/test behavior. No independent review trigger: negative curation, no positive fabricated identity, no product code or financial contract change. No Issue117 proof or readiness claim."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-26T03:15:28Z",
+      "data": {
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "digest": "e6f505167eb7b82e6cb116d4be59db3469d80f811bcf84b193636133f256d581"
+        },
+        "content": "a7870060c79ca4cddc34ff5fa1c4fd28f809f5544b92e54469e64a9ac5c4c9cb",
+        "ids": [
+          "AC121-1",
+          "AC121-2",
+          "AC121-3",
+          "AC121-4",
+          "AC121-5"
+        ],
+        "evidence": "AC121-1 exact VTI/PCX, BND/NMS, VEA/PCX, VWO/PCX and official eight-URL/8-attempt/12MiB plus four bounded Yahoo-attempt manifest frozen before Yahoo; BND listing correction documented before acquisition, no symbol replacement. AC121-2 ignored strict schema1 four-listing 9954-byte reference parsed with exact universe; each of five fields has official URL and distinct response observation, 0/20 available without ISIN/group/currency/domicile invention; dated Sep30 fund numbers are candidate evidence not injected fresh facts. AC121-3 one Yahoo attempt/listing produced VTI/VEA/VWO, BND failed MarketDataError, one isolated 3/4 observed-only detached dataset; unchanged pure quality/evidence/screening/construction measured 60/60 current timestamp observations, three growth market screening passes, zero identity-eligible/defensive positions and blocked insufficient_eligible_candidates. Negative readiness reported; no stores/review/Issue117 proofs. AC121-4 sanitized iteration033 contains exact source URLs, times, SHA256s, bounds, parser/assessment commands, field/position counts, expiry and narrow further source needs; all raw issuer/provider/reference artifacts ignored. AC121-5 focused and locked MINIMAL full tests, Ruff, mypy, build, workflow, ledger, Compose, diff and meaningful isolated optional-enabled live Yahoo pass passed; content-bound owner verification at same digest passed. Ordinary negative curation and read-only helper have no independent reviewer escalation trigger. One branch/PR, latest-head CI and actual review-thread inspection remain delivery follow-through, not a current readiness claim. No merge or Issue117 continuation."
+      }
+    }
+  ]
+}
