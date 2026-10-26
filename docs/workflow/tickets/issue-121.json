@@ -176,6 +176,21 @@
         ],
         "evidence": "AC121-1 exact VTI/PCX, BND/NMS, VEA/PCX, VWO/PCX and official eight-URL/8-attempt/12MiB plus four bounded Yahoo-attempt manifest frozen before Yahoo; BND listing correction documented before acquisition, no symbol replacement. AC121-2 ignored strict schema1 four-listing 9954-byte reference parsed with exact universe; each of five fields has official URL and distinct response observation, 0/20 available without ISIN/group/currency/domicile invention; dated Sep30 fund numbers are candidate evidence not injected fresh facts. AC121-3 one Yahoo attempt/listing produced VTI/VEA/VWO, BND failed MarketDataError, one isolated 3/4 observed-only detached dataset; unchanged pure quality/evidence/screening/construction measured 60/60 current timestamp observations, three growth market screening passes, zero identity-eligible/defensive positions and blocked insufficient_eligible_candidates. Negative readiness reported; no stores/review/Issue117 proofs. AC121-4 sanitized iteration033 contains exact source URLs, times, SHA256s, bounds, parser/assessment commands, field/position counts, expiry and narrow further source needs; all raw issuer/provider/reference artifacts ignored. AC121-5 focused and locked MINIMAL full tests, Ruff, mypy, build, workflow, ledger, Compose, diff and meaningful isolated optional-enabled live Yahoo pass passed; content-bound owner verification at same digest passed. Ordinary negative curation and read-only helper have no independent reviewer escalation trigger. One branch/PR, latest-head CI and actual review-thread inspection remain delivery follow-through, not a current readiness claim. No merge or Issue117 continuation."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-26T03:17:11Z",
+      "data": {
+        "evidence": "Ordinary preparation complete as honest negative bounded-source deliverable; locked MINIMAL and focused optional current-source gates pass, self-review complete. No product contract changes or high-risk positive curated facts. PR122 original identity, no Issue117 acceptance/continuation or merge. Latest-head CI and actual comments/threads checked after final ledger push.",
+        "pr": 122,
+        "repo": "beagle1903/agentic-etf-advisor",
+        "capsule": {
+          "id": "issue-121-attributed-reference-preparation",
+          "generation": 1,
+          "digest": "e6f505167eb7b82e6cb116d4be59db3469d80f811bcf84b193636133f256d581"
+        },
+        "content": "a7870060c79ca4cddc34ff5fa1c4fd28f809f5544b92e54469e64a9ac5c4c9cb"
+      }
     }
   ]
 }
