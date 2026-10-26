@@ -149,6 +149,164 @@
         "session": "/root/issue124_policy_challenge",
         "outcome": "fail"
       }
+    },
+    {
+      "at": "2026-10-26T12:57:45Z",
+      "type": "phase_start",
+      "data": {
+        "criterion": "INV124-3",
+        "session": "/root/issue124_freshness_design",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 1,
+          "digest": "4e6743656139abcb23ba0ecb9fab1b0fd067df9c9d0b1ad3208b4848818442a2"
+        },
+        "reason": "Narrow repair of independently failed historical-continuity/current-identity freshness ambiguity under A124-1; no frozen scope/AC changes.",
+        "role": "design_architect",
+        "phase": "design_reset"
+      }
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue124_freshness_design",
+        "evidence": "Separate reset architect DESIGN_READY gen2. A124-1 narrow repair transcribed: typed current_proof separates historical lineage from current Fund/inventory/active-ISIN/context-link sources; C(F) minimum observation plus every-constituent inclusive120h/5min check; parent-validated continuity retains same key, historical evidence unchanged, offline replay saved checktime. Initial challenge failure preserved; no runtime/source/key activation."
+      },
+      "at": "2026-10-26T17:47:54Z",
+      "type": "phase_end"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T17:48:15Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue124_policy_challenge",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        },
+        "role": "code_reviewer"
+      }
+    },
+    {
+      "data": {
+        "evidence": "Independent gen2 challenge PASS INV124-3 AC124-4/5. Old immutable rename plus fresh current B proof retains key; missing/stale current proof rejects; mismatched current contexts require fresh links; every current constituent checked inclusive120h/5min; offline replay saved checktime no external reads. Initial failed challenge preserved. No edits/tests/runtime.",
+        "outcome": "pass",
+        "session": "/root/issue124_policy_challenge"
+      },
+      "type": "phase_end",
+      "at": "2026-10-26T17:49:18Z"
+    },
+    {
+      "data": {
+        "authority": {
+          "evidence": "Human selected audited curator-key design and standing routine autonomy; same frozen gen2 separate reset design and independent challenge passed. A124-1 focused closure met. Approve design-only documentation owner phase; no runtime/source/key activation.",
+          "kind": "coordinator",
+          "name": "/root"
+        },
+        "evidence": "Complete proposed handoff035 plus A124-1 closure; initial FAIL retained, single reset used, current separate challenge PASS. Typed current proof/history partition and equality/registry/legacy safeguards satisfy design gate.",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        }
+      },
+      "type": "design_ready",
+      "at": "2026-10-26T17:49:20Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue124_documentation_owner",
+        "phase": "implementation",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        },
+        "role": "implementation_worker"
+      },
+      "at": "2026-10-26T17:49:28Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T17:53:19Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Documentation owner completed proposedADR0042, curation runbook and035 handoff readability/links/precertification evidence. No policy redesign/product/source changes. Self-review and workflow/native/link/ADRuniqueness/diff checks pass; focused tests/test_us_eu_contract.py exit0,2skipped. Existing schema1 regression does not validate unimplemented curator policy. Formal identical-content verification next.",
+        "session": "/root/issue124_documentation_owner"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T17:53:22Z",
+      "data": {
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        },
+        "content": "a73f07435fe965d4d265bd3fbb11b8ccd0a4edf633bd560ad33e73a221fc7a09",
+        "role": "implementation_worker",
+        "phase": "verification",
+        "session": "/root/issue124_documentation_owner"
+      }
+    },
+    {
+      "at": "2026-10-26T17:54:56Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Formal same-owner unchanged-content verification PASS a73f07435fe965d4d265bd3fbb11b8ccd0a4edf633bd560ad33e73a221fc7a09: workflow validator/native ledger, ruffcheckall/format223, localMarkdownlinks/ADR0042unique, gitdiffcheck. US/EU focused regression92collected90passed2optionalstreamlitUI skips. No proposedruntimevalidation claimed; no edits.",
+        "session": "/root/issue124_documentation_owner"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-26T17:55:00Z",
+      "data": {
+        "evidence": "AC1opaqueversionedkeyauthority+exactequality;AC2directofficialproof/currentapplicability+typedcurrentC(F)freshness;AC3typedparent/inventory/rename/collision/successionrules;AC4exactfutureJSON/marker/unit/provider/binding/replay+legacytrustlimits;AC5concretescenarios+boundedfutureplan;AC6separatearchitect/reset/challengePASS/coordapproval/frozenowner+truthfulinitialFAIL;AC7ProposedADR0042+035+runbookdocsonly verifiedidenticalcontent,independentreviewandPRCIremainrequiredgates. No runtime/source/keyactivation or otherissueacceptance. Formal90passed2optionalskipped,workflow/native/lint/format/link/uniqueness/diffPASS.",
+        "ids": [
+          "AC124-1",
+          "AC124-2",
+          "AC124-3",
+          "AC124-4",
+          "AC124-5",
+          "AC124-6",
+          "AC124-7"
+        ],
+        "content": "a73f07435fe965d4d265bd3fbb11b8ccd0a4edf633bd560ad33e73a221fc7a09",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        }
+      },
+      "type": "acceptance"
+    },
+    {
+      "at": "2026-10-26T17:55:05Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue124_documentation_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 2,
+          "digest": "51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20"
+        },
+        "content": "a73f07435fe965d4d265bd3fbb11b8ccd0a4edf633bd560ad33e73a221fc7a09"
+      },
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-26T17:57:41Z",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue124_documentation_review",
+        "evidence": "Fresh independent initialdocumentationreview PASS frozenINV124-1..5/AC124-1..7 contenta73f07435fe965d4d265bd3fbb11b8ccd0a4edf633bd560ad33e73a221fc7a09. No concretefailure. Diffbase98f4a8f only intendeddocs+ledger; proposedequality/proof/currentfreshness/history/replay/legacy/gates consistent. InitialFAIL/reset/challengePASS preserved. Existing90tests notfuturepolicyproof; source/actor/livecoverage unproven. PRCI/reviewstate remainingexternalgates."
+      },
+      "type": "phase_end"
     }
   ]
 }

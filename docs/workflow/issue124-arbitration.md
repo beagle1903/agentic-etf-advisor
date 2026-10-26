@@ -80,3 +80,21 @@ freshS2/S3/S4 passes appropriately, stale/missingcurrentproof stillfails, replay
 keeps original proof/checktime. Only then coordinatorapproval/documentation owner.
 No newslotgranted: defaultreset1isavailable, all implementation/review/remediation
 counts0/1. Reset consumes its slot and advancesgeneration; no counter/history reset.
+
+## A124-1 generation2 closure
+
+Separate reset architect /root/issue124_freshness_design returned DESIGN_READY.
+Independent /root/issue124_policy_challenge returned PASS for INV124-3 and
+AC124-4/5: old immutable A-to-B lineage evidence plus fresh B Fund, inventory and
+active-class proof keeps the same key; stale/missing current proof rejects;
+conflicting current contexts need fresh source-backed links; every current source
+receives inclusive 120-hour/five-minute checks. Restore uses the saved check time
+without external reads. The initial failed challenge remains failed.
+
+The focused narrow-repair closure is met. Coordinator /root approves only the
+generation2 design handoff, digest
+51714f9efe5ae108cc76b88a04304e18e2a2157a60bd23d548bfa764881ace20.
+Next permitted gate: checked/reserved documentation implementation by the frozen
+owner, then content-bound verification, acceptance and independent review. This
+ends A124-1, not ticket acceptance. No runtime activation, key issuance, source
+collection, financial change or extra phase allowance is authorized.
