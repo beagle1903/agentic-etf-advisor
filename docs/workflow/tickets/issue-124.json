@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-26T12:37:26Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 124,
+        "classification": "consequential",
+        "scope": [
+          "S124-1"
+        ],
+        "invariants": [
+          "INV124-1",
+          "INV124-2",
+          "INV124-3",
+          "INV124-4",
+          "INV124-5"
+        ],
+        "acceptance": [
+          "AC124-1",
+          "AC124-2",
+          "AC124-3",
+          "AC124-4",
+          "AC124-5",
+          "AC124-6",
+          "AC124-7"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "On2026-10-26 in this chat the human selected Allow audited curator-assigned keys, with strict Fund/class proof and alias/rename safeguards when asked which identity policy to DESIGN. Standing instruction routine source/input/check steps should not require repeated approval. This authorizes a distinct consequential DESIGN-ONLY proposal with separate architect/challenge and documentation transcription/review; no runtime implementation, source acquisition, registry key assignment or policy activation. Issue124 is not successor/split/count reset of121/123/117."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 124,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue124_documentation_owner"
+          },
+          "rationale": "Consequential economic-group source/equality semantics require separate design_architect and independent challenge before coordinator-approved documentation owner. Distinct new policy-design scope explicitly excluded by ordinary Issue123; no predecessor certificate or attempt pool transfer. Documentation-only publication of PROPOSED policy, no activation.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "On2026-10-26 in this chat the human selected Allow audited curator-assigned keys, with strict Fund/class proof and alias/rename safeguards when asked which identity policy to DESIGN. Standing instruction routine source/input/check steps should not require repeated approval. This authorizes a distinct consequential DESIGN-ONLY proposal with separate architect/challenge and documentation transcription/review; no runtime implementation, source acquisition, registry key assignment or policy activation. Issue124 is not successor/split/count reset of121/123/117."
+          },
+          "scope": {
+            "S124-1": "Design an audited stable curator-assigned economic-fund identity policy backed by explicit official legal Fund/class evidence, with uniqueness/collision/alias/rename/member-change safeguards, honest curator-vs-issuer distinction, precise future interface/state/proof/lifecycle and legacy implications. Produce proposed ADR, design/runbook, bounded implementation and verification plan; independent challenge, coordinator disposition, authorized documentation transcription and content-bound review. No product runtime implementation or real reference/group assignment."
+          },
+          "non_goals": [
+            "No runtime/source-adapter/financial/persistence/replay code change or policy activation, real key issuance/reference insertion, new provider/search/source acquisition, registry mutation, store publication, trade or financial write. No automatic future implementation.",
+            "No relaxed financial/category/freshness/fee/volume/concentration/min3/both-sleeve rules, inferred groups from marketing names/tickers/family/index/class/product/umbrella identifiers, ISIN from CUSIP, or silently broadened regulator-only authority.",
+            "No alteration/adoption/reset/continuation/split/delivery binding of Issue121/PR122/Issue123/Issue117 histories, no data-readiness or parent24 closure claim. This distinct policy design is not a fresh curation attempt. No migration/rebinding of saved data/reviews."
+          ],
+          "invariants": {
+            "INV124-1": "A proposed curator key represents a genuine economic Fund across classes only with explicit retained official issuer/exchange legal-Fund context and direct class membership proof. Names, umbrella, family, ticker, index, class/product IDs or a class-set hash alone cannot establish grouping. Distinguish direct legal identification from resemblance inference; no claim of cryptographic source authentication.",
+            "INV124-2": "Clearly discriminate curator-assigned stable keys from issuer-assigned codes using explicit namespace/version/provenance semantics. Define uniqueness/equality/collision rejection and aliases/renames over time; no automatic fresh key for possibly renamed existing Fund, and unresolved continuity or conflicting mapping fails closed.",
+            "INV124-3": "Preserve original source/observation/effective/publication/collection/check distinctions and existing freshness/binding/immutable artifact/replay guarantees. Proposed proof or registry lifecycle must specify what is canonical/persisted, trusted manual input and offline restore without external reads; no silent migration or schema/semantic downgrade.",
+            "INV124-4": "This issue only authors a proposed policy and verification/implementation handoff. Current product APIs, financial rules, graph/checkpoint JSON and live source/reference data remain unchanged; examples are explicitly synthetic. No actual key assignment/source/network/store/financial operation. Accepted ADR history is not rewritten.",
+            "INV124-5": "Separate architect, independent challenge, coordinator approval, approved documentation owner and independent final review with native finite reservations/content binding. Preserve all other ticket histories and source conflicts; no transferred authority/certificate/count-reset. Actual runtime implementation remains separately authorized."
+          },
+          "interfaces": [
+            "Current affected runtime interfaces:none; proposal must specify exact future registry/proof/reference identity/binding/replay interfaces and explicit version/legacy behavior, or justify none. Documentation interfaces: proposed new ADR, design/runbook and future implementation/test plan."
+          ],
+          "json_state_impact": "none to current runtime/graph/checkpoint/reference payloads; proposed future registry/proof/reference JSON and semantic markers, lifecycle/canonical binding/compatibility implications must be explicit in the design, not silently activated",
+          "acceptance": {
+            "AC124-1": "Separate architect specifies stable curator-key identity granularity, honest assignment authority, namespace/version and equality, contrasted with issuer-assigned IDs without fabricating either. Applies explicit legal Fund/class source proof and distinguishes umbrella/context/class/product/marketing labels.",
+            "AC124-2": "Define source evidence and trust: exact official issuer/exchange legal context/class mapping, original observations versus effective/publication/collection/check, unavailability/conflicts/current applicability and manual-curation limits. No silent regulator-authority expansion or changed freshness.",
+            "AC124-3": "Specify initial issuance/registry uniqueness, collision rejection, aliases/renames/continuity, class changes/closure, Fund mergers/splits and unresolved changes with fail-closed rules. No arbitrary name/class-set hashes masquerading as issuer identifiers; detect same Fund different class ISIN duplicate risks.",
+            "AC124-4": "Exact proposed future interfaces, schemas/semantic markers/units/provider labels and state/proof lifecycle/canonical integrity plus offline replay/restore and legacy compatibility/migration/non-migration are documented, with explicitnone where appropriate. No behavior or real data activated in this issue.",
+            "AC124-5": "Concrete future acceptance scenarios and bounded implementation plan cover sameFund/differentISINs, differentFunds/oneumbrella, same names/differentcontexts, explicit rename/alias evidence, Unicode/punctuation collisions, changing classes, contradictory mappings and unchanged original observations/binding/replay. Identify risks/escalation and remaining choices without claiming live feasibility.",
+            "AC124-6": "Complete separate design_architect handoff, independent challenge with concrete scenarios against frozen IDs, coordinator disposition and truthful finite native phases/owner provenance. DESIGN_BLOCKED stays blocked; implementation-owner documentation only after same-generation/digest design/challenge/approval.",
+            "AC124-7": "Reviewable proposed ADR(design statusPROPOSED), source-grounded design/runbook and implementation/verification handoff. Approved documentation owner transcribes only accepted handoff, self-reviews and runs relevant docs/reference/workflow/native/diff gates; fresh identical-content verification/acceptance/independent review and actual current-head CI/comments/threads for any delivery PR. No merge/runtime activation or Issue123/117 acceptance."
+          },
+          "verification": [
+            "Separate read-only architect and independent challenge using actual current contracts and existing retained source evidence, no new provider acquisition. Scenarios trace frozen invariants/AC IDs; coordinator resolves material disagreement through one bounded arbitration, not agreement polling.",
+            "Documentation-only owner validates proposed examples as explicitly synthetic and no runtime/source changes. Relevant existing reference/economic identity regression and native workflow/role/ledger/schema/diff checks, Markdown links/ADR uniqueness and documentation self-review; no redundant full product reruns unless changes warrant them. Required repository CI must pass current head before delivery.",
+            "Finish docs before canonical content-bound owner verification/acceptance; independent reviewer excludes architect and every writer/verification author. Native delivery bound original Issue124 PR only; no activation implied."
+          ],
+          "documentation": [
+            "docs/iterations/035-issue124-curator-identity-design.md complete policy proposal/source rationale/decision matrix/implementation+test plan; new available ADR number with statusProposed, no accepted history rewrite; source-curation usage proposal/runbook. Current architecture/product stable facts unchanged until later activation."
+          ],
+          "risks": [
+            "Exact legal-name encoding may split aliases or renames; opaque keys still need verified registry linkage and conflict/current-inventory rules. Formal source proof is manually curated, not source authentication.",
+            "Registry/proof optionality can create bypasses, mutable external reads can break replay, broadening units/provider semantics can silently change legacy artifacts. Design must name concrete trust/compatibility limits rather than promise impossible guarantees.",
+            "Bounded source corpus did not prove identifier absence. Policy proposal cannot guarantee source coverage, US ISIN availability, supported Yahoo categories or ready portfolio. Other ticket failures/counts remain unchanged."
+          ],
+          "escalation_triggers": [
+            "Unresolved group equality/proof/registry integrity/replay/compatibility ambiguity returns to architect within finite allowances; no writer resolves consequential policy by implementation accident.",
+            "Repeated/shifted concern invokes bounded coordinator arbitration; failed challenge/final review or exhausted slots stops. No default new ticket or scope expansion to evade limits.",
+            "Actual runtime, source acquisition, key issuance or activation request exceeds this design-only authorization and requires its proper separate consequential implementation scope."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "at": "2026-10-26T12:37:46Z",
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue124_policy_design",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 1,
+          "digest": "4e6743656139abcb23ba0ecb9fab1b0fd067df9c9d0b1ad3208b4848818442a2"
+        },
+        "role": "design_architect",
+        "phase": "design"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T12:52:25Z",
+      "data": {
+        "session": "/root/issue124_policy_design",
+        "outcome": "pass",
+        "evidence": "Separate architect DESIGN_READY design-only curator-fund-v1 proposedpolicy, coordinatortranscription035issue124design. OneboundedA124-1amendment removesunrequestedhuman-onlygate, adds typedparenttransition/inventorycoverage and separatespublication-parentchecks fromofflinebound-proof/manualtrust. Opaque stablekeys,reference2+explicitmarker+proof/unit distinction,legacycompatibility,safeguards and futureimplementation/testplan specified. No runtime,key,registry,sourcecall or policyactivation. Independentchallengepending, samefrozengen1digest."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "code_reviewer",
+        "session": "/root/issue124_policy_challenge",
+        "phase": "challenge",
+        "capsule": {
+          "id": "issue-124-curator-economic-fund-identity-design",
+          "generation": 1,
+          "digest": "4e6743656139abcb23ba0ecb9fab1b0fd067df9c9d0b1ad3208b4848818442a2"
+        }
+      },
+      "at": "2026-10-26T12:53:21Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T12:57:31Z",
+      "data": {
+        "evidence": "Independent challenge FAIL for material INV124-3/AC124-4 freshness ambiguity, not runtimebug. Historical renameS1retained forever vs currentS2/S3/S4fresh: oldestrequiredcontinuity120h wording either makesFundpermanentlystale or permitsunboundedexemption. Need exactpartitionhistoricalimmutableintegrity vs currentconsumedFund/class/inventory/continuitysourcefreshness+samekeybinding. A124-1recordsconcreterepro. Othermarkers/legacy/currentprooftrustlimits assessedexplicit, no edits/tests/activation. Failedoutcome preserved; boundedremainingdesignresetrequiredbeforeanotherhandoff.",
+        "session": "/root/issue124_policy_challenge",
+        "outcome": "fail"
+      }
+    }
+  ]
+}
