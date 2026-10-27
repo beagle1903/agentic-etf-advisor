@@ -214,6 +214,7 @@ class CandidateScreeningResult(AdvisoryWireModel):
     rules: list[ScreeningRuleResult]
     schema_version: int = 1
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -251,6 +252,8 @@ class CandidateScreeningResult(AdvisoryWireModel):
             result.pop("schema_version", None)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         return result
 
     @field_validator("symbol")
@@ -295,6 +298,7 @@ class CandidateScreeningBundle(StrictWireModel):
     candidates: list[CandidateScreeningResult]
     schema_version: int = 1
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -316,8 +320,20 @@ class CandidateScreeningBundle(StrictWireModel):
                 )
                 if semantic != value.get("advisory_contract"):
                     raise ValueError("Screening bundle cannot mix advisory contracts.")
+                identity = (
+                    item.identity_contract
+                    if isinstance(item, CandidateScreeningResult)
+                    else item.get("identity_contract")
+                )
+                if identity != value.get("identity_contract"):
+                    raise ValueError("Screening bundle cannot mix identity contracts.")
             if "advisory_contract" in value and value["advisory_contract"] != "us-eu-v1":
                 raise ValueError("Unknown advisory contract.")
+            if "identity_contract" in value:
+                if value["identity_contract"] != "curator-fund-v1":
+                    raise ValueError("Unknown identity contract.")
+                if value.get("advisory_contract") != "us-eu-v1":
+                    raise ValueError("Curator identity requires US/EU advisory contract.")
         return value
 
     @model_serializer(mode="wrap")
@@ -327,6 +343,8 @@ class CandidateScreeningBundle(StrictWireModel):
             result.pop("schema_version", None)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         return result
 
     @field_validator("checked_at")
@@ -431,6 +449,11 @@ def screen_candidate_evidence(
     return CandidateScreeningBundle(
         schema_version=validated_evidence.schema_version,
         **contract_fields(validated_evidence.advisory_contract),
+        **(
+            {"identity_contract": validated_evidence.identity_contract}
+            if validated_evidence.identity_contract is not None
+            else {}
+        ),
         checked_at=validated_evidence.checked_at,
         excluded_sectors=list(validated_evidence.excluded_sectors),
         policy=validated_policy,
@@ -573,6 +596,11 @@ def _screen_candidate(
                 rule.message += "; official BND holdings use a 1080-hour field window."
     return CandidateScreeningResult(
         **contract_fields("us-eu-v1" if new_contract else None),
+        **(
+            {"identity_contract": candidate.identity_contract}
+            if candidate.identity_contract is not None
+            else {}
+        ),
         document_id=candidate.document_id,
         symbol=candidate.symbol,
         name=candidate.name,

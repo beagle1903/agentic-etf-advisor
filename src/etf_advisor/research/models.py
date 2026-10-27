@@ -18,6 +18,14 @@ from pydantic import (
     model_validator,
 )
 
+from etf_advisor.domain.fund_identity import (
+    IDENTITY_CONTRACT,
+    REGISTRY_PROVIDER,
+    RegistryEnvelope,
+    canonical_bytes,
+    resolve_group,
+    valid_key,
+)
 from etf_advisor.domain.us_eu import listing_region, valid_group_id, valid_isin
 from etf_advisor.encoding import (
     FINGERPRINT_KEY,
@@ -118,6 +126,8 @@ class ETFResearchRecord(BaseModel):
 
     symbol: str = Field(min_length=1, max_length=12)
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
+    registry_envelope: RegistryEnvelope | None = None
     name: ResearchField[str]
     quote_type: ResearchField[str]
     market: ResearchField[str]
@@ -142,6 +152,13 @@ class ETFResearchRecord(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def reject_legacy_extensions(cls, value: Any) -> Any:
+        if isinstance(value, dict) and (
+            ("identity_contract" in value and value["identity_contract"] != IDENTITY_CONTRACT)
+            or ("registry_envelope" in value and value["registry_envelope"] is None)
+            or ("registry_envelope" in value)
+            != (value.get("identity_contract") == IDENTITY_CONTRACT)
+        ):
+            raise ValueError("Unknown, null or incomplete curator identity contract.")
         if (
             isinstance(value, dict)
             and value.get("advisory_contract") != "us-eu-v1"
@@ -178,6 +195,10 @@ class ETFResearchRecord(BaseModel):
             "share_class_currency",
         )
         if self.advisory_contract == "us-eu-v1":
+            if self.identity_contract == IDENTITY_CONTRACT and self.registry_envelope is None:
+                raise ValueError("Curator research requires bound proof.")
+            if self.identity_contract is None and self.registry_envelope is not None:
+                raise ValueError("Issuer research rejects curator proof.")
             if any(getattr(self, name) is None for name in additions):
                 raise ValueError("New research requires every explicit source field.")
             units = {
@@ -185,7 +206,11 @@ class ETFResearchRecord(BaseModel):
                 "trading_currency": "iso4217",
                 "price_unit": "quote_unit",
                 "share_class_id": "isin",
-                "economic_group_id": "issuer_fund_id",
+                "economic_group_id": (
+                    "curator_fund_id"
+                    if self.identity_contract == IDENTITY_CONTRACT
+                    else "issuer_fund_id"
+                ),
                 "domicile": "iso3166_alpha2",
                 "fund_base_currency": "iso4217",
                 "share_class_currency": "iso4217",
@@ -226,9 +251,41 @@ class ETFResearchRecord(BaseModel):
                 raise ValueError("Share-class ISIN is invalid.")
             if self.economic_group_id.value is not None and (
                 not isinstance(self.economic_group_id.value, str)
-                or not valid_group_id(self.economic_group_id.value)
+                or not (
+                    valid_key(self.economic_group_id.value)
+                    if self.identity_contract == IDENTITY_CONTRACT
+                    else valid_group_id(self.economic_group_id.value)
+                    and not self.economic_group_id.value.startswith("curator-fund-v1:")
+                )
             ):
                 raise ValueError("Economic group identifier is invalid.")
+            if (
+                self.identity_contract == IDENTITY_CONTRACT
+                and self.economic_group_id.value is not None
+            ):
+                assert self.registry_envelope is not None
+                if self.share_class_id.value is None:
+                    raise ValueError("Curator group requires proven class ISIN.")
+                observed = resolve_group(
+                    self.registry_envelope,
+                    self.economic_group_id.value,
+                    self.share_class_id.value,
+                    self.economic_group_id.ingested_at,
+                )
+                if self.economic_group_id.provider != REGISTRY_PROVIDER:
+                    raise ValueError("Curator group requires audited registry provider.")
+                fund = next(
+                    item
+                    for item in self.registry_envelope.snapshot.funds
+                    if item.key == self.economic_group_id.value
+                )
+                sources = {source.id: source for source in self.registry_envelope.snapshot.sources}
+                if self.economic_group_id.source_url not in {
+                    sources[source_id].url for source_id in fund.current_proof.fund.source_ids
+                }:
+                    raise ValueError("Curator group requires official Fund-proof URL.")
+                if observed != self.economic_group_id.observed_at:
+                    raise ValueError("Curator group observation differs from current proof.")
             if self.domicile.value is not None and (
                 not isinstance(self.domicile.value, str)
                 or not __import__("re").fullmatch(r"[A-Z]{2}", self.domicile.value)
@@ -247,13 +304,19 @@ class ETFResearchRecord(BaseModel):
                 and self.market.value != "us_market"
             ):
                 raise ValueError("Yahoo market conflicts with US exchange.")
-        elif any(getattr(self, name) is not None for name in additions):
+        elif (
+            any(getattr(self, name) is not None for name in additions)
+            or self.identity_contract is not None
+        ):
             raise ValueError("Legacy research rejects new source fields.")
         return self
 
     @model_serializer(mode="wrap")
     def serialize_record(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
+            result.pop("registry_envelope", None)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
             for name in (
@@ -279,7 +342,12 @@ class ETFResearchRecord(BaseModel):
 
         fields: dict[str, ResearchField[object]] = {}
         for field_name in self.__class__.model_fields:
-            if field_name in {"symbol", "advisory_contract"}:
+            if field_name in {
+                "symbol",
+                "advisory_contract",
+                "identity_contract",
+                "registry_envelope",
+            }:
                 continue
             value = getattr(self, field_name)
             if isinstance(value, ResearchField):
@@ -294,6 +362,8 @@ class ETFResearchSnapshot(BaseModel):
 
     schema_version: int = Field(default=1, ge=1)
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
+    registry_envelope: RegistryEnvelope | None = None
     snapshot_version: str = Field(min_length=1, max_length=100, pattern=r"^[A-Za-z0-9._:-]+$")
     universe_id: str = Field(min_length=1, max_length=100)
     universe_version: str = Field(min_length=1, max_length=100)
@@ -303,6 +373,13 @@ class ETFResearchSnapshot(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def reject_legacy_marker(cls, value: Any) -> Any:
+        if isinstance(value, dict) and (
+            ("identity_contract" in value and value["identity_contract"] != IDENTITY_CONTRACT)
+            or ("registry_envelope" in value and value["registry_envelope"] is None)
+            or ("registry_envelope" in value)
+            != (value.get("identity_contract") == IDENTITY_CONTRACT)
+        ):
+            raise ValueError("Unknown, null or incomplete curator snapshot identity.")
         if (
             isinstance(value, dict)
             and "advisory_contract" in value
@@ -339,12 +416,26 @@ class ETFResearchSnapshot(BaseModel):
                         {
                             key: field
                             for key, field in record.items()
-                            if key not in {"symbol", "advisory_contract"}
+                            if key
+                            not in {
+                                "symbol",
+                                "advisory_contract",
+                                "identity_contract",
+                                "registry_envelope",
+                            }
                         }
                     ),
                     **(
                         {"advisory_contract": record["advisory_contract"]}
                         if "advisory_contract" in record
+                        else {}
+                    ),
+                    **(
+                        {
+                            "identity_contract": record["identity_contract"],
+                            "registry_envelope": record["registry_envelope"],
+                        }
+                        if "identity_contract" in record
                         else {}
                     ),
                 }
@@ -357,7 +448,13 @@ class ETFResearchSnapshot(BaseModel):
                     {
                         key: field
                         for key, field in record.items()
-                        if key not in {"symbol", "advisory_contract"}
+                        if key
+                        not in {
+                            "symbol",
+                            "advisory_contract",
+                            "identity_contract",
+                            "registry_envelope",
+                        }
                     }
                 )
         return value
@@ -374,6 +471,9 @@ class ETFResearchSnapshot(BaseModel):
         result: dict[str, Any] = handler(self)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
+            result.pop("registry_envelope", None)
         if self.schema_version == 2:
             result["records"] = [
                 {
@@ -382,12 +482,26 @@ class ETFResearchSnapshot(BaseModel):
                         {
                             key: field
                             for key, field in record.items()
-                            if key not in {"symbol", "advisory_contract"}
+                            if key
+                            not in {
+                                "symbol",
+                                "advisory_contract",
+                                "identity_contract",
+                                "registry_envelope",
+                            }
                         }
                     ),
                     **(
                         {"advisory_contract": record["advisory_contract"]}
                         if "advisory_contract" in record
+                        else {}
+                    ),
+                    **(
+                        {
+                            "identity_contract": record["identity_contract"],
+                            "registry_envelope": record["registry_envelope"],
+                        }
+                        if "identity_contract" in record
                         else {}
                     ),
                 }
@@ -408,6 +522,16 @@ class ETFResearchSnapshot(BaseModel):
             raise ValueError("New advisory research requires numeric schema 2.")
         if any(record.advisory_contract != self.advisory_contract for record in self.records):
             raise ValueError("Mixed advisory contracts are not a research snapshot.")
+        if self.identity_contract == IDENTITY_CONTRACT and (
+            self.advisory_contract != "us-eu-v1" or self.registry_envelope is None
+        ):
+            raise ValueError("Curator identity requires US/EU snapshot and bound proof.")
+        if any(
+            record.identity_contract != self.identity_contract
+            or record.registry_envelope != self.registry_envelope
+            for record in self.records
+        ):
+            raise ValueError("Mixed curator identity proofs are not a research snapshot.")
         symbols = [record.symbol for record in self.records]
         if len(symbols) != len(set(symbols)):
             raise ValueError("Research snapshot symbols must be unique.")
@@ -482,6 +606,13 @@ class ETFResearchSnapshot(BaseModel):
         }
         if self.advisory_contract == "us-eu-v1":
             metadata["advisory_contract"] = "us-eu-v1"
+        if self.identity_contract == IDENTITY_CONTRACT:
+            assert self.registry_envelope is not None
+            metadata["identity_contract"] = IDENTITY_CONTRACT
+            metadata["registry_envelope_json"] = canonical_bytes(
+                self.registry_envelope.model_dump(mode="json")
+            ).decode("utf-8")
+            metadata["registry_envelope_digest"] = self.registry_envelope.digest
         for field_name, research_field in research_fields.items():
             if isinstance(research_field.value, (str, int, float, bool)):
                 metadata[field_name] = field_provenance[field_name]["value"]

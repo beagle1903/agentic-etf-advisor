@@ -227,6 +227,7 @@ class PortfolioPosition(AdvisoryWireModel):
     source_category: str = Field(min_length=1, max_length=200)
     weight_bps: int = Field(ge=0, le=TOTAL_WEIGHT_BPS)
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     initial_usd_cents: int | None = Field(default=None, ge=0)
     recurring_usd_cents: int | None = Field(default=None, ge=0)
     listing_exchange: str | None = None
@@ -295,6 +296,8 @@ class PortfolioPosition(AdvisoryWireModel):
     @model_serializer(mode="wrap")
     def serialize_position(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_usd_cents", None)
             result.pop("recurring_usd_cents", None)
@@ -351,6 +354,7 @@ class PortfolioDraft(AdvisoryWireModel):
     total_weight_bps: int = Field(ge=0, le=TOTAL_WEIGHT_BPS)
     sleeve_weight_bps: dict[PortfolioSleeve, int]
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     base_currency: Literal["USD", "EUR"] | None = None
     initial_total_cents: int | None = Field(default=None, ge=0)
     recurring_total_cents: int | None = Field(default=None, ge=0)
@@ -367,6 +371,10 @@ class PortfolioDraft(AdvisoryWireModel):
                 or self.initial_total_cents is not None
                 or self.recurring_total_cents is not None
                 or any(position.advisory_contract != "us-eu-v1" for position in self.positions)
+                or any(
+                    position.identity_contract != self.identity_contract
+                    for position in self.positions
+                )
             ):
                 raise ValueError("New draft requires base currency and minor-unit totals.")
         elif (
@@ -376,6 +384,7 @@ class PortfolioDraft(AdvisoryWireModel):
             or self.initial_total_cents is None
             or self.recurring_total_cents is None
             or any(position.advisory_contract is not None for position in self.positions)
+            or self.identity_contract is not None
         ):
             raise ValueError("Legacy draft rejects new-contract money.")
         return self
@@ -383,6 +392,8 @@ class PortfolioDraft(AdvisoryWireModel):
     @model_serializer(mode="wrap")
     def serialize_draft(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_total_cents", None)
             result.pop("recurring_total_cents", None)
@@ -483,6 +494,7 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
     excluded_candidates: list[ExcludedCandidate]
     errors: list[ConstructionError]
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     catalogue_selection: CatalogueSelectionReport | None = None
 
     @model_validator(mode="before")
@@ -501,6 +513,8 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
         result: dict[str, Any] = handler(self)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         if self.catalogue_selection is None:
             result.pop("catalogue_selection", None)
         return result
@@ -514,6 +528,8 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
             raise ValueError("Blocked construction requires errors and cannot expose a draft.")
         if self.catalogue_selection is not None and self.advisory_contract != "us-eu-v1":
             raise ValueError("Catalogue selection requires US/EU construction.")
+        if self.draft is not None and self.draft.identity_contract != self.identity_contract:
+            raise ValueError("Construction identity contract differs from draft.")
         return self
 
 
@@ -559,6 +575,7 @@ def construct_model_portfolio(
             policy,
             upstream_error,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=_catalogue_not_evaluated(inputs, upstream_error),
         )
 
@@ -569,6 +586,7 @@ def construct_model_portfolio(
             target_or_error,
             passed_checks={ConstructionCheckName.UPSTREAM_CONSISTENCY},
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=_catalogue_not_evaluated(inputs, target_or_error),
         )
     targets = target_or_error
@@ -585,6 +603,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=_catalogue_not_evaluated(inputs, category_error),
         )
     eligible, catalogue_report = _catalogue_shortlist(inputs, eligible, excluded, targets)
@@ -595,6 +614,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
         )
     passed.add(ConstructionCheckName.ELIGIBILITY)
@@ -607,6 +627,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
         )
 
@@ -629,6 +650,7 @@ def construct_model_portfolio(
             excluded,
             passed_checks=passed,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
         )
 
@@ -648,6 +670,7 @@ def construct_model_portfolio(
                 excluded,
                 passed_checks=passed,
                 advisory_contract="us-eu-v1",
+                identity_contract=inputs.profile.identity_contract,
                 catalogue_selection=catalogue_report,
             )
     positions = [
@@ -684,6 +707,11 @@ def construct_model_portfolio(
         **(
             {
                 "advisory_contract": "us-eu-v1",
+                **(
+                    {"identity_contract": inputs.profile.identity_contract}
+                    if inputs.profile.identity_contract is not None
+                    else {}
+                ),
                 "base_currency": inputs.profile.base_currency,
                 "initial_total_minor": initial_total,
                 "recurring_total_minor": recurring_total,
@@ -711,10 +739,16 @@ def construct_model_portfolio(
             excluded,
             validation=validation,
             advisory_contract=inputs.profile.advisory_contract,
+            identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
         )
     payload: dict[str, Any] = {
         **contract_fields("us-eu-v1" if new_contract else None),
+        **(
+            {"identity_contract": inputs.profile.identity_contract}
+            if inputs.profile.identity_contract is not None
+            else {}
+        ),
         "status": "ready",
         "policy": policy,
         "draft": draft,
@@ -776,6 +810,9 @@ def validate_portfolio_draft(
             attribution_ok = False
             continue
         if inputs.profile.advisory_contract != validated_draft.advisory_contract:
+            eligibility_ok = attribution_ok = False
+            continue
+        if inputs.profile.identity_contract != validated_draft.identity_contract:
             eligibility_ok = attribution_ok = False
             continue
         if (
@@ -895,6 +932,7 @@ def validate_persisted_construction(
         expected.excluded_candidates,
         validation=validation,
         advisory_contract=expected.advisory_contract,
+        identity_contract=expected.identity_contract,
     )
 
 
@@ -909,6 +947,16 @@ def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason
         )
     ):
         return ConstructionReason.ADVISORY_CONTRACT_MISMATCH
+    identity = inputs.profile.identity_contract
+    if any(
+        actual != identity
+        for actual in (
+            inputs.policy_calculation.identity_contract,
+            inputs.candidate_evidence.identity_contract,
+            inputs.candidate_screening.identity_contract,
+        )
+    ):
+        return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
     if inputs.candidate_evidence.status != EvidenceStatus.READY:
         return ConstructionReason.EVIDENCE_NOT_READY
     if (
@@ -1473,6 +1521,11 @@ def _position_from_candidate(
         new_fields = {"initial_usd_cents": initial_cents, "recurring_usd_cents": recurring_cents}
     return PortfolioPosition(
         **new_fields,
+        **(
+            {"identity_contract": item.candidate.identity_contract}
+            if item.candidate.identity_contract is not None
+            else {}
+        ),
         document_id=item.candidate.document_id,
         symbol=item.candidate.symbol,
         name=item.candidate.name,
@@ -1615,6 +1668,7 @@ def _blocked_bundle(
     passed_checks: set[ConstructionCheckName] | None = None,
     validation: PortfolioValidationResult | None = None,
     advisory_contract: Literal["us-eu-v1"] | None = None,
+    identity_contract: Literal["curator-fund-v1"] | None = None,
     catalogue_selection: CatalogueSelectionReport | None = None,
 ) -> PortfolioConstructionBundle:
     if validation is None:
@@ -1630,6 +1684,8 @@ def _blocked_bundle(
     }
     if advisory_contract is not None:
         payload["advisory_contract"] = advisory_contract
+    if identity_contract is not None:
+        payload["identity_contract"] = identity_contract
     if catalogue_selection is not None:
         payload["catalogue_selection"] = catalogue_selection
     return PortfolioConstructionBundle.model_validate(payload)

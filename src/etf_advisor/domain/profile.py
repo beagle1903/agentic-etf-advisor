@@ -32,6 +32,7 @@ class InvestorProfile(BaseModel):
     objective: InvestmentObjective
     max_drawdown_pct: float = Field(gt=0, le=100)
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     base_currency: Literal["USD", "EUR"] | None = None
     initial_investment_usd: float | None = Field(default=None, ge=0, le=MAX_CASH_FLOW_USD)
     recurring_monthly_usd: float | None = Field(default=0, ge=0, le=MAX_CASH_FLOW_USD)
@@ -50,6 +51,10 @@ class InvestorProfile(BaseModel):
         if not isinstance(value, dict):
             return value
         marker = value.get("advisory_contract")
+        if "identity_contract" in value and value["identity_contract"] != "curator-fund-v1":
+            raise ValueError("Unknown or null profile identity contract.")
+        if value.get("identity_contract") == "curator-fund-v1" and marker != "us-eu-v1":
+            raise ValueError("Curator identity requires explicit US/EU profile.")
         if "catalogue_request" in value and (
             value["catalogue_request"] is None or marker != "us-eu-v1"
         ):
@@ -89,6 +94,8 @@ class InvestorProfile(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_profile(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_investment_usd", None)
             result.pop("recurring_monthly_usd", None)

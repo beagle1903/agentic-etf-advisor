@@ -40,6 +40,18 @@ class AdvisoryWireModel(StrictWireModel):
     def validate_semantic_marker(cls, value: Any) -> Any:
         if (
             isinstance(value, dict)
+            and "identity_contract" in value
+            and value["identity_contract"] != "curator-fund-v1"
+        ):
+            raise ValueError("Unknown or null curator identity contract.")
+        if (
+            isinstance(value, dict)
+            and value.get("identity_contract") == "curator-fund-v1"
+            and value.get("advisory_contract") != "us-eu-v1"
+        ):
+            raise ValueError("Curator identity requires explicit US/EU advisory contract.")
+        if (
+            isinstance(value, dict)
             and "advisory_contract" in value
             and value["advisory_contract"] != "us-eu-v1"
         ):
@@ -283,6 +295,15 @@ def document_schema(metadata: Mapping[str, object]) -> int:
         raise ResearchIntegrityError("schema_encoding")
     if marker == "us-eu-v1" and version != 2:
         raise ResearchIntegrityError("schema_encoding")
+    curator = metadata.get("identity_contract")
+    proof_keys = {"registry_envelope_json", "registry_envelope_digest"}
+    if "identity_contract" in metadata:
+        if curator != "curator-fund-v1" or marker != "us-eu-v1" or version != 2:
+            raise ResearchIntegrityError("schema_encoding")
+        if not proof_keys <= set(metadata):
+            raise ResearchIntegrityError("schema_encoding")
+    elif proof_keys.intersection(metadata):
+        raise ResearchIntegrityError("schema_encoding")
     if version == 1 and (
         FINGERPRINT_KEY in metadata or metadata.get("numeric_encoding") is not None
     ):
@@ -344,6 +365,24 @@ def validate_document(
         raise ResearchIntegrityError()
     wire = strict_json(raw)
     decoded = decode_fields(wire)
+    curator_fields: dict[str, Any] = {}
+    if metadata.get("identity_contract") == "curator-fund-v1":
+        from etf_advisor.domain.fund_identity import RegistryEnvelope, canonical_bytes
+
+        proof_json = metadata.get("registry_envelope_json")
+        proof_digest = metadata.get("registry_envelope_digest")
+        if not isinstance(proof_json, str) or not isinstance(proof_digest, str):
+            raise ResearchIntegrityError("document_integrity")
+        try:
+            proof = RegistryEnvelope.from_json(proof_json)
+        except (TypeError, ValueError) as exc:
+            raise ResearchIntegrityError("document_integrity") from exc
+        if (
+            canonical_bytes(proof.model_dump(mode="json")).decode("utf-8") != proof_json
+            or proof.digest != proof_digest
+        ):
+            raise ResearchIntegrityError("document_integrity")
+        curator_fields = {"identity_contract": "curator-fund-v1", "registry_envelope": proof}
     # Local import avoids the model -> codec dependency cycle.
     from etf_advisor.research.models import ETFResearchRecord, _render_field
 
@@ -351,6 +390,7 @@ def validate_document(
         {
             "symbol": metadata.get("symbol"),
             **decoded,
+            **curator_fields,
             **(
                 {"advisory_contract": "us-eu-v1"}
                 if metadata.get("advisory_contract") == "us-eu-v1"

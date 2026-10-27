@@ -17,12 +17,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from etf_advisor.catalogue.research_scope import CatalogueScopeV1, ScopeMember, _digest
 from etf_advisor.data.reference_facts import (
+    REFERENCE_NAMES,
     LocalReferenceFacts,
     ReferenceFactsRecord,
     load_reference_facts,
 )
 from etf_advisor.data.research_quality import assess_research_fields
 from etf_advisor.data.yahoo_budget import YahooRequestBudget
+from etf_advisor.domain.fund_identity import IDENTITY_CONTRACT, RegistryEnvelope
 from etf_advisor.encoding import encode_fields, strict_json
 from etf_advisor.research.models import ETFResearchRecord, ETFResearchSnapshot
 
@@ -96,6 +98,13 @@ class ResearchJob(BaseModel):
             raise ValueError("job_membership_mismatch")
         if self.reference_digest != _digest(self.references):
             raise ValueError("reference_digest_mismatch")
+        references = (
+            _local_references(self)
+            if self.cached
+            and any(item.get("identity_contract") == IDENTITY_CONTRACT for item in self.references)
+            else None
+        )
+        members = {member.listing_id: member for member in self.scope.members}
         for listing_id, item in self.cached.items():
             if item.listing_id != listing_id:
                 raise ValueError("cached_listing_mismatch")
@@ -103,6 +112,17 @@ class ResearchJob(BaseModel):
                 raise ValueError("cached_record_limit_exceeded")
             if not self.attempts[listing_id] or self.attempts[listing_id][-1].status != "succeeded":
                 raise ValueError("cached_attempt_mismatch")
+            if references is not None and (
+                _validate_collected(
+                    _record_from_cache(item),
+                    members[listing_id],
+                    self.snapshot_version,
+                    self.created_at,
+                    references,
+                )
+                != item.record
+            ):
+                raise ValueError("cached_reference_mismatch")
         for listing_id, attempts in self.attempts.items():
             if len(attempts) > self.policy.attempts_per_listing:
                 raise ValueError("attempt_limit_exceeded")
@@ -235,20 +255,69 @@ def _references(paths: list[Path], scope: CatalogueScopeV1) -> list[dict[str, An
     symbols = [member.symbol for member in scope.members]
     expected = {member.symbol: member.exchange for member in scope.members}
     records: dict[tuple[str, str], ReferenceFactsRecord] = {}
+    selected_contract: str | None = None
+    selected_registry: RegistryEnvelope | None = None
     for path in paths:
         loaded = load_reference_facts(path, symbols)
+        if loaded.identity_contract == IDENTITY_CONTRACT:
+            if selected_contract is None and not records:
+                selected_contract = IDENTITY_CONTRACT
+                selected_registry = loaded.registry_envelope
+            elif (
+                selected_contract != IDENTITY_CONTRACT
+                or selected_registry != loaded.registry_envelope
+            ):
+                raise ResearchJobError("reference_identity_conflict")
+        elif selected_contract == IDENTITY_CONTRACT:
+            raise ResearchJobError("reference_identity_conflict")
         for key, record in loaded.records.items():
             if key in records or expected.get(record.symbol) != record.exchange:
                 raise ResearchJobError("reference_identity_conflict")
             records[key] = record
     if len(records) > 100:
         raise ResearchJobError("reference_record_limit_exceeded")
-    return [records[key].model_dump(mode="json") for key in sorted(records)]
+    return [
+        {
+            **records[key].model_dump(mode="json"),
+            **(
+                {
+                    "identity_contract": IDENTITY_CONTRACT,
+                    "registry_envelope": selected_registry.model_dump(mode="json"),
+                }
+                if selected_contract == IDENTITY_CONTRACT and selected_registry is not None
+                else {}
+            ),
+        }
+        for key in sorted(records)
+    ]
 
 
 def _local_references(job: ResearchJob) -> LocalReferenceFacts:
-    records = [ReferenceFactsRecord.model_validate(record) for record in job.references]
-    return LocalReferenceFacts({(record.symbol, record.exchange): record for record in records})
+    markers = {item.get("identity_contract") for item in job.references}
+    if len(markers) > 1 or markers - {None, IDENTITY_CONTRACT}:
+        raise ResearchJobError("reference_identity_conflict")
+    marker = next(iter(markers), None)
+    proof: RegistryEnvelope | None = None
+    if marker == IDENTITY_CONTRACT:
+        proofs = [
+            RegistryEnvelope.model_validate(item["registry_envelope"]) for item in job.references
+        ]
+        if any(item != proofs[0] for item in proofs):
+            raise ResearchJobError("reference_identity_conflict")
+        proof = proofs[0]
+    records = [
+        ReferenceFactsRecord.model_validate(
+            {
+                key: value
+                for key, value in item.items()
+                if key not in {"identity_contract", "registry_envelope"}
+            }
+        )
+        for item in job.references
+    ]
+    return LocalReferenceFacts(
+        {(record.symbol, record.exchange): record for record in records}, marker, proof
+    )
 
 
 def begin_catalogue_research(
@@ -288,8 +357,21 @@ def _encoded_record(record: ETFResearchRecord) -> dict[str, Any]:
     return {
         "symbol": raw["symbol"],
         "advisory_contract": raw["advisory_contract"],
+        **(
+            {
+                "identity_contract": raw["identity_contract"],
+                "registry_envelope": raw["registry_envelope"],
+            }
+            if "identity_contract" in raw
+            else {}
+        ),
         **encode_fields(
-            {key: value for key, value in raw.items() if key not in {"symbol", "advisory_contract"}}
+            {
+                key: value
+                for key, value in raw.items()
+                if key
+                not in {"symbol", "advisory_contract", "identity_contract", "registry_envelope"}
+            }
         ),
     }
 
@@ -299,10 +381,28 @@ def _validate_collected(
     listing: ScopeMember,
     version: str,
     created_at: datetime,
+    references: LocalReferenceFacts,
 ) -> dict[str, Any]:
     record = ETFResearchRecord.model_validate(record.model_dump(mode="python"))
     if record.symbol != listing.symbol or record.advisory_contract != "us-eu-v1":
         raise ResearchJobError("collected_identity_mismatch")
+    if (
+        record.identity_contract != references.identity_contract
+        or record.registry_envelope != references.registry_envelope
+    ):
+        raise ResearchJobError("collected_curator_identity_mismatch")
+    if references.identity_contract == IDENTITY_CONTRACT:
+        selected = references.lookup(listing.symbol, listing.exchange)
+        if selected is None:
+            raise ResearchJobError("collected_curator_reference_missing")
+        for name in REFERENCE_NAMES:
+            actual = getattr(record, name).model_dump(mode="json")
+            expected = getattr(selected, name).model_dump(mode="json")
+            for coordinate in ("ingested_at", "snapshot_version"):
+                actual.pop(coordinate)
+                expected.pop(coordinate)
+            if actual != expected:
+                raise ResearchJobError("collected_curator_reference_substitution")
     if record.listing_exchange is None or record.listing_exchange.value != listing.exchange:
         raise ResearchJobError("collected_exchange_mismatch")
     for field in record.research_fields().values():
@@ -344,7 +444,9 @@ def _advance_one(
             member, job.snapshot_version, _local_references(job), budget, clock=clock
         )
         budget.check()
-        payload = _validate_collected(record, member, job.snapshot_version, job.created_at)
+        payload = _validate_collected(
+            record, member, job.snapshot_version, job.created_at, _local_references(job)
+        )
     except Exception as exc:
         code = "collection_failed"
         if budget.breached:
@@ -449,7 +551,16 @@ def _record_from_cache(item: CachedResearchRecord) -> ETFResearchRecord:
                     key: value
                     for key, value in raw.items()
                     if key not in {"symbol", "advisory_contract"}
+                    and key not in {"identity_contract", "registry_envelope"}
                 }
+            ),
+            **(
+                {
+                    "identity_contract": raw["identity_contract"],
+                    "registry_envelope": raw["registry_envelope"],
+                }
+                if "identity_contract" in raw
+                else {}
             ),
         }
     )
@@ -506,7 +617,9 @@ def finalize_catalogue_research(
             cached = job.cached[member.listing_id]
             source = _record_from_cache(cached)
             if (
-                _validate_collected(source, member, job.snapshot_version, job.created_at)
+                _validate_collected(
+                    source, member, job.snapshot_version, job.created_at, _local_references(job)
+                )
                 != cached.record
             ):
                 raise ResearchJobError("cached_record_noncanonical")
@@ -521,6 +634,14 @@ def finalize_catalogue_research(
         snapshot = ETFResearchSnapshot(
             schema_version=2,
             advisory_contract="us-eu-v1",
+            **(
+                {
+                    "identity_contract": IDENTITY_CONTRACT,
+                    "registry_envelope": sources[0].registry_envelope,
+                }
+                if sources and sources[0].identity_contract == IDENTITY_CONTRACT
+                else {}
+            ),
             snapshot_version=job.snapshot_version,
             universe_id="catalogue-research-v1",
             universe_version=job.scope.digest,

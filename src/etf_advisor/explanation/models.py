@@ -259,12 +259,15 @@ class ExplanationRequest(AdvisoryWireModel):
     portfolio_construction: PortfolioConstructionBundle
     revision_instruction: str = Field(default="", max_length=2000)
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
 
     @model_serializer(mode="wrap")
     def serialize_request(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         return result
 
     @model_validator(mode="after")
@@ -281,6 +284,18 @@ class ExplanationRequest(AdvisoryWireModel):
             )
         ):
             raise ValueError("Explanation inputs mix advisory contracts.")
+        identity = self.profile.identity_contract
+        if any(
+            other != identity
+            for other in (
+                self.draft_policy.identity_contract,
+                self.candidate_evidence.identity_contract,
+                self.candidate_screening.identity_contract,
+                self.portfolio_construction.identity_contract,
+                self.identity_contract,
+            )
+        ):
+            raise ValueError("Explanation inputs mix identity contracts.")
         if self.candidate_evidence.status != EvidenceStatus.READY:
             raise ValueError("Explanation generation requires ready source evidence.")
         if self.draft_policy != calculate_policy(self.profile):
@@ -350,12 +365,15 @@ class ExplanationBundle(AdvisoryWireModel):
     citations: list[ExplanationCitation]
     limitations: list[str]
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
 
     @model_serializer(mode="wrap")
     def serialize_bundle(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         return result
 
     @model_validator(mode="after")
@@ -392,6 +410,11 @@ def build_explanation_request(
 
     return ExplanationRequest(
         **contract_fields("us-eu-v1" if profile.get("advisory_contract") == "us-eu-v1" else None),
+        **(
+            {"identity_contract": profile["identity_contract"]}
+            if "identity_contract" in profile
+            else {}
+        ),
         profile=InvestorProfile.model_validate(profile),
         draft_policy=PolicyCalculation.model_validate(draft_policy),
         candidate_evidence=CandidateEvidenceBundle.model_validate(candidate_evidence),
@@ -647,6 +670,11 @@ def validate_and_bundle_explanation(
         )
     return ExplanationBundle(
         **contract_fields("us-eu-v1" if request.advisory_contract == "us-eu-v1" else None),
+        **(
+            {"identity_contract": request.identity_contract}
+            if request.identity_contract is not None
+            else {}
+        ),
         provider=validated.provider,
         model=validated.model,
         explanation=validated.explanation,

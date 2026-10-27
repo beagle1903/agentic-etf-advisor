@@ -1,5 +1,14 @@
 # Bounded catalogue research in the local dashboard
 
+Catalogue jobs can bind explicit schema-2 curator Fund reference inputs. Every
+reference file in one job must use the same identity contract and exact registry
+envelope. Cached records, detached final snapshots and saved reviews retain
+that proof. After publishing a curator-backed job, select **Use audited curator
+Fund identities** for the new review. The selection fails closed if its pinned
+job lacks bound curator proof. See [US/EU usage](us-eu-research.md#explicit-curator-fund-identity)
+for proof and freshness limits. No real registry or curated file ships with the
+project.
+
 Choose **US / EU catalogue research** in the advisory scope. Preview a pinned
 direct-listing scope using region, country, exchange, text or exact listing IDs.
 The preview reports discovered, direct, direct-only, overlap, combined,

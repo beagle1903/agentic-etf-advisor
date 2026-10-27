@@ -1,11 +1,12 @@
 # Proposed curator Fund identity: curation and validation runbook
 
-Status: **proposal for Issue #124 only**. No command here issues a key, reads a
-provider, publishes a registry, alters a reference file, or changes a saved
-review. The live path remains [schema 1 issuer identity](us-eu-research.md).
+Status: **historical Issue #124 design and curation worksheet**. Issue #126
+implements its bounded local contracts; this worksheet still issues no key,
+reads no provider, publishes no registry, alters no reference file and changes
+no saved review. The default path remains [schema 1 issuer identity](us-eu-research.md).
 Read the [proposed ADR 0042](architecture/decisions/0042-proposed-curator-fund-identity.md)
 and [complete generation 2 design](iterations/035-issue124-curator-identity-design.md)
-before a separately authorized implementation. The bounded Issue #123 corpus
+for the approved Issue #126 implementation. The bounded Issue #123 corpus
 does not establish a universal absence of issuer Fund codes.
 
 ## Evidence worksheet for a future authorized curation

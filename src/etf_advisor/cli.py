@@ -477,6 +477,10 @@ def publish_research_universe(
         str | None,
         typer.Option("--advisory-contract", help="Explicit opt-in semantic contract: us-eu-v1."),
     ] = None,
+    identity_contract: Annotated[
+        str | None,
+        typer.Option("--identity-contract", help="Explicit identity contract: curator-fund-v1."),
+    ] = None,
     reference_facts: Annotated[
         Path | None,
         typer.Option(
@@ -497,6 +501,10 @@ def publish_research_universe(
             reference_facts is not None and advisory_contract != "us-eu-v1"
         ):
             raise ValueError("Unsupported advisory contract or reference-facts option.")
+        if identity_contract not in (None, "curator-fund-v1") or (
+            identity_contract is not None and advisory_contract != "us-eu-v1"
+        ):
+            raise ValueError("Curator identity requires US/EU advisory contract.")
         version = snapshot_version or system_utc_now().strftime("%Y%m%dT%H%M%SZ")
         payload_path = snapshot_file or default_snapshot_path(version)
         graph_store = Neo4jGraphStore(
@@ -518,6 +526,8 @@ def publish_research_universe(
                         and supplied.advisory_contract != advisory_contract
                     ):
                         raise ValueError("Retry payload advisory contract differs from request.")
+                    if supplied.identity_contract != identity_contract:
+                        raise ValueError("Retry payload identity contract differs from request.")
                     if (
                         supplied.snapshot_version != version
                         or supplied.content_digest() != existing_digest
@@ -525,6 +535,8 @@ def publish_research_universe(
                         raise IndexConsistencyError(
                             "Active retry payload conflicts with immutable identity."
                         )
+                elif identity_contract is not None:
+                    raise ValueError("Curator retry requires its original bound snapshot payload.")
                 stage = "graph_readback"
                 manifest = graph_store.snapshot_manifest(version)
                 if manifest is None or (
@@ -591,6 +603,8 @@ def publish_research_universe(
                     and snapshot.advisory_contract != advisory_contract
                 ):
                     raise ValueError("Retry payload advisory contract differs from request.")
+                if snapshot.identity_contract != identity_contract:
+                    raise ValueError("Retry payload identity contract differs from request.")
                 if (
                     snapshot.snapshot_version != version
                     or snapshot.content_digest() != existing_digest
@@ -627,6 +641,8 @@ def publish_research_universe(
                     and snapshot.advisory_contract != advisory_contract
                 ):
                     raise ValueError("Canonical payload advisory contract differs from request.")
+                if snapshot.identity_contract != identity_contract:
+                    raise ValueError("Canonical payload identity contract differs from request.")
                 if snapshot.snapshot_version != version:
                     raise ValueError(
                         "The canonical snapshot payload does not match --snapshot-version."
@@ -637,12 +653,15 @@ def publish_research_universe(
                     )
             else:
                 stage = "source_fetch"
+                if identity_contract is not None and reference_facts is None:
+                    raise ValueError("Fresh curator collection requires bound reference facts.")
                 adapter = YahooResearchAdapter(
                     issuer_client=VanguardHoldingsClient(),
                     clock=system_utc_now,
                     max_attempts=settings.yahoo_max_attempts,
                     retry_backoff_seconds=settings.yahoo_retry_backoff_seconds,
                     advisory_contract=advisory_contract,
+                    identity_contract=identity_contract,
                     reference_facts=load_reference_facts(reference_facts, universe.symbols)
                     if advisory_contract == "us-eu-v1"
                     else None,
