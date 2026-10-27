@@ -109,6 +109,8 @@ class ReviewPayload(StrictWireModel):
         if evidence is not None:
             if evidence.status != EvidenceStatus.READY:
                 raise ValueError("Review evidence must be ready.")
+            if evidence.identity_contract != self.draft_policy.identity_contract:
+                raise ValueError("Review evidence identity contract must match policy.")
             if evidence.objective != self.draft_policy.objective:
                 raise ValueError("Review evidence objective must match the policy draft.")
             if evidence.risk_tolerance != self.draft_policy.risk_tolerance:
@@ -127,8 +129,15 @@ class ReviewPayload(StrictWireModel):
             raise ValueError("Review evidence and portfolio construction must appear together.")
         if construction is not None and construction.status != "ready":
             raise ValueError("Review portfolio construction must be ready.")
+        if (
+            construction is not None
+            and construction.identity_contract != self.draft_policy.identity_contract
+        ):
+            raise ValueError("Review construction identity contract must match policy.")
 
         if explanation is not None:
+            if explanation.identity_contract != self.draft_policy.identity_contract:
+                raise ValueError("Review explanation identity contract must match policy.")
             if evidence is None or construction is None:
                 raise ValueError("A review explanation requires a validated portfolio.")
             candidates = {candidate.document_id: candidate for candidate in evidence.candidates}

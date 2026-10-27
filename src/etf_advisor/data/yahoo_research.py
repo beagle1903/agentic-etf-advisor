@@ -26,6 +26,7 @@ from etf_advisor.data.yahoo_budget import (
     bounded_yahoo_session,
     restore_yahoo_data_session,
 )
+from etf_advisor.domain.fund_identity import IDENTITY_CONTRACT
 from etf_advisor.domain.us_eu import contract_fields
 from etf_advisor.encoding import decimal_token
 from etf_advisor.research.models import (
@@ -74,6 +75,7 @@ class YahooResearchAdapter:
         sleeper: Callable[[float], None] = time.sleep,
         issuer_client: IssuerHoldingsClient | None = None,
         advisory_contract: str | None = None,
+        identity_contract: str | None = None,
         reference_facts: ReferenceFactsProvider | None = None,
     ) -> None:
         if max_attempts < 1:
@@ -90,6 +92,20 @@ class YahooResearchAdapter:
             raise ValueError("Unsupported advisory contract.")
         self._advisory_contract = advisory_contract
         self._reference_facts = reference_facts
+        if identity_contract not in (None, IDENTITY_CONTRACT):
+            raise ValueError("Unsupported identity contract.")
+        if identity_contract == IDENTITY_CONTRACT and advisory_contract != "us-eu-v1":
+            raise ValueError("Curator identity requires US/EU contract.")
+        if isinstance(reference_facts, LocalReferenceFacts) and (
+            reference_facts.identity_contract != identity_contract
+            or (reference_facts.registry_envelope is None) != (identity_contract is None)
+        ):
+            raise ValueError("Reference identity differs from selected contract.")
+        if identity_contract == IDENTITY_CONTRACT and not isinstance(
+            reference_facts, LocalReferenceFacts
+        ):
+            raise ValueError("Curator identity requires bound local references.")
+        self._identity_contract = identity_contract
 
     @staticmethod
     def _load_ticker_factory() -> Callable[[str], Any]:
@@ -128,6 +144,7 @@ class YahooResearchAdapter:
         snapshot = ETFResearchSnapshot(
             schema_version=2 if self._advisory_contract == "us-eu-v1" else 1,
             **contract_fields("us-eu-v1" if self._advisory_contract == "us-eu-v1" else None),
+            **self._identity_fields(),
             snapshot_version=snapshot_version,
             universe_id=universe.universe_id,
             universe_version=universe.universe_version,
@@ -269,6 +286,7 @@ class YahooResearchAdapter:
         record = ETFResearchRecord(
             symbol=raw.symbol,
             **contract_fields("us-eu-v1" if self._advisory_contract == "us-eu-v1" else None),
+            **self._identity_fields(),
             name=field(_first_text(info.get("longName"), info.get("shortName")), "text"),
             quote_type=field(_optional_text(info.get("quoteType")), "classification"),
             market=field(_optional_text(info.get("market")), "classification"),
@@ -351,7 +369,17 @@ class YahooResearchAdapter:
                     ),
                 }
             )
-        return record
+        return ETFResearchRecord.model_validate(record.model_dump(mode="python"))
+
+    def _identity_fields(self) -> dict[str, Any]:
+        if self._identity_contract != IDENTITY_CONTRACT:
+            return {}
+        assert isinstance(self._reference_facts, LocalReferenceFacts)
+        assert self._reference_facts.registry_envelope is not None
+        return {
+            "identity_contract": IDENTITY_CONTRACT,
+            "registry_envelope": self._reference_facts.registry_envelope,
+        }
 
     def _new_listing_fields(
         self,
@@ -387,6 +415,7 @@ class YahooResearchAdapter:
                 observed_at=raw.observed_at,
                 ingested_at=ingested_at,
                 snapshot_version=snapshot_version,
+                identity_contract=self._identity_contract,
             ),
         }
 
@@ -415,6 +444,7 @@ class YahooCatalogueResearchCollector:
                 max_attempts=1,
                 issuer_client=self._issuer_client,
                 advisory_contract="us-eu-v1",
+                identity_contract=references.identity_contract,
                 reference_facts=references,
             )
             raw = adapter._fetch_one(listing.symbol)

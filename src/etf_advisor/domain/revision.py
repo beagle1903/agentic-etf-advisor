@@ -188,6 +188,10 @@ def plan_revision(decision: ReviewDecision, inputs: dict[str, Any]) -> RevisionP
                 "profile"
             ].get("advisory_contract"):
                 raise ValueError("A saved revision cannot change advisory contracts.")
+            if "identity_contract" in item.patch and item.patch["identity_contract"] != inputs[
+                "profile"
+            ].get("identity_contract"):
+                raise ValueError("A saved revision cannot change identity contracts.")
             if (
                 inputs["profile"].get("advisory_contract") == "us-eu-v1"
                 and item.patch.get("base_currency", inputs["profile"]["base_currency"])

@@ -11,6 +11,33 @@ construction, selection, cash, FX, receipts or source artifacts.
 
 ## Current shape
 
+Issue126 adds an explicit `curator-fund-v1` identity contract under
+[ADR0042](decisions/0042-proposed-curator-fund-identity.md). A bounded immutable
+registry envelope binds one opaque curator key to one legal Fund and its active
+class ISINs. The pure validator checks internal integrity and each current Fund,
+inventory, membership and context-link source independently at the saved check
+time (inclusive 120 hours old through five minutes future). Historical lineage
+retains immutable references without renewing current proof. Local publication
+locks the registry, validates the actual active parent and derived transitions,
+then uses expected-parent-digest CAS and atomic pointer replacement. Hashes and
+recorded actors do not authenticate source truth or legal identity.
+Publication requires source collection and audit attestation no later than its
+recorded time, and a child recording no earlier than its actual parent. A
+suspended Fund cannot silently become active; resumption is outside this
+contract. Same-status refresh, suspension and retirement retain their explicit
+transition checks.
+
+Reference schema 2 carries the full envelope and explicit marker. Research
+snapshot, document metadata, catalogue job/cache, profile, evidence, screening,
+construction, explanation, review and revision retain the marker and bound
+proof. Offline review validates the proof at its saved time with no registry or
+provider read. Selected curator mode rejects absent, mixed, null or downgraded
+markers and an unavailable Fund/class proof. Legacy schema 1 and absent marker
+serialization remain unchanged; numeric schema 2 remains independent. No graph
+key or operation stage, financial selection rule, live source, registry
+activation or saved-review migration is added. Synthetic tests demonstrate the
+contract, not live legal/source coverage.
+
 Issue104 adds the explicitly selected `us-eu-v1` path described in
 [ADR0039](decisions/0039-us-eu-currency-contract.md) and
 [usage](../us-eu-research.md). Absent markers retain the exact legacy US/USD path

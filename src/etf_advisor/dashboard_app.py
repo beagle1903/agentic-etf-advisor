@@ -129,6 +129,15 @@ def main() -> None:
         new_contract = advisory_mode != "Legacy US / USD"
         catalogue_mode = advisory_mode == "US / EU catalogue research"
         catalogue_request = _render_catalogue_preparation(st) if catalogue_mode else None
+        curator_identity = (
+            st.checkbox(
+                "Use audited curator Fund identities",
+                disabled=not catalogue_mode or catalogue_request is None,
+                help="Requires a published catalogue snapshot with bound curator Fund proof.",
+            )
+            if new_contract
+            else False
+        )
 
         if new_contract:
             base_currency = st.selectbox("Base currency", ["USD", "EUR"])
@@ -196,6 +205,10 @@ def main() -> None:
                 if catalogue_request is None:
                     raise ValueError("Select a published catalogue research scope first.")
                 profile["catalogue_request"] = catalogue_request.model_dump(mode="json")
+            if curator_identity:
+                if st.session_state.get("catalogue_review_identity_contract") != "curator-fund-v1":
+                    raise ValueError("Selected catalogue snapshot lacks curator Fund proof.")
+                profile["identity_contract"] = "curator-fund-v1"
 
             st.session_state["dashboard_run"] = start_dashboard_run(
                 profile,
@@ -1596,6 +1609,15 @@ def _render_catalogue_preparation(st: Any) -> CatalogueRequestV1 | None:
                     scope=job.scope,
                     snapshot_version=job.snapshot_version,
                     snapshot_digest=job.finalization["digest"],
+                )
+                st.session_state["catalogue_review_identity_contract"] = (
+                    "curator-fund-v1"
+                    if job.references
+                    and all(
+                        reference.get("identity_contract") == "curator-fund-v1"
+                        for reference in job.references
+                    )
+                    else None
                 )
         error = st.session_state.get("catalogue_preparation_error")
         if isinstance(error, str):

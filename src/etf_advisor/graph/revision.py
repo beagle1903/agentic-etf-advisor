@@ -441,6 +441,7 @@ class RevisionRuntime:
             if (
                 bundle.status != EvidenceStatus.READY
                 or bundle.advisory_contract != profile.advisory_contract
+                or bundle.identity_contract != profile.identity_contract
                 or bundle.objective != profile.objective
                 or bundle.risk_tolerance != profile.risk_tolerance
                 or bundle.excluded_sectors != profile.excluded_sectors

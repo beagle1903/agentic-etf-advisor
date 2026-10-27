@@ -5,7 +5,8 @@ review, choose USD/EUR base and enter decimal major-unit cash with at most two
 fractional places. The UI converts once to integer minor units. A base revision
 requires both cash amounts and new retrieval; a legacy review cannot switch contracts.
 
-Publication remains explicitly bounded; there is no catalogue picker/ingestion.
+One-shot publication remains explicitly bounded; catalogue preparation is a
+separate local workflow.
 Replace the angle-bracket placeholders with your local paths and a new version:
 
 ```powershell
@@ -32,6 +33,43 @@ Identity must cite issuer/exchange material; never infer fund group from umbrell
 family, benchmark or ticker. Limit ten unique listings/one MiB. Duplicate/unknown
 keys, nonfinite values, malformed provenance/identifiers/publication coordinates,
 duplicate listings and supplied-universe association errors reject the whole input.
+
+## Explicit curator Fund identity
+
+For a separately curated local input, use reference `schema_version: 2` with
+`identity_contract: "curator-fund-v1"`, a complete `registry_envelope`, and the
+same five complete fields per listing. The economic group field uses
+`curator_fund_id` and `audited_curator_registry_v1`; an available value must be
+an active key in the bound registry, paired with an active checksum-valid class
+ISIN and an official current Fund-proof URL. Select it explicitly for one-shot
+ingestion:
+
+```powershell
+uv run etf-advisor publish-research-universe --universe <universe.json> --advisory-contract us-eu-v1 --identity-contract curator-fund-v1 --reference-facts <curated-schema2.json> --snapshot-version <new-version>
+```
+
+The local dashboard offers the same explicit selection for a published
+catalogue research scope with bound curator proof. A selected profile, research
+snapshot and every review artifact must agree on the marker and registry
+generation. The complete proof stays in saved evidence; restore revalidates it
+at the saved check time without a registry or provider read. Current Fund,
+inventory, every active membership and required context-link source must each
+be within the inclusive 120-hour past and five-minute future window. Old
+rename lineage remains historical and cannot refresh current proof. A retry
+cannot switch identity contract or silently rebuild an old snapshot.
+For a curator retry, provide the original canonical snapshot file and the same
+explicit identity option; the reference file is needed only for fresh
+collection and is never reread for replay.
+Local registry publication also requires source collection and audit attestation
+at or before generation recording, with child recording no earlier than its
+actual parent. Suspended Funds remain unavailable; this version does not define
+a suspended-to-active resumption workflow.
+
+The registry and schema 2 inputs are user-curated local material. The software
+checks structure, chronology, exact source references and parent-relative
+publication, but it cannot authenticate actors, official source truth or legal
+Fund completeness. This repository ships no real curator registry, key or
+curated reference file and does not activate a live path by default.
 
 Source times and citations determine freshness. Fresh collection validates the
 file before making detached fields with destination ingestion/version, preserving

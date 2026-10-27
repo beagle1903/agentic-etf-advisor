@@ -6,6 +6,7 @@ from typing import Any
 
 from etf_advisor.data.quality import MarketDataHealthReport, assess_observations
 from etf_advisor.data.vanguard import BND_URL, PROVIDER
+from etf_advisor.domain.fund_identity import IDENTITY_CONTRACT, resolve_group
 from etf_advisor.research.models import ETFResearchSnapshot, ResearchField
 
 ISSUER_FIELDS = frozenset({"top_holdings", "top_10_concentration_pct"})
@@ -93,6 +94,23 @@ def assess_research_fields(
 ) -> MarketDataHealthReport:
     results = []
     for record in snapshot.records:
+        if record.identity_contract == IDENTITY_CONTRACT:
+            if record.registry_envelope != snapshot.registry_envelope:
+                raise ValueError("research_curator_proof_mismatch")
+            assert record.registry_envelope is not None
+            assert record.economic_group_id is not None
+            assert record.share_class_id is not None
+            if record.economic_group_id.value is not None:
+                if record.share_class_id.value is None:
+                    raise ValueError("research_curator_class_missing")
+                observed = resolve_group(
+                    record.registry_envelope,
+                    record.economic_group_id.value,
+                    record.share_class_id.value,
+                    checked_at,
+                )
+                if observed != record.economic_group_id.observed_at:
+                    raise ValueError("research_curator_observation_mismatch")
         fields = record.research_fields()
         validate_issuer_pair(record.symbol, fields)
         for name, field in fields.items():

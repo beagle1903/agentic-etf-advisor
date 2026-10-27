@@ -28,6 +28,11 @@ from etf_advisor.data.quality import (
     MarketDataHealthReport,
     assess_observations,
 )
+from etf_advisor.domain.fund_identity import (
+    IDENTITY_CONTRACT,
+    RegistryEnvelope,
+    resolve_group,
+)
 from etf_advisor.domain.profile import InvestmentObjective, InvestorProfile, RiskTolerance
 from etf_advisor.domain.us_eu import FxReferenceObservation
 from etf_advisor.encoding import (
@@ -126,6 +131,7 @@ class CandidateEvidence(AdvisoryWireModel):
     source_url: str = Field(min_length=1, max_length=1000)
     observed_at: datetime
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     quote_type: str | None = Field(default=None, min_length=1, max_length=40)
     market: str | None = Field(default=None, min_length=1, max_length=80)
     listing_exchange: str | None = None
@@ -171,6 +177,8 @@ class CandidateEvidence(AdvisoryWireModel):
         if self.advisory_contract is None:
             for name in ("advisory_contract", "listing_exchange", "trading_currency"):
                 result.pop(name, None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         return result
 
     @model_validator(mode="after")
@@ -179,6 +187,8 @@ class CandidateEvidence(AdvisoryWireModel):
         marker = self.metadata.get("advisory_contract")
         if marker != self.advisory_contract:
             raise ValueError("Candidate advisory contract differs from source metadata.")
+        if self.metadata.get("identity_contract") != self.identity_contract:
+            raise ValueError("Candidate curator identity differs from source metadata.")
         if marker == "us-eu-v1":
             if self.listing_exchange != self.metadata.get(
                 "listing_exchange"
@@ -293,6 +303,8 @@ class CandidateEvidenceBundle(StrictWireModel):
     snapshot_digest: str | None = None
     schema_version: int = 1
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
+    registry_envelope: RegistryEnvelope | None = None
     fx_reference: FxReferenceObservation | None = None
     catalogue_context: CatalogueEvidenceContext | None = None
 
@@ -322,6 +334,18 @@ class CandidateEvidenceBundle(StrictWireModel):
         if len({identity[1] for identity in identities}) != len(identities):
             raise ValueError("Evidence symbols must be unique.")
         marker = value.get("advisory_contract")
+        curator = value.get("identity_contract")
+        if "identity_contract" in value and curator != IDENTITY_CONTRACT:
+            raise ValueError("Unknown or null evidence identity contract.")
+        if "registry_envelope" in value and value["registry_envelope"] is None:
+            raise ValueError("Null evidence registry proof.")
+        if curator == IDENTITY_CONTRACT:
+            if marker != "us-eu-v1" or (
+                value.get("candidates") and "registry_envelope" not in value
+            ):
+                raise ValueError("Curator evidence requires US/EU contract and bound proof.")
+        elif "registry_envelope" in value:
+            raise ValueError("Issuer evidence rejects curator proof.")
         if "catalogue_context" in value and (
             value["catalogue_context"] is None or marker != "us-eu-v1"
         ):
@@ -348,6 +372,16 @@ class CandidateEvidenceBundle(StrictWireModel):
             for item in value.get("candidates", [])
         ):
             raise ValueError("Evidence candidates mix advisory contracts.")
+        if any(
+            (
+                item.identity_contract
+                if isinstance(item, CandidateEvidence)
+                else item.get("identity_contract")
+            )
+            != curator
+            for item in value.get("candidates", [])
+        ):
+            raise ValueError("Evidence candidates mix curator identity contracts.")
         return value
 
     @model_serializer(mode="wrap")
@@ -358,6 +392,11 @@ class CandidateEvidenceBundle(StrictWireModel):
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
             result.pop("fx_reference", None)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
+            result.pop("registry_envelope", None)
+        elif self.registry_envelope is None:
+            result.pop("registry_envelope", None)
         if self.catalogue_context is None:
             result.pop("catalogue_context", None)
         return result
@@ -371,6 +410,39 @@ class CandidateEvidenceBundle(StrictWireModel):
 
     @model_validator(mode="after")
     def validate_ready_bundle(self) -> CandidateEvidenceBundle:
+        if self.identity_contract == IDENTITY_CONTRACT:
+            if self.status == EvidenceStatus.READY and self.registry_envelope is None:
+                raise ValueError("Ready curator evidence requires bound proof.")
+            for candidate in self.candidates:
+                if candidate.identity_contract != IDENTITY_CONTRACT:
+                    raise ValueError("Curator candidate marker missing.")
+                proof_json = candidate.metadata.get("registry_envelope_json")
+                if not isinstance(proof_json, str):
+                    raise ValueError("Curator candidate proof missing.")
+                proof = RegistryEnvelope.from_json(proof_json)
+                if proof != self.registry_envelope:
+                    raise ValueError("Curator candidate proof differs from bundle.")
+                field_json = candidate.metadata.get("field_provenance_json")
+                if not isinstance(field_json, str):
+                    raise ValueError("Curator candidate fields missing.")
+                fields = strict_json(field_json)
+                group, share_class = fields.get("economic_group_id"), fields.get("share_class_id")
+                if not isinstance(group, dict) or not isinstance(share_class, dict):
+                    raise ValueError("Curator class/group evidence missing.")
+                if group.get("value") is not None:
+                    if not isinstance(group["value"], str) or not isinstance(
+                        share_class.get("value"), str
+                    ):
+                        raise ValueError("Curator class/group evidence invalid.")
+                    assert self.registry_envelope is not None
+                    observed = resolve_group(
+                        self.registry_envelope,
+                        group["value"],
+                        share_class["value"],
+                        self.checked_at,
+                    )
+                    if observed.isoformat().replace("+00:00", "Z") != group.get("observed_at"):
+                        raise ValueError("Curator group observation differs from current proof.")
         if self.catalogue_context is not None and self.requested_limit > 10:
             raise ValueError("Catalogue shortlist capacity cannot exceed ten.")
         if self.checked_at != self.health.checked_at:
@@ -672,6 +744,15 @@ def select_candidate_evidence(
     marker = profile.advisory_contract
     if any(result.metadata.get("advisory_contract") != marker for result in bounded_results):
         raise ResearchIntegrityError("schema_encoding")
+    curator = profile.identity_contract
+    if any(result.metadata.get("identity_contract") != curator for result in bounded_results):
+        raise ResearchIntegrityError("schema_encoding")
+    proof = None
+    if curator == IDENTITY_CONTRACT and bounded_results:
+        proof_json = bounded_results[0].metadata.get("registry_envelope_json")
+        if not isinstance(proof_json, str):
+            raise ResearchIntegrityError("schema_encoding")
+        proof = RegistryEnvelope.from_json(proof_json)
     versions = {
         schema_version(result.metadata.get("field_provenance_schema_version", 1))
         for result in bounded_results
@@ -745,6 +826,8 @@ def select_candidate_evidence(
             if marker
             else {}
         )
+        if curator == IDENTITY_CONTRACT:
+            new_fields["identity_contract"] = IDENTITY_CONTRACT
         try:
             candidates.append(
                 CandidateEvidence(
@@ -820,6 +903,10 @@ def select_candidate_evidence(
         if marker
         else {}
     )
+    if curator == IDENTITY_CONTRACT:
+        extra_fields["identity_contract"] = IDENTITY_CONTRACT
+        if proof is not None:
+            extra_fields["registry_envelope"] = proof
     bundle_fields: dict[str, Any] = dict(
         schema_version=(
             document_schema(candidates[0].metadata) if candidates else (2 if marker else 1)

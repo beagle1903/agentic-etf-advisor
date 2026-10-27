@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-26T18:34:37Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 126,
+        "classification": "consequential",
+        "scope": [
+          "S126-1"
+        ],
+        "invariants": [
+          "INV126-1",
+          "INV126-2",
+          "INV126-3",
+          "INV126-4",
+          "INV126-5"
+        ],
+        "acceptance": [
+          "AC126-1",
+          "AC126-2",
+          "AC126-3",
+          "AC126-4",
+          "AC126-5",
+          "AC126-6",
+          "AC126-7"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Human authorized beginning Issue126 in this chat on 2026-10-26 after approving the implementation-ticket plan; routine reads, preparation, tests, same-scope fixes, commits, push and PR creation are authorized. Separate internal architect/challenge/coordinator gates required; no real curation, activation, merge or financial writes."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 126,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue126_owner"
+          },
+          "rationale": "Economic eligibility, immutable local publication and saved-time replay require separate architect, independent challenge and independent review. Runtime scope is distinct from Issue124 design certification.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Human authorized beginning Issue126 in this chat on 2026-10-26 after approving the implementation-ticket plan; routine reads, preparation, tests, same-scope fixes, commits, push and PR creation are authorized. Separate internal architect/challenge/coordinator gates required; no real curation, activation, merge or financial writes."
+          },
+          "scope": {
+            "S126-1": "Implement Issue126 bounded runtime contract from merged ADR0042 and generation2 Issue124 handoff: strict registry/proof models, local parent-CAS adapter, schema2 references, explicit identity/proof propagation and saved-time offline validation with synthetic fixtures."
+          },
+          "non_goals": [
+            "No real key issuance, live registry/reference curation, provider acquisition, Chroma/Neo4j activation or saved-review migration.",
+            "No financial/category/fee/volume/concentration/minimum-three/both-sleeves/selection/weight/cash/FX changes, trades or external financial writes.",
+            "No reset, adoption or duplicate successor of Issues121/123/117; no inferred live readiness or automatic merge."
+          ],
+          "invariants": {
+            "INV126-1": "Opaque canonical UUIDv4 curator-fund-v1 keys use exact equality; direct official legal Fund/class proof, resolved comparisons, complete asserted inventory, independent authorized actor assertions and lifecycle safeguards establish usable active groups. No source/actor authentication claim.",
+            "INV126-2": "Bounded canonical RegistryEnvelope, CurrentProof, Transition and InventoryCheck exactly follow Issue124 generation2 contracts. Actual retained parent-relative validation, immutable history and expected-parent digest CAS precede atomic publication. Offline bound attestation cannot prove unavailable parent history.",
+            "INV126-3": "C(F) includes current Fund, inventory, active membership and needed context links. Every constituent independently passes inclusive saved T-120h through T+5min; group observation is minimum. Historical-only lineage has immutable integrity without expiry and cannot replace current proof; binding never renews observations.",
+            "INV126-4": "Explicit curator marker and complete bound proof propagate consistently through all runtime/saved artifacts; unknown/null/mixed/stripped/downgraded contracts and inactive/unresolved mappings reject. Schema1 and absent-marker bytes/digests/reviews remain exact; numeric schema2 independent. Offline restore uses original check time with zero external reads.",
+            "INV126-5": "Graph remains JSON serializable with unchanged top-level keys/stages and existing financial algorithms. Synthetic implementation evidence cannot certify live source coverage. Native finite workflow and independent content-bound certification required."
+          },
+          "interfaces": [
+            "New domain/fund_identity.py and replaceable data/fund_identity_registry.py; existing reference_facts, yahoo_research, research/snapshot encoding, profile/evidence/screening/construction, catalogue jobs, revision/review/explanation and fingerprints/receipts. Architect binds exact current symbols before approval."
+          ],
+          "json_state_impact": "New bounded registry/reference schema2 and absent-by-default nested identity_contract plus bound RegistryEnvelope in existing artifacts. No new top-level graph keys or stages. Legacy serializers omit absent additions exactly; no migration.",
+          "acceptance": {
+            "AC126-1": "Strict canonical bounded registry/proof validation; same Fund different class ISINs deduplicate, distinct Funds within umbrella remain distinct. Name/context/collision comparisons and rename/alias/member/suspension/retirement/succession protections have positive and negative cases.",
+            "AC126-2": "Parent-relative transitions, complete inventory, entry digests, source/history retention, canonical ordering, bounds/generations and stale CAS validate before atomic pointer change; failure-path tests preserve prior publication.",
+            "AC126-3": "Old historical rename plus fresh current endpoint proof passes same key; missing/stale/current-context conflicts and any future constituent fail; exact inclusive age and future edges tested independently.",
+            "AC126-4": "Explicit ten-listing/one-MiB schema2 references use curator_fund_id and audited_curator_registry_v1; detached binding preserves proof/source observations and changes destination coordinates only.",
+            "AC126-5": "Marker/proof survives profile, research/snapshot, evidence, downstream screening/construction/catalogue/review/revision/explanation, fingerprints/receipts and JSON roundtrips. Removal/downgrade/tampering/mixed generations/inactive membership fail. Saved-contract switches reject.",
+            "AC126-6": "Offline saved restoration validates at original saved time with no external reads. Legacy schema1/absent marker bytes/digests/reviews and existing financial behavior remain unchanged.",
+            "AC126-7": "Focused positive/negative synthetic tests, required frozen checks and meaningful optional-enabled checks pass exact reviewed content; update architecture/usage/iteration and ADR0042 status truthfully. Content-bound verification/acceptance/independent review and latest-head CI/comments/threads precede delivery PR; no merge/activation."
+          },
+          "verification": [
+            "Owner focused registry/proof/publication/reference/propagation/offline-replay positive and negative tests; legacy golden bytes and financial regression checks.",
+            "Required locked CI commands and meaningful optional-enabled checks from current workflow; native role/ledger/diff validation.",
+            "Complete all reviewable documentation before content-bound verification and acceptance; independent reviewer excludes all implementation/remediation/verification authors. Actual latest-head CI/comments/threads and native original-PR delivery binding."
+          ],
+          "documentation": [
+            "Implementation-specific design handoff and iteration, current system/usage updates, ADR0042 proposed-status resolution through design and acceptance outcome; preserve design-only historical evidence."
+          ],
+          "risks": [
+            "Cross-layer optional marker/proof bypass or digest drift; duplicate Fund issuance and mutable history; crash/CAS concurrency; historical/current proof confusion.",
+            "Audit assertions cannot authenticate actors/sources or detect omitted real-world source rows. Synthetic tests do not establish coverage or live readiness."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity returns to separate architect/challenge within finite design-reset allowance. Repeated/shifted concern invokes ADR0034 arbitration before dependent handoff.",
+            "Concrete complexity or unresolved implementation failure may require recorded fresh implementation_specialist session; independent review findings require focused same-owner remediation or stop. Failed final review/exhausted slots/material uncertainty blocks."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T18:34:52Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue126_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T18:42:20Z",
+      "data": {
+        "session": "/root/issue126_design",
+        "outcome": "pass",
+        "evidence": "Separate architect DESIGN_READY implementation handoff transcribed in docs/iterations/036-issue126-curator-fund-identities.md. Exact runtime seams, strict registry actual-parent publication versus offline attestation, each-constituent current proof freshness, legacy marker/proof propagation and focused verification mapped to frozen INV126/AC126. No material ambiguity or scope revision; no runtime edits. Same gen1 capsule c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335; independent challenge pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T18:42:22Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue126_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T18:44:22Z",
+      "data": {
+        "session": "/root/issue126_challenge",
+        "outcome": "pass",
+        "evidence": "Independent code_reviewer challenge PASS on same generation1 capsule c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335. No demonstrated design defect or material ambiguity. Confirms actual-parent/offline trust, historical/current partition, each-source freshness and full proof/marker seams. Null/absent markers, unit downgrade, model_copy and catalogue size limits are frozen acceptance tests, not scope changes. No writes/tests."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-26T18:44:25Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Coordinator approves separate architect handoff and independent challenge PASS for identical gen1 capsule; authorizes pinned owner implementation within Issue126 user-approved runtime scope, no activation or curation."
+        },
+        "evidence": "docs/iterations/036-issue126-curator-fund-identities.md records exact runtime handoff and independent challenge. Frozen INV126/AC126 unchanged, no reset needed. Owner /root/issue126_owner implementation_worker gpt-6-sol medium; finite native phases and independent content-bound review required.",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-26T18:44:28Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue126_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:27:49Z",
+      "data": {
+        "session": "/root/issue126_owner",
+        "outcome": "pass",
+        "evidence": "Owner completed runtime, synthetic tests and reviewable documentation at content6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962. Full frozen baseline1805passed60skipped; focused26passed; optional locked dashboard/rag/checkpoint/providers selected377passed0skipped. Validators,Ruff check/format,diffcheck pass. Earlier3legacycachefailures repaired within same pass; earlier optionalStreamlit10s timeout passed isolated and final377run. A126-1 focused closure: unsupported suspended reactivation rejects, declared source/attestation/parent chronology enforced, positive lifecycle and inclusive freshness tests pass, limitations documented. Episodeclosed without designreset/extra count; not acceptance. Usage interruptions retained truthful elapsed audit. Synthetic/local only, real-store optin disabled, no livecoverage/authenticity/readiness claim. No known failing check; content-bound verification/review pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-27T14:27:50Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue126_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:29:11Z",
+      "data": {
+        "session": "/root/issue126_owner",
+        "outcome": "pass",
+        "evidence": "Content-bound verification PASS, unchanged before/after content6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962. Workflow/ticket validators,Ruff check/format,diffcheck pass; focusedidentity+Issue105legacyregression43passed0skipped. Full frozen1805passed60skipped and optional377passed0skipped bind identical runtime/test content; only documentation evidence finished before reservation. No edits or repairs during verification. Synthetic/local only, disabled real-store optin and authenticity/livecoverage limits retained."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-27T14:29:12Z",
+      "data": {
+        "evidence": "Coordinator accepts owner implementation evidence against frozen AC126-1through7 for independent review on exact verified content. AC1/2 strict registry/key/comparison/lifecycle/actualparent/inventory/history/CAS and atomic failure tests; AC3 historical/current partition and each inclusive edge; AC4 schema2/detached source-preserving binding; AC5 marker/proof serde/fingerprint/catalogue/receipt/downstream/downgrade cases; AC6 managed saved-review and downstream-only revision with registry/clock disabled plus legacy regression; AC7 docs and required/optional checks recorded in iteration036. A126-1 focusedclosure recorded at implementation end. Independent review, actual latestheadCI/comments/threads and originalPR delivery binding remain mandatory pending gates; no delivery/merge/liveactivation/readiness claim.",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962",
+        "ids": [
+          "AC126-1",
+          "AC126-2",
+          "AC126-3",
+          "AC126-4",
+          "AC126-5",
+          "AC126-6",
+          "AC126-7"
+        ]
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-27T14:29:13Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue126_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:34:38Z",
+      "data": {
+        "session": "/root/issue126_review",
+        "outcome": "fail",
+        "evidence": "Independent initial review FAIL, unchanged content6b9e2254cf24d97fc3ff1adbaf431946bf02a75d653208ceb1ca5e361d119962. B126-INVENTORY: source-backed unmapped unresolved row key/isin null in active context passes envelope+initialpublication, violates INV126-1/2 AC126-1/2; lines556-560,759-763. B126-LINEAGE: gen1->proved renamegen2->refreshgen3 can clear current_proof.lineage_source_ids despite retained global sources/alias, violates INV126-2/3 AC126-1/3; lines680-704. Ephemeral reproductions recorded, no fileschanged. No further material finding in reviewed registry/CAS/reference/codecs/catalogue/consumer/savedreview seams. Repair authorization remains coordinator gate; no pass/delivery claim."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-27T14:34:39Z",
+      "data": {
+        "id": "B126-INVENTORY",
+        "criterion": "AC126-2",
+        "scenario": "An extra source-backed InventoryCheck row with key=null,isin=null,disposition=unresolved passes validation/publication while affected context Fund remains active.",
+        "evidence": "Independent /root/issue126_review reproduced from tests.test_fund_identity._envelope with prepended synthetic#inventory row, recomputed digest; both RegistryEnvelope.model_validate and validate_publication(initialparentNone) pass. Existing guard only checks mapped row.key, lines556-560/759-763. Frozen unresolved/unmappable inventory safeguard requires rejection for affected active context."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-10-27T14:34:40Z",
+      "data": {
+        "id": "B126-LINEAGE",
+        "criterion": "INV126-3",
+        "scenario": "A refresh after a proved rename removes current_proof.lineage_source_ids while preserving global Source/alias; explicit historical completed-event linkage disappears.",
+        "evidence": "Independent reviewer reproduced _envelope generation1 -> _successor(rename=True)gen2 -> gen3 refresh with lineage=[], correct parent/generation/digest/transition/inventory. Envelope and actualparent publication pass. Parent diff retains lifecycle/alias/member sources but omits lineage references, lines680-704. Frozen immutable historical lineage requires prior references retained."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-27T14:34:42Z",
+      "data": {
+        "phase": "remediation",
+        "session": "/root/issue126_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:46:28Z",
+      "data": {
+        "session": "/root/issue126_owner",
+        "outcome": "pass",
+        "evidence": "Reserved sameowner remediation PASS at content1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175. A126-2 focused closure: unresolved/unmapped inventory rejects affected active context including aliases/currentassertions/links in internal+publication paths; unmapped false unchanged disposition rejects offline. Actualparent publication retains prior completed-event lineage refs. Initial/successor negatives, suspended/resolved controls, alias/linked contexts, threegeneration rename+freshproof positive/deletion negative covered. Focused29; identity+legacy46; frozenbaseline1809passed59skipped; optional380passed0skipped; locked sync/validators/Ruff/diff checks pass, docsfinished. Earlier baseline11percent interrupted before refinement, not failed/completed result. Both demonstrated defects repaired without scope/reset/countgrant; initial review FAIL preserved. Synthetic/local only, realstoreoptin disabled. Fresh certification/finalreview pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-27T14:46:29Z",
+      "data": {
+        "id": "B126-INVENTORY",
+        "evidence": "Completed reserved remediation with internal+publication unmapped unresolved active-context guard incl alias/currentproof/link context and strict unmapped disposition. Initial/successor/nullrow/falseunchanged negatives and valid suspended/resolved controls pass. Focused29/legacy46, baseline1809/59skip, optional380/0skip, staticgates pass at repairedcontent1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175. A126-2 focusedclosure; freshverification/finalreview stillrequired."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-10-27T14:46:30Z",
+      "data": {
+        "id": "B126-LINEAGE",
+        "evidence": "Completed reserved remediation rejects deletion of actualparent current_proof.lineage_source_ids. Threegeneration provedrename then freshcurrentproof preserving historicalrefs passes, deletion fails. Focused/legacy/fullbaseline/optional/static gates pass at repairedcontent1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175. A126-2 focusedclosure preserves historicalnoexpiry/currentfreshness. Freshverification/finalreview stillrequired."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-27T14:46:32Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue126_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:47:21Z",
+      "data": {
+        "session": "/root/issue126_owner",
+        "outcome": "pass",
+        "evidence": "Fresh repaired-content verification PASS with before/after exactcontent1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175 unchanged. Workflow/ticket validators,Ruff check/format229files,diffcheck pass; focusedidentity+legacycache46passed0skipped. Repaired fullfrozen1809passed59skipped and optional380passed0skipped bind identicalruntime/tests; only docs evidence finalizedbeforereservation. No edits duringverification. Bothblockersresolved afterreservedremediation; synthetic/localonly and disabledrealstorelimits retained. Independentfinalreview pending."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-10-27T14:47:22Z",
+      "data": {
+        "evidence": "Fresh coordinator acceptance for independent FINAL review of repaired exactcontent1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175 against all frozen AC126. Original runtime/ref/propagation/legacy/offline/financial/doccases retained. A126-2 narrowclosure covers active initial/successor unresolved/unmapped inventory incl aliases/currentproof/links, misleading unchanged nullrow rejection offline, positive suspended/resolved controls, threegeneration retainedlineage/freshcurrentproof and deletionnegative. A126-1 guardsunchanged. Focused29/legacy46, frozen1809pass59skip, optional380pass0skip, staticgates pass. PriorinitialreviewFAIL preserved; freshfinalreview and actualheadCI/comments/threads/originalPRbinding stillmandatory; no delivery/liveactivation claim.",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175",
+        "ids": [
+          "AC126-1",
+          "AC126-2",
+          "AC126-3",
+          "AC126-4",
+          "AC126-5",
+          "AC126-6",
+          "AC126-7"
+        ]
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-27T14:47:24Z",
+      "data": {
+        "phase": "final_review",
+        "session": "/root/issue126_final_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T14:50:55Z",
+      "data": {
+        "session": "/root/issue126_final_review",
+        "outcome": "pass",
+        "evidence": "Independent fresh code_reviewer finalreview PASS on unchanged verified/accepted content1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175. A126-2 internal/publication unmapped/unresolved active-context guard inclaliases/currentassertions and actualparent lineage retention close initial findings under INV126-1/2/3 AC126-1/2/3. Focused tests cover initial/successor active rejection,suspended controls,threegeneration rename/freshproof. No further demonstrated frozencontract defect/materialacceptanceuncertainty in registry/reference/codecs/evidence/catalogue/offline boundaries. No edits/new tests; before/afterdigestunchanged. InitialFAIL retained; sourceauthenticity/livestore/latestheadCI/delivery not established by review."
+      }
+    }
+  ]
+}

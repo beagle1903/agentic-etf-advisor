@@ -97,6 +97,7 @@ class PolicyCalculation(AdvisoryWireModel):
     allocation_bands: AllocationBands
     target_allocation: TargetAllocation
     advisory_contract: Literal["us-eu-v1"] | None = None
+    identity_contract: Literal["curator-fund-v1"] | None = None
     base_currency: Literal["USD", "EUR"] | None = None
     initial_investment_usd: CashFlowAllocation | None = None
     recurring_monthly_usd: CashFlowAllocation | None = None
@@ -145,6 +146,8 @@ class PolicyCalculation(AdvisoryWireModel):
     @model_serializer(mode="wrap")
     def serialize_policy(self, handler: Any) -> dict[str, Any]:
         result: dict[str, Any] = handler(self)
+        if self.identity_contract is None:
+            result.pop("identity_contract", None)
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_investment_usd", None)
             result.pop("recurring_monthly_usd", None)
@@ -185,6 +188,7 @@ def calculate_policy(profile: InvestorProfile) -> PolicyCalculation:
         allocation_bands={name: list(bounds) for name, bounds in bands.items()},
         target_allocation=target,
         **contract_fields(profile.advisory_contract),
+        **({"identity_contract": profile.identity_contract} if profile.identity_contract else {}),
         **(
             {
                 "base_currency": profile.base_currency,
