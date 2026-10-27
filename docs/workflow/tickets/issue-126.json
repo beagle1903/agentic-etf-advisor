@@ -386,6 +386,21 @@
         "outcome": "pass",
         "evidence": "Independent fresh code_reviewer finalreview PASS on unchanged verified/accepted content1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175. A126-2 internal/publication unmapped/unresolved active-context guard inclaliases/currentassertions and actualparent lineage retention close initial findings under INV126-1/2/3 AC126-1/2/3. Focused tests cover initial/successor active rejection,suspended controls,threegeneration rename/freshproof. No further demonstrated frozencontract defect/materialacceptanceuncertainty in registry/reference/codecs/evidence/catalogue/offline boundaries. No edits/new tests; before/afterdigestunchanged. InitialFAIL retained; sourceauthenticity/livestore/latestheadCI/delivery not established by review."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-10-27T14:51:48Z",
+      "data": {
+        "pr": 127,
+        "evidence": "Original Issue126 delivery binding to beagle1903/agentic-etf-advisor PR127 after complete samecontent verification/acceptance and independent finalreviewPASS. Reviewed content1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175 committed/pushed in3de674b69f6a80ac3157d46de1cf90861b8c53bc; HEAD and worktree digests match. Native delivery check and immutableprefix validation pass; required locked/local meaningfuloptional checks recorded. InitialFAIL+singleownerremediation and both arbitrationclosures preserved. This ledger-only binding commit will trigger finalheadPRCI; coordinator must verify actuallatestheadCI/comments/threads before reporting completion. No merge/liveactivation/authenticity/readiness claim.",
+        "capsule": {
+          "id": "issue-126-audited-curator-fund-identities",
+          "generation": 1,
+          "digest": "c50e07ba8308449c2f0fd402de5f1a94aafe8cf7d38bb598363d349626be3335"
+        },
+        "content": "1919abee7fd29728e351ef7f47b1fd4d09aa2c20878ba3e3deb4fe4fa445a175",
+        "repo": "beagle1903/agentic-etf-advisor"
+      }
     }
   ]
 }
