@@ -381,6 +381,21 @@
         "outcome": "pass",
         "evidence": "Independent fresh code_reviewer/gpt-6-sol/high FINALreviewPASS exact26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9 before/afterunchanged. No blocking frozenINV128/AC128scenario or materialtestgap: pinnedhistory/capsule, exactninepathmap, authorityreuseguards, preservedcounters/blockers, clearedoldapprovals/certificates and requiredfreshcountedtargetgates. Readonlycoercedgenerationprobe rejects. Governance diffvsc81dependency no productsource; operational123ledgerabsent. Verified/accepted/reviewedcontentsidentical. AC128-5originalPR129delivery/latestheadCI/comments/threads remaincoordinatorgate; no merge."
       }
+    },
+    {
+      "at": "2026-10-28T18:36:12Z",
+      "type": "delivery",
+      "data": {
+        "evidence": "Original governancePR129 deliverybinding after resumedimplementationPASS, existingremediation1/typeblockerresolution, freshidenticalcontentverification/acceptance and independentFINALreviewPASS on26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9. Localdependencymergecommit7d9ba47f2107a5a9b6ff0efcb5c3f9acdb6d5c0e contains exactreviewedtree; working/HEADhashmatch. Native deliverycheckPASS. Both historicalFAILs and counts2/2impl1/1remed1/1reset1/1finalreview preserved. OriginalPR129 willretargetaccepted130branchc81 (PR131finalCI40742481213PASS), governance-onlydiff vsdependency. This bindingcommit and mergecommit willpush together; actuallatestheadCI/comments/threads remainmandatory. No GitHubmerge or actual123amendment/countgrant/source/key/activation, no130certificate transfer.",
+        "capsule": {
+          "id": "issue-128-audited-issue123-capsule-amendment",
+          "generation": 2,
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3"
+        },
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9",
+        "pr": 129
+      }
     }
   ]
 }
