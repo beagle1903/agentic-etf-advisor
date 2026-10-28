@@ -996,7 +996,17 @@ def _curator_pipeline():
 
 
 def test_curator_identity_flows_through_saved_research_evidence_and_construction() -> None:
-    _curator_pipeline()
+    from etf_advisor.domain.policy import calculate_policy
+
+    snapshot, profile, evidence, screening, construction = _curator_pipeline()
+    policy = calculate_policy(profile)
+    for artifact in (snapshot, policy, evidence, screening, construction):
+        assert "identity_contract" in artifact.model_fields_set
+        assert artifact.model_dump(mode="json")["identity_contract"] == "curator-fund-v1"
+    assert construction.draft is not None
+    for position in construction.draft.positions:
+        assert "identity_contract" in position.model_fields_set
+        assert position.model_dump(mode="json")["identity_contract"] == "curator-fund-v1"
 
 
 def test_bound_replay_rejects_marker_downgrade_and_never_reads_live_registry(monkeypatch) -> None:
@@ -1049,6 +1059,7 @@ def test_curator_explanation_and_review_retain_identity_contract() -> None:
         portfolio_construction=construction.model_dump(mode="json"),
     )
     assert request.identity_contract == "curator-fund-v1"
+    assert "identity_contract" in request.model_fields_set
     generated = GeneratedExplanation(
         summary=GroundedStatement(
             text="This illustrative draft follows the policy.",
@@ -1083,6 +1094,7 @@ def test_curator_explanation_and_review_retain_identity_contract() -> None:
         ExplanationResult(provider="synthetic", model="offline", explanation=generated),
     )
     assert explanation.identity_contract == "curator-fund-v1"
+    assert "identity_contract" in explanation.model_fields_set
     review = ReviewPayload(
         kind="portfolio_policy_review",
         question="Review synthetic draft?",

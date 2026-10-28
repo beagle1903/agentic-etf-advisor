@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
@@ -12,6 +12,11 @@ from etf_advisor.domain.us_eu import contract_fields
 from etf_advisor.encoding import AdvisoryWireModel
 
 type AllocationBands = dict[str, list[int]]
+
+
+class _IdentityKwargs(TypedDict, total=False):
+    identity_contract: Literal["curator-fund-v1"]
+
 
 POLICY_BANDS: Final[dict[RiskTolerance, AllocationBands]] = {
     RiskTolerance.CONSERVATIVE: {
@@ -179,6 +184,9 @@ def calculate_policy(profile: InvestorProfile) -> PolicyCalculation:
         defensive_assets_pct=100 - growth_target,
     )
     new_contract = profile.advisory_contract == "us-eu-v1"
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": profile.identity_contract} if profile.identity_contract else {}
+    )
     return PolicyCalculation(
         risk_tolerance=profile.risk_tolerance,
         objective=profile.objective,
@@ -188,7 +196,7 @@ def calculate_policy(profile: InvestorProfile) -> PolicyCalculation:
         allocation_bands={name: list(bounds) for name, bounds in bands.items()},
         target_allocation=target,
         **contract_fields(profile.advisory_contract),
-        **({"identity_contract": profile.identity_contract} if profile.identity_contract else {}),
+        **identity_kwargs,
         **(
             {
                 "base_currency": profile.base_currency,

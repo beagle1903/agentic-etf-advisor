@@ -1,6 +1,6 @@
 # ADR 0043: Audited Issue123 capsule amendment
 
-- Status: Proposed implementation; Issue128 design approved, implementation certification blocked by required type checking. No operational Issue123 amendment.
+- Status: Accepted design for bounded Issue128 implementation on the reviewed Issue130 dependency. Native implementation certification/review/delivery outcomes are recorded in its ticket ledger. No operational Issue123 amendment.
 - Date: 2026-10-28
 - Authority: Issue128 generation-2 DESIGN_READY capsule, independent corrected challenge and coordinator approval in [iteration 037](../../iterations/037-issue128-audited-capsule-amendment.md).
 

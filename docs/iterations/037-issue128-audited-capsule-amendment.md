@@ -1,9 +1,11 @@
 # Issue128: audited in-place Issue123 capsule amendment
 
-Status: **BLOCKED_FOR_DECISION** after the original implementation attempt ended
-FAIL on required type checking. Generation2 design/challenge approval is preserved,
-but there is no verified/accepted/reviewed/delivered implementation certificate.
-The initial challenge FAIL also remains preserved. See A128-2 and the results below.
+Status: the explicitly granted second implementation and existing blocker
+remediation passed. Combined-tree required checks pass. Content-bound
+verification/acceptance, independent final review and delivery outcomes are
+recorded in the native ticket ledger; these owner results do not replace those
+gates. The original implementation FAIL on required type checking and initial
+challenge FAIL remain recorded. See A128-2 and the resumed results below.
 
 The human approved the concrete governance proposal on 27 October 2026, authorizing
 one separate [governance issue](https://github.com/beagle1903/agentic-etf-advisor/issues/128)
@@ -22,8 +24,10 @@ Independent challenge and code review use separate code_reviewer sessions at
 gpt-6-sol / high; all write and verification authors are excluded from code review.
 Dependent phases are sequential, checked and reserved before dispatch.
 
-Finite lifetime limits: implementation 1, initial review 1, remediation 1,
-final review 1 and design reset 1. Initial design/challenge remain separate gates.
+Original finite lifetime limits: implementation 1, initial review 1,
+remediation 1, final review 1 and design reset 1. A separate explicit user
+extension added exactly one implementation slot, now reserved as 2/2; all other
+count deltas and seconds are zero. Initial design/challenge remain separate gates.
 Elapsed time is audit-only; no automatic grants or counter resets.
 
 The exact initial source is undelivered, unsplit owner-led Issue123 capsule
@@ -271,3 +275,46 @@ outside this frozen governance capsule. Coordinator A128-2 / B128-REQUIRED-TYPEC
 holds certification and delivery pending a separate accountable decision. No
 independent implementation review, PR delivery certificate or real Issue123 event
 is claimed here.
+
+## Resumed implementation on reviewed Issue130 dependency
+
+The human separately authorized a behavior-preserving baseline type repair and
+one finite additional Issue128 implementation attempt. The original Issue128
+implementation FAIL and B128-REQUIRED-TYPECHECK remain in its ledger. Issue130
+completed its own verification, acceptance and independent review on original
+[PR131](https://github.com/beagle1903/agentic-etf-advisor/pull/131), final source
+head `c81eb3ec9e889e65ab1f184e48aa03ed17b9ab8e`; its final-head Linux CI run
+`40742481213` succeeded. That evidence qualifies the repair as a stacked code
+dependency; it is not an Issue128 certification transfer. Neither PR is merged.
+
+The Issue128 owner merged that commit locally with `git merge --no-commit --no-ff`
+and left the merge pending for coordinator-controlled delivery. There was no
+conflict or forced checkout. `git diff c81eb3ec9e889e65ab1f184e48aa03ed17b9ab8e -- src`
+is empty: the Issue128 delta against the reviewed dependency remains governance
+tooling, tests and documentation only. No Issue130 source/test/ledger/document was
+edited by this owner. The original Issue123 operational ledger, source acquisition,
+curator keys and activation remain untouched.
+
+The owner rechecked the exact amendment design and authority guard on the combined
+tree without changing the mechanism. The same focused workflow tests passed. The
+full default suite ran once with JUnit output under ignored `.artifacts`, retaining
+exact counts. Required checks on the combined tree were:
+
+| Command | Resumed result |
+| --- | --- |
+| `uv sync --frozen` | PASS; 57 locked packages audited. |
+| `uv run --frozen pytest -q tests/test_ticket_workflow.py tests/test_ticket_capsule_amendment.py` | PASS; 268 focused cases. |
+| `uv run --frozen pytest -q --junitxml=.artifacts/issue128-resumed-pytest.xml` | PASS; JUnit records 1,911 total, 1,852 passed, 59 skipped, zero failures and errors. Skips are optional/default-disabled paths; no optional external service was required for this workflow change. |
+| `uv run --frozen mypy src` and `uv run --frozen mypy` | PASS; each reports no issues in 67 source files. |
+| `uv run --frozen ruff check .` and `uv run --frozen ruff format --check .` | PASS; 235 files formatted. |
+| `uv run --frozen python scripts/validate_codex_workflow.py` and `uv run --frozen python scripts/ticket_workflow.py validate` | PASS. |
+| `uv build` and `docker compose config --quiet` | PASS. |
+| `git diff --check` and `git diff --cached --check` | PASS. |
+
+These checks address the original required type-check failure on combined content.
+They do not themselves resolve B128-REQUIRED-TYPECHECK or authorize delivery.
+The coordinator must truthfully end this implementation phase, then use the
+existing counted remediation slot for current-content blocker evidence and
+resolution. Fresh Issue128 content-bound verification, acceptance and independent
+final review must follow before delivery on original PR129. The failed original
+implementation, design challenge, finite counts and A128-2 arbitration remain.

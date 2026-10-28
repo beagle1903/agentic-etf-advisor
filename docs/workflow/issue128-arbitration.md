@@ -128,3 +128,53 @@ All certification flags remain false and delivery_binding is null. A blocked dra
 PR may preserve the work for inspection, explicitly without native certification,
 independent implementation review or readiness to merge. The next native execution
 route needs an explicit finite decision after this baseline gate is addressed.
+
+## A128-2 accountable revision after explicit finite approval
+
+The human approved one separate behavior-preserving baseline repair and then one
+additional128 implementation attempt. Issue130 performed the distinct annotation
+repair without changing financial, identity, serialization or lock behavior.
+Original repairPR131 at c81eb3ec9e889e65ab1f184e48aa03ed17b9ab8e has identical-content
+verification/acceptance, independent initial review PASS and final-head Linux CI
+40742481213 SUCCESS. Both prescribed type checks pass67sourcefiles; full local
+tests1811pass59skip0fail/0error. GitHub source review completed without findings;
+the final head adds only its delivery record. Neither PR has been merged.
+
+Coordinator's revised primary decision is **narrow repair verification**, using
+the explicitly granted128 implementation+1 only, all other deltas0/seconds0.
+This is the128 part of the same approved package, not a second invented human
+approval or a transfer of130counts/certificates. The original failure remains FAIL.
+The existing128 owner resumes with the same frozen generation2 capsule. The repair
+branch is a PR dependency so the128 diff remains governance-only; no automatic
+merge or product-code expansion inside128 occurs.
+
+Current counts after reservation: implementation2/2, designreset1/1,
+remediation0/1, initialreview0/1, finalreview0/1. The existing remediation slot
+must produce actual current-content type-check evidence before the native blocker
+can resolve; no exception to required_remediation is introduced. Fresh128 content
+verification, acceptance and independent final review remain required, without
+inheriting130acceptance. The focused closure remains AC128-5: the exact combined
+content passes the prescribed type check and all required gates, with retained
+failures and a valid originalPR129 binding. No real123amendment or operational
+source/key/activation authority follows from this revision.
+
+## A128-2 focused closure
+
+The second explicitly granted implementation passed all required checks on the
+combined tree: full1911total/1852pass/59skip/0fail/0error, focused268cases and both
+prescribed type checks (67sourcefiles), plus static/native/build/Compose/diff
+gates. The original owner then used the existing single counted remediation slot
+to run both actual locked type checks again: each returned no issues in67files.
+The124-file source/scripts/tests digest remained
+`548bbab04437ff2f0edbcd7c79ae1958c0b33827d9ab79455e6bb5624504fbb4`.
+No source or type-configuration delta exists against accepted repair dependency
+c81eb3e. No ignore, scope waiver or130certificate transfer was used.
+
+The remediation ended PASS and the native B128-REQUIRED-TYPECHECK was resolved
+against AC128-5. This meets the focused closure on actual current content; it
+does not erase the original failed implementation/type check or accept the ticket.
+Counts remain implementation2/2, remediation1/1, designreset1/1,
+initialreview0/1 and finalreview0/1. No active phase remains at closure.
+Fresh content-bound verification/acceptance and independent final review are the
+next permitted gates, using original PR129 and the stacked repair dependency.
+No real123 amendment or operational source/key/activation is authorized.

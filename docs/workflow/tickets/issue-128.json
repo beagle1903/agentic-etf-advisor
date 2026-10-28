@@ -239,6 +239,148 @@
         "outcome": "fail"
       },
       "type": "phase_end"
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-28T18:14:08Z",
+      "data": {
+        "reason": "Resume original128 governance after separatelyaccepted behavior-preserving type repair130/PR131; use dependencybranch without automaticmerge, preserve exact source scope and originalPR129. Requiredtypecheck nowpass; existing remediation slot must supply freshblockerclosure before contentboundverification/acceptance/finalreview. No slotreset/certificate transfer.",
+        "counts": {
+          "remediation": 0,
+          "implementation": 1,
+          "initial_review": 0,
+          "design_reset": 0,
+          "final_review": 0
+        },
+        "authority": {
+          "kind": "user",
+          "evidence": "Direct human approved on2026-10-28 the final concrete follow-up proposal: one separate behavior-preserving baseline repair, then ONE additionalIssue128implementationattempt after that repair. This event consumes only the explicitly named128implementation+1 part of the same package; repair130used its own distinctscope initialization. Later repeated approved acknowledgments are not additionalgrants. RepairPR131 now independentlyreviewed/verified and finalheadc81eb3ec9e889e65ab1f184e48aa03ed17b9ab8e CI40742481213PASS. Other128countdeltas0,seconds0, original128scope/failedhistory/PR129 unchanged. No source/123amendment/key/activation or merge authority.",
+          "name": "burha"
+        },
+        "seconds": 0
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-28T18:14:25Z",
+      "data": {
+        "capsule": {
+          "generation": 2,
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3",
+          "id": "issue-128-audited-issue123-capsule-amendment"
+        },
+        "session": "/root/issue128_owner",
+        "role": "implementation_worker",
+        "phase": "implementation"
+      }
+    },
+    {
+      "at": "2026-10-28T18:26:50Z",
+      "type": "phase_end",
+      "data": {
+        "evidence": "Second explicitlygranted128implementationPASS on accepted130dependencyc81eb3e (PR131CI40742481213success), pendinglocalmerge no GitHubmerge. FullfirstJUnit1911total1852pass59skip0fail0error; focusedworkflow268pass; bothlockedmypy67pass; frozen sync,Ruffcheck/format,validators,build,Compose,staged/unstageddiffpass. No128govcodeor130fileedits; git diff c81 -- src empty. Docs037/ADR/runbook updatedtruthfully retaining originalFAIL, A128-1fail/reset and A128-2blocker. Finaltested124src/scripts/testsSHA548bbab04437ff2f0edbcd7c79ae1958c0b33827d9ab79455e6bb5624504fbb4. No real123event/source/key/activation. Existingremediation requiredfornativeblockerclosure, then freshverification/acceptance/independentfinalreview; no certificates inherited130.",
+        "session": "/root/issue128_owner",
+        "outcome": "pass"
+      }
+    },
+    {
+      "at": "2026-10-28T18:26:53Z",
+      "type": "phase_start",
+      "data": {
+        "phase": "remediation",
+        "role": "implementation_worker",
+        "session": "/root/issue128_owner",
+        "capsule": {
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3",
+          "id": "issue-128-audited-issue123-capsule-amendment",
+          "generation": 2
+        }
+      }
+    },
+    {
+      "at": "2026-10-28T18:27:58Z",
+      "data": {
+        "session": "/root/issue128_owner",
+        "outcome": "pass",
+        "evidence": "Existing single sameownerremediationPASS AC128-5/B128-REQUIRED-TYPECHECK actual currentstackedtree: both frozenmypycommands exit0 noissues67files. Tested124fileSHA548bbab04437ff2f0edbcd7c79ae1958c0b33827d9ab79455e6bb5624504fbb4/fullcontentd14a1df00fe647ed7c5ac9e1478c815ba3591a9efa7072e2250745f102f15fe5 unchanged. git diff c81 -- src/pyproject/uvlock/mypy.ini/setup.cfg empty, no typeconfigweakening. Nativevalidator/staged+unstageddiffpass. No code/docs/fullpytestrepeat/PR/actual123actions. Fresh focused evidence meets required_remediation1; rootmayresolveblocker, allhistoricalfailure retained."
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-28T18:28:00Z",
+      "data": {
+        "id": "B128-REQUIRED-TYPECHECK",
+        "evidence": "Resolved only current requiredtypecheckblocker after counted sameownerremediation1PASS: both frozenmypy forms on actualcombinedtree noissues67sourcefiles; no typeconfigweakening/productdelta vs accepted130dependencyc81. Source/tests548bbab04437ff2f0edbcd7c79ae1958c0b33827d9ab79455e6bb5624504fbb4 unchanged; full1911total1852pass59skip0fail0error and allrequiredgates previouslypassed exactsource. Original128implementationFAIL and26errors remainhistorical; no waiver or130certificate transfer. A128-2 focusedclosure torecord beforefreshcontentverification/acceptance/finalreview; no actual123operations."
+      },
+      "type": "resolve"
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-28T18:28:42Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue128_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-128-audited-issue123-capsule-amendment",
+          "generation": 2,
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3"
+        },
+        "content": "26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9"
+      }
+    },
+    {
+      "at": "2026-10-28T18:29:45Z",
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Fresh contentboundverificationPASS exact26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9 after docs-onlystageupdates. Tested124fileSHA548bbab04437ff2f0edbcd7c79ae1958c0b33827d9ab79455e6bb5624504fbb4 unchanged, firstcombinedJUnit1911total1852pass59skip0fail0error; full/buildnotrepeatedafterdocsonly. Currentbothmypy67pass,Ruffcheck/format,validators,Compose,diffpass. Sourceand130ledger/doc/testdiffagainstc81empty; pendingmergeunchanged, no edits. B128resolvedthroughrequiredremediation1; initialFAIL/consumedcountsretained. No sourceauthenticity/livehumanapprovalclaim,actual123operations or merge.",
+        "session": "/root/issue128_owner"
+      }
+    },
+    {
+      "at": "2026-10-28T18:29:46Z",
+      "type": "acceptance",
+      "data": {
+        "capsule": {
+          "id": "issue-128-audited-issue123-capsule-amendment",
+          "generation": 2,
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3"
+        },
+        "content": "26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9",
+        "evidence": "Fresh coordinator acceptance for independentFINALreview on exactverified26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9 againstcompleteAC128. Exacthistory/capsuletargetmap, normalizedknown128approvaland123reuseguards, stale-successclearance/counter/lifecycle/lineage/atomic/CI tests268pass; combined1852pass59skip0fail/0error plusbothmypy67/allrequiredgatespass. Separate130dependencyindependentlyreviewed/CIgreen, no governanceproductdelta. A128-1initialFAIL/resetandA128-2firstimplementationFAIL preserved; actualB128remediation1closedrequiredgate withoutwaiver. No real123amendment or countgrant/source/key/activation. NativeoriginalPR129deliverybinding and actuallatestheadCI/comments/threads remainmandatoryafterfinalreview; no automaticmerge.",
+        "ids": [
+          "AC128-1",
+          "AC128-2",
+          "AC128-3",
+          "AC128-4",
+          "AC128-5"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-28T18:29:48Z",
+      "type": "phase_start",
+      "data": {
+        "phase": "final_review",
+        "content": "26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9",
+        "capsule": {
+          "id": "issue-128-audited-issue123-capsule-amendment",
+          "generation": 2,
+          "digest": "f6f548f9457c14e76932b78e92af5d15f9e2180075f8f72df0f9b2a794c153a3"
+        },
+        "role": "code_reviewer",
+        "session": "/root/issue128_final_review"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-28T18:35:42Z",
+      "data": {
+        "session": "/root/issue128_final_review",
+        "outcome": "pass",
+        "evidence": "Independent fresh code_reviewer/gpt-6-sol/high FINALreviewPASS exact26e55dd2aa454b02de001e502eb91006a5e21b211c382e861e95bc48e65e73d9 before/afterunchanged. No blocking frozenINV128/AC128scenario or materialtestgap: pinnedhistory/capsule, exactninepathmap, authorityreuseguards, preservedcounters/blockers, clearedoldapprovals/certificates and requiredfreshcountedtargetgates. Readonlycoercedgenerationprobe rejects. Governance diffvsc81dependency no productsource; operational123ledgerabsent. Verified/accepted/reviewedcontentsidentical. AC128-5originalPR129delivery/latestheadCI/comments/threads remaincoordinatorgate; no merge."
+      }
     }
   ]
 }

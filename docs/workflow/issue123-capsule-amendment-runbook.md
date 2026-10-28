@@ -4,8 +4,11 @@ This is a non-executable decision aid. Issue128 authorizes the governance tool
 and its review, **not** an actual Issue123 event, count grant, source call, key,
 registry publication or activation.
 
-The governance implementation is currently a blocked draft with no delivery
-certificate. These steps are a future decision aid, not permission to apply it.
+The governance implementation's combined-tree checks and blocker remediation
+passed after the separately reviewed type-repair dependency. Its native ticket
+ledger records separate verification, acceptance, review and delivery outcomes.
+These steps are a future decision aid, not permission to apply the operational
+amendment, even after the governance implementation is certified.
 
 1. Inspect the operational Issue123 ledger and its blockers, current owner,
    complete history, phase reservation, limits and PR identity. Confirm its
