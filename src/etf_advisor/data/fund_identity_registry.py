@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
+from typing import Protocol, cast
 from uuid import uuid4
 
 from etf_advisor.domain.fund_identity import (
@@ -29,6 +30,14 @@ class RegistryCommittedCleanupError(RegistryPublicationError):
     def __init__(self, envelope: RegistryEnvelope) -> None:
         super().__init__("registry_pointer_committed_cleanup_uncertain")
         self.envelope = envelope
+
+
+class _UnixLockModule(Protocol):
+    LOCK_EX: int
+    LOCK_NB: int
+    LOCK_UN: int
+
+    def flock(self, fd: int, operation: int) -> None: ...
 
 
 class LocalFundIdentityRegistry:
@@ -62,7 +71,8 @@ class LocalFundIdentityRegistry:
                     else:
                         import fcntl
 
-                        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        unix_lock = cast(_UnixLockModule, fcntl)
+                        unix_lock.flock(handle.fileno(), unix_lock.LOCK_EX | unix_lock.LOCK_NB)
                     break
                 except OSError as exc:
                     if time.monotonic() >= deadline:
@@ -75,7 +85,7 @@ class LocalFundIdentityRegistry:
                     handle.seek(0)
                     msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
                 else:
-                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+                    unix_lock.flock(handle.fileno(), unix_lock.LOCK_UN)
 
     def _blob(self, digest: str) -> Path:
         return self.root / "generations" / f"{digest}.json"

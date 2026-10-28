@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-28T09:35:39Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 130,
+        "classification": "ordinary",
+        "scope": [
+          "S130-1"
+        ],
+        "invariants": [
+          "INV130-1",
+          "INV130-2",
+          "INV130-3",
+          "INV130-4"
+        ],
+        "acceptance": [
+          "AC130-1",
+          "AC130-2",
+          "AC130-3",
+          "AC130-4"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved on2026-10-28 the concrete follow-up after draftPR129: one separate behavior-preserving repair attempt for26baseline typeerrors in7unchangedproductfiles, then one additionalIssue128implementationattempt. This initialization uses only the baseline-repair part of that package, under ordinary existing-contract/no-runtime-change scope and default finite owner-led limits; the distinct128count extension is recorded separately when resumed. No automatic merge, actual123 amendment, source call, key or activation."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-130-behavior-preserving-baseline-type-repair",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 130,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue130_owner"
+          },
+          "rationale": "Existing-contract annotation/narrowing/local variable repairs only, not a financial eligibility/persistence/replay/safety contract change. Ordinary owner can record/design/implement/test/selfreview in one session. Independent code review required for cross-module financial/identity/locking source touching and disputed required gate. Any actual runtime/contract change stops for separate consequential design.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human approved on2026-10-28 the concrete follow-up after draftPR129: one separate behavior-preserving repair attempt for26baseline typeerrors in7unchangedproductfiles, then one additionalIssue128implementationattempt. This initialization uses only the baseline-repair part of that package, under ordinary existing-contract/no-runtime-change scope and default finite owner-led limits; the distinct128count extension is recorded separately when resumed. No automatic merge, actual123 amendment, source call, key or activation."
+          },
+          "scope": {
+            "S130-1": "Behavior-preserving source annotation/type narrowing/local variable repair for the26baseline mypy errors in exactly seven modules: domain/fund_identity.py, data/fund_identity_registry.py, domain/policy.py, domain/screening.py, catalogue/research_job.py, domain/construction.py, explanation/models.py; justified focused tests and iteration evidence only. Restore both prescribed locked type checks without runtime/schema/financial/locking changes or check/config weakening."
+          },
+          "non_goals": [
+            "No financial/identity/freshness/serialization/model validation/lock behavior or runtime contract change, public schema changes, new adapter/stage or product feature.",
+            "No type-ignore/config/dependency weakening or masking failing tests/checks. No unrelated refactor or governance code changes in130.",
+            "No real123amendment/curation/activation/providercall, trades, externalfinancialwrites, automaticmerge or silent128countreset."
+          ],
+          "invariants": {
+            "INV130-1": "Runtime behavior and validation contracts remain exact: preserve dictionary-key presence/model_fields_set/serialization omission, legacy schema1/absent-marker bytes/digests, curator marker/proof/saved-time semantics, financial eligibility/selection/weights/cash/FX, lock-platform/timeout/error behavior and replaceable source/store boundaries. An actual contract/runtime change stops for separate consequential design.",
+            "INV130-2": "No type-ignore additions, disabling/skipping tests, mypy/config/dependency relaxation or public schema/coercion/validation changes. Scope is seven source modules plus meaningful tests/docs; no Issue128 workflow implementation/definitions/ledger mutation in this issue.",
+            "INV130-3": "No provider/source calls, real curator keys, registry/Chroma/Neo4j activation, saved-review migration, actual123 amendment/countgrant, Issue117 run, trade or external financialwrite. Preserve128failedhistory/counts/blocker; no certificate/count transfer or automatic merge.",
+            "INV130-4": "One native owner-led implementation pass with finite default counters, same owner for authorized repair and independent content-bound code review. Actual tested content, verification/acceptance/review and original repairPR binding identical. Failed required checks remain failed."
+          },
+          "interfaces": [
+            "none changed; exactly seven existing source modules listed in S130-1 receive typing/local-name fixes; current public models/functions/locking interfaces stay unchanged. Focused tests may verify semantic equivalence."
+          ],
+          "json_state_impact": "none; exact keyword presence, model_fields_set, JSON/wire omission, legacy bytes/digests and persisted artifacts unchanged. No graph/checkpoint or registry format changes.",
+          "acceptance": {
+            "AC130-1": "Both uv run --frozen mypy and uv run --frozen mypy src pass against locked dependencies, without ignores/config/dependency changes; all26reportederrors removed through behavior-preserving annotations/narrowing/local naming only.",
+            "AC130-2": "Meaningful focused identity/current-proof/registry-lock/legacy-byte/policy/screening/construction/catalogue/explanation coverage and complete offline baseline pytest pass with exact counts/skips; tests or direct semantic comparison prove no keyword-presence/model_fields_set/serialization/runtime/lock change. No low-value tests merely mirror annotations.",
+            "AC130-3": "Ruffcheck/format, frozen sync, workflow/ticket validators, mypy, build, Composeconfig and diffchecks pass. No unsanctioned files/safety/source/runtime changes. Explicit ordinary classification and runtime-change stoptrigger documented before edits.",
+            "AC130-4": "Iteration evidence records exact fixes/verification/limits; samecontent verification+acceptance and independent codereviewer exclude everywrite/verificationauthor; commit/push/originalrepairPR and actuallatestheadCI/comments/threads/native delivery binding. No automaticmerge; original128resume is separate approved finite work and keeps its originalPR."
+          },
+          "verification": [
+            "Existing focused suites covering the seven modules plus meaningful key-presence/serialization/lock checks; both prescribed locked mypy forms.",
+            "Frozen sync; full defaultpytest with retained counts/skips; Ruffcheck/format; validate_codex_workflow/ticketvalidate; build; Composeconfig; diffchecks. Optional-enabled checks only where meaningful to touched execution paths.",
+            "Finish all reviewable documentation before samecontent verification/acceptance and independent codereview; actuallatestheadCI/comments/threads and native originalrepairPR binding."
+          ],
+          "documentation": [
+            "docs/iterations/038-issue130-baseline-type-repair.md records classification/authority/capsule/invariants/AC, exact behavioral equivalence and commands/results/limitations. Accepted ADRs unchanged because no consequential decision is authorized."
+          ],
+          "risks": [
+            "Typing repair could accidentally add explicitNone keywords/change model_fields_set or validation, weaken accepted-marker checks, or change cross-platform lock behavior.",
+            "Broader runtime defect or contractual ambiguity must stop instead of hiding via cast/ignore or silently upgrading scope. Existing128acceptance cannot be inherited from130."
+          ],
+          "escalation_triggers": [
+            "Any required runtime/financial/identity/persistence/replay/locking contract change stops for separate architect, independentchallenge/coordinatorapproval; do not silently change frozenordinaryscope.",
+            "Concrete complexity/unresolvedfailure/concurrency/migration risk can trigger specialist only with recorded evidence; repeated/shifted concerns invoke ADR0034; finite limits and failedfinalreview stop."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-28T09:36:19Z",
+      "data": {
+        "authority": {
+          "name": "/root",
+          "kind": "coordinator",
+          "evidence": "Human approved concrete behavior-preserving baseline repair separately from governance128 scope. Ordinary annotation/narrowing/local-name maintenance only; complete capsule beforeedits, establishedruntimecontracts unchanged. Independent code review required; any actualconsequentialcontract/runtimechange stops for separatearchitecture."
+        },
+        "capsule": {
+          "digest": "43fcf35b90677ecb4043e3cff8500844eff7544bd0c29aa21b3a7d8b22f0eac9",
+          "generation": 1,
+          "id": "issue-130-behavior-preserving-baseline-type-repair"
+        },
+        "evidence": "DESIGN_READY ordinary existing-contract repair per completegen1capsule43fcf35b. All26errors are annotation/inference/platformtyping issues; allowedscope excludes runtime/modelkeypresence/locking/financialchanges and ignore/configweakening. Originalimplementationowner/root/issue130_owner implementation_worker/gpt-6-sol/medium, finite defaultcounts and independentreview required."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-28T09:36:20Z",
+      "data": {
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "session": "/root/issue130_owner",
+        "capsule": {
+          "digest": "43fcf35b90677ecb4043e3cff8500844eff7544bd0c29aa21b3a7d8b22f0eac9",
+          "generation": 1,
+          "id": "issue-130-behavior-preserving-baseline-type-repair"
+        }
+      }
+    },
+    {
+      "at": "2026-10-28T09:52:19Z",
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue130_owner",
+        "evidence": "Ordinary behavior-preserving implementation complete by approvedowner/gpt-6-sol/medium. Seven scopedsourcefiles +3meaningfultestfiles annotations/TypedDict/cast/localname only; exact optionalkeypresence/model_fields_set/legacyomission/rawvalidation/lockbranches preserved. Both lockedmypy formsPASS67files; finalfullpytest1811pass59skip0failure0error/1870total, JUnit202.850s; firstquietfullrunalsoexit0. Frozen sync,Ruffcheck/format,validators,build,Compose,diffpass. Finalsource-testSHAeedbe4f0d5dc26b55d742218ef3d9e91175d85701007b11bbad529e9e6f95a9f; iteration038complete; stoppedwrites. Optionalextras/realstores notenabled, UnixpathstillneedsLinuxCI. No actual123/source/key/activation or128ledger/codechanges. Contentboundverification/acceptance/independentreview and delivery stillpending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-28T09:52:48Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue130_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-130-behavior-preserving-baseline-type-repair",
+          "generation": 1,
+          "digest": "43fcf35b90677ecb4043e3cff8500844eff7544bd0c29aa21b3a7d8b22f0eac9"
+        },
+        "content": "4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17"
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue130_owner",
+        "outcome": "pass",
+        "evidence": "Reserved sameowner verificationPASS exactcontent4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17. Ten source/test files retain finaltestedSHAeedbe4f0d5dc26b55d742218ef3d9e91175d85701007b11bbad529e9e6f95a9f; JUnit1870total1811pass59skip0fail0error; fullruns exit0. Current bothlockedmypy67files,Ruffcheck/format230,validators,staged/unstageddiff,Composepass. Frozen sync/buildpassed in implementation same source/tests; no redundant fullsuite/build. No verificationedits, actualsource/keys/activation. LocalWinnotUnixfcntl; optional/disposablestore skip limits retained. Independentreview/actualheadCI stillrequired."
+      },
+      "type": "phase_end",
+      "at": "2026-10-28T09:54:04Z"
+    },
+    {
+      "data": {
+        "evidence": "Coordinator acceptance for independentinitialreview of sameverifiedcontent4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17 against completefrozenAC130. Bothrequiredmyppass,1811pass59skipfullsuite plusmeaningfulkeypresence/rawvalidation/fundregistry/finance/regression coverage; allrequiredlockedstatic/build/Compose/native/diffgates pass. Sevenmodule annotations/TypedDict/protocolcasts/localnames preserve runtimecontracts; no ignore/config/dependencyweakening or externalactions. Final independentreview and actuallatestheadLinuxCI/comments/threads/repairPRdelivery remainmandatory, no130certificate inheritedby128.",
+        "content": "4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17",
+        "ids": [
+          "AC130-1",
+          "AC130-2",
+          "AC130-3",
+          "AC130-4"
+        ],
+        "capsule": {
+          "digest": "43fcf35b90677ecb4043e3cff8500844eff7544bd0c29aa21b3a7d8b22f0eac9",
+          "generation": 1,
+          "id": "issue-130-behavior-preserving-baseline-type-repair"
+        }
+      },
+      "type": "acceptance",
+      "at": "2026-10-28T09:54:05Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue130_review",
+        "role": "code_reviewer",
+        "phase": "initial_review",
+        "content": "4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17",
+        "capsule": {
+          "digest": "43fcf35b90677ecb4043e3cff8500844eff7544bd0c29aa21b3a7d8b22f0eac9",
+          "generation": 1,
+          "id": "issue-130-behavior-preserving-baseline-type-repair"
+        }
+      },
+      "type": "phase_start",
+      "at": "2026-10-28T09:54:06Z"
+    },
+    {
+      "data": {
+        "evidence": "Independent code_reviewer/gpt-6-sol/high initialreviewPASS exactunchangedcontent4ee5c8165e090ede10c96cce98b11535d1f2a7b467253373a9b1102cd9217e17 before/after. Seven sourcefiles within typing/localnames scope, no frozenINV130/AC130failure found. Optionalkeypresence/rawinvalidmarkerPydanticvalidation, finance and exactUnixlockobject/flags/timeout/errorpath preserved; meaningfulomission/selectedmarker/invalidmarker tests. No fullsuite rerun; actuallatestheadLinuxCI stillrequired toexerciseUnixpath. Reviewdoesnotcertify128 or authorize merge.",
+        "outcome": "pass",
+        "session": "/root/issue130_review"
+      },
+      "at": "2026-10-28T18:08:37Z",
+      "type": "phase_end"
+    }
+  ]
+}

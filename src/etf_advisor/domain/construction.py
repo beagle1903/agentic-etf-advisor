@@ -10,7 +10,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from itertools import combinations
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, TypedDict
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -41,6 +41,10 @@ from etf_advisor.research.models import ResearchField
 
 TOTAL_WEIGHT_BPS: Final[int] = 10_000
 MAX_CONSTRUCTION_CANDIDATES: Final[int] = 10
+
+
+class _IdentityKwargs(TypedDict, total=False):
+    identity_contract: Literal["curator-fund-v1"]
 
 
 def _normalize_category(value: str) -> str:
@@ -1519,13 +1523,14 @@ def _position_from_candidate(
         }
     else:
         new_fields = {"initial_usd_cents": initial_cents, "recurring_usd_cents": recurring_cents}
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": item.candidate.identity_contract}
+        if item.candidate.identity_contract is not None
+        else {}
+    )
     return PortfolioPosition(
         **new_fields,
-        **(
-            {"identity_contract": item.candidate.identity_contract}
-            if item.candidate.identity_contract is not None
-            else {}
-        ),
+        **identity_kwargs,
         document_id=item.candidate.document_id,
         symbol=item.candidate.symbol,
         name=item.candidate.name,
