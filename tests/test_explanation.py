@@ -22,6 +22,7 @@ from etf_advisor.explanation.models import (
     GroundedStatement,
     GroundingBasis,
     ProviderFailureCode,
+    build_explanation_request,
     exposed_candidates,
     portfolio_reference_index,
     validate_and_bundle_explanation,
@@ -46,6 +47,30 @@ def _profile() -> InvestorProfile:
         recurring_monthly_usd=1_000,
         excluded_sectors=["energy"],
     )
+
+
+def test_legacy_explanation_request_omits_optional_identity_keyword() -> None:
+    source = _request()
+    request = build_explanation_request(
+        profile=source.profile.model_dump(mode="json"),
+        draft_policy=source.draft_policy.model_dump(mode="json"),
+        candidate_evidence=source.candidate_evidence.model_dump(mode="json"),
+        candidate_screening=source.candidate_screening.model_dump(mode="json"),
+        portfolio_construction=source.portfolio_construction.model_dump(mode="json"),
+    )
+    assert "identity_contract" not in request.model_fields_set
+    assert "identity_contract" not in request.model_dump(mode="json")
+
+    invalid_profile = source.profile.model_dump(mode="json")
+    invalid_profile["identity_contract"] = "unrecognized-contract"
+    with pytest.raises(ValidationError):
+        build_explanation_request(
+            profile=invalid_profile,
+            draft_policy=source.draft_policy.model_dump(mode="json"),
+            candidate_evidence=source.candidate_evidence.model_dump(mode="json"),
+            candidate_screening=source.candidate_screening.model_dump(mode="json"),
+            portfolio_construction=source.portfolio_construction.model_dump(mode="json"),
+        )
 
 
 def _request(

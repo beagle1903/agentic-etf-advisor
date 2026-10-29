@@ -100,6 +100,25 @@ def test_profile_constraints_and_safety_notes_are_retained() -> None:
     assert any("no order" in note for note in calculation.notes)
 
 
+def test_identity_keyword_presence_is_preserved_in_policy_output() -> None:
+    legacy = calculate_policy(profile(risk_tolerance="moderate", objective="balanced"))
+    assert "identity_contract" not in legacy.model_fields_set
+    assert "identity_contract" not in legacy.model_dump(mode="json")
+
+    selected_profile = profile(risk_tolerance="moderate", objective="balanced").model_copy(
+        update={
+            "identity_contract": "curator-fund-v1",
+            "advisory_contract": "us-eu-v1",
+            "base_currency": "USD",
+            "initial_investment_minor": 1_000_000,
+            "recurring_monthly_minor": 33_333,
+        }
+    )
+    selected = calculate_policy(selected_profile)
+    assert "identity_contract" in selected.model_fields_set
+    assert selected.model_dump(mode="json")["identity_contract"] == "curator-fund-v1"
+
+
 def test_maximum_accepted_cash_amount_is_cent_quantizable() -> None:
     calculation = calculate_policy(
         profile(

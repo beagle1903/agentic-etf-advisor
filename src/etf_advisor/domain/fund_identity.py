@@ -519,11 +519,11 @@ class RegistrySnapshot(StrictModel):
             actual_links = {_context_key(item.from_context) for item in proof.current_context_links}
             if fund.status == "active" and required_links != actual_links:
                 raise ValueError("current assertion context requires exact link")
-            for item in proof.memberships:
-                refs(item.source_ids, required=True)
-            for item in proof.current_context_links:
-                refs(item.source_ids, required=True)
-                if item.to_context != fund.context or item.from_context == fund.context:
+            for assertion in proof.memberships:
+                refs(assertion.source_ids, required=True)
+            for link in proof.current_context_links:
+                refs(link.source_ids, required=True)
+                if link.to_context != fund.context or link.from_context == fund.context:
                     raise ValueError("invalid current context link")
         for comparison in self.audit.comparisons:
             refs(comparison.source_ids, required=True)
@@ -560,10 +560,12 @@ class RegistrySnapshot(StrictModel):
                     raise ValueError("unmapped inventory row must be unresolved")
                 if row.key is not None and row.isin is not None:
                     fund = by_key[row.key]
-                    member = next((item for item in fund.members if item.isin == row.isin), None)
+                    matched_member = next(
+                        (item for item in fund.members if item.isin == row.isin), None
+                    )
                     expected = (
-                        member.status
-                        if fund.context == check.context and member is not None
+                        matched_member.status
+                        if fund.context == check.context and matched_member is not None
                         else None
                     )
                     if row.after_status != expected:

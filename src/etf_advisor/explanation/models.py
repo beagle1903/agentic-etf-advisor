@@ -7,7 +7,7 @@ import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
-from typing import Any, Final, Literal, Protocol
+from typing import Any, Final, Literal, Protocol, TypedDict, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
@@ -24,6 +24,11 @@ from etf_advisor.encoding import AdvisoryWireModel
 from etf_advisor.rag.evidence import CandidateEvidence, CandidateEvidenceBundle, EvidenceStatus
 
 MAX_EXPLANATION_CANDIDATES = 10
+
+
+class _IdentityKwargs(TypedDict, total=False):
+    identity_contract: Literal["curator-fund-v1"] | None
+
 
 _IMPERATIVE_CLAUSE_BOUNDARY: Final[re.Pattern[str]] = re.compile(
     r"(?:"
@@ -408,13 +413,14 @@ def build_explanation_request(
 ) -> ExplanationRequest:
     """Revalidate graph state before exposing it to a model provider."""
 
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": cast(Literal["curator-fund-v1"] | None, profile["identity_contract"])}
+        if "identity_contract" in profile
+        else {}
+    )
     return ExplanationRequest(
         **contract_fields("us-eu-v1" if profile.get("advisory_contract") == "us-eu-v1" else None),
-        **(
-            {"identity_contract": profile["identity_contract"]}
-            if "identity_contract" in profile
-            else {}
-        ),
+        **identity_kwargs,
         profile=InvestorProfile.model_validate(profile),
         draft_policy=PolicyCalculation.model_validate(draft_policy),
         candidate_evidence=CandidateEvidenceBundle.model_validate(candidate_evidence),
@@ -668,13 +674,14 @@ def validate_and_bundle_explanation(
             "Sector exclusion results are provided separately by deterministic screening; "
             "this explanation does not replace or extend those results."
         )
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": request.identity_contract}
+        if request.identity_contract is not None
+        else {}
+    )
     return ExplanationBundle(
         **contract_fields("us-eu-v1" if request.advisory_contract == "us-eu-v1" else None),
-        **(
-            {"identity_contract": request.identity_contract}
-            if request.identity_contract is not None
-            else {}
-        ),
+        **identity_kwargs,
         provider=validated.provider,
         model=validated.model,
         explanation=validated.explanation,

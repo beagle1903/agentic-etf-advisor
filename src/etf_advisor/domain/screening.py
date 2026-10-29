@@ -7,7 +7,7 @@ import math
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, TypedDict
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -39,6 +39,10 @@ from etf_advisor.research.models import ResearchField, WeightedExposure
 
 class ScreeningContractError(ValueError):
     """Raised when candidate evidence cannot be screened without changing its meaning."""
+
+
+class _IdentityKwargs(TypedDict, total=False):
+    identity_contract: Literal["curator-fund-v1"]
 
 
 class ScreeningVerdict(StrEnum):
@@ -446,14 +450,15 @@ def screen_candidate_evidence(
             )
             for result in results
         ]
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": validated_evidence.identity_contract}
+        if validated_evidence.identity_contract is not None
+        else {}
+    )
     return CandidateScreeningBundle(
         schema_version=validated_evidence.schema_version,
         **contract_fields(validated_evidence.advisory_contract),
-        **(
-            {"identity_contract": validated_evidence.identity_contract}
-            if validated_evidence.identity_contract is not None
-            else {}
-        ),
+        **identity_kwargs,
         checked_at=validated_evidence.checked_at,
         excluded_sectors=list(validated_evidence.excluded_sectors),
         policy=validated_policy,
@@ -594,13 +599,14 @@ def _screen_candidate(
         for rule in rules:
             if rule.criterion == ScreeningCriterion.FRESHNESS:
                 rule.message += "; official BND holdings use a 1080-hour field window."
+    identity_kwargs: _IdentityKwargs = (
+        {"identity_contract": candidate.identity_contract}
+        if candidate.identity_contract is not None
+        else {}
+    )
     return CandidateScreeningResult(
         **contract_fields("us-eu-v1" if new_contract else None),
-        **(
-            {"identity_contract": candidate.identity_contract}
-            if candidate.identity_contract is not None
-            else {}
-        ),
+        **identity_kwargs,
         document_id=candidate.document_id,
         symbol=candidate.symbol,
         name=candidate.name,

@@ -10,7 +10,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol, TypedDict
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -31,6 +31,11 @@ from etf_advisor.research.models import ETFResearchRecord, ETFResearchSnapshot
 MAX_SNAPSHOT_BYTES = 32 * 1024 * 1024
 MAX_RECORD_BYTES = 256 * 1024
 MAX_REFERENCE_FILES = 10
+
+
+class _SnapshotIdentityKwargs(TypedDict, total=False):
+    identity_contract: Literal["curator-fund-v1"]
+    registry_envelope: RegistryEnvelope | None
 
 
 class ResearchJobError(ValueError):
@@ -631,17 +636,18 @@ def finalize_catalogue_research(
             for field in record.research_fields().values()
         ):
             raise ResearchJobError("finalization_clock_inconsistent")
+        identity_kwargs: _SnapshotIdentityKwargs = (
+            {
+                "identity_contract": IDENTITY_CONTRACT,
+                "registry_envelope": sources[0].registry_envelope,
+            }
+            if sources and sources[0].identity_contract == IDENTITY_CONTRACT
+            else {}
+        )
         snapshot = ETFResearchSnapshot(
             schema_version=2,
             advisory_contract="us-eu-v1",
-            **(
-                {
-                    "identity_contract": IDENTITY_CONTRACT,
-                    "registry_envelope": sources[0].registry_envelope,
-                }
-                if sources and sources[0].identity_contract == IDENTITY_CONTRACT
-                else {}
-            ),
+            **identity_kwargs,
             snapshot_version=job.snapshot_version,
             universe_id="catalogue-research-v1",
             universe_version=job.scope.digest,
