@@ -263,6 +263,14 @@ validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.
 
+ADR 0043 adds one exact Issue123 `capsule_amendment` route. The event checks the
+immutable 31-event prefix and every event before admission, compares a complete
+deterministic target capsule and nine-field change map, and consumes a new named
+user authority. It cannot reuse the Issue128 governance approval or grant phase
+counts. Existing blockers, counts, owner and PR identity remain. Any operational
+use needs separate explicit authority and the later finite gates described in the
+[runbook](docs/workflow/issue123-capsule-amendment-runbook.md).
+
 Owner-led splits allocate all named children in one event. Each child begins with
 the parent's consumed counts and only its assigned remaining count allowance;
 local design, implementation, verification and review still need their own evidence.

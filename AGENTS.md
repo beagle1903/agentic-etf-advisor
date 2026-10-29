@@ -185,6 +185,15 @@ validated predecessor history, inherited counters and allocated remaining time;
 sibling allocations total no more than the predecessor remainder. A split retires
 its predecessor. New issue numbers cannot silently evade limits.
 
+ADR 0043 permits one audited `capsule_amendment` for the exact undelivered,
+unsplit Issue123 generation-2 ordinary capsule. It binds the original 31 events,
+the complete preceding history, a distinct named user authority, and the exact
+curator identity target. The Issue128 governance approval cannot authorize the
+operational amendment. It grants no count or source attempt; the target needs a
+separate finite grant, counted design reset, fresh design/challenge/approval,
+implementation, remediation, verification, acceptance and independent review.
+See the non-executable [runbook](docs/workflow/issue123-capsule-amendment-runbook.md).
+
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on
 exhaustion. Static validation cannot authenticate approval or session provenance. Approval evidence

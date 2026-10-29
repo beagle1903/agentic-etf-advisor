@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -361,6 +362,191 @@ def normalized_evidence(value: object) -> str:
     return " ".join(unicodedata.normalize("NFKC", text(value)).split()).casefold()
 
 
+# Immutable Issue123 source and Issue128 initialization approval. The latter approved
+# governance tooling only; it expressly excluded applying an operational amendment.
+AMENDMENT_SOURCE = {
+    "id": "issue-123-usable-reference-and-bnd-diagnostic",
+    "generation": 2,
+    "digest": "f58e0c91bdd51867c33c3cf5b1c052fcd721416bd5f8f8d723d8ab807965495b",
+}
+AMENDMENT_PREFIX_DIGEST = "c86ef893884c002c2b6744a2ba61cac2b59f948685c5528e496421b2c3ecfaa5"
+GOVERNANCE_APPROVAL_DIGEST = "26e4a4959ccf8d67ccb9236868991214dfac55f7b6bc16a0eab2bd915db243c9"
+AMENDMENT_VERSION = "issue123-curator-v1"
+
+
+def amendment_target(source: dict, authorization: dict) -> tuple[dict, dict]:
+    """Build the one authorized, complete Issue123 curator capsule and change map."""
+    target = copy.deepcopy(source)
+    before = {}
+    after = {}
+
+    def change(path: str, old: object, new: object) -> None:
+        before[path] = old
+        after[path] = new
+
+    change(
+        "rationale",
+        source["rationale"],
+        "Consequential selection of the already implemented ADR0042 curator-fund-v1 identity contract for the existing Issue123 curation goal. This exact amendment preserves historical outcomes, finite counts, owner and delivery identity; fresh separate design, independent challenge and coordinator approval are required before target work. It grants no source/market attempt, key issuance, activation or phase count.",  # noqa: E501
+    )
+    old_scope = source["scope"]["S123-1"]
+    anchor = "strict schema1 ignored reference input"
+    if old_scope.count(anchor) != 1:
+        raise Invalid("Issue123 source scope phrase differs")
+    new_scope = (
+        old_scope.replace(
+            anchor,
+            "explicit ADR0042 curator-fund-v1 schema2 ignored reference input with complete bound registry proof",  # noqa: E501
+        )
+        + " Existing BND diagnostic history remains evidence; this amendment authorizes no repeat diagnostic or source/market call."  # noqa: E501
+    )
+    change("scope.S123-1", old_scope, new_scope)
+    change(
+        "non_goals[1]",
+        source["non_goals"][1],
+        "No financial eligibility/category/threshold/freshness/observation/source-authority changes, adapters, new currencies, FX/optimizer/ranking/graph changes, persistence/replay/auth/hosting repair, trades or financial writes. The only identity-contract selection permitted is the already implemented ADR0042 curator-fund-v1 reference schema2. No store activation or existing user data/review mutations. This amendment grants no real key issuance, registry publication or operational source authority.",  # noqa: E501
+    )
+    change(
+        "invariants.INV123-1",
+        source["invariants"]["INV123-1"],
+        source["invariants"]["INV123-1"]
+        + " Curator identity additionally requires the complete ADR0042 bound registry proof, direct legal Fund/class membership evidence, complete inventory and comparisons, authorized independent actor assertions, and alias/rename/succession safeguards. Every current proof constituent independently satisfies the existing saved-time freshness window; historical lineage cannot substitute for current proof.",  # noqa: E501
+    )
+    change(
+        "invariants.INV123-2",
+        source["invariants"]["INV123-2"],
+        "All established financial eligibility/category/sleeve/min3/currency/fee/volume/concentration/freshness and numeric schema2/proof contracts remain unchanged. Economic-group identity explicitly selects the already implemented ADR0042 curator-fund-v1 contract: exact stable curator key equality, active Fund and class membership, complete bound registry envelope and explicit marker. Reference input remains at most10listings/1MiB with five complete field objects and explicit unsupported values. Legacy schema1 and absent-marker bytes and saved reviews remain unchanged. Interfaces are used as clients; no product contract repair.",  # noqa: E501
+    )
+    change(
+        "interfaces",
+        source["interfaces"],
+        [
+            "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, RegistryEnvelope and ADR0042 proof/publication validators, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients. Any operational acquisition, key issuance or registry publication requires separate explicit authority; this amendment performs none."  # noqa: E501
+        ],
+    )
+    change(
+        "json_state_impact",
+        source["json_state_impact"],
+        "Existing ignored reference schema2 with identity_contract=curator-fund-v1 and complete bound RegistryEnvelope; detached research numeric schema2 remains independent. No product schema, graph/checkpoint/state or saved-review migration. This governance amendment changes the ticket capsule only.",  # noqa: E501
+    )
+    change(
+        "acceptance.AC123-2",
+        source["acceptance"]["AC123-2"],
+        "Existing strict ADR0042 curator-fund-v1 reference schema2 at most10listings/1MiB parses against the exact supplied universe with all five complete field objects. Audit every positive ISIN/group/domicile/base/share currency against exact official evidence; unavailable values remain explicit. Audit the complete bound registry envelope, active Fund/class resolution, legal identity, inventory/comparison and alias/rename/succession proof, independent authorized actors and each current constituent at saved check time. Retain distinct effective/publication/response/original observation/collection/check times; binding never renews observations. Unresolved consequential ambiguity stops. Parser validity alone does not establish usable inputs.",  # noqa: E501
+    )
+    change(
+        "verification[0]",
+        source["verification"][0],
+        source["verification"][0]
+        + " For the selected curator contract also verify the explicit marker, complete bound envelope, exact active Fund/class resolution, per-constituent saved-time freshness and retained lineage, without weakening ADR0042 or interpreting synthetic tests as source adequacy.",  # noqa: E501
+    )
+    for path, new in after.items():
+        if path in {"rationale", "json_state_impact", "interfaces"}:
+            target[path] = new
+        elif path.startswith("non_goals"):
+            target["non_goals"][1] = new
+        elif path.startswith("verification"):
+            target["verification"][0] = new
+        else:
+            group, identifier = path.split(".", 1)
+            target[group][identifier] = new
+    target["generation"] = 3
+    target["classification"] = "consequential"
+    target["authorization"] = copy.deepcopy(authorization)
+    changes = {
+        "version": AMENDMENT_VERSION,
+        "definitions": {path: {"before": before[path], "after": after[path]} for path in before},
+        "classification": {"before": "ordinary", "after": "consequential"},
+    }
+    return target, changes
+
+
+def admit_capsule_amendment(
+    state: State, history: dict, index: int, data: object
+) -> tuple[dict, str]:
+    data = keys(
+        data,
+        {
+            "amendment",
+            "authority",
+            "capsule",
+            "source_history",
+            "replacement",
+            "target",
+            "changes",
+            "reason",
+        },
+    )
+    authority(data["authority"], "user")
+    text(data["reason"])
+    normalized = normalized_evidence(data["authority"]["evidence"])
+    if digest(normalized) == GOVERNANCE_APPROVAL_DIGEST:
+        raise Invalid("Issue128 governance approval cannot authorize Issue123 amendment")
+    if normalized in state.authorization_history:
+        raise Invalid("capsule amendment authority already consumed")
+    if data["amendment"] != AMENDMENT_VERSION:
+        raise Invalid("unknown capsule amendment")
+    if (state.repo, state.issue, state.policy, state.classification, state.review_required) != (
+        "beagle1903/agentic-etf-advisor",
+        123,
+        "owner-led-v1",
+        "ordinary",
+        True,
+    ):
+        raise Invalid("capsule amendment source ticket differs")
+    if (
+        not state.capsule
+        or capsule_ref(state.capsule) != AMENDMENT_SOURCE
+        or data["capsule"] != AMENDMENT_SOURCE
+    ):
+        raise Invalid("capsule amendment source differs")
+    if (
+        index < 31
+        or digest({"schema": 1, "events": history["events"][:31]}) != AMENDMENT_PREFIX_DIGEST
+    ):
+        raise Invalid("Issue123 immutable history prefix differs")
+    prefix = keys(data["source_history"], {"event_count", "digest"})
+    if integer(prefix["event_count"], 31) != index or sha(prefix["digest"]) != digest(
+        {"schema": 1, "events": history["events"][:index]}
+    ):
+        raise Invalid("capsule amendment complete history differs")
+    if (
+        state.active
+        or state.suspended
+        or not state.clock_running
+        or state.delivered
+        or state.delivery_history
+        or state.delivery_binding
+        or state.retired
+        or state.split_remaining is not None
+        or state.split_pool is not None
+        or state.splits
+        or state.predecessor
+        or state.ancestry
+        or state.retained_reservation_open
+        or state.final_failed
+        or state.historical_transition
+    ):
+        raise Invalid("capsule amendment requires nonterminal unsplit between-phase source")
+    if (
+        state.approved_owner is None
+        or any(
+            state.approved_owner[key] != state.capsule["owner"][key]
+            for key in ("role", "model", "effort")
+        )
+        or state.approved_owner["role"] == "implementation_specialist"
+    ):
+        raise Invalid("capsule amendment owner differs from classified source")
+    replacement, changes = amendment_target(state.capsule, data["authority"])
+    if (
+        data["replacement"] != replacement
+        or data["target"] != capsule_ref(replacement)
+        or data["changes"] != changes
+    ):
+        raise Invalid("capsule amendment replacement or change map differs")
+    return replacement, normalized
+
+
 def same_session(left: str | None, right: str | None, policy: str) -> bool:
     if left is None or right is None:
         return False
@@ -435,6 +621,7 @@ class State:
     verification_repair_count: int | None = None
     historical_transition: dict | None = None
     retained_reservation_open: bool = False
+    capsule_amendment: dict | None = None
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -886,6 +1073,25 @@ def replay(
                 normalized_evidence(revised["authorization"]["evidence"])
             )
             state.active["capsule"] = capsule_ref(revised)
+        elif kind == "capsule_amendment":
+            replacement, normalized = admit_capsule_amendment(state, value, index, data)
+            source_ref = capsule_ref(state.capsule)
+            state.capsule = replacement
+            state.classification = "consequential"
+            state.capsule_amendment = {
+                "contract": AMENDMENT_VERSION,
+                "source": source_ref,
+                "target": capsule_ref(replacement),
+                "source_history": data["source_history"],
+                "event": index,
+            }
+            state.authorization_history.add(normalized)
+            state.ready = state.challenge_ok = state.verified = state.accepted = False
+            state.reviewed = state.remediated = False
+            state.design_session = state.challenge_session = state.author_session = None
+            state.design_ref = state.challenge_ref = state.approved_ref = None
+            state.verified_content = state.acceptance_content = state.review_content = None
+            state.design_started = True
         elif kind == "owner_handoff":
             data = keys(data, {"authority", "owner", "capsule", "reason", "escalation"})
             authority(data["authority"], "coordinator")
@@ -1621,6 +1827,19 @@ def authority_records(history: dict) -> list[dict]:
                 }
             )
             capsule_references.add(evidence)
+        elif event["type"] == "capsule_amendment":
+            amendment_authority = event["data"]["authority"]
+            evidence = normalized_evidence(amendment_authority["evidence"])
+            records.append(
+                {
+                    "issue": issue,
+                    "event": index,
+                    "class": "capsule_amendment",
+                    "authority": amendment_authority,
+                    "evidence": evidence,
+                }
+            )
+            capsule_references.add(evidence)
     return records
 
 
@@ -1775,6 +1994,12 @@ def validate_map(
                             raise Invalid("authority reused within connected lineage")
                         consumed[key] = (member, index, "capsule_update")
                         capsule_references.add(key)
+                if kind == "capsule_amendment":
+                    key = normalized_evidence(data["authority"]["evidence"])
+                    if key in consumed:
+                        raise Invalid("authority reused within connected lineage")
+                    consumed[key] = (member, index, "capsule_amendment")
+                    capsule_references.add(key)
             participants[member] = people
             independent[member] = readers
         participants.update(uninitialized_owners)
