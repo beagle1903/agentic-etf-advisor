@@ -271,6 +271,13 @@ counts. Existing blockers, counts, owner and PR identity remain. Any operational
 use needs separate explicit authority and the later finite gates described in the
 [runbook](docs/workflow/issue123-capsule-amendment-runbook.md).
 
+ADR 0044 adds a separate exact `local_registry_authority` route for the
+generation-4 source and immutable 41-event history. It binds the complete
+prefix, strict eight-path generation-5 target and distinct single-use operational
+authority. It grants no count or operation; later reset and consequential review
+gates remain. See the non-executable
+[runbook](docs/workflow/issue123-local-registry-authority-runbook.md).
+
 Owner-led splits allocate all named children in one event. Each child begins with
 the parent's consumed counts and only its assigned remaining count allowance;
 local design, implementation, verification and review still need their own evidence.

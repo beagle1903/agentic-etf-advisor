@@ -194,6 +194,17 @@ separate finite grant, counted design reset, fresh design/challenge/approval,
 implementation, remediation, verification, acceptance and independent review.
 See the non-executable [runbook](docs/workflow/issue123-capsule-amendment-runbook.md).
 
+ADR 0044 permits one audited `local_registry_authority` for the exact undelivered,
+unsplit Issue123 generation-4 consequential capsule and original 41-event prefix.
+It binds the complete preceding history, a distinct named user authority and the
+exact eight-path generation-5 target. Issue128 and Issue132 governance approvals
+cannot authorize the operational transition. It grants no count or operation;
+a distinct finite reset grant, fresh consequential gates and independent review
+remain required. The prospective isolated local registry bootstrap is limited to
+one separately authorized empty-parent publication attempt and at most one active
+pointer replacement. See the non-executable
+[runbook](docs/workflow/issue123-local-registry-authority-runbook.md).
+
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on
 exhaustion. Static validation cannot authenticate approval or session provenance. Approval evidence

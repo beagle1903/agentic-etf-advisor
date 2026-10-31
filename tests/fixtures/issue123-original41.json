@@ -1,0 +1,737 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-10-26T03:40:50Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 123,
+        "classification": "ordinary",
+        "scope": [
+          "S123-1"
+        ],
+        "invariants": [
+          "INV123-1",
+          "INV123-2",
+          "INV123-3",
+          "INV123-4"
+        ],
+        "acceptance": [
+          "AC123-1",
+          "AC123-2",
+          "AC123-3",
+          "AC123-4",
+          "AC123-5",
+          "AC123-6"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved in Issue123 chat on 2026-10-26 after reviewing issue123-arbitration-proposal.md: explicit one-off linked Issue123 new-PR/fresh-certification exception despite S121-1 overlap; native finite defaults implementation1 initial_review1 remediation1 final_review1 design_reset1; bounded discovery/acquisition and one market attempt per frozen listing including one BND diagnostic. Recorded https://github.com/beagle1903/agentic-etf-advisor/issues/123#issuecomment-6407680775. Preserve Issue121/PR122 and Issue117 counts; no merge or automatic continuation."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 123,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue123_owner"
+          },
+          "rationale": "Ordinary bounded official fact curation and existing-interface diagnostic, not source/financial contract modification. Explicit one-off follow-up exception approved after A123-1 reconciled merged PR122 and stricter success versus accepted negative AC121-3. Fresh session provenance, no predecessor certificate/count transfer.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human approved in Issue123 chat on 2026-10-26 after reviewing issue123-arbitration-proposal.md: explicit one-off linked Issue123 new-PR/fresh-certification exception despite S121-1 overlap; native finite defaults implementation1 initial_review1 remediation1 final_review1 design_reset1; bounded discovery/acquisition and one market attempt per frozen listing including one BND diagnostic. Recorded https://github.com/beagle1903/agentic-etf-advisor/issues/123#issuecomment-6407680775. Preserve Issue121/PR122 and Issue117 counts; no merge or automatic continuation."
+          },
+          "scope": {
+            "S123-1": "Bounded official issuer/exchange fact discovery/curation for <=10 exact listings; strict schema1 ignored reference input; one detached unchanged-rule feasibility pass and exactly one bounded BND/NMS collection diagnostic with safe stage/cause/fallback evidence. Sanitized audit/runbook and justified verification helpers only. Actual usable >=3 distinct economic groups spanning growth+defensive required for acceptance; negative findings preserve blocker."
+          },
+          "non_goals": [
+            "No Issue121 ledger/count/certificate/PR122 modification; no Issue117 execution, certification/count reset/proof/continuation or parent24 closure. No merge. Explicit approved overlap exception must appear in issue and eventual PR.",
+            "No financial eligibility/category/threshold/identity/freshness/observation/source semantics changes, adapters, new currencies, FX/optimizer/ranking/graph changes, persistence/replay/auth/hosting repair, trades or financial writes. No store activation or existing user data/review mutations.",
+            "No inferred ISIN/group/currency/domicile, fabricated source dates, missing-as-available facts, repeated unbounded acquisition or automatic candidate replacement after market starts."
+          ],
+          "invariants": {
+            "INV123-1": "Every positive fact directly supported by exact official issuer/exchange share-class/fund evidence; retain URL, original observation, issuer effective/publication date where supplied, response observation, collection and check times separately. No fabricated dates or facts; timestamp semantics cited to existing contracts before positive insertion; unresolved consequential interpretation stops.",
+            "INV123-2": "All established financial eligibility/category/sleeve/min3/economic-group/currency/fee/volume/concentration/freshness and strict schema1 <=10/1MiB, schema2 numeric/proof contracts unchanged. Interfaces used as clients; no product contract repair.",
+            "INV123-3": "Isolated detached preparation only, ignored raw/curated artifacts, sanitized durable evidence. Preserve Issue121/PR122 and Issue117 histories and user files/reviews; no publication/activation or financial write. Explicit one-off Issue123 new-PR authority and fresh certification, no inherited acceptance or implicit attempt reset.",
+            "INV123-4": "Discovery <=4 official-domain search queries, <=24 issuer/exchange HTTP responses including redirects, one attempt/URL,15s/request,2MiB/response,24MiB aggregate,15min discovery/acquisition wall time. Freeze <=10 exact evidence-justified listings/exchanges and remaining acquisition manifest within same caps before market. One collection/listing including exactly one BND/NMS diagnostic; <=12 Yahoo requests/listing,10s/request,2MiB/response,120s/listing,<=120 requests/1200s aggregate. Existing BND fallback only if invoked/reserved,<=3 attempts/90s/16MiB per response. No application retry or automatic replacement. Fresh final UTC check, unchanged120h/5min default and existing BND monthly exception."
+          },
+          "interfaces": [
+            "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients; local ignored diagnostic wrappers and bounded offline verification helper if needed"
+          ],
+          "json_state_impact": "none; existing schema1 ignored input and detached schema2 snapshot only; no graph/checkpoint/state or product schema change",
+          "acceptance": {
+            "AC123-1": "Document approved A123-1 finite exception, fresh owner provenance and unchanged historical Issue121/117 ledger evidence. Freeze source-grounded <=10 exact listing/exchange identities, original official evidence and all finite acquisition/attempt/time/byte/check policy before market; comply with INV123-4 and no arbitrary prefix/replacement.",
+            "AC123-2": "Existing strict schema1 <=10-listing/1MiB input parses against exact supplied universe; audit every positive ISIN/group/domicile/base/share currency from exact official source and retain distinct source effective/publication/response/observation/collection/check times. Explain existing observation contract with citations; unresolved consequential ambiguity stops.",
+            "AC123-3": "One detached existing-interface market pass demonstrates >=3 genuinely eligible distinct economic groups spanning growth+defensive under all unchanged rules with reference-to-snapshot association. Report requested/collected/screened/eligible/group/sleeve counts and failures. Negative results are blocker evidence, not satisfaction of usable-input criterion.",
+            "AC123-4": "Exactly one explicitly bounded BND/NMS diagnostic retains safe stage, exception class/allowlisted reason or success, request/time/byte exhaustion outcome and observed fallback invocation/non-invocation. No guessing from a generic MarketDataError; sanitized durable evidence; no raw provider bodies/secrets in Git.",
+            "AC123-5": "Sanitized durable source audit/runbook includes exact sources/listings/caps/commands/times/hashes, direct source-to-field and reference-to-snapshot audit, remaining gaps, expiry and honest scope limits; ignored raw/curated files remain excluded. No store activation or Issue117 proof/readiness implication.",
+            "AC123-6": "Focused meaningful parser/attribution/association/diagnostic checks and locked MINIMAL default/dev pytest, Ruff/format,mypy src,build,workflow/ledger,Compose,diff gates; meaningful optional-enabled verification. Fresh identical-content verification/acceptance and independent required review. Commit/push one branch/new PR with exception described, actual latest-head CI/comments/unresolved-thread check; no merge. Failed/unmet criteria stop with preserved evidence."
+          },
+          "verification": [
+            "Native check/reserve/measured phase outcomes and finite counts. Audit source facts/timestamps against existing contracts; parser exact universe and size, bound_reference_fields preservation, no inferred identity; reference-to-snapshot equality and unchanged pure quality/screening/construction min3 distinct groups and both sleeves.",
+            "Ignored bounded live collector harness stage/cause/fallback counters and safe exception evidence; focused meaningful helper/diagnostic tests only if durable behavior added. No duplicate live pass in verification.",
+            "Locked MINIMAL uv sync --frozen; full pytest; ruff check and format --check; mypy src; uv build; validate_workflow/ticket validation; docker compose config --quiet; git diff --check. Optional yfinance and actual provider evidence isolated from default env. Finish docs before content binding; separate code_reviewer, current-head CI/comments/threads inspection."
+          ],
+          "documentation": [
+            "docs/workflow/issue123-arbitration.md approved A123-1 record and overlap/new-PR exception; docs/iterations/034-issue123-usable-references.md source audit/runbook, hashes/times/counts/caps, limitations and explicit blocker if goal unmet; justified scripts/tests only if necessary. No product/architecture change intended."
+          ],
+          "risks": [
+            "Official corpus may not directly support all five fields or usable timing; finite negative result cannot satisfy AC123-3. Existing generic errors may require local stage wrappers; product repair is not authorized.",
+            "Material source/financial/freshness ambiguity stops before positive insertion; no previous date-only interpretation adopted as a new rule. Yahoo data may fail and BND fallback may never be reached. Strict caps can stop discovery before a viable corpus.",
+            "One-off new issue allowance explicitly authorized, no old-owner impersonation or historical certificate transfer; static gates cannot authenticate provenance."
+          ],
+          "escalation_triggers": [
+            "Consequential source/observation/freshness/identity/financial or product repair stops for separately authorized architect, independent challenge and coordinator approval. No automatic scope change from a design-reset allowance.",
+            "High-risk/disputed positive curation requires separate code_reviewer; recurrent concern returns to A123-1 accountable revision, no handoffs for agreement. Concrete difficult implementation needs evidence-backed specialist handoff, not silent role change.",
+            "Any missing usable inputs, failed final review, exhausted allowance or unrepresentable native gate stops BLOCKED_FOR_DECISION, no automatic extension/provider repeat."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "data": {
+        "evidence": "DESIGN_READY ordinary existing-interface preparation only. Complete capsule frozen; consequential interpretation/repair stops. Fresh owner and mandatory independent review recorded.",
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved concrete finite A123-1 proposal in this chat; exact scope/limits and explicit new-PR exception recorded in Issue123 comment6407680775 and docs/workflow/issue123-arbitration.md."
+        },
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      },
+      "at": "2026-10-26T03:41:13Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue123_owner",
+        "phase": "implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      },
+      "at": "2026-10-26T03:41:21Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "session": "/root/issue123_owner",
+        "evidence": "One approved implementation attempt stopped without acceptance: four official search queries; four issuer responses / 4,920,040 received bytes, with two 2MiB+1 sentinel overreads against INV123-4; two index HTML bodies saved and two oversized PDF/XLSX rejected. Existing strict empty BND reference 33 bytes, zero positive fields; one frozen BND/NMS collector call 5 Yahoo requests, no budget breach, fallback invocations zero, MarketDataError. Local wrapper discarded traceback/cause so stage and safe reason unrecoverable offline; no second call. No research record, snapshot, eligible group or both-sleeve pool. Material source observation ambiguity unresolved; no positive facts inserted or product changes. Sanitized docs/iterations/034-issue123-usable-references.md records exact sources/times/hashes. Focused parser/audit assertions, native validate, ignore checks and diff check passed; full product certification intentionally not run because AC123-1/2/3/4 unmet. No PR/delivery.",
+        "outcome": "fail"
+      },
+      "at": "2026-10-26T03:48:11Z"
+    },
+    {
+      "type": "blocker",
+      "data": {
+        "scenario": "Two official responses each delivered 2,097,153 bytes to the acquisition harness, one byte above the approved 2MiB per-response receive limit.",
+        "id": "B123-SOURCE-CAP",
+        "evidence": "Iteration034 source audit records the exact two overflow sentinels, 4/24 responses and 4,920,040 bytes total. Oversized bodies were rejected, but INV123-4 receive cap was breached. No further acquisition occurred.",
+        "criterion": "INV123-4"
+      },
+      "at": "2026-10-26T03:48:26Z"
+    },
+    {
+      "type": "blocker",
+      "data": {
+        "scenario": "No complete attributed five-field BND reference record exists; strict parsed 33-byte input is empty, and material positive-field observation timing remains unresolved.",
+        "id": "B123-REFERENCE",
+        "evidence": "Iteration034, ignored reference SHA256 0fceade4212557bcdda14382349bbfcfba3cfbe7428c108de229360fbc89c03f; EU prospectus/EET exceeded size cap, acquired index pages lacked ISIN. No positive field inserted.",
+        "criterion": "AC123-2"
+      },
+      "at": "2026-10-26T03:48:27Z"
+    },
+    {
+      "type": "blocker",
+      "data": {
+        "scenario": "One frozen BND listing failed collection; no detached record or source-backed group was available, so >=3 distinct eligible growth-and-defensive groups could not be demonstrated.",
+        "id": "B123-ELIGIBLE-POOL",
+        "evidence": "Iteration034, one BND/NMS call, 0/1 collected, no snapshot, 0 screened/eligible/groups/positions. Historical Issue121 records are not rebound.",
+        "criterion": "AC123-3"
+      },
+      "at": "2026-10-26T03:48:27Z"
+    },
+    {
+      "type": "blocker",
+      "data": {
+        "scenario": "Single BND MarketDataError diagnostic retained fallback non-invocation but not the safe failure stage or reason; harness dropped traceback and exception at process exit.",
+        "id": "B123-DIAGNOSTIC",
+        "evidence": "Iteration034 and ignored diagnostic SHA256 0bf1f3edc8d47163a76324298c9e7d97a0ac96d65619eff9d7f4a2e2466234a0; 5 Yahoo requests, budget unbreached, fallback zero, stage collector_or_unknown. No allowed second provider call.",
+        "criterion": "AC123-4"
+      },
+      "at": "2026-10-26T03:48:28Z"
+    },
+    {
+      "at": "2026-10-26T03:55:43Z",
+      "data": {
+        "phase": "design",
+        "role": "design_architect",
+        "session": "/root/issue123_contract_design",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      },
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-26T06:49:07Z",
+      "type": "phase_end",
+      "data": {
+        "session": "/root/issue123_contract_design",
+        "evidence": "Separate read-only architect completed recovery handoff in docs/iterations/034-issue123-offline-recovery-design.md. DESIGN_READY offline preflight only, not changed contract/positive facts or execution grant. Prior quota interruption retained full elapsed audit under same reservation; no provider calls. Blanket issuer-published-time requirement unsupported; current applicability remains source-specific. Historical104 official leads identified. Independent challenge pending; four blockers unchanged.",
+        "outcome": "pass"
+      }
+    },
+    {
+      "data": {
+        "role": "code_reviewer",
+        "session": "/root/issue123_contract_challenge",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        },
+        "phase": "challenge"
+      },
+      "at": "2026-10-26T06:49:16Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T06:50:44Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Independent code_reviewer/gpt-6-sol/high challenge PASS for offline preflight only, no frozen scope/invariant conflicts. Existing contract does not mandate issuer-published reference times; old assertions not made fresh by downloading. Fake-boundary diagnostics/strict reader/source matrix plan valid. Explicit implementation+1 still required; no positive facts/provider retry/acceptance authorized.",
+        "session": "/root/issue123_contract_challenge"
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-10-26T06:50:45Z",
+      "data": {
+        "evidence": "Approved challenged offline recovery design in docs/iterations/034-issue123-offline-recovery-design.md within existing frozen capsule; no provider/positive reference/schema/freshness/eligibility changes. Implementation lifetime remains exhausted and four blockers remain. Further execution awaits explicit implementation+1 count-only grant.",
+        "authority": {
+          "evidence": "Human approved small-data-path recovery then continued the same read-only phase after quota failure. Separate architect and independent challenge passed offline handoff; coordinator approves only unchanged-contract offline preflight design, not a numerical extension or source retry.",
+          "kind": "coordinator",
+          "name": "/root"
+        },
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      }
+    },
+    {
+      "type": "extension",
+      "data": {
+        "authority": {
+          "name": "burha",
+          "kind": "user",
+          "evidence": "Direct human approved on2026-10-26 in Issue123 chat the exact challenged recovery request: one additional implementation attempt OFFLINE ONLY with same owner, all other allowances unchanged, no live retry; follows completed separate architecture clarification and independent challenge. Distinct from original Issue123 finite new-PR exception and read-only continue."
+        },
+        "counts": {
+          "initial_review": 0,
+          "design_reset": 0,
+          "final_review": 0,
+          "implementation": 1,
+          "remediation": 0
+        },
+        "seconds": 0,
+        "reason": "Implement only challenged offline diagnostic capture, strict byte reader/fault tests and source evidence matrix. No provider/source acquisition, positive reference insertion or full Issue123 acceptance. Preserve four blockers and all failed history."
+      },
+      "at": "2026-10-26T06:55:06Z"
+    },
+    {
+      "at": "2026-10-26T06:55:25Z",
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue123_owner",
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T07:12:03Z",
+      "data": {
+        "session": "/root/issue123_owner",
+        "evidence": "Second implementation PASS only for explicit human-authorized OFFLINE recovery subset in challenged handoff. scripts/reference_preflight.py + focused fake-boundary tests + source feasibility matrix/report complete; no provider/network/source/store calls or positive facts. Full locked offline pytest1788passed59skipped/428.23s; focused8/8 MINIMAL and8/8 optionalyfinance1.7.0; offline sync,Ruff/format225,mypy src65/helper1,workflow/native ledger,Compose,diff,offlinebuild pass. Coordinator bounded inspection found opener-error audit gap, owner corrected/tested in-phase. Transient worker capacity interruptions resumed same reservation; elapsed audit retained. This successful preparation is NOT full Issue123 implementation completion/acceptance, does not establish actual eligible inputs or BND live cause, does not resolve any four original blockers, and grants no next phase/provider retry. No verification/acceptance/review/delivery certification claimed.",
+        "outcome": "pass"
+      }
+    },
+    {
+      "data": {
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        },
+        "phase": "remediation",
+        "session": "/root/issue123_owner",
+        "role": "implementation_worker"
+      },
+      "type": "phase_start",
+      "at": "2026-10-26T07:17:49Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "evidence": "Approved additional one-call BND/NMS diagnostic completed exactly once within bounds: 2026-10-26T07:20:14.937541Z-07:20:18.592081Z,3.652s,5Yahoo requests,budgetunbreached,fallback0. Original exception captured in handler: MarketDataError, safe pinned_exchange_mismatch at yahoo_research.py423 before record-build/fallback, not holdings parse. Actual returned exchange value unknown. Diagnostic SHA25647b444c5078db66ad7f5f1e43322b386c7f2dba46db4eff86b55bf70e28d49f9; manifest9bda0a98e8082ca31117f38d49f051557dfc0d00e0b312d95c5bc5acda9c7f40. Coordinator independently inspected diagnostic/hash and code guard. Oldartifacts unchanged; focused8tests/native/diff/evidence assertions pass. No retry, productrepair, record,positivefacts or acceptance. AC123-4 diagnosis evidence now met for new attempt; firstlosterror remains unknown,other3blockers remain.",
+        "session": "/root/issue123_owner",
+        "outcome": "pass"
+      },
+      "at": "2026-10-26T07:22:41Z"
+    },
+    {
+      "type": "resolve",
+      "data": {
+        "evidence": "Successful bounded remediation supplies retained original new-attempt safe class/stage/reason and fallback evidence required by AC123-4: pinned_exchange_mismatch at collect yahoo_research.py423, MarketDataError,5requests,budgetunbreached,fallback0. Diagnostic47b444c5078db66ad7f5f1e43322b386c7f2dba46db4eff86b55bf70e28d49f9, runbook034offline-recovery-results. Only missing diagnostic evidence resolved; actual exchange value and firstlostcause remain unknown. No source mapping repair or other blocker resolution/acceptance.",
+        "id": "B123-DIAGNOSTIC"
+      },
+      "at": "2026-10-26T07:22:43Z"
+    },
+    {
+      "data": {
+        "reason": "Capture actual current Yahoo exchange field safely and compare with exact official BND issuer page under single-call caps. Bounded read-only diagnosis extension only; no mapping/source-contract repair or further provider call.",
+        "seconds": 0,
+        "authority": {
+          "name": "burha",
+          "kind": "user",
+          "evidence": "Direct human approved on2026-10-26 the concrete additional implementation attempt for read-only BND identity investigation: one Yahoo metadata attempt <=12requests/120seconds/no retry, one official issuer-page request15seconds/2MiB, sameowner,preserve previousresults,no mapping/financial changes or Issue117 work. Distinct from offline extension and prior one-call BND remediation approval."
+        },
+        "counts": {
+          "design_reset": 0,
+          "final_review": 0,
+          "remediation": 0,
+          "initial_review": 0,
+          "implementation": 1
+        }
+      },
+      "at": "2026-10-26T07:28:36Z",
+      "type": "extension"
+    },
+    {
+      "data": {
+        "session": "/root/issue123_owner",
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      },
+      "type": "phase_start",
+      "at": "2026-10-26T07:29:05Z"
+    },
+    {
+      "at": "2026-10-26T07:35:44Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Third approved limited read-only investigation PASS: one Yahoo metadata attempt BND returns symbolBND,exchangeNGM,fullExchangeNameNasdaqGM,quoteTypeETF,4requests,budgetunbreached. Sourcequote2026-10-23T20:00:01Z distinct responseobservation2026-10-26T07:31:36.808769Z. FrozenNMS differs; BOTHcodes supported catalogue/mapping.py26, no mappingcode defect established. One exact officialBNDpage HTTP200 complete161842applicationbytes/hashbb11e0e5e09368548484c574b988493aef3b9b9e135c7570c0057dc1f4bd507d; no directvenueassertion in acquiredstaticHTML, not browserrendered. Manifest7f858ca0fc8cf4a5e61fb720d8a83c0997ce4665d32f1049b75a45db0064a18c; Yahooevidence91eddaea626af0225bcdf2465a4c5c2d8429ba8e437b4245dc443b2eda00afea. Single-usemarkers,sevenpriorhashesunchanged. Coordinator inspected sanitizedoriginalevidence/code. Focused8/native/diff/evidenceassertionspass. No additionalcalls,repair,referenceinsertion,blockerresolution,acceptanceorIssue117work.",
+        "session": "/root/issue123_owner"
+      },
+      "type": "phase_end"
+    },
+    {
+      "type": "extension",
+      "data": {
+        "counts": {
+          "implementation": 1,
+          "remediation": 0,
+          "design_reset": 0,
+          "final_review": 0,
+          "initial_review": 0
+        },
+        "seconds": 0,
+        "authority": {
+          "name": "burha",
+          "evidence": "Direct human approved on2026-10-26 exact new BND/NGM collection proposal: one additional implementation slot,sameowner,one boundedcollector call<=12Yahoo requests/120seconds/no retry,existingboundedVanguard fallbackonlyifinvoked,preserveoldNMSattempts,no mapping/financial-rule changes. Distinct from priorNMSdiagnostic and metadata-only identity grants.",
+          "kind": "user"
+        },
+        "reason": "One new detached BND/NGM collection using actually observed Yahoo identity, existing collector and official fallback; no reference curation, product/mapping changes or full eligibility claim."
+      },
+      "at": "2026-10-26T07:48:23Z"
+    },
+    {
+      "at": "2026-10-26T07:48:52Z",
+      "type": "phase_start",
+      "data": {
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        },
+        "role": "implementation_worker",
+        "session": "/root/issue123_owner",
+        "phase": "implementation"
+      }
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "evidence": "Fourth specifically approved BND/NGM detached collection PASS: one collect call2026-10-26T07:51:51.152415Z-07:51:56.628510Z,5.473s,5Yahoo requests,budgetunbreached; existing Vanguard fallback methodinvocations1/successes1/failures0,not internalHTTPcount. TypedrecordSHA993a95ac5a45795b6dc6594a7347263d6e2bb08d961056310aeb146ef34bfe39,diagnostic2ebf93737ce08f28618a65a7d2d80a91f1c92a2a7d9aef4aeb25b900d4248b61,manifest247624e6a534a69d44ec6f12090e219373dcf3323344ef2e04ee28bd3a6a916e. Yahoo sourcequote2026-10-23T20:00:01Z; Vanguard pair2026-09-30T00:00Z; ingestion/collection/check separate. All5 strictreferencefields provider_unsupported missing; single detachedrecord NOT complete4memberjob or portfolioeligibility. Thirteen oldhashesunchanged,single-usemarker,noextra provider probe. Focused8/native/diff/evidenceassertionspass; coordinator inspected actualsummary/diagnostic/hash. No productcode,mapping/financial/schema/freshness change or blockerresolution/acceptance. Three remaining blockers preserved.",
+        "outcome": "pass",
+        "session": "/root/issue123_owner"
+      },
+      "at": "2026-10-26T07:53:48Z"
+    },
+    {
+      "data": {
+        "counts": {
+          "implementation": 1,
+          "final_review": 0,
+          "remediation": 1,
+          "initial_review": 0,
+          "design_reset": 0
+        },
+        "authority": {
+          "name": "burha",
+          "evidence": "Human on2026-10-26 explicitly instructed: this kind of steps should not require approval, continue. This authorizes coordinator-led routine source reads,input corrections,curation and verification without repeated per-step approval. Under that one-off workflow exception coordinator selected a FINITE next recovery package: implementation+1,remediation+1,othercounts0,seconds0. These numbers are coordinator-selected under user delegation, not falsely quoted as numeric words from human. Financial/source-contract changes and external financial writes remain outside routine authority.",
+          "kind": "user"
+        },
+        "seconds": 0,
+        "reason": "Bounded autonomous remaining-reference/eligible-pool recovery within frozen Issue123 scope and unchanged rules. Newsource allowance finite:<=8official-domain searches,<=24official issuer/exchange HTTPresponses includingredirects,16MiB/response,64MiBaggregate,20s/request,20min discovery/acquisition window from first search. Current source assertions only; no syntheticfacts. Reuse existing freshmarketrecords read-only; atmost1collector/listing only if actualfacts support progress,<=10listings/120Yahoo requests total,existing12/10s/2MiB/120s each and single existing BNDfallback. No stores/Issue117/trades. Preserve all prior source/attempt/byte failures and history."
+      },
+      "type": "extension",
+      "at": "2026-10-26T08:01:37Z"
+    },
+    {
+      "at": "2026-10-26T08:03:29Z",
+      "data": {
+        "phase": "implementation",
+        "role": "implementation_worker",
+        "session": "/root/issue123_owner",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      },
+      "type": "phase_start"
+    },
+    {
+      "at": "2026-10-26T12:15:29Z",
+      "data": {
+        "evidence": "Fifth bounded source attempt ends FAIL for actual usable-input AC123-2/3, despite useful directsource audit. 8searches,13uniqueURLs(11HTTPresponses9x200/1x301/1x403,2transportfailures),10758684applicationbytes,no newcapbreach; resumed12:05:57-12:25:57Z stoppedearly12:09:05. Old20artifacthashesunchanged; sourcefindings30822e290695d3377bf2693b61b99b170698b1e7504c3a89aa00191e57543920. CurrentVanguardassociatedFundIds show0970/0928/0936/0964 ETFclass/productIDs alongsideotherclasses, notgenuineunderlyingfundIDs. iSharesCSPX issuer/exchange/prospectus directclassISIN/dom/currencies and explicitnamedFund->classes, butnoseparatesubfundIDfound. Namecanonicalizationvsno-nameinference is unresolvedconsequentialinterpretation. No positiveboundreference,marketcall,eligiblegroupmeasurement oracceptance. Focused8/native/diff/evidenceassertionspass. Routineautonomyandall source/cap/failedhistoriespreserved. Rootreservesremainingdesign-reset for actualnewcontractevidence,notrepeatagreement.",
+        "outcome": "fail",
+        "session": "/root/issue123_owner"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-10-26T12:16:25Z",
+      "type": "phase_start",
+      "data": {
+        "reason": "New direct prospectus Fund/class relationship and class-specific Vanguard IDs expose genuine group-identity interpretation ambiguity; bounded fresh separate clarification, no silent contract/AC changes.",
+        "session": "/root/issue123_group_identity_design",
+        "role": "design_architect",
+        "phase": "design_reset",
+        "criterion": "INV123-1",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 1,
+          "digest": "210de8a75823c116063b44a91abc1c6b6c1efd49a4c1a23d2d91d0b98f47fd50"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-26T12:23:18Z",
+      "data": {
+        "outcome": "fail",
+        "evidence": "DESIGN_BLOCKED under generation2: separate architect completed read-only diagnosis docs/iterations/034-issue123-group-identity-design.md. Existing contract neither requires code-only identity nor authorizes arbitrary curator legalname key; actual canonicalrepresentation/equality/alias/rename policy undefined. Direct explicit prospectusFund/class relation is real, classIDs/umbrella notfundID. No separatefundcode demonstrated; no globalabsenceclaim. CorrectedPDF21: onlyUSDacc L, notmultiplelaunchedclasses. A new consequentialcanonicalization decision needs separate finite substantiveauthority, design/challenge/coordinatorapproval, no writer/newsourcecall under frozen scope. Currentinterfaces/state impactnone,source/phasefailures and3blockers retained. No finalacceptance or challengeofblockeddesign disguisedpass.",
+        "session": "/root/issue123_group_identity_design"
+      }
+    },
+    {
+      "data": {
+        "evidence": "Operational reader defect repaired, not retroactive waiver: authorized offline implementation2 introduced StrictReader without overflow sentinel and cap-1/cap/cap+1/aggregate/opener tests; full1788 and focused8 passed. After finding, successful remediation1 also ran focused8 including strictreader boundary regression. Later authorized official acquisitions used that corrected helper; sourceaudit actual13URLs/10758684applicationbytes under delegated16MiB/64MiB limits, no new capbreach, sourcecounter/prefixhash audit retained. Old2MiB+1 failures and consumedcounts remain failed historical evidence. Latest human routine-autonomy instruction authorizes coordinator routine verification/disposition; no economicidentity/sourceauthority contract changed. This resolves only current overread-path blocker, NOT full INV123-4 acceptance or missing sourceidentity/pool.",
+        "id": "B123-SOURCE-CAP"
+      },
+      "at": "2026-10-26T12:26:32Z",
+      "type": "resolve"
+    },
+    {
+      "at": "2026-10-27T15:05:41Z",
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue123_authority_planning",
+        "capsule": {
+          "generation": 2,
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "digest": "f58e0c91bdd51867c33c3cf5b1c052fcd721416bd5f8f8d723d8ab807965495b"
+        },
+        "phase": "planning",
+        "role": "planning_analyst"
+      }
+    },
+    {
+      "at": "2026-10-27T15:08:54Z",
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue123_authority_planning",
+        "evidence": "Bounded read-only authority investigation completed; NOT DESIGN_READY or Issue123 acceptance. planning_analyst/gpt-6-luna/medium returned DESIGN_BLOCKED for curator-schema2 under frozen S123-1/INV123-2/AC123-2. Native capsule_update forbids frozen definition changes; extensions only add counts. Merged ADR0042 runtime preserves schema1 and supplies no ticket switch authority. Coordinator explicit stop in docs/iterations/034-issue123-authority-reconciliation.md; zero count deltas, zero source/provider calls, no key/activation/duplicate ticket/tooling edits. Preserve both blockers, all failed history and counts5/5 implementation1/2 remediation1/1 reset. This phase pass certifies completion of the authorized investigation only; no consequential design/challenge/approval, source adequacy or delivery certificate."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue123_governance_proposal",
+        "capsule": {
+          "digest": "f58e0c91bdd51867c33c3cf5b1c052fcd721416bd5f8f8d723d8ab807965495b",
+          "generation": 2,
+          "id": "issue-123-usable-reference-and-bnd-diagnostic"
+        },
+        "role": "planning_analyst",
+        "phase": "planning"
+      },
+      "at": "2026-10-27T15:16:41Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-27T15:19:48Z",
+      "data": {
+        "evidence": "Authorized proposal-only planning complete. Separate planning_analyst/gpt-6-luna/medium recommends one distinct consequential workflow-governance issue for an audited in-place Issue123-only schema1-to-ADR0042-schema2 amendment, preserving all history/counters/blockers and invalidating current readiness/certification. Coordinator transcription docs/workflow/issue123-governance-proposal.md requests finite governance limits1each implementation/initialreview/remediation/finalreview/designreset, separate architect/challenge/approval before writes. Not DESIGN_READY, not a real amendment/count grant/new issue/tooling change/source run/key/activation. Current123 all counted deltas0, both blockers retained. User approval covers preparing this proposal only; concrete governance implementation scope remains for decision. Limited phase PASS means proposal delivered locally, not frozen123 acceptance or successful consequential design.",
+        "outcome": "pass",
+        "session": "/root/issue123_governance_proposal"
+      }
+    },
+    {
+      "type": "capsule_amendment",
+      "at": "2026-10-29T07:51:38Z",
+      "data": {
+        "amendment": "issue123-curator-v1",
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "Direct human reply approved in this Issue123 operational-amendment chat on 2026-10-29 approves package decision A: the one-time ADR0043 issue123-curator-v1 amendment of the verified generation2 capsule to its exact deterministic generation3 target, preserving all history, counts, blockers, owner and delivery identity. This is the named operational amendment authority, distinct from decision B finite extension and Issue128 governance approval. It grants no phase counts, acquisition, key issuance, registry publication, activation or Issue117 execution."
+        },
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 2,
+          "digest": "f58e0c91bdd51867c33c3cf5b1c052fcd721416bd5f8f8d723d8ab807965495b"
+        },
+        "source_history": {
+          "event_count": 35,
+          "digest": "ab9b33212bcc51a12e78c4d2e96d287258964670da331eb55515a13415e64233"
+        },
+        "replacement": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 3,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 123,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue123_owner"
+          },
+          "rationale": "Consequential selection of the already implemented ADR0042 curator-fund-v1 identity contract for the existing Issue123 curation goal. This exact amendment preserves historical outcomes, finite counts, owner and delivery identity; fresh separate design, independent challenge and coordinator approval are required before target work. It grants no source/market attempt, key issuance, activation or phase count.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human reply approved in this Issue123 operational-amendment chat on 2026-10-29 approves package decision A: the one-time ADR0043 issue123-curator-v1 amendment of the verified generation2 capsule to its exact deterministic generation3 target, preserving all history, counts, blockers, owner and delivery identity. This is the named operational amendment authority, distinct from decision B finite extension and Issue128 governance approval. It grants no phase counts, acquisition, key issuance, registry publication, activation or Issue117 execution."
+          },
+          "scope": {
+            "S123-1": "Bounded official issuer/exchange fact discovery/curation for <=10 exact listings; explicit ADR0042 curator-fund-v1 schema2 ignored reference input with complete bound registry proof; one detached unchanged-rule feasibility pass and exactly one bounded BND/NMS collection diagnostic with safe stage/cause/fallback evidence. Sanitized audit/runbook and justified verification helpers only. Actual usable >=3 distinct economic groups spanning growth+defensive required for acceptance; negative findings preserve blocker. Existing BND diagnostic history remains evidence; this amendment authorizes no repeat diagnostic or source/market call."
+          },
+          "non_goals": [
+            "No Issue121 ledger/count/certificate/PR122 modification; no Issue117 execution, certification/count reset/proof/continuation or parent24 closure. No merge. Explicit approved overlap exception must appear in issue and eventual PR.",
+            "No financial eligibility/category/threshold/freshness/observation/source-authority changes, adapters, new currencies, FX/optimizer/ranking/graph changes, persistence/replay/auth/hosting repair, trades or financial writes. The only identity-contract selection permitted is the already implemented ADR0042 curator-fund-v1 reference schema2. No store activation or existing user data/review mutations. This amendment grants no real key issuance, registry publication or operational source authority.",
+            "No inferred ISIN/group/currency/domicile, fabricated source dates, missing-as-available facts, repeated unbounded acquisition or automatic candidate replacement after market starts."
+          ],
+          "invariants": {
+            "INV123-1": "Every positive fact directly supported by exact official issuer/exchange share-class/fund evidence; retain URL, original observation, issuer effective/publication date where supplied, response observation, collection and check times separately. No fabricated dates or facts; timestamp semantics cited to existing contracts before positive insertion; unresolved consequential interpretation stops. Curator identity additionally requires the complete ADR0042 bound registry proof, direct legal Fund/class membership evidence, complete inventory and comparisons, authorized independent actor assertions, and alias/rename/succession safeguards. Every current proof constituent independently satisfies the existing saved-time freshness window; historical lineage cannot substitute for current proof.",
+            "INV123-2": "All established financial eligibility/category/sleeve/min3/currency/fee/volume/concentration/freshness and numeric schema2/proof contracts remain unchanged. Economic-group identity explicitly selects the already implemented ADR0042 curator-fund-v1 contract: exact stable curator key equality, active Fund and class membership, complete bound registry envelope and explicit marker. Reference input remains at most10listings/1MiB with five complete field objects and explicit unsupported values. Legacy schema1 and absent-marker bytes and saved reviews remain unchanged. Interfaces are used as clients; no product contract repair.",
+            "INV123-3": "Isolated detached preparation only, ignored raw/curated artifacts, sanitized durable evidence. Preserve Issue121/PR122 and Issue117 histories and user files/reviews; no publication/activation or financial write. Explicit one-off Issue123 new-PR authority and fresh certification, no inherited acceptance or implicit attempt reset.",
+            "INV123-4": "Discovery <=4 official-domain search queries, <=24 issuer/exchange HTTP responses including redirects, one attempt/URL,15s/request,2MiB/response,24MiB aggregate,15min discovery/acquisition wall time. Freeze <=10 exact evidence-justified listings/exchanges and remaining acquisition manifest within same caps before market. One collection/listing including exactly one BND/NMS diagnostic; <=12 Yahoo requests/listing,10s/request,2MiB/response,120s/listing,<=120 requests/1200s aggregate. Existing BND fallback only if invoked/reserved,<=3 attempts/90s/16MiB per response. No application retry or automatic replacement. Fresh final UTC check, unchanged120h/5min default and existing BND monthly exception."
+          },
+          "interfaces": [
+            "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, RegistryEnvelope and ADR0042 proof/publication validators, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients. Any operational acquisition, key issuance or registry publication requires separate explicit authority; this amendment performs none."
+          ],
+          "json_state_impact": "Existing ignored reference schema2 with identity_contract=curator-fund-v1 and complete bound RegistryEnvelope; detached research numeric schema2 remains independent. No product schema, graph/checkpoint/state or saved-review migration. This governance amendment changes the ticket capsule only.",
+          "acceptance": {
+            "AC123-1": "Document approved A123-1 finite exception, fresh owner provenance and unchanged historical Issue121/117 ledger evidence. Freeze source-grounded <=10 exact listing/exchange identities, original official evidence and all finite acquisition/attempt/time/byte/check policy before market; comply with INV123-4 and no arbitrary prefix/replacement.",
+            "AC123-2": "Existing strict ADR0042 curator-fund-v1 reference schema2 at most10listings/1MiB parses against the exact supplied universe with all five complete field objects. Audit every positive ISIN/group/domicile/base/share currency against exact official evidence; unavailable values remain explicit. Audit the complete bound registry envelope, active Fund/class resolution, legal identity, inventory/comparison and alias/rename/succession proof, independent authorized actors and each current constituent at saved check time. Retain distinct effective/publication/response/original observation/collection/check times; binding never renews observations. Unresolved consequential ambiguity stops. Parser validity alone does not establish usable inputs.",
+            "AC123-3": "One detached existing-interface market pass demonstrates >=3 genuinely eligible distinct economic groups spanning growth+defensive under all unchanged rules with reference-to-snapshot association. Report requested/collected/screened/eligible/group/sleeve counts and failures. Negative results are blocker evidence, not satisfaction of usable-input criterion.",
+            "AC123-4": "Exactly one explicitly bounded BND/NMS diagnostic retains safe stage, exception class/allowlisted reason or success, request/time/byte exhaustion outcome and observed fallback invocation/non-invocation. No guessing from a generic MarketDataError; sanitized durable evidence; no raw provider bodies/secrets in Git.",
+            "AC123-5": "Sanitized durable source audit/runbook includes exact sources/listings/caps/commands/times/hashes, direct source-to-field and reference-to-snapshot audit, remaining gaps, expiry and honest scope limits; ignored raw/curated files remain excluded. No store activation or Issue117 proof/readiness implication.",
+            "AC123-6": "Focused meaningful parser/attribution/association/diagnostic checks and locked MINIMAL default/dev pytest, Ruff/format,mypy src,build,workflow/ledger,Compose,diff gates; meaningful optional-enabled verification. Fresh identical-content verification/acceptance and independent required review. Commit/push one branch/new PR with exception described, actual latest-head CI/comments/unresolved-thread check; no merge. Failed/unmet criteria stop with preserved evidence."
+          },
+          "verification": [
+            "Native check/reserve/measured phase outcomes and finite counts. Audit source facts/timestamps against existing contracts; parser exact universe and size, bound_reference_fields preservation, no inferred identity; reference-to-snapshot equality and unchanged pure quality/screening/construction min3 distinct groups and both sleeves. For the selected curator contract also verify the explicit marker, complete bound envelope, exact active Fund/class resolution, per-constituent saved-time freshness and retained lineage, without weakening ADR0042 or interpreting synthetic tests as source adequacy.",
+            "Ignored bounded live collector harness stage/cause/fallback counters and safe exception evidence; focused meaningful helper/diagnostic tests only if durable behavior added. No duplicate live pass in verification.",
+            "Locked MINIMAL uv sync --frozen; full pytest; ruff check and format --check; mypy src; uv build; validate_workflow/ticket validation; docker compose config --quiet; git diff --check. Optional yfinance and actual provider evidence isolated from default env. Finish docs before content binding; separate code_reviewer, current-head CI/comments/threads inspection."
+          ],
+          "documentation": [
+            "docs/workflow/issue123-arbitration.md approved A123-1 record and overlap/new-PR exception; docs/iterations/034-issue123-usable-references.md source audit/runbook, hashes/times/counts/caps, limitations and explicit blocker if goal unmet; justified scripts/tests only if necessary. No product/architecture change intended."
+          ],
+          "risks": [
+            "Official corpus may not directly support all five fields or usable timing; finite negative result cannot satisfy AC123-3. Existing generic errors may require local stage wrappers; product repair is not authorized.",
+            "Material source/financial/freshness ambiguity stops before positive insertion; no previous date-only interpretation adopted as a new rule. Yahoo data may fail and BND fallback may never be reached. Strict caps can stop discovery before a viable corpus.",
+            "One-off new issue allowance explicitly authorized, no old-owner impersonation or historical certificate transfer; static gates cannot authenticate provenance."
+          ],
+          "escalation_triggers": [
+            "Consequential source/observation/freshness/identity/financial or product repair stops for separately authorized architect, independent challenge and coordinator approval. No automatic scope change from a design-reset allowance.",
+            "High-risk/disputed positive curation requires separate code_reviewer; recurrent concern returns to A123-1 accountable revision, no handoffs for agreement. Concrete difficult implementation needs evidence-backed specialist handoff, not silent role change.",
+            "Any missing usable inputs, failed final review, exhausted allowance or unrepresentable native gate stops BLOCKED_FOR_DECISION, no automatic extension/provider repeat."
+          ],
+          "escalation": null
+        },
+        "target": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 3,
+          "digest": "251320be405dbcbecaad6065b4f06fd2d944404d3662e48ad07ab9ffcec78e54"
+        },
+        "changes": {
+          "version": "issue123-curator-v1",
+          "definitions": {
+            "rationale": {
+              "before": "Ordinary bounded official fact curation and existing-interface diagnostic, not source/financial contract modification. Explicit one-off follow-up exception approved after A123-1 reconciled merged PR122 and stricter success versus accepted negative AC121-3. Fresh session provenance, no predecessor certificate/count transfer.",
+              "after": "Consequential selection of the already implemented ADR0042 curator-fund-v1 identity contract for the existing Issue123 curation goal. This exact amendment preserves historical outcomes, finite counts, owner and delivery identity; fresh separate design, independent challenge and coordinator approval are required before target work. It grants no source/market attempt, key issuance, activation or phase count."
+            },
+            "scope.S123-1": {
+              "before": "Bounded official issuer/exchange fact discovery/curation for <=10 exact listings; strict schema1 ignored reference input; one detached unchanged-rule feasibility pass and exactly one bounded BND/NMS collection diagnostic with safe stage/cause/fallback evidence. Sanitized audit/runbook and justified verification helpers only. Actual usable >=3 distinct economic groups spanning growth+defensive required for acceptance; negative findings preserve blocker.",
+              "after": "Bounded official issuer/exchange fact discovery/curation for <=10 exact listings; explicit ADR0042 curator-fund-v1 schema2 ignored reference input with complete bound registry proof; one detached unchanged-rule feasibility pass and exactly one bounded BND/NMS collection diagnostic with safe stage/cause/fallback evidence. Sanitized audit/runbook and justified verification helpers only. Actual usable >=3 distinct economic groups spanning growth+defensive required for acceptance; negative findings preserve blocker. Existing BND diagnostic history remains evidence; this amendment authorizes no repeat diagnostic or source/market call."
+            },
+            "non_goals[1]": {
+              "before": "No financial eligibility/category/threshold/identity/freshness/observation/source semantics changes, adapters, new currencies, FX/optimizer/ranking/graph changes, persistence/replay/auth/hosting repair, trades or financial writes. No store activation or existing user data/review mutations.",
+              "after": "No financial eligibility/category/threshold/freshness/observation/source-authority changes, adapters, new currencies, FX/optimizer/ranking/graph changes, persistence/replay/auth/hosting repair, trades or financial writes. The only identity-contract selection permitted is the already implemented ADR0042 curator-fund-v1 reference schema2. No store activation or existing user data/review mutations. This amendment grants no real key issuance, registry publication or operational source authority."
+            },
+            "invariants.INV123-1": {
+              "before": "Every positive fact directly supported by exact official issuer/exchange share-class/fund evidence; retain URL, original observation, issuer effective/publication date where supplied, response observation, collection and check times separately. No fabricated dates or facts; timestamp semantics cited to existing contracts before positive insertion; unresolved consequential interpretation stops.",
+              "after": "Every positive fact directly supported by exact official issuer/exchange share-class/fund evidence; retain URL, original observation, issuer effective/publication date where supplied, response observation, collection and check times separately. No fabricated dates or facts; timestamp semantics cited to existing contracts before positive insertion; unresolved consequential interpretation stops. Curator identity additionally requires the complete ADR0042 bound registry proof, direct legal Fund/class membership evidence, complete inventory and comparisons, authorized independent actor assertions, and alias/rename/succession safeguards. Every current proof constituent independently satisfies the existing saved-time freshness window; historical lineage cannot substitute for current proof."
+            },
+            "invariants.INV123-2": {
+              "before": "All established financial eligibility/category/sleeve/min3/economic-group/currency/fee/volume/concentration/freshness and strict schema1 <=10/1MiB, schema2 numeric/proof contracts unchanged. Interfaces used as clients; no product contract repair.",
+              "after": "All established financial eligibility/category/sleeve/min3/currency/fee/volume/concentration/freshness and numeric schema2/proof contracts remain unchanged. Economic-group identity explicitly selects the already implemented ADR0042 curator-fund-v1 contract: exact stable curator key equality, active Fund and class membership, complete bound registry envelope and explicit marker. Reference input remains at most10listings/1MiB with five complete field objects and explicit unsupported values. Legacy schema1 and absent-marker bytes and saved reviews remain unchanged. Interfaces are used as clients; no product contract repair."
+            },
+            "interfaces": {
+              "before": [
+                "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients; local ignored diagnostic wrappers and bounded offline verification helper if needed"
+              ],
+              "after": [
+                "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, RegistryEnvelope and ADR0042 proof/publication validators, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients. Any operational acquisition, key issuance or registry publication requires separate explicit authority; this amendment performs none."
+              ]
+            },
+            "json_state_impact": {
+              "before": "none; existing schema1 ignored input and detached schema2 snapshot only; no graph/checkpoint/state or product schema change",
+              "after": "Existing ignored reference schema2 with identity_contract=curator-fund-v1 and complete bound RegistryEnvelope; detached research numeric schema2 remains independent. No product schema, graph/checkpoint/state or saved-review migration. This governance amendment changes the ticket capsule only."
+            },
+            "acceptance.AC123-2": {
+              "before": "Existing strict schema1 <=10-listing/1MiB input parses against exact supplied universe; audit every positive ISIN/group/domicile/base/share currency from exact official source and retain distinct source effective/publication/response/observation/collection/check times. Explain existing observation contract with citations; unresolved consequential ambiguity stops.",
+              "after": "Existing strict ADR0042 curator-fund-v1 reference schema2 at most10listings/1MiB parses against the exact supplied universe with all five complete field objects. Audit every positive ISIN/group/domicile/base/share currency against exact official evidence; unavailable values remain explicit. Audit the complete bound registry envelope, active Fund/class resolution, legal identity, inventory/comparison and alias/rename/succession proof, independent authorized actors and each current constituent at saved check time. Retain distinct effective/publication/response/original observation/collection/check times; binding never renews observations. Unresolved consequential ambiguity stops. Parser validity alone does not establish usable inputs."
+            },
+            "verification[0]": {
+              "before": "Native check/reserve/measured phase outcomes and finite counts. Audit source facts/timestamps against existing contracts; parser exact universe and size, bound_reference_fields preservation, no inferred identity; reference-to-snapshot equality and unchanged pure quality/screening/construction min3 distinct groups and both sleeves.",
+              "after": "Native check/reserve/measured phase outcomes and finite counts. Audit source facts/timestamps against existing contracts; parser exact universe and size, bound_reference_fields preservation, no inferred identity; reference-to-snapshot equality and unchanged pure quality/screening/construction min3 distinct groups and both sleeves. For the selected curator contract also verify the explicit marker, complete bound envelope, exact active Fund/class resolution, per-constituent saved-time freshness and retained lineage, without weakening ADR0042 or interpreting synthetic tests as source adequacy."
+            }
+          },
+          "classification": {
+            "before": "ordinary",
+            "after": "consequential"
+          }
+        },
+        "reason": "Execute explicitly approved package decision A only; select existing ADR0042 identity contract while preserving no-publication/no-activation and all finite history. No source or key authority."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-10-29T07:51:45Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "Direct human reply approved in this Issue123 operational-amendment chat on 2026-10-29 separately approves package decision B: design_reset+1, implementation+1, remediation+0, initial_review+0, final_review+0, additional seconds0. Preserve every consumed count; require checked reserved fresh consequential design, independent challenge and coordinator approval. This finite-extension authority is distinct from package decision A amendment and grants no acquisition, real key issuance, registry publication, activation or Issue117 execution."
+        },
+        "seconds": 0,
+        "counts": {
+          "design_reset": 1,
+          "implementation": 1,
+          "remediation": 0,
+          "initial_review": 0,
+          "final_review": 0
+        },
+        "reason": "One finite fresh design attempt and one gated implementation allowance; retained proof/publication boundary must be resolved compliantly before any target work, with no operational source authority."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-29T07:52:24Z",
+      "data": {
+        "phase": "design_reset",
+        "role": "design_architect",
+        "session": "/root/issue123_operational_design",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 3,
+          "digest": "251320be405dbcbecaad6065b4f06fd2d944404d3662e48ad07ab9ffcec78e54"
+        },
+        "criterion": "INV123-3",
+        "reason": "Human-approved package B final finite reset; A123-1 bounded contract clarification of genuine existing bound proof versus retained publication ban. Read-only handoff only; no acquisition, issuance, publication, implementation or Issue117."
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-29T07:56:09Z",
+      "data": {
+        "session": "/root/issue123_operational_design",
+        "outcome": "fail",
+        "evidence": "Separate design_architect/gpt-6-astra/high DESIGN_BLOCKED generation4 9e7404cbcf12d186489e399c6a2884afd1d3bfa7f7363be1727fcb6e0d2860ec. Existing authentic bound proof can be consumed by ReferenceFactsFile/resolve_group without publication, but no usable actual package established. LocalFundIdentityRegistry.publish obtains actual parent, validates CAS/history/transitions and replaces active.json; even ignored local publication violates retained INV123-3. Iteration037 forbids detached attestation masquerading as actual parent/CAS publication. Coordinator A123-1 explicit stop in docs/workflow/issue123-operational-amendment.md; original proof/eligible-pool blockers retained. Missing proof/operational scope restriction, not demonstrated runtime defect. No source/provider call, real key, registry/store publication/activation, target implementation, challenge-for-agreement or Issue117. Future existing-proof route needs concrete authentic package/authority; necessary issuance needs separate approved append-only governance disposition, not capsule_update or reused ADR0043 amendment. Reset2/2 consumed, implementation5/6,remediation1/2,reviews0/1. No DESIGN_READY, acceptance, certification or delivery."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-10-30T07:59:35Z",
+      "data": {
+        "phase": "planning",
+        "role": "planning_analyst",
+        "session": "/root/issue123_publication_governance_proposal",
+        "capsule": {
+          "id": "issue-123-usable-reference-and-bnd-diagnostic",
+          "generation": 4,
+          "digest": "9e7404cbcf12d186489e399c6a2884afd1d3bfa7f7363be1727fcb6e0d2860ec"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-10-30T08:04:47Z",
+      "data": {
+        "session": "/root/issue123_publication_governance_proposal",
+        "outcome": "pass",
+        "evidence": "Human explicitly approved preparing narrow local-key/publication governance proposal on2026-10-30; not governance implementation or another design reset. Separate planning_analyst/gpt-6-luna/medium returned bounded proposal transcribed docs/workflow/issue123-local-publication-governance-proposal.md. Tool/session update interrupted wait; same logical planning reservation continued, elapsed audit preserved, no extra start. Proposal requests separate consequential governance ticket limits1each implementation/initialreview/remediation/finalreview/designreset, zero123grant/event/operations; fresh architect defines exact one-time source-gen4/history-bound mapping including INV123-3 and related conflicting clauses. Later distinct123 event authority/reset+1/operational source-actor-key-publication bounds required. Max1isolated registry bootstrap publication attempt,10listings/10Funds within existingruntimecaps; no inferred facts, freshened observations, existingregistry mutation, researchstore activation, savedreview mutation, BNDdiagnostic or Issue117. Planning PASS means concrete proposal completed only, not DESIGN_READY/coverage/acceptance/delivery. All counts/owner/capsule/history/bothblockers retained; no sources, tooling/product changes, keys, issue/PR creation or grant."
+      }
+    }
+  ]
+}
