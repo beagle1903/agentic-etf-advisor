@@ -342,6 +342,7 @@ def main() -> None:
             "Connected lineage",
             "repository ticket-directory lock",
             "lineage_policy_transition",
+            "ADR 0044 permits one audited `local_registry_authority`",
         ),
     )
     require_markers(
@@ -397,6 +398,7 @@ def main() -> None:
             "lineage authority and independent participants",
             "repository ticket-directory lock",
             "ADR 0037 permits only the pinned original Issue 23/83 pair",
+            "ADR 0044 adds a separate exact `local_registry_authority` route",
         ),
     )
     require_markers(

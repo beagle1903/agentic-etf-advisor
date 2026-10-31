@@ -146,6 +146,14 @@ Only a reserved active reset may revise capsule details; frozen scope, non-goals
 invariant/AC definitions, classification and initial owner cannot silently change.
 Explicit owner handoffs record fresh sessions and concrete specialist escalation.
 
+ADR 0044 admits one exact Issue123 `local_registry_authority` transition from the
+generation-4 capsule and immutable original 41-event prefix to the eight-path
+generation-5 target. It consumes one distinct named operational authority and
+clears current success while retaining the prior amendment, counts, blockers,
+owner and repair debt. The transition grants no count or publication operation.
+The non-executable [runbook](issue123-local-registry-authority-runbook.md) records
+the later separately authorized finite reset and fresh consequential gates.
+
 Store event files outside the repository (for example in the OS temporary directory).
 Append holds one repository ticket-directory lock for cooperating writers, validates
 the complete candidate ledger map from captured bytes, then checks the event file's

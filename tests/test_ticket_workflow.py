@@ -454,7 +454,7 @@ def current_capsule(value):
             cap["generation"] += 1
         elif item["type"] == "capsule_update":
             cap = copy.deepcopy(item["data"]["capsule"])
-        elif item["type"] == "capsule_amendment":
+        elif item["type"] in {"capsule_amendment", "local_registry_authority"}:
             cap = copy.deepcopy(item["data"]["replacement"])
     return cap
 

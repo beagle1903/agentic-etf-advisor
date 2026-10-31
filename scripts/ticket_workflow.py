@@ -372,6 +372,191 @@ AMENDMENT_SOURCE = {
 AMENDMENT_PREFIX_DIGEST = "c86ef893884c002c2b6744a2ba61cac2b59f948685c5528e496421b2c3ecfaa5"
 GOVERNANCE_APPROVAL_DIGEST = "26e4a4959ccf8d67ccb9236868991214dfac55f7b6bc16a0eab2bd915db243c9"
 AMENDMENT_VERSION = "issue123-curator-v1"
+LOCAL_REGISTRY_VERSION = "issue123-local-registry-v1"
+LOCAL_REGISTRY_SOURCE = {
+    "id": "issue-123-usable-reference-and-bnd-diagnostic",
+    "generation": 4,
+    "digest": "9e7404cbcf12d186489e399c6a2884afd1d3bfa7f7363be1727fcb6e0d2860ec",
+}
+LOCAL_REGISTRY_PREFIX_DIGEST = "2d7a3127922376a1a6991fd40192145a408f6df68c8cbefa6763e865e4d4142e"
+ISSUE132_GOVERNANCE_APPROVAL_DIGEST = (
+    "cafa481265220bf1308016fa3e08235333ceee79b337ac2a5b027b3f2a53defa"
+)
+
+
+def strict_equal(left: object, right: object) -> bool:
+    """Compare JSON structures without Python's bool/int/float coercion."""
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(
+            strict_equal(value, right[key]) for key, value in left.items()
+        )
+    if isinstance(left, list):
+        return len(left) == len(right) and all(
+            strict_equal(a, b) for a, b in zip(left, right, strict=True)
+        )
+    return left == right
+
+
+def local_registry_target(source: dict, authorization: dict) -> tuple[dict, dict]:
+    """Build only the approved generation-five Issue123 local publication capsule."""
+    target = copy.deepcopy(source)
+    definitions = {}
+
+    def change(path: str, old: object, new: object) -> None:
+        definitions[path] = {"before": copy.deepcopy(old), "after": new}
+
+    def append(path: str, old: str, paragraph: str) -> None:
+        change(path, old, old + " " + paragraph)
+
+    append(
+        "scope.S123-1",
+        source["scope"]["S123-1"],
+        "The sole prospective publication exception is one separately authorized ADR0042 curator-fund-v1 bootstrap attempt in one newly frozen ignored local registry directory with no pre-existing active registry, for at most10 selected exact listings and at most10 directly proven distinct legal Funds, one stable opaque key per Fund and one initial immutable registry generation. Before any operation, freeze the exact directory, listings, Fund/class and source manifest, named authorized curator and distinct independent proof reviewer, key-issuance authority and local-publication authority in the fresh approved operational design. Use the existing injected identifier boundary, complete legal Fund/class evidence, inventories, comparisons and transition attestations. Unresolved identity, collision, continuity or unavailable proof stops. Use LocalFundIdentityRegistry.publish exactly once with expected_parent_digest=None against the actual empty parent; snapshot generation must be1 and snapshot.parent_digest and audit.compared_parent_digest must be null. Permit at most one active.json replacement. No existing-registry mutation or refresh, second publication attempt, retry, key rotation, rename/succession operation, reactivation or recovery bypass. Stop and retain evidence after failure or uncertain commit outcome; do not retry. Preserve the existing128KiB registry,256members,256sources,1000characters/text and reference10listings/1MiB ceilings, all financial/proof/freshness/source rules and all consumed acquisition and diagnostic allowances. This transition grants no counts, source attempt, real key issuance or publication operation; distinct later operational authority and renewed native design/challenge/coordinator approval are required.",  # noqa: E501
+    )
+    old = source["non_goals"][1]
+    anchor = "No store activation or existing user data/review mutations. This amendment grants no real key issuance, registry publication or operational source authority."  # noqa: E501
+    replacement = "No store activation or existing user data/review mutations except the single isolated local registry active-pointer publication expressly bounded by S123-1 and INV123-3 under separate operational authority. No default application adoption, Chroma/Neo4j publication or saved-review mutation. This transition grants no real key issuance, registry publication, operational source authority or counts."  # noqa: E501
+    if old.count(anchor) != 1:
+        raise Invalid("Issue123 source non-goal phrase differs")
+    change("non_goals[1]", old, old.replace(anchor, replacement))
+    old = source["invariants"]["INV123-3"]
+    anchor = "no publication/activation or financial write."
+    replacement = "no publication/activation except the single separately authorized isolated local registry bootstrap and active-pointer publication bounded by S123-1, and no financial write. Preserve default application configuration, Chroma/Neo4j, existing registries and saved reviews. Actual-parent/CAS validation, independent authorized curator/reviewer attestations and genuine publication outcome evidence are mandatory; detached assertions cannot substitute for publication."  # noqa: E501
+    if old.count(anchor) != 1:
+        raise Invalid("Issue123 source invariant phrase differs")
+    change("invariants.INV123-3", old, old.replace(anchor, replacement))
+    change(
+        "interfaces",
+        source["interfaces"],
+        [
+            "none changed; existing ReferenceFactsFile/load_reference_facts/bound_reference_fields, RegistryEnvelope, new_key and ADR0042 proof/publication validators, LocalFundIdentityRegistry.publish, YahooCatalogueResearchCollector/YahooRequestBudget, VanguardHoldingsClient, source-quality and pure evidence/screening/construction as clients. LocalFundIdentityRegistry.publish is permitted only for the separately authorized single bootstrap bounded by S123-1 and INV123-3. Operational acquisition, named curator/reviewer assertions, real key issuance and local registry publication require concrete separate authority; this transition performs none."  # noqa: E501
+        ],
+    )
+    change(
+        "json_state_impact",
+        source["json_state_impact"],
+        "Existing ignored reference schema2 with identity_contract=curator-fund-v1 and complete bound RegistryEnvelope; detached research numeric schema2 remains independent. The separately authorized S123-1 bootstrap may create one ignored local immutable registry generation and its active.json pointer through the existing publisher. No product schema, graph/checkpoint/state or saved-review migration. This governance transition changes only the ticket capsule and workflow audit state; it creates no registry, key, source artifact or pointer.",  # noqa: E501
+    )
+    append(
+        "acceptance.AC123-2",
+        source["acceptance"]["AC123-2"],
+        "For the S123-1 bootstrap, audit the actual empty parent, generation1, null expected/snapshot/audit parent, complete issue transitions and actual publisher result. Require the independently approved bound envelope to match the retained immutable blob and active pointer after confirmed publication; on failure or uncertain commit retain the outcome and stop without retry. Complete five-field objects do not require five positive facts. Publication, download and attestation never renew source observations.",  # noqa: E501
+    )
+    old = source["acceptance"]["AC123-5"]
+    anchor = "No store activation or Issue117 proof/readiness implication."
+    replacement = "Audit the separately authorized S123-1 bootstrap with its frozen ignored directory and manifest, named curator and independent proof reviewer, distinct source/key/publication authorities, actual-parent/CAS and attestation evidence, one-attempt accounting, immutable blob/pointer digests and actual success, failure or uncertain commit outcome. No store activation beyond that isolated registry pointer, default application adoption, Chroma/Neo4j publication, saved-review mutation or Issue117 proof/readiness implication."  # noqa: E501
+    if old.count(anchor) != 1:
+        raise Invalid("Issue123 source acceptance phrase differs")
+    change("acceptance.AC123-5", old, old.replace(anchor, replacement))
+    append(
+        "verification[0]",
+        source["verification"][0],
+        "For the separately authorized S123-1 bootstrap, verify the frozen directory/manifest and actor/source/key/publication authorities, actual empty parent, generation1 and null parent bindings, complete inventory/comparison/issue transitions, one publish invocation and at most one active-pointer replacement through the unchanged publisher. Reconcile the returned envelope, immutable blob and active pointer only after confirmed success; failure or uncertainty stops without retry. Verify the retained source/market attempt history and all stricter operational ceilings. No static workflow check or synthetic fixture authenticates a person, source truth or real-world inventory completeness.",  # noqa: E501
+    )
+    for path, delta in definitions.items():
+        new = delta["after"]
+        if path in {"interfaces", "json_state_impact"}:
+            target[path] = new
+        elif path == "non_goals[1]":
+            target["non_goals"][1] = new
+        elif path == "verification[0]":
+            target["verification"][0] = new
+        else:
+            group, identifier = path.split(".", 1)
+            target[group][identifier] = new
+    target["generation"] = 5
+    target["authorization"] = copy.deepcopy(authorization)
+    return target, {"version": LOCAL_REGISTRY_VERSION, "definitions": definitions}
+
+
+def admit_local_registry_authority(
+    state: State, history: dict, index: int, data: object
+) -> tuple[dict, str]:
+    data = keys(
+        data,
+        {
+            "transition",
+            "authority",
+            "capsule",
+            "source_history",
+            "replacement",
+            "target",
+            "changes",
+            "reason",
+        },
+    )
+    authority(data["authority"], "user")
+    text(data["reason"])
+    normalized = normalized_evidence(data["authority"]["evidence"])
+    if digest(normalized) in {GOVERNANCE_APPROVAL_DIGEST, ISSUE132_GOVERNANCE_APPROVAL_DIGEST}:
+        raise Invalid("governance approval cannot authorize Issue123 operation")
+    if normalized in state.authorization_history:
+        raise Invalid("local registry authority already consumed")
+    if data["transition"] != LOCAL_REGISTRY_VERSION:
+        raise Invalid("unknown local registry transition")
+    if (state.repo, state.issue, state.policy, state.classification, state.review_required) != (
+        "beagle1903/agentic-etf-advisor",
+        123,
+        "owner-led-v1",
+        "consequential",
+        True,
+    ):
+        raise Invalid("local registry source ticket differs")
+    if (
+        not state.capsule
+        or capsule_ref(state.capsule) != LOCAL_REGISTRY_SOURCE
+        or not strict_equal(data["capsule"], LOCAL_REGISTRY_SOURCE)
+    ):
+        raise Invalid("local registry source capsule differs")
+    if (
+        index < 41
+        or digest({"schema": 1, "events": history["events"][:41]}) != LOCAL_REGISTRY_PREFIX_DIGEST
+    ):
+        raise Invalid("Issue123 immutable 41-event prefix differs")
+    prefix = keys(data["source_history"], {"event_count", "digest"})
+    if integer(prefix["event_count"], 41) != index or sha(prefix["digest"]) != digest(
+        {"schema": 1, "events": history["events"][:index]}
+    ):
+        raise Invalid("local registry complete history differs")
+    if (
+        state.local_registry_authority is not None
+        or state.capsule_amendment is None
+        or state.active
+        or state.suspended
+        or not state.clock_running
+        or state.delivered
+        or state.delivery_history
+        or state.delivery_binding
+        or state.retired
+        or state.split_remaining is not None
+        or state.split_pool is not None
+        or state.splits
+        or state.predecessor
+        or state.ancestry
+        or state.retained_reservation_open
+        or state.historical_transition
+        or state.final_failed
+    ):
+        raise Invalid("local registry transition requires nonterminal unsplit between-phase source")
+    if (
+        state.approved_owner is None
+        or any(
+            state.approved_owner[key] != state.capsule["owner"][key]
+            for key in ("role", "model", "effort")
+        )
+        or state.approved_owner["role"] == "implementation_specialist"
+    ):
+        raise Invalid("local registry source owner differs")
+    replacement, changes = local_registry_target(state.capsule, data["authority"])
+    if (
+        not strict_equal(data["replacement"], replacement)
+        or not strict_equal(data["target"], capsule_ref(replacement))
+        or not strict_equal(data["changes"], changes)
+    ):
+        raise Invalid("local registry replacement or change map differs")
+    return replacement, normalized
 
 
 def amendment_target(source: dict, authorization: dict) -> tuple[dict, dict]:
@@ -622,6 +807,7 @@ class State:
     historical_transition: dict | None = None
     retained_reservation_open: bool = False
     capsule_amendment: dict | None = None
+    local_registry_authority: dict | None = None
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -1083,6 +1269,24 @@ def replay(
                 "source": source_ref,
                 "target": capsule_ref(replacement),
                 "source_history": data["source_history"],
+                "event": index,
+            }
+            state.authorization_history.add(normalized)
+            state.ready = state.challenge_ok = state.verified = state.accepted = False
+            state.reviewed = state.remediated = False
+            state.design_session = state.challenge_session = state.author_session = None
+            state.design_ref = state.challenge_ref = state.approved_ref = None
+            state.verified_content = state.acceptance_content = state.review_content = None
+            state.design_started = True
+        elif kind == "local_registry_authority":
+            replacement, normalized = admit_local_registry_authority(state, value, index, data)
+            source_ref = capsule_ref(state.capsule)
+            state.capsule = replacement
+            state.local_registry_authority = {
+                "contract": LOCAL_REGISTRY_VERSION,
+                "source": source_ref,
+                "target": capsule_ref(replacement),
+                "source_history": copy.deepcopy(data["source_history"]),
                 "event": index,
             }
             state.authorization_history.add(normalized)
@@ -1827,14 +2031,14 @@ def authority_records(history: dict) -> list[dict]:
                 }
             )
             capsule_references.add(evidence)
-        elif event["type"] == "capsule_amendment":
+        elif event["type"] in {"capsule_amendment", "local_registry_authority"}:
             amendment_authority = event["data"]["authority"]
             evidence = normalized_evidence(amendment_authority["evidence"])
             records.append(
                 {
                     "issue": issue,
                     "event": index,
-                    "class": "capsule_amendment",
+                    "class": event["type"],
                     "authority": amendment_authority,
                     "evidence": evidence,
                 }
@@ -1994,11 +2198,11 @@ def validate_map(
                             raise Invalid("authority reused within connected lineage")
                         consumed[key] = (member, index, "capsule_update")
                         capsule_references.add(key)
-                if kind == "capsule_amendment":
+                if kind in {"capsule_amendment", "local_registry_authority"}:
                     key = normalized_evidence(data["authority"]["evidence"])
                     if key in consumed:
                         raise Invalid("authority reused within connected lineage")
-                    consumed[key] = (member, index, "capsule_amendment")
+                    consumed[key] = (member, index, kind)
                     capsule_references.add(key)
             participants[member] = people
             independent[member] = readers
