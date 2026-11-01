@@ -250,6 +250,21 @@
         "outcome": "pass",
         "evidence": "Fresh independent code_reviewer/gpt-6-sol/high PASS on exactcontent dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e. Reviewed fullmodified/untrackeddiff, frozenowncapsule/issue/ADR0045/handoff/040/runbook, admission/replay/authority_records/validate_map, focused54 andfull1955passed59skipped evidence. No actionable INV134-1..5/AC134-1..4 failure. Exact49/gen6/fullsuffix/3998singlepath, nineauthority+consumed/references/lineage, preserveddebt/owner/blockers/counts, clearedsuccess, syntheticgen8/remediation/finalreview/originalPR andstagedproof/publication/boundcollection confirmed. AC134-5 actualcommit/push/PR/currentheadCI/nativeoriginaldelivery remain pending, notwaived. No edits/providercalls."
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-01T15:19:54Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 136,
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        },
+        "content": "dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e",
+        "evidence": "Original Issue134 governance PR https://github.com/beagle1903/agentic-etf-advisor/pull/136 created from reviewedcommita6f3e8c8a90c5947ca3e58636eacc0bafca4e7fd and attachedtochat. Exactcontent verified/accepted/independentlyinitialreviewed PASS with1955fullpassed59skipped/focused54 andallrequiredgates. Native delivery and immutablemergebase preflights passed; cleaninitialreview permitsdelivery, no remediation/finalreview needed. Recordactual originalrepository/PR/content identity; latestheadCI/comments/unresolvedthreads mustbechecked afterthisledgeronlycommit, resultslinkedexternally because deliveryhistory remainsimmutable. Base advancedonly unrelatedREADME/screenshots viaPR135, no overlappingchanges; PRmergeabletrue, reviewedbranchcontentunchanged. No merge, actual123transition/Rgrant/source/key/registry/Issue117."
+      }
     }
   ]
 }
