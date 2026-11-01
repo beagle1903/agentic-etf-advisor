@@ -278,6 +278,14 @@ authority. It grants no count or operation; later reset and consequential review
 gates remain. See the non-executable
 [runbook](docs/workflow/issue123-local-registry-authority-runbook.md).
 
+ADR 0045 adds one exact `manifest_sequence_amendment` route for the generation-6
+source and immutable 49-event prefix. It binds the complete history, strict
+one-path generation-7 target and distinct single-use operational authority.
+It grants no phase count or operation; the approved R reset is held until the
+governance mechanism is delivered and an exact transition is separately approved.
+Fresh consequential gates and independent final review still apply. See the
+non-executable [runbook](docs/workflow/issue123-manifest-sequencing-runbook.md).
+
 Owner-led splits allocate all named children in one event. Each child begins with
 the parent's consumed counts and only its assigned remaining count allowance;
 local design, implementation, verification and review still need their own evidence.

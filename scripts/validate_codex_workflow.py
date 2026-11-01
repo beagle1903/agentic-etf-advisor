@@ -343,6 +343,7 @@ def main() -> None:
             "repository ticket-directory lock",
             "lineage_policy_transition",
             "ADR 0044 permits one audited `local_registry_authority`",
+            "ADR 0045 permits one audited `manifest_sequence_amendment`",
         ),
     )
     require_markers(
@@ -399,6 +400,7 @@ def main() -> None:
             "repository ticket-directory lock",
             "ADR 0037 permits only the pinned original Issue 23/83 pair",
             "ADR 0044 adds a separate exact `local_registry_authority` route",
+            "ADR 0045 adds one exact `manifest_sequence_amendment` route",
         ),
     )
     require_markers(
