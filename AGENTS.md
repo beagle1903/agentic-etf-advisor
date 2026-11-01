@@ -205,6 +205,17 @@ one separately authorized empty-parent publication attempt and at most one activ
 pointer replacement. See the non-executable
 [runbook](docs/workflow/issue123-local-registry-authority-runbook.md).
 
+ADR 0045 permits one audited `manifest_sequence_amendment` for the exact
+undelivered, unsplit Issue123 generation-6 consequential capsule and original
+49-event prefix. It replaces one S123-1 sequencing prerequisite, binds complete
+preceding history and a distinct named user authority, and produces unapproved
+generation 7 without counts or operations. Prior governance G, held R and recorded
+C/D authorities cannot be reused. The separately approved R reset remains held
+until the exact operational transition is separately authorized and delivered
+governance is available. Fresh consequential gates and independent final review
+remain required. See the non-executable
+[runbook](docs/workflow/issue123-manifest-sequencing-runbook.md).
+
 Recorded enforcement is not a runtime kill switch. The coordinator must truthfully
 record evidence, check open phases periodically and interrupt active agents on
 exhaustion. Static validation cannot authenticate approval or session provenance. Approval evidence

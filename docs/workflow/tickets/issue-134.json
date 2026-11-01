@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-11-01T07:07:33Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 134,
+        "classification": "consequential",
+        "scope": [
+          "S134-1"
+        ],
+        "invariants": [
+          "INV134-1",
+          "INV134-2",
+          "INV134-3",
+          "INV134-4",
+          "INV134-5"
+        ],
+        "acceptance": [
+          "AC134-1",
+          "AC134-2",
+          "AC134-3",
+          "AC134-4",
+          "AC134-5"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human approved on2026-11-01 in this Issue123 chat decisions G and R of docs/workflow/issue123-sequencing-governance-proposal.md at e922544 SHA256693912c210fbb0c4280185301693baa0a346c0df969f37910a01c505fcabcf74. This record is distinct G authority: create and execute one consequential governance ticket for a single-use Issue123 manifest-sequencing amendment; finite1each implementation/initial_review/remediation/final_review/design_reset, additionalseconds0, noautomaticextension, separatearchitect/independentchallenge/coordinatorapproval beforeimplementation and independentreview beforePR. G grants no actualIssue123transition/count/operation, sourcecall, key, publication, merge or Issue117. R is separately approved and HELD, not appended/consumed here. This is not previous preparation approval or prior A/B/C/D/Issue128/132 governance authority."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 134,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue134_owner"
+          },
+          "rationale": "Consequential frozen-ticket scope authority and workflow persistence/replay. Separate architect/independent challenge required; established source/proof/financial runtime contracts remain unchanged. Human G authorizes exact bounded governance; R stays separate and held.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human approved on2026-11-01 in this Issue123 chat decisions G and R of docs/workflow/issue123-sequencing-governance-proposal.md at e922544 SHA256693912c210fbb0c4280185301693baa0a346c0df969f37910a01c505fcabcf74. This record is distinct G authority: create and execute one consequential governance ticket for a single-use Issue123 manifest-sequencing amendment; finite1each implementation/initial_review/remediation/final_review/design_reset, additionalseconds0, noautomaticextension, separatearchitect/independentchallenge/coordinatorapproval beforeimplementation and independentreview beforePR. G grants no actualIssue123transition/count/operation, sourcecall, key, publication, merge or Issue117. R is separately approved and HELD, not appended/consumed here. This is not previous preparation approval or prior A/B/C/D/Issue128/132 governance authority."
+          },
+          "scope": {
+            "S134-1": "Implement one exact single-use append-only Issue123 sequencing amendment for undelivered unsplit consequential owner-led gen6 capsule9929b6f75007a776e3f14d3ee53f7631a5db66c5384aa0e3f0e78daa1c18bc52; preserve fullactual47historydc69597ff2b6ddd9cd9c0b41dbc5111ea956291f557221b460fd3a7b4f902471 and actual49prefixbb14145e68f53476ef1ba7e8189fdff40dd0c535eba83924431480e394bcc70d plus complete validlater suffix atappend. Change only offending scope.S123-1 prerequisite sentence plus nativegeneration/authorization, exact recipe/schema/admission frozen byseparatearchitect. Staged frozen plan beforediscovery; URL audit beforefetch; exactsourcebackedlistings beforemarket; completecurrentlegalFund/class/inventory/comparison/sourceproof and actualhumanreview beforeissuance/publication; publishboundenvelope beforemarketrequiringit, stoponfailure/uncertainty. Workflowtooling/tests/newADR/iteration/runbook/instructions only; noactual123event."
+          },
+          "non_goals": [
+            "No actual Issue123 transition/count/reset/source/providercall/key/publication, operational registry/directory, defaultapp adoption, savedreviewmutation, Issue117, merge, trade or financialwrite. No duplicatecurationticket/split/defaultpool/certificatetransfer. Separate R remainsheld untildeliveredmechanism anddistinct exactoperationaltransitionapproval.",
+            "No other frozen Issue123 definition change, arbitrarypatch, product/runtime/adapter/sourcecontract/proof/freshness/financial/category/currency/min3/bothsleeves/numeric/legacy change; no renewal/broadening of C/D or historical allowances. No existingregistryoperation/retry/rename/succession/reactivation. Accepted ADR0042-0044 history unchanged."
+          ],
+          "invariants": {
+            "INV134-1": "Exact gen6/sourcehistory/completeprefix binding and deterministic one-path target; preserve every prior event/failure/count/limit/elapsed/owner/participant/marker/blocker/repairdebt/authority/repositoryPR identity. No reset/transfer/recertification through amendment.",
+            "INV134-2": "Dedicated new single-use named operational authority distinct from governance G, held R and prior Issue123/A/B/C/D/128/132 authorities; strict JSON/types, normalized reuse rejection across connected lineage, nativeatomicappend/mergebase/currentprimaryissue/originalPR/content guards unchanged. Reject invalid lifecycle/repeat/wrongsource/history/extra-paths.",
+            "INV134-3": "Only manifest sequencing changes: approved bounded source plan precedesdiscovery, exact URL recorded beforefetch, source-backed<=10exactlistings beforemarket, completedirectlegalFund/class/activeISIN/currentproof/inventory/comparison/continuity and actual independenthumanapproval beforeissuance/publication. Existing boundreference and publisher sequence has no circular prerequisites. Preserve C/D andallfinancial/proof/freshness/size/one-shotparentCAS/legacy safeguards.",
+            "INV134-4": "New event grants zero123counts/operations, targetgen7 unapproved and clearedstalesuccess; separatelyauthorized heldR reset+1 only ->gen8/fresharchitect/challenge/coordinator beforeoriginalownerimplementation/remediation/identicalcontentverificationacceptance/independentfinalreview. Retainedremediation forbids initialreview substitution; exhausted/failedgates stop.",
+            "INV134-5": "Governanceonly tooling/tests/docs; synthetic appended authority/outcome fixtures explicitlylabeled and not realapproval/sourcecoverage. No actual source/provider/key/registry/Issue117 behavior and no product/graph/checkpoint schema or interfaces change."
+          },
+          "interfaces": [
+            "none to product; existing native ticket replay/strictload/authority_records/validate_map/atomicappend/check_prefix/check_pr/content gates extend only for the exact new workflowevent. Existing source/reference/registry clients remain unchanged and uncalled."
+          ],
+          "json_state_impact": "Strict new ticket event/capsule/reference/consumedauthority/audit marker only; exact architect-defined shapes and singlepathtarget. None to product/graph/checkpoint/savedreview/registry schema; no actual Issue123 amendment or registry bytes.",
+          "acceptance": {
+            "AC134-1": "Separatearchitect freezes exactschema/admission/target/state/authority/history map and complete stagedsequencing design inside onlyscope.S123-1; independentchallenge andcoordinatorapproval bindidenticalcapsule beforewrites. Additional frozenpath need stops.",
+            "AC134-2": "Dedicated one-path amendment obeys exactsource/fullprefix/strictJSON/nonterminalbetweenphase/singleuseguards; allhistoricalstate preserved, stalesuccess cleared and no counts/operations; syntheticgen7/reset/gen8/reneweddesign/implementation/remediation/finalreview/originalPRdelivery route succeeds only withdistinctauthority/gates.",
+            "AC134-3": "Focused adversarial cases cover exact/unlisteddefinitions,state,source/history/suffix/target/types/extrapaths, old/G/R/governance authorityreuse and connectedlineage/capsulereferences, repeated/lifecycle/owner/marker checks, invalidappend bytepreservation andobservedevent/ledger/candidate/contentraces. Existing ADR0043/0044/ticket/registry/legacyregressions retainbehavior.",
+            "AC134-4": "New ADR0045, activeiteration040, A123-1 linkage and nonexecutablesequencingrunbook explain actual stagedsourceplan/listing/proof/publication/market prerequisites and heldR/distinctlatertransition; preserve acceptedADR0042-0044. ApplicableAGENTS/CONTRIBUTING/staticmarkers accurate, no authenticity/runtimecoverageclaims.",
+            "AC134-5": "Requiredlocked MINIMAL/default/dev andfocused/meaningfuloptional checks; nativeidenticalcontent verification/acceptance andindependentreview; commitpush governancePR/currentheadCIcommentsunresolvedthreads/originalPRdelivery, no merge or automaticactual123execution."
+          },
+          "verification": [
+            "Exact focusedsynthetic source/prefix/suffix/onepath/unlistedstate/type/lifecycle/authority/lineage/reference/count/stalesuccess/generation/PRbinding/atomicrace regressions and full renewed route. Existing relevantregistry/legacy/ticket suites unchanged; no liveoperations or realapproval claims.",
+            "Required frozen uv sync, full default/dev/MINIMAL pytest withcounts/skips, Ruffcheck/format,configuredmypy andmypy src, workflow/ticketvalidation, uvbuild, Composeconfig anddiff; meaningfuloptional paths without externalservices.",
+            "Finishdocs before content-bound verification/acceptance/independentreview; checkedreserved sequentialphases/measuredoutcomes andblockers, actualcurrentheadCI/comments/threads/originalPRdelivery."
+          ],
+          "documentation": [
+            "ADR0045,docs/iterations/040-issue134-manifest-sequencing.md,exacthandoff,newnonexecutablerunbook,A123-1linkage,applicableAGENTS/CONTRIBUTING/staticmarkers; preserve acceptedADRs and actual49historicalsource; record realG and heldR distinctly."
+          ],
+          "risks": [
+            "New staging still circular across actual reference publication/market collection; accidental weakening of currentproof/humanreview/observations or extra frozenpath. Architect must freeze implementable onepath recipe before owner starts.",
+            "Exacthistory/authority exclusion/statepreservation errors, reused G/R as actualtransition, old marker loss, stale success or initialreview shortcuts, append races, synthetic evidence mistaken for authentic sources."
+          ],
+          "escalation_triggers": [
+            "Any requiredotherfrozenpath/product/proof/financial/source/legacy change stops for separatelyapprovedscope; no silentreset orreviewscopeexpansion. Recurrentunderlyingconcern followsADR0034 withaccountabledecision, not agreementdispatch.",
+            "Same-scope repair staysowner withinremainingcounts; concretecomplexity/concurrency/unresolvedfailure mayjustifyfreshspecialist. Failedfinalreview/exhaustion/seriousblocker ->BLOCKED_FOR_DECISION."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-01T07:08:14Z",
+      "data": {
+        "phase": "design",
+        "session": "/root/issue134_design",
+        "role": "design_architect",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-01T07:17:11Z",
+      "data": {
+        "session": "/root/issue134_design",
+        "outcome": "pass",
+        "evidence": "Separate design_architect/gpt-6-astra/high returned DESIGN_READY against identicalgen1 ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76; exact handoff transcribed docs/workflow/issue134-design-handoff.md. Dedicated manifest_sequence_amendment/issue123-manifest-sequence-v1 exactgen6/actual49/fullprefix source, oneS123-1sentence replacement ->unapprovedgen7; native3998scope hashf3cf94b11c8b23be2a04d17f87fb6e4615b96338e87e538fb0a391b6602403f0. G/R/128/132 and sourceC/D fingerprint exclusions, state preservation/invalidation, consuming/reference connectedlineage accounting, heldR->resetgen8 route, stagedproof/issuance/actualattestation/publication/boundcollection and tests frozen. No product/runtime/otherfrozenpath or operational changes. No independent challenge/coordinator approval asserted yet."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-01T07:17:12Z",
+      "data": {
+        "phase": "challenge",
+        "session": "/root/issue134_challenge",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-01T07:21:37Z",
+      "data": {
+        "session": "/root/issue134_challenge",
+        "outcome": "pass",
+        "evidence": "Separate independent code_reviewer/gpt-6-sol/high PASS on identical Issue134gen1 ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76. Independently replayed actual49, pinned47/49/gen6/owner/counts/blockers/markers; exact1anchor/3998scope/hash; no frozenINV134/AC134 failure in fullprefix/admission/authorityreuse/reference/connectedlineage/preservation or plan-discovery-humanproof-issuance-actualattestation-publication-boundcollection order. Design challenge only, no files or operationalcall."
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-11-01T07:21:38Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "G explicitly authorizes governance implementation after separate architect and independent challenge; coordinator approves identical capsule and exact docs/workflow/issue134-design-handoff.md following their DESIGN_READY/PASS. No actualIssue123authority or Rconsumption."
+        },
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        },
+        "evidence": "Complete exact one-path contract/history/authority/state/staging handoff independently challenged PASS, recorded in active040; implement within frozen scope, owner and finite counts."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-01T07:21:39Z",
+      "data": {
+        "phase": "implementation",
+        "session": "/root/issue134_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-01T15:10:41Z",
+      "data": {
+        "session": "/root/issue134_owner",
+        "outcome": "pass",
+        "evidence": "Approved implementation_worker/gpt-6-sol/medium completed exact approved Issue134 governance implementation/selfreview/docs. FinalfullJUnit issue134-pytest-final-complete.xml2014total:1955passed/59skipped/0failures/errors; focused54/54. Frozen sync,Ruffcheck/format,configuredmypy+mypy src67files,build,workflow/nativevalidators,Compose,diff passed. Owner hitusage limit beforehandoff; directusercontinue resumed SAME active reservation with full intervening elapsed audit retained, no pause/backdating/newstart/count/ownerchange. Ownerconfirmedfinalreadiness and fixed only StateJSON wording initeration040 beforebinding; nativehelperState containssets, newmarker/event/capsule JSONcompatible andproductgraph unchanged. Noactual123event/count/R/source/key/registry/Issue117. Staticfingerprints not authenticidentity/paraphrase/sourceproof. Native freshverification/acceptance/independentreview/delivery remain."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-01T15:10:51Z",
+      "data": {
+        "phase": "verification",
+        "session": "/root/issue134_owner",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        },
+        "content": "dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-01T15:13:03Z",
+      "data": {
+        "session": "/root/issue134_owner",
+        "outcome": "pass",
+        "evidence": "Fresh native reserved verification PASS on unchangedcontent dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e before+after. Newfocused54/54, validate_codex_workflow, nativewholeledger anddiffchecks passed, no edits/format/commit. FinalfullJUnit2014total=1955passed/59skipped/zeroerrorsfailures retained; codeunchanged. Noactual123/R/source/key/publication."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-01T15:13:05Z",
+      "data": {
+        "ids": [
+          "AC134-1",
+          "AC134-2",
+          "AC134-3",
+          "AC134-4",
+          "AC134-5"
+        ],
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        },
+        "content": "dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e",
+        "evidence": "Implementation acceptance-to-review evidence binds exact verified content: AC134-1 separateexactdesign/independentchallenge/coordinatorapproval; AC134-2 exactonepathevent/preservation/fullsyntheticrenewedroute; AC134-3 focused54 and unchangedfullregressions; AC134-4 ADR0045/newrunbook/active040/instructions withacceptedhistorypreserved and scope/limits honest; AC134-5 implementation requiredgates/full1955passed59skipped/freshboundverification/selfreview completed. Independentimplementationreview, actualcommit/push/PR/currentheadCI andnativeoriginalPRdelivery remain mandatory subsequent gates and are NOT claimed completed by this acceptance-to-review record. No actualIssue123operation or realcoverage implication."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-01T15:13:08Z",
+      "data": {
+        "phase": "initial_review",
+        "session": "/root/issue134_initial_review",
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-134-issue123-staged-manifest-sequencing",
+          "generation": 1,
+          "digest": "ef108151e006112327986ef46ebdf995b4bba332f3e3b94f45beb5b8e5faaa76"
+        },
+        "content": "dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-01T15:16:46Z",
+      "data": {
+        "session": "/root/issue134_initial_review",
+        "outcome": "pass",
+        "evidence": "Fresh independent code_reviewer/gpt-6-sol/high PASS on exactcontent dc5d62f6d1217e93c7ecd7bd7e7d82989ed271f165acb38522867d1bb382ca6e. Reviewed fullmodified/untrackeddiff, frozenowncapsule/issue/ADR0045/handoff/040/runbook, admission/replay/authority_records/validate_map, focused54 andfull1955passed59skipped evidence. No actionable INV134-1..5/AC134-1..4 failure. Exact49/gen6/fullsuffix/3998singlepath, nineauthority+consumed/references/lineage, preserveddebt/owner/blockers/counts, clearedsuccess, syntheticgen8/remediation/finalreview/originalPR andstagedproof/publication/boundcollection confirmed. AC134-5 actualcommit/push/PR/currentheadCI/nativeoriginaldelivery remain pending, notwaived. No edits/providercalls."
+      }
+    }
+  ]
+}

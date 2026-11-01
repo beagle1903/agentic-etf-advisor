@@ -382,6 +382,33 @@ LOCAL_REGISTRY_PREFIX_DIGEST = "2d7a3127922376a1a6991fd40192145a408f6df68c8cbefa
 ISSUE132_GOVERNANCE_APPROVAL_DIGEST = (
     "cafa481265220bf1308016fa3e08235333ceee79b337ac2a5b027b3f2a53defa"
 )
+MANIFEST_SEQUENCE_VERSION = "issue123-manifest-sequence-v1"
+MANIFEST_SEQUENCE_SOURCE = {
+    "id": "issue-123-usable-reference-and-bnd-diagnostic",
+    "generation": 6,
+    "digest": "9929b6f75007a776e3f14d3ee53f7631a5db66c5384aa0e3f0e78daa1c18bc52",
+}
+MANIFEST_SEQUENCE_PREFIX_DIGEST = "bb14145e68f53476ef1ba7e8189fdff40dd0c535eba83924431480e394bcc70d"
+MANIFEST_SEQUENCE_ANCHOR = (
+    "Before any operation, freeze the exact directory, listings, Fund/class and source manifest, "
+    "named authorized curator and distinct independent proof reviewer, key-issuance authority "
+    "and local-publication authority in the fresh approved operational design."
+)
+MANIFEST_SEQUENCE_REPLACEMENT = "Before source discovery or acquisition, the fresh approved operational design must freeze the exact isolated ignored directory, named authorized curator and distinct independent human proof reviewer, distinct source/key/publication authority references, exact bounded official-domain queries and host policy, initial source leads and acquisition-manifest format, request/attempt/byte limits, deadline policy and exclusive attempt accounting. The initial plan must distinguish planned sources and candidate listings from established facts; it need not assert undiscovered Fund/class evidence or a complete source inventory. During the single bounded discovery attempt, record each discovered exact URL and its justification before acquisition, and append redirect, response, byte, original observation, collection, time and outcome evidence without renewing observations. Before any market collection, freeze at most10 exact source-justified provider listings, their source-to-field associations, and remaining attempts within the same approved bounds. Before any real key issuance or registry publication, freeze the complete direct legal Fund/class and active ISIN membership evidence, source manifest with available raw bodies and exact locators, complete inventories/comparisons/continuity dispositions and every current proof constituent at saved check time; obtain the distinct authorized human reviewer's actual approval of that proof before issuance/publication. Use the unchanged reference loader and publisher; publish the one bound envelope before any market collection that requires it, and stop without market collection or retry after failed or uncertain publication. Staging permits discovery before final evidence manifests exist; it changes no acquisition count, financial/proof/freshness rule, actor authority or one-shot publication safeguard."  # noqa: E501
+MANIFEST_SEQUENCE_SCOPE_DIGEST = "f3cf94b11c8b23be2a04d17f87fb6e4615b96338e87e538fb0a391b6602403f0"
+MANIFEST_SEQUENCE_DENIED_AUTHORITY_DIGESTS = frozenset(
+    {
+        GOVERNANCE_APPROVAL_DIGEST,
+        ISSUE132_GOVERNANCE_APPROVAL_DIGEST,
+        "07f5ee894d8cb6aa3450c5a4e3a120e1ab1a7cf7093e96cf39cf50adcb68f233",
+        "20f2aca5aee644eeb7e7bf24ba5012585622da44dba8782d7c3ad6d3117f4058",
+        "a753f605e11bb0aef92cb6867238d26c326768023d8626c035fe7da4cf9e32b9",
+        "64d7461ded1441aab0094f35901784497807ac8dc226d21ee981751486a99d0d",
+        "4b26e2b8cfedde167cea89c6dea74c1d394e4777c58e3a51bb2b8bfb259891c1",
+        "ebf4bd61cf400d52e6c106b3e516dc396bf538d6cb630d1a5a5c5e3159d90491",
+        "e2d3816d83ca0193e05e640fdacc93a38041d67ef97172b4645eb6dd809abab1",
+    }
+)
 
 
 def strict_equal(left: object, right: object) -> bool:
@@ -397,6 +424,111 @@ def strict_equal(left: object, right: object) -> bool:
             strict_equal(a, b) for a, b in zip(left, right, strict=True)
         )
     return left == right
+
+
+def manifest_sequence_target(source: dict, authorization: dict) -> tuple[dict, dict]:
+    """Build only the one-path generation-seven Issue123 sequencing capsule."""
+    target = copy.deepcopy(source)
+    before = source["scope"]["S123-1"]
+    if before.count(MANIFEST_SEQUENCE_ANCHOR) != 1:
+        raise Invalid("Issue123 source sequencing anchor differs")
+    after = before.replace(MANIFEST_SEQUENCE_ANCHOR, MANIFEST_SEQUENCE_REPLACEMENT, 1)
+    if len(after) != 3998 or digest(after) != MANIFEST_SEQUENCE_SCOPE_DIGEST:
+        raise Invalid("Issue123 sequencing scope text differs")
+    target["scope"]["S123-1"] = after
+    target["generation"] = 7
+    target["authorization"] = copy.deepcopy(authorization)
+    return target, {
+        "version": MANIFEST_SEQUENCE_VERSION,
+        "definitions": {"scope.S123-1": {"before": before, "after": after}},
+    }
+
+
+def admit_manifest_sequence_amendment(
+    state: State, history: dict, index: int, data: object
+) -> tuple[dict, str]:
+    data = keys(
+        data,
+        {
+            "transition",
+            "authority",
+            "capsule",
+            "source_history",
+            "replacement",
+            "target",
+            "changes",
+            "reason",
+        },
+    )
+    authority(data["authority"], "user")
+    text(data["reason"])
+    normalized = normalized_evidence(data["authority"]["evidence"])
+    if digest(normalized) in MANIFEST_SEQUENCE_DENIED_AUTHORITY_DIGESTS:
+        raise Invalid("prior governance or operational authority cannot authorize sequencing")
+    if normalized in state.authorization_history:
+        raise Invalid("manifest sequence authority already consumed")
+    if data["transition"] != MANIFEST_SEQUENCE_VERSION:
+        raise Invalid("unknown manifest sequence transition")
+    if (state.repo, state.issue, state.policy, state.classification, state.review_required) != (
+        "beagle1903/agentic-etf-advisor",
+        123,
+        "owner-led-v1",
+        "consequential",
+        True,
+    ):
+        raise Invalid("manifest sequence source ticket differs")
+    if (
+        not state.capsule
+        or not strict_equal(capsule_ref(state.capsule), MANIFEST_SEQUENCE_SOURCE)
+        or not strict_equal(data["capsule"], MANIFEST_SEQUENCE_SOURCE)
+    ):
+        raise Invalid("manifest sequence source capsule differs")
+    if (
+        index < 49
+        or digest({"schema": 1, "events": history["events"][:49]})
+        != MANIFEST_SEQUENCE_PREFIX_DIGEST
+    ):
+        raise Invalid("Issue123 immutable 49-event prefix differs")
+    prefix = keys(data["source_history"], {"event_count", "digest"})
+    if integer(prefix["event_count"], 49) != index or sha(prefix["digest"]) != digest(
+        {"schema": 1, "events": history["events"][:index]}
+    ):
+        raise Invalid("manifest sequence complete history differs")
+    if (
+        state.manifest_sequence_amendment is not None
+        or state.capsule_amendment is None
+        or state.local_registry_authority is None
+        or state.active
+        or state.suspended
+        or not state.clock_running
+        or state.delivered
+        or state.delivery_history
+        or state.delivery_binding is not None
+        or state.retired
+        or state.split_remaining is not None
+        or state.split_pool is not None
+        or state.splits
+        or state.predecessor
+        or state.ancestry
+        or state.retained_reservation_open
+        or state.historical_transition is not None
+        or state.final_failed
+    ):
+        raise Invalid("manifest sequence requires nonterminal unsplit between-phase source")
+    if (
+        not strict_equal(state.approved_owner, state.capsule["owner"])
+        or state.approved_owner["role"] == "implementation_specialist"
+    ):
+        raise Invalid("manifest sequence source owner differs")
+    replacement, changes = manifest_sequence_target(state.capsule, data["authority"])
+    if (
+        not strict_equal(data["replacement"], replacement)
+        or not strict_equal(data["target"], capsule_ref(replacement))
+        or not strict_equal(data["changes"], changes)
+    ):
+        raise Invalid("manifest sequence replacement or change map differs")
+    capsule(replacement, state)
+    return replacement, normalized
 
 
 def local_registry_target(source: dict, authorization: dict) -> tuple[dict, dict]:
@@ -808,6 +940,7 @@ class State:
     retained_reservation_open: bool = False
     capsule_amendment: dict | None = None
     local_registry_authority: dict | None = None
+    manifest_sequence_amendment: dict | None = None
 
     def elapsed(self, now: datetime) -> int:
         if self.last is not None and now < self.last:
@@ -1284,6 +1417,24 @@ def replay(
             state.capsule = replacement
             state.local_registry_authority = {
                 "contract": LOCAL_REGISTRY_VERSION,
+                "source": source_ref,
+                "target": capsule_ref(replacement),
+                "source_history": copy.deepcopy(data["source_history"]),
+                "event": index,
+            }
+            state.authorization_history.add(normalized)
+            state.ready = state.challenge_ok = state.verified = state.accepted = False
+            state.reviewed = state.remediated = False
+            state.design_session = state.challenge_session = state.author_session = None
+            state.design_ref = state.challenge_ref = state.approved_ref = None
+            state.verified_content = state.acceptance_content = state.review_content = None
+            state.design_started = True
+        elif kind == "manifest_sequence_amendment":
+            replacement, normalized = admit_manifest_sequence_amendment(state, value, index, data)
+            source_ref = capsule_ref(state.capsule)
+            state.capsule = replacement
+            state.manifest_sequence_amendment = {
+                "contract": MANIFEST_SEQUENCE_VERSION,
                 "source": source_ref,
                 "target": capsule_ref(replacement),
                 "source_history": copy.deepcopy(data["source_history"]),
@@ -2031,7 +2182,11 @@ def authority_records(history: dict) -> list[dict]:
                 }
             )
             capsule_references.add(evidence)
-        elif event["type"] in {"capsule_amendment", "local_registry_authority"}:
+        elif event["type"] in {
+            "capsule_amendment",
+            "local_registry_authority",
+            "manifest_sequence_amendment",
+        }:
             amendment_authority = event["data"]["authority"]
             evidence = normalized_evidence(amendment_authority["evidence"])
             records.append(
@@ -2198,7 +2353,11 @@ def validate_map(
                             raise Invalid("authority reused within connected lineage")
                         consumed[key] = (member, index, "capsule_update")
                         capsule_references.add(key)
-                if kind in {"capsule_amendment", "local_registry_authority"}:
+                if kind in {
+                    "capsule_amendment",
+                    "local_registry_authority",
+                    "manifest_sequence_amendment",
+                }:
                     key = normalized_evidence(data["authority"]["evidence"])
                     if key in consumed:
                         raise Invalid("authority reused within connected lineage")
