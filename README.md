@@ -58,6 +58,20 @@ provider-backed explanation are opt-in and require their corresponding extras, l
 indexed data, and provider configuration. The default checkpoint lives only in the current
 Streamlit browser session.
 
+| Investor profile | Human review of the policy draft | Approved review |
+| --- | --- | --- |
+| [![Dashboard investor profile form](docs/images/dashboard-profile.png)](docs/images/dashboard-profile.png) | [![Dashboard human review with the illustrative policy split](docs/images/dashboard-review.png)](docs/images/dashboard-review.png) | [![Dashboard after approving the policy draft](docs/images/dashboard-approved.png)](docs/images/dashboard-approved.png) |
+
+The screenshots show the default offline policy-only path with the example profile values.
+
+With **Attach local source evidence** enabled against a published research snapshot, the review
+also shows the deterministically constructed illustrative model portfolio:
+
+[![Dashboard illustrative model portfolio built from source evidence](docs/images/dashboard-portfolio.png)](docs/images/dashboard-portfolio.png)
+
+This example uses six evidence candidates; with the default five, the bond ETF was not retrieved
+and construction stopped with `missing_sleeve_coverage`.
+
 To keep a review across browser sessions, start the existing PostgreSQL service and enable the
 dashboard's opt-in durable mode:
 
