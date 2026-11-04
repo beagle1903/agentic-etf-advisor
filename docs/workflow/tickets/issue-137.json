@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-11-04T07:57:10Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 137,
+        "classification": "consequential",
+        "scope": [
+          "S137-1"
+        ],
+        "invariants": [
+          "INV137-1",
+          "INV137-2",
+          "INV137-3"
+        ],
+        "acceptance": [
+          "AC137-1",
+          "AC137-2",
+          "AC137-3"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human reply \"approved\" on 2026-11-04 to the bundled decision in the Issue123 transition chat authorizes opening and delivering one separate Yahoo transport repair limited to enforcing the existing 2 MiB actual-read cap, with offline verification and standard finite workflow allowances. Separately approved Issue123 design_reset +1 only, zero other count/time changes, held until this repair is independently verified and merged. This ticket consumes only the repair authority."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 137,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue137_owner"
+          },
+          "rationale": "Consequential resource-safety and fail-closed transport contract. Require separate architect, independent challenge and coordinator approval before implementation, then independent implementation review.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human reply \"approved\" on 2026-11-04 to the bundled decision in the Issue123 transition chat authorizes opening and delivering one separate Yahoo transport repair limited to enforcing the existing 2 MiB actual-read cap, with offline verification and standard finite workflow allowances. Separately approved Issue123 design_reset +1 only, zero other count/time changes, held until this repair is independently verified and merged. This ticket consumes only the repair authority."
+          },
+          "scope": {
+            "S137-1": "Repair the bounded Yahoo transport path so the existing configured response-body ceiling is enforced at delivery into application memory, including a final crossing chunk. Preserve the 2 MiB Issue123 ceiling. Make abort propagate and fail closed when a supported dependency/build cannot enforce the boundary. Cover the normal collector and shared bounded-session callers with offline verification."
+          },
+          "non_goals": [
+            "No live source or provider calls, expanded data budgets, financial-rule changes, registry or store operations, persistence or saved-review changes, Issue123 operations or reset, Issue117, trade, or external financial write."
+          ],
+          "invariants": {
+            "INV137-1": "Across a bounded request, application delivery of response body bytes must not exceed the configured ceiling, including rejected overflow delivery. Honor encoding and redirects without hidden unbounded body delivery or accepted partial content.",
+            "INV137-2": "Abort propagation is effective with the pinned transport. Reject unverifiable dependencies or request options before unsafe transfer. Preserve existing timeout, deadline, request-count, retry, and failure behavior except for stricter enforcement.",
+            "INV137-3": "Preserve existing collector/session callers, complete-payload success semantics, source identity, parser, persistence, and financial behavior. No external provider requests in design, implementation, or verification."
+          },
+          "interfaces": [
+            "Existing YahooRequestBudget and bounded_yahoo_session, catalogue research collector and any other real callers. Keep their public signatures and semantics except stricter enforced rejection."
+          ],
+          "json_state_impact": "None. No product graph, checkpoint, persisted result, or registry JSON change.",
+          "acceptance": {
+            "AC137-1": "Separate architect and independent challenge establish a concrete supported enforcement and abort path on this exact capsule, then coordinator approves before implementation.",
+            "AC137-2": "Offline tests demonstrate exact boundary, crossing chunk, overflow abort with no subsequent application body delivery, encoded/chunked bodies, redirects and timeouts through the pinned transport or architect-approved equivalent. Prove fail-closed unsupported transport/options.",
+            "AC137-3": "Focused caller regressions and required repository checks pass. Document affected contracts, proof limitations, and issue dependency. Verification, acceptance, independent review and native delivery bind identical content to the repair PR."
+          },
+          "verification": [
+            "Focused offline transport and caller tests plus locked default/MINIMAL/dev checks as applicable, Ruff, mypy, build, workflow validation, Compose, diff and CI. Preserve counters and independent review."
+          ],
+          "documentation": [
+            "New ADR and active iteration explaining the actual-read enforcement, supported transport boundary, offline evidence and held Issue123 reset. Update architecture where current behavior changes."
+          ],
+          "risks": [
+            "A callback may see a crossing chunk before rejecting it, or the CFFI wrapper may treat a rejected return as success. Content encoding, redirects, hidden prefetch, transfer buffering and unknown native builds can invalidate a byte proof."
+          ],
+          "escalation_triggers": [
+            "If the hard bound cannot be proven with the approved behavior, stop for a consequential decision. No changed ceiling or scope. Specialist only on recorded concrete difficulty."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T07:57:24Z",
+      "data": {
+        "phase": "design",
+        "role": "design_architect",
+        "session": "/root/issue137_design",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        }
+      }
+    }
+  ]
+}
