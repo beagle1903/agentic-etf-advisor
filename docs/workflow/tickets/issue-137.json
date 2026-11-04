@@ -120,6 +120,46 @@
         "phase": "challenge",
         "session": "/root/issue137_challenge"
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T08:07:43Z",
+      "data": {
+        "evidence": "Independent code_reviewer PASS on the exact generation1 capsule. Verified pinned option precedence, int64 native cap, handle reset, zero retry gate, callback and redirect paths. No demonstrated INV137/AC137 failure.",
+        "outcome": "pass",
+        "session": "/root/issue137_challenge"
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-11-04T08:07:44Z",
+      "data": {
+        "evidence": "Approve exact pinned native enforcement and offline tests in docs/workflow/issue137-design-handoff.md. Preserve all frozen scope and invariants. No live source operations.",
+        "authority": {
+          "evidence": "Coordinator approved identical Issue137 generation1 after separate architect and independent challenge. User approval covers only repair. Held Issue123 reset remains conditional.",
+          "kind": "coordinator",
+          "name": "/root"
+        },
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T08:07:45Z",
+      "data": {
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "session": "/root/issue137_owner",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        }
+      }
     }
   ]
 }
