@@ -184,6 +184,48 @@
         "content": "d3b212f974c5e5ceb7e7c1b1d66ec305d6ef2fa64d3e8ae280b1ba9cc86fc175",
         "phase": "verification"
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T08:26:09Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Identical content d3b212f974c5e5ceb7e7c1b1d66ec305d6ef2fa64d3e8ae280b1ba9cc86fc175. Locked rag pytest 1985 passed/52 skipped, isolated frozen minimal/default dev pytest 1955 passed/82 skipped, zero failures/errors. JUnit .artifacts/issue137-rag-final.xml and .artifacts/issue137-minimal-final.xml. Ruff/format, mypy src (67), build, both workflow validators, Compose and diff passed. No provider calls.",
+        "session": "/root/issue137_owner"
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-04T08:26:10Z",
+      "data": {
+        "content": "d3b212f974c5e5ceb7e7c1b1d66ec305d6ef2fa64d3e8ae280b1ba9cc86fc175",
+        "evidence": "AC1 separate architect and challenge PASS on exact approved generation1. AC2 pinned offline transport tests show actual delivery never exceeds the cap, exact payload succeeds, overflow and deadline abort, encoded/chunked/redirect and fail-closed admission exercised. AC3 frozen focused/caller and full suites and repository checks pass, ADR0046 and iteration041 complete. Independent implementation review and delivery remain separate gates.",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        },
+        "ids": [
+          "AC137-1",
+          "AC137-2",
+          "AC137-3"
+        ]
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T08:26:11Z",
+      "data": {
+        "content": "d3b212f974c5e5ceb7e7c1b1d66ec305d6ef2fa64d3e8ae280b1ba9cc86fc175",
+        "role": "code_reviewer",
+        "phase": "initial_review",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        },
+        "session": "/root/issue137_initial_review"
+      }
     }
   ]
 }
