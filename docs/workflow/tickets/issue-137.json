@@ -97,6 +97,29 @@
           "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
         }
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T08:06:00Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Separate architect DESIGN_READY against the exact generation1 capsule. Pinned native ceiling and offline loopback proof recorded in docs/workflow/issue137-design-handoff.md. Independent challenge pending.",
+        "session": "/root/issue137_design"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T08:06:01Z",
+      "data": {
+        "role": "code_reviewer",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "generation": 1,
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998"
+        },
+        "phase": "challenge",
+        "session": "/root/issue137_challenge"
+      }
     }
   ]
 }
