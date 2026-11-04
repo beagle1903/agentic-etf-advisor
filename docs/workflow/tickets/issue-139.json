@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-11-04T13:27:32Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 139,
+        "classification": "ordinary",
+        "scope": [
+          "S139-1"
+        ],
+        "invariants": [
+          "INV139-1",
+          "INV139-2",
+          "INV139-3"
+        ],
+        "acceptance": [
+          "AC139-1",
+          "AC139-2",
+          "AC139-3"
+        ],
+        "review_required": false,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human reply \"approved\" to the exact separate feasibility decision in issue123-direct-source-recovery.md in this chat. One evidence-only pass for VWCE, CSPX and BND with at most four official-domain searches and eight issuer/exchange attempts, stated byte/time caps and offline preflight. No Issue123 reset or operations."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 139,
+          "classification": "ordinary",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue139_owner"
+          },
+          "rationale": "Ordinary bounded research within established transport and evidence contracts. This evaluates source availability and makes no consequential change to financial eligibility, registry, persistence or product contracts.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "Direct human reply \"approved\" to the exact separate feasibility decision in issue123-direct-source-recovery.md in this chat. One evidence-only pass for VWCE, CSPX and BND with at most four official-domain searches and eight issuer/exchange attempts, stated byte/time caps and offline preflight. No Issue123 reset or operations."
+          },
+          "scope": {
+            "S139-1": "One official source feasibility pass for the documented VWCE and CSPX growth leads and BND defensive lead. Produce sanitized field-level coverage and measured outcomes, including negative results. Use sole scratch directory C:/Users/burha/.codex/worktrees/issue139-proof-feasibility/agents-lab/.artifacts/issue139-source-feasibility/."
+          },
+          "non_goals": [
+            "No Issue123 state or bootstrap change, registry, key issuance, publication, market collection, eligibility certification, Issue117, product client changes or financial write. No repeat attempt, alternate candidate or unsupported inference."
+          ],
+          "invariants": {
+            "INV139-1": "At most four official-domain searches and eight issuer/exchange attempts including redirects and failures. One attempt per exact URL. 15 seconds per request, 2 MiB per response, 16 MiB aggregate including search, and 15 minutes from first I/O. Use pinned ADR0046 strict cap, no retries, exclusive durable attempt markers before I/O and post-marker deadline clamp. Manual allowlisted HTTPS redirects counted and reserved. Stop on uncertainty or unsupported paths.",
+            "INV139-2": "Search results are discovery only. Freeze lead-to-field rationale and exact source URL before each acquisition. Distinguish current attributable evidence from observation/collection time, historical leads, absent or ambiguous proof. Do not infer Fund identity, active class or eligibility.",
+            "INV139-3": "Raw bodies and harness stay ignored in the isolated checkout. Preserve terminal marker and sanitized hashes, counts and provenance. Do not touch Issue123 or other worktrees."
+          },
+          "interfaces": [
+            "None to product; use existing pinned curl transport with an ignored read-only acquisition harness."
+          ],
+          "json_state_impact": "None to product, registry, graph or checkpoint. Ignored acquisition logs and sanitized documentation only.",
+          "acceptance": {
+            "AC139-1": "Before external I/O, pass offline fixtures for wrapped URL decoding, HTTP200 challenges, exact URL/redirect admission, native actual byte cap and deadline calculation after durable start marker. Stop and report a reproducible blocker if the preflight fails.",
+            "AC139-2": "Report exact official source-to-proof coverage for all three candidates, with source URL, actual observed/collected time, hash/locator and explicit missing fields. Explain whether source coverage can support a credible complete route without class or eligibility inference. Negative coverage is a valid feasibility outcome.",
+            "AC139-3": "Preserve the sole measured attempt and all budget counters, evidence boundaries and terminal status. Deliver sanitized report with native verification and content binding."
+          },
+          "verification": [
+            "Offline harness fixtures and cap preflight, verify source hashes and proof mapping against saved bodies and log, check budgets and scope, workflow validator and git diff. No repeat live verification."
+          ],
+          "documentation": [
+            "docs/iterations/042-issue139-official-proof-feasibility.md with candidate matrix, sources, counters, outcome and limits."
+          ],
+          "risks": [
+            "Search wrappers or challenge pages masquerade as leads, historical timestamps get mistaken for fresh observations, or an attempt expires without enough credible evidence."
+          ],
+          "escalation_triggers": [
+            "Any scope/authority expansion, unsupported strict transport, exhausted window, or requested inference must stop. No consequential redesign or repeated attempt."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "type": "design_ready",
+      "at": "2026-11-04T13:27:59Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Direct human reply \"approved\" to the exact separate feasibility decision in issue123-direct-source-recovery.md in this chat. One evidence-only pass for VWCE, CSPX and BND with at most four official-domain searches and eight issuer/exchange attempts, stated byte/time caps and offline preflight. No Issue123 reset or operations."
+        },
+        "evidence": "Architecture-determined read-only feasibility using existing approved transport. Freeze exact caps and verification before dispatch. No product or financial contract changes.",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
+        }
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T13:28:23Z",
+      "data": {
+        "session": "/root/issue139_owner",
+        "phase": "implementation",
+        "role": "implementation_worker",
+        "capsule": {
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114",
+          "id": "issue-139-official-fund-proof-feasibility"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T13:34:55Z",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue139_owner",
+        "evidence": "Completed bounded feasibility report. Offline preflight passed before live I/O. One attempt, two issuer/exchange starts, zero searches, VWCE 438311-byte complete response and CSPX native size error63 stopped before BND. Negative proof coverage is a valid feasibility result. No Issue123 operation or rerun."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-04T13:34:57Z",
+      "data": {
+        "phase": "verification",
+        "role": "implementation_worker",
+        "session": "/root/issue139_owner",
+        "content": "0ce10633f4d70eeeed38532236b024a55e6057c9af34d59a0ff45decc31e9b14",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T13:36:09Z",
+      "data": {
+        "evidence": "Same owner checked unchanged f9a2128 content. Offline preflight, exact saved event sequence and terminal accounting, VWCE raw hash and field locators, CSPX native 63 and conservative failed-byte reservation, BND unrequested, workflow validation and diff passed. No live verification I/O.",
+        "session": "/root/issue139_owner",
+        "outcome": "pass"
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-04T13:36:10Z",
+      "data": {
+        "evidence": "AC139-1 offline preflight passed before I/O. AC139-2 matrix explicitly reports one listing-only response, one capped failure, and unrequested BND, with no credible three-Fund route. AC139-3 one terminal attempt, counters, artifacts, sanitized iteration042 and identical-content verification retained. Feasibility acceptance only; no Issue123 eligibility or continuation.",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
+        },
+        "ids": [
+          "AC139-1",
+          "AC139-2",
+          "AC139-3"
+        ],
+        "content": "0ce10633f4d70eeeed38532236b024a55e6057c9af34d59a0ff45decc31e9b14"
+      }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-04T13:36:44Z",
+      "data": {
+        "evidence": "Bind original PR140 after checked delivery, exact verified and accepted evidence-only content. Final-head CI and unresolved-thread checks follow.",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
+        },
+        "repo": "beagle1903/agentic-etf-advisor",
+        "content": "0ce10633f4d70eeeed38532236b024a55e6057c9af34d59a0ff45decc31e9b14",
+        "pr": 140
+      }
+    }
+  ]
+}
