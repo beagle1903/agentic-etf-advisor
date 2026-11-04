@@ -235,6 +235,21 @@
         "outcome": "pass",
         "session": "/root/issue137_initial_review"
       }
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-04T08:28:24Z",
+      "data": {
+        "evidence": "Bind original repair PR #138 after native delivery check, separate architecture/challenge/coordinator approval, locked verification and acceptance, and independent initial review on identical content. Final-head CI and unresolved-thread checks follow this binding.",
+        "capsule": {
+          "id": "issue-137-yahoo-transport-read-ceiling",
+          "digest": "1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998",
+          "generation": 1
+        },
+        "content": "d3b212f974c5e5ceb7e7c1b1d66ec305d6ef2fa64d3e8ae280b1ba9cc86fc175",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 138
+      }
     }
   ]
 }
