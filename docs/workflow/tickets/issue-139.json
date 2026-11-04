@@ -138,6 +138,33 @@
           "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
         }
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-04T13:36:09Z",
+      "data": {
+        "evidence": "Same owner checked unchanged f9a2128 content. Offline preflight, exact saved event sequence and terminal accounting, VWCE raw hash and field locators, CSPX native 63 and conservative failed-byte reservation, BND unrequested, workflow validation and diff passed. No live verification I/O.",
+        "session": "/root/issue139_owner",
+        "outcome": "pass"
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-04T13:36:10Z",
+      "data": {
+        "evidence": "AC139-1 offline preflight passed before I/O. AC139-2 matrix explicitly reports one listing-only response, one capped failure, and unrequested BND, with no credible three-Fund route. AC139-3 one terminal attempt, counters, artifacts, sanitized iteration042 and identical-content verification retained. Feasibility acceptance only; no Issue123 eligibility or continuation.",
+        "capsule": {
+          "id": "issue-139-official-fund-proof-feasibility",
+          "generation": 1,
+          "digest": "115d9bcf9d5f05e4890efb954d9328696b3c308553d3bb653685bfec0fbda114"
+        },
+        "ids": [
+          "AC139-1",
+          "AC139-2",
+          "AC139-3"
+        ],
+        "content": "0ce10633f4d70eeeed38532236b024a55e6057c9af34d59a0ff45decc31e9b14"
+      }
     }
   ]
 }
