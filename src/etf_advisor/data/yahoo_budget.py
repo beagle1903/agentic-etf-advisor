@@ -74,14 +74,45 @@ class YahooRequestBudget:
 
 
 def bounded_yahoo_session(budget: YahooRequestBudget) -> Any:
-    """Use curl's receive callback so oversized bodies never fully materialize."""
+    """Have the pinned native transport admit body bytes before Python receives them."""
     yf = importlib.import_module("yfinance")
     if yf.__version__ != "1.7.0":
         raise YahooBudgetError("unreviewed_yfinance_version")
+    curl = importlib.import_module("curl_cffi")
+    native_version = getattr(curl, "__curl_version__", "")
+    native_tokens = native_version.split() if isinstance(native_version, str) else []
+    if (
+        curl.__version__ != "0.16.2"
+        or not native_tokens
+        or native_tokens[0] != "libcurl/8.21.0-IMPERSONATE"
+    ):
+        raise YahooBudgetError("unreviewed_curl_transport")
+    curl_write_error = int(importlib.import_module("curl_cffi.curl").CURL_WRITEFUNC_ERROR)
+
+    def native_options(cap: int) -> dict[Any, Any]:
+        if isinstance(cap, bool) or not isinstance(cap, int) or not 0 < cap < 2**63:
+            raise YahooBudgetError("invalid_yahoo_response_limit")
+        return {
+            curl.CurlOpt.MAXFILESIZE_LARGE: cap,
+            curl.CurlOpt.HEADER: 0,
+            curl.CurlOpt.VERBOSE: 0,
+            curl.CurlOpt.HTTP_CONTENT_DECODING: 1,
+            curl.CurlOpt.HTTP_TRANSFER_DECODING: 1,
+            curl.CurlOpt.PROTOCOLS_STR: b"http,https",
+            curl.CurlOpt.REDIR_PROTOCOLS_STR: b"http,https",
+        }
+
+    initial_options = native_options(budget.max_response_bytes)
     base: Any = importlib.import_module("curl_cffi.requests").Session
 
     class BoundedSession(base):  # type: ignore[misc]
         def request(self, method: Any, url: str, **kwargs: Any) -> Any:
+            if self.retry.count != 0:
+                budget.breached = True
+                raise YahooBudgetError("unsupported_yahoo_retry_policy")
+            self.debug = False
+            cap = budget.max_response_bytes
+            self.curl_options = native_options(cap)
             timeout = budget.before_request()
             if "content_callback" in kwargs or kwargs.get("stream"):
                 budget.breached = True
@@ -98,15 +129,17 @@ def bounded_yahoo_session(budget: YahooRequestBudget) -> Any:
             def receive(chunk: bytes) -> int:
                 nonlocal total
                 total += len(chunk)
-                if total > budget.max_response_bytes or budget.monotonic() >= budget.deadline:
+                if total > cap or budget.monotonic() >= budget.deadline:
                     budget.breached = True
-                    return 0
+                    return curl_write_error
                 chunks.append(chunk)
                 return len(chunk)
 
             try:
                 response = super().request(method, url, content_callback=receive, **kwargs)
             except Exception as exc:
+                if isinstance(exc, curl.CurlError) and exc.code == 63:
+                    budget.breached = True
                 if budget.breached:
                     raise YahooBudgetError("yahoo_receive_limit_exceeded") from exc
                 raise
@@ -114,4 +147,4 @@ def bounded_yahoo_session(budget: YahooRequestBudget) -> Any:
             response.content = b"".join(chunks)
             return response
 
-    return BoundedSession(impersonate="chrome")
+    return BoundedSession(impersonate="chrome", retry=0, debug=False, curl_options=initial_options)

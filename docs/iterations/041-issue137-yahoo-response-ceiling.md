@@ -1,0 +1,7 @@
+# Issue 137: Yahoo response ceiling repair
+
+The approved consequential capsule is generation 1 digest `1714e87eb713bee96c02bacbc0c6535ce07da6b0726f7f3d7faa46c2dfd53998`. Separate architect `/root/issue137_design` returned DESIGN_READY. Independent challenger `/root/issue137_challenge` passed and the coordinator approved the identical capsule before implementation. Owner `/root/issue137_owner` implements the scoped transport change under the native ledger at `docs/workflow/tickets/issue-137.json`. [Design handoff](../workflow/issue137-design-handoff.md)
+
+The original failing scenario delivered 2,097,153 bytes to the Python callback against a 2,097,152-byte ceiling. The repaired path applies the native cap before that delivery, checks the pinned loaded transport, forces owned options on each request, and treats a native size failure as a sticky budget breach. The callback remains a defensive check and uses the real curl abort sentinel.
+
+The focused tests use only a loopback HTTP server and the pinned `rag` dependencies. They cover complete and crossing bodies across known length, unknown length, chunks, gzip, chunked gzip and redirects, plus runtime/option validation and deadline abort. The required full gates and final independent review are recorded separately after implementation. Issue 123's additional reset remains held until this repair is independently verified and merged. No live provider or financial system operation is part of this ticket.

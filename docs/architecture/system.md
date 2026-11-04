@@ -76,6 +76,9 @@ publication. Invalid, missing or corrupt IDs clear the selected job.
 The bounded Yahoo attempt holds the shared session exclusion and restores
 yfinance's prior singleton transport and session authentication state on both
 success and failure, so later ordinary research does not inherit its budget.
+Its pinned curl transport applies the native response ceiling before body bytes
+reach Python. Decoded, chunked and redirected final responses follow the same
+limit; unsupported transport versions fail before the request. [ADR0046](decisions/0046-native-yahoo-response-ceiling.md)
 Exact retrieval verifies all requested documents and graph links against the
 pinned directory and active manifest, delivering the full <=100 pool. The pure
 round-robin shortlist selects <=10 for the existing portfolio enumerator and

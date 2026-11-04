@@ -536,7 +536,8 @@ def test_transport_request_deadline_and_receive_body_are_enforced(monkeypatch) -
 
     class Session:
         def __init__(self, **kwargs):
-            pass
+            self.retry = types.SimpleNamespace(count=kwargs["retry"])
+            self.curl_options = kwargs["curl_options"]
 
         def request(self, method, url, **kwargs):
             actual_calls.append(kwargs)
@@ -552,6 +553,29 @@ def test_transport_request_deadline_and_receive_body_are_enforced(monkeypatch) -
     def fake_import(name):
         if name == "yfinance":
             return types.SimpleNamespace(__version__="1.7.0")
+        if name == "curl_cffi":
+            options = types.SimpleNamespace(
+                **{
+                    key: key
+                    for key in (
+                        "MAXFILESIZE_LARGE",
+                        "HEADER",
+                        "VERBOSE",
+                        "HTTP_CONTENT_DECODING",
+                        "HTTP_TRANSFER_DECODING",
+                        "PROTOCOLS_STR",
+                        "REDIR_PROTOCOLS_STR",
+                    )
+                }
+            )
+            return types.SimpleNamespace(
+                __version__="0.16.2",
+                __curl_version__="libcurl/8.21.0-IMPERSONATE test",
+                CurlOpt=options,
+                CurlError=type("FakeCurlError", (Exception,), {}),
+            )
+        if name == "curl_cffi.curl":
+            return types.SimpleNamespace(CURL_WRITEFUNC_ERROR=2**32 - 1)
         if name == "curl_cffi.requests":
             return types.SimpleNamespace(Session=Session)
         return real_import(name)
