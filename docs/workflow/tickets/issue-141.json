@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-11-05T07:10:04Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 141,
+        "classification": "consequential",
+        "scope": [
+          "S141-1",
+          "S141-2"
+        ],
+        "invariants": [
+          "INV141-1",
+          "INV141-2",
+          "INV141-3",
+          "INV141-4"
+        ],
+        "acceptance": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "User burha on 2026-11-05 said \"ok go on bro\" to the concrete curated US-first starter proposal: roughly 15\u201325 candidates, current sourced inputs and explicit duplicate checks, removal of exhaustive active-class/continuity proof from the starter workflow, targeted simplification with consequential design review and implementation. This supersedes only the desired starter outcome of Issue123; no old count/root/acquisition/publication authority is reused."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 141,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue141_owner"
+          },
+          "rationale": "A reduced financial eligibility and duplicate-listing identity contract needs a separate architect, independent challenge and coordinator approval. Ordinary implementation remains with the approved owner.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "User burha on 2026-11-05 said \"ok go on bro\" to the concrete curated US-first starter proposal: roughly 15\u201325 candidates, current sourced inputs and explicit duplicate checks, removal of exhaustive active-class/continuity proof from the starter workflow, targeted simplification with consequential design review and implementation. This supersedes only the desired starter outcome of Issue123; no old count/root/acquisition/publication authority is reused."
+          },
+          "scope": {
+            "S141-1": "Deliver an explicitly selected curated US-listed USD starter workflow with approximately 15\u201325 packaged candidate listings, verified listing identity and explicit duplicate-listing checks, source-backed current portfolio inputs, per-candidate exclusions, bounded shortlist and normal UI portfolio construction. Remove exhaustive curator Fund/class registry proof as a prerequisite of this distinct starter mode. Reuse existing collector, screening/construction/retrieval and review mechanisms where correct.",
+            "S141-2": "Document the narrower identity guarantee, retained older paths, scope supersession of Issue123 starter outcome, focused tests and one bounded real source feasibility/normal app demonstration in an isolated checkout. Preserve failed Issue123 and protected Issue117 evidence."
+          },
+          "non_goals": [
+            "Worldwide or EU expansion, legal Fund identity across all share classes, complete active-class inventories, continuity/succession registry, automatic saved-review migration, broad rollback, financial threshold weakening, trades, external financial writes, or retrying/renewing Issue123 operational authorities."
+          ],
+          "invariants": {
+            "INV141-1": "Distinct explicit starter selection. US-listed ETFs and USD only. Verified exact provider listing identity and directly supported conservative duplicate grouping; names, index or directory membership alone do not prove legal Fund equality. Missing or ambiguous supported identity blocks the candidate. State the narrower guarantee honestly; no invented ISIN or legal Fund certification.",
+            "INV141-2": "Preserve existing financial category/threshold, source provenance and original observation freshness, holdings/concentration validation, exact monetary allocation, partial-evidence reporting and fail-closed restore/review safety. Unsupported candidates have explicit reasons.",
+            "INV141-3": "Preserve legacy and already selected us-eu-v1/curator contracts and saved bytes/receipts. No marker stripping, silent downgrade or existing saved-review migration. New starter persistence/replay must bind its selected scope and candidate identities and validate offline.",
+            "INV141-4": "Isolated new worktree and finite owner-led lifetime. Preserve Issue123 counts, root, failed attempts and blockers and all protected Issue117 edits. New live feasibility is only for the distinct starter contract after approved design; no registry/key/Issue123 publication operation. Bounded no-retry collection, safe source/error logs, no credentials/raw private data in git."
+          },
+          "interfaces": [
+            "Normal Streamlit/dashboard profile and research entry points; curated universe and source collector; identity/duplicate validation, snapshot/evidence/screening/shortlist/construction, checkpoint/restore and explanation. Architect must specify the smallest complete path. Provider/database boundaries remain replaceable."
+          ],
+          "json_state_impact": "A new explicitly selected starter contract or equivalently unambiguous bounded versioned input may add bound curated-universe/listing/duplicate evidence to new snapshots, jobs and review state. JSON-serializable, exact offline validation; existing absent or selected markers and saved bytes retain semantics. Architect must specify exact representation before implementation.",
+          "acceptance": {
+            "AC141-1": "Normal app can select and research a packaged approximately 15\u201325 listing US/USD starter set without curator registry, and explain each requested/collected/screened/eligible/excluded/shortlisted/final count and candidate exclusion.",
+            "AC141-2": "Focused tests prove exact listing and duplicate constraints, unsupported/missing/stale/malformed inputs, defensive/growth coverage, shortlist construction and actual normal entry-point wiring. Existing financial controls remain enforced.",
+            "AC141-3": "New starter save/reload and offline restore preserve selected identity and decision, reject tampering/downgrade, and preserve legacy/us-eu/curator behavior and saved serialization.",
+            "AC141-4": "One bounded feasibility pass retains measured outcomes and provenance; demonstrate the normal app constructing an illustrative portfolio from actual supported expanded pool with equity and defensive coverage when sources support it. Report a specific source blocker if live evidence cannot meet this; offline fixtures alone cannot certify live readiness.",
+            "AC141-5": "Record design/handoff/ADR, scope supersession and operational use, run focused and required verification with identical-content independent review, commit/push/create PR."
+          },
+          "verification": [
+            "Focused pure and entry-point tests for starter collection, identity, per-candidate gaps, shortlist, portfolio construction, exact-money, serialization/replay and old-contract regression. Required repository lint/type/workflow gates and relevant full tests. One bounded live pass/demonstration only after source plan approval; source failure is reported truthfully."
+          ],
+          "documentation": [
+            "New ADR for reduced US starter identity guarantee, active iteration and usage instructions, architecture/product scope update and explicit Issue123 supersession disposition with no grant or historical rewrite."
+          ],
+          "risks": [
+            "Duplicate economic exposure confused with duplicate listings, starter marker downgrade, legacy replay change, incomplete holdings causing defensive-source failure, candidate expansion mistaken for live eligibility, or scope growth into general curation."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity returns to architect within finite allowance. Demonstrated implementation defect stays with owner and authorized remediation. High-risk financial/persistence change requires independent review. Failed live feasibility or review remains a blocker; no silent new attempt or allowance."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "at": "2026-11-05T07:10:24Z",
+      "type": "phase_start",
+      "data": {
+        "role": "design_architect",
+        "session": "/root/issue141_design",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "phase": "design"
+      }
+    }
+  ]
+}
