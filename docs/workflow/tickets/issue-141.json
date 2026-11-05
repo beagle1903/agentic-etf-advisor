@@ -105,6 +105,69 @@
         },
         "phase": "design"
       }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-05T07:18:53Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Separate design_architect DESIGN_READY on exact generation1. Minimal prepared evidence starter boundary, direct listing identity, bounded early source gate, state/replay bindings and focused verification recorded in docs/workflow/issue141-design-handoff.md. No source calls or edits by designer.",
+        "session": "/root/issue141_design"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-05T07:18:54Z",
+      "data": {
+        "phase": "challenge",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_challenge",
+        "role": "code_reviewer"
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue141_challenge",
+        "evidence": "Independent code_reviewer DESIGN CHALLENGE PASS on identical frozen generation1 and handoff. No concrete INV141-1..4/AC141-1..5 failure. Verify returned Yahoo symbol, all20 normal-path candidates and unattempted outcomes on source-stop. No source calls or writes.",
+        "outcome": "pass"
+      },
+      "type": "phase_end",
+      "at": "2026-11-05T07:21:42Z"
+    },
+    {
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "Approve exact Issue141 generation1 after separate /root/issue141_design DESIGN_READY and independent /root/issue141_challenge PASS under direct user go-on authorization for the reduced starter scope.",
+          "name": "/root"
+        },
+        "evidence": "Approved docs/workflow/issue141-design-handoff.md, including exact listing identity, immutable prepared evidence at existing retriever boundary, source-first gate, one bounded new live pass, complete normal UI and replay binding. No Issue123 authority reused.",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "type": "design_ready",
+      "at": "2026-11-05T07:21:43Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue141_owner",
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "type": "phase_start",
+      "at": "2026-11-05T07:21:44Z"
     }
   ]
 }
