@@ -500,6 +500,7 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
     advisory_contract: Literal["us-eu-v1"] | None = None
     identity_contract: Literal["curator-fund-v1"] | None = None
     catalogue_selection: CatalogueSelectionReport | None = None
+    starter_selection: dict[str, Any] | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -521,6 +522,8 @@ class PortfolioConstructionBundle(AdvisoryWireModel):
             result.pop("identity_contract", None)
         if self.catalogue_selection is None:
             result.pop("catalogue_selection", None)
+        if self.starter_selection is None:
+            result.pop("starter_selection", None)
         return result
 
     @model_validator(mode="after")
@@ -611,6 +614,12 @@ def construct_model_portfolio(
             catalogue_selection=_catalogue_not_evaluated(inputs, category_error),
         )
     eligible, catalogue_report = _catalogue_shortlist(inputs, eligible, excluded, targets)
+    starter_report = _starter_shortlist_report(inputs, eligible, excluded)
+    if starter_report is not None:
+        starter_shortlist_ids = set(starter_report["shortlist_ids"])
+        eligible = [
+            item for item in eligible if item.candidate.document_id in starter_shortlist_ids
+        ]
     if len(eligible) < policy.min_positions:
         return _blocked_bundle(
             policy,
@@ -735,6 +744,10 @@ def construct_model_portfolio(
         catalogue_report = catalogue_report.model_copy(
             update={"final_position_ids": [position.document_id for position in draft.positions]}
         )
+    if starter_report is not None:
+        starter_report["final_position_ids"] = [
+            position.document_id for position in draft.positions
+        ]
     if not validation.valid:
         failed = next(check for check in validation.checks if not check.passed)
         return _blocked_bundle(
@@ -762,6 +775,8 @@ def construct_model_portfolio(
     }
     if catalogue_report is not None:
         payload["catalogue_selection"] = catalogue_report
+    if starter_report is not None:
+        payload["starter_selection"] = starter_report
     return PortfolioConstructionBundle.model_validate(payload)
 
 
@@ -967,10 +982,14 @@ def _validate_upstream(inputs: PortfolioConstructionInput) -> ConstructionReason
         len(inputs.candidate_evidence.candidates)
         > inputs.construction_policy.max_candidate_pool_size
         and inputs.profile.catalogue_request is None
+        and inputs.profile.starter_request is None
     ):
         return ConstructionReason.CANDIDATE_POOL_LIMIT_EXCEEDED
     context = inputs.candidate_evidence.catalogue_context
     if (context.request if context is not None else None) != inputs.profile.catalogue_request:
+        return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
+    starter = inputs.candidate_evidence.starter_context
+    if (starter.request if starter is not None else None) != inputs.profile.starter_request:
         return ConstructionReason.UPSTREAM_CONTRACT_MISMATCH
     for candidate in inputs.candidate_evidence.candidates:
         try:
@@ -1188,6 +1207,77 @@ def _catalogue_shortlist(
         dispositions=dispositions,
     )
     return selected, report
+
+
+def _starter_shortlist_report(
+    inputs: PortfolioConstructionInput,
+    eligible: list[_EligibleCandidate],
+    excluded: list[ExcludedCandidate],
+) -> dict[str, Any] | None:
+    context = inputs.candidate_evidence.starter_context
+    if context is None:
+        return None
+    capacity = min(inputs.candidate_evidence.requested_limit, MAX_CONSTRUCTION_CANDIDATES)
+    chosen: list[_EligibleCandidate] = []
+    remaining = list(eligible)
+    counts = {sleeve: 0 for sleeve in PortfolioSleeve}
+    categories: set[str] = set()
+    while remaining and len(chosen) < capacity:
+        available = {item.sleeve for item in remaining}
+        sleeve = min(available, key=lambda item: (counts[item], item != PortfolioSleeve.DEFENSIVE))
+        choices = [item for item in remaining if item.sleeve == sleeve]
+        winner = min(
+            choices, key=lambda item: (_normalize_category(item.category) in categories, item.index)
+        )
+        chosen.append(winner)
+        remaining.remove(winner)
+        counts[sleeve] += 1
+        categories.add(_normalize_category(winner.category))
+    shortlist = [item.candidate.document_id for item in chosen]
+    excluded_by_symbol = {item.symbol: item.reason_code.value for item in excluded}
+    document_by_symbol = {
+        item.symbol: item.document_id for item in inputs.candidate_evidence.candidates
+    }
+    dispositions = []
+    for outcome in context.artifact.outcomes:
+        document_id = document_by_symbol.get(outcome.symbol)
+        if outcome.status != "collected":
+            reason = outcome.reason
+        elif outcome.symbol in excluded_by_symbol:
+            reason = excluded_by_symbol[outcome.symbol]
+        elif document_id in shortlist:
+            reason = "shortlisted_sleeve_category_coverage"
+        else:
+            reason = "bounded_shortlist_omission"
+        dispositions.append(
+            dict(
+                symbol=outcome.symbol,
+                status=outcome.status,
+                document_id=document_id,
+                reason=reason,
+                shortlisted=document_id in shortlist,
+            )
+        )
+    return dict(
+        algorithm="sleeve-category-round-robin-v1",
+        artifact_digest=context.artifact.digest,
+        input_digest=hashlib.sha256(
+            json.dumps(
+                {
+                    "evidence": inputs.candidate_evidence.model_dump(mode="json"),
+                    "screening": inputs.candidate_screening.model_dump(mode="json"),
+                    "policy": inputs.construction_policy.model_dump(mode="json"),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+        ).hexdigest(),
+        capacity=capacity,
+        shortlist_ids=shortlist,
+        final_position_ids=[],
+        dispositions=dispositions,
+    )
 
 
 def _classify_candidates_impl(

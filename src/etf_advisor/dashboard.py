@@ -49,6 +49,7 @@ from etf_advisor.rag.evidence import (
     CandidateEvidenceRetriever,
     EvidenceStatus,
     HybridCandidateEvidenceRetriever,
+    PreparedStarterEvidenceRetriever,
 )
 from etf_advisor.rag.hybrid import HybridRetriever
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore
@@ -418,14 +419,24 @@ def start_dashboard_run(
 
     validated_options = DashboardOptions.model_validate(options.model_dump(mode="python"))
     catalogue_selected = "catalogue_request" in profile
-    if catalogue_selected:
+    starter_selected = "starter_request" in profile
+    if catalogue_selected or starter_selected:
         InvestorProfile.model_validate(profile)
         if not validated_options.with_evidence:
-            raise ValueError("Catalogue review requires source evidence.")
+            raise ValueError("Selected research scope requires source evidence.")
     graph_store: Neo4jGraphStore | None = None
     try:
-        candidate_retriever: HybridCandidateEvidenceRetriever | None = None
-        if validated_options.with_evidence:
+        candidate_retriever: CandidateEvidenceRetriever | None = None
+        if starter_selected:
+            request = InvestorProfile.model_validate(profile).starter_request
+            assert request is not None
+            candidate_retriever = PreparedStarterEvidenceRetriever(
+                request,
+                clock=system_utc_now,
+                max_age=timedelta(hours=settings.market_data_max_age_hours),
+                future_tolerance=timedelta(minutes=settings.market_data_future_tolerance_minutes),
+            )
+        elif validated_options.with_evidence:
             semantic_store = ChromaDocumentStore(
                 host=settings.chroma_host,
                 port=settings.chroma_port,

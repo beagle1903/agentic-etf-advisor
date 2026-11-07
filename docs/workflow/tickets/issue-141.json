@@ -168,6 +168,416 @@
       },
       "type": "phase_start",
       "at": "2026-11-05T07:21:44Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue141_owner",
+        "evidence": "Same owner resumed reserved implementation after usage-limit interruption; all elapsed audit retained. Implemented distinct20-member prepared-evidence starter, reusable bounded UI collector, profile/evidence/shortlist/replay binding, docs and tests. One real source pass20collected/17screening eligible, same artifact normal backend/AppTest reached human review. Focused70tests, changed Ruff/focused mypy and diff passed. Audit limits in iteration043: native byte ceilings rather than measured totals, BND internal HTTP attempts unmeasured, pre-refactor harness bytes unavailable. Full content-bound verification pending."
+      },
+      "at": "2026-11-06T09:08:41Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue141_owner",
+        "content": "c1e4a7ff0c17b6a6a3ba6023c141a0ee0cbb84c7e610bdfe696845797256225f",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        },
+        "role": "implementation_worker",
+        "phase": "verification"
+      },
+      "at": "2026-11-06T09:08:45Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:15:37Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "fail",
+        "evidence": "Verification c1e4a7ff0c17b6a6a3ba6023c141a0ee0cbb84c7e610bdfe696845797256225f failed full mypy: optional StarterArtifact at evidence.py1037 and set/tuple local selected reuse at construction.py633. Owner self-review also demonstrated unsourced starter graph-context acceptance and category-case false exclusions. Full pytest deliberately interrupted exact session88080 at about24%, no failures shown, no full pass claimed. Ruff/format, workflow validators, build and Compose passed on old binding. No tracked edits during verification."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:38Z",
+      "data": {
+        "id": "B141-TYPECHECK",
+        "criterion": "AC141-5",
+        "scenario": "Full mypy rejects optional artifact passed to required StarterEvidenceContext and selected local reused as set and subset tuple. Required verification cannot pass.",
+        "evidence": "Owner exact full-source mypy on certified c1e4a7ff reported rag/evidence.py1037 and domain/construction.py633. Closure is narrow non-null artifact narrowing/local rename and full mypy plus focused/full verification."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:39Z",
+      "data": {
+        "id": "B141-GRAPH-CONTEXT",
+        "criterion": "INV141-2",
+        "scenario": "Starter candidate validation permits an injected matching non-null graph_context although prepared artifact has no graph source, changing sector-exclusion behavior.",
+        "evidence": "Owner read-only self-review of CandidateEvidenceBundle.validate_ready_bundle. Closure reject any starter candidate graph_context and regression exercising injected context; preserve absent graph knowledge."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:40Z",
+      "data": {
+        "id": "B141-SOURCE-CATEGORY",
+        "criterion": "AC141-4",
+        "scenario": "Source preflight uses case-sensitive category literals while production normalizes whitespace/case, falsely excluding supported lower-case defensive categories and potentially stopping growth.",
+        "evidence": "Owner read-only self-review of starter_collection._classify versus production _normalize_category. Actual Nov5 source used canonical names and remains valid. Closure reuse production normalization/map and focused lower-case/whitespace regression, no new acquisition."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "implementation_worker",
+        "session": "/root/issue141_owner",
+        "phase": "remediation",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "at": "2026-11-06T09:15:43Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:22:56Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Same-owner narrow remediation completed all A141-1 repairs: explicit artifact type narrowing, local rename, reject unsourced starter graph_context, reuse production category normalization and pure frozen-universe validation on restore. Focused starter/profile/Vanguard75passed, full mypy src69files, changed Ruff and diff passed. Actual durable-memory load_dashboard_run test denies artifact file/source-clock reads; graph injection and normalized-category regressions pass. No source acquisition. A141-1 focused closure met; fresh certification still required."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:57Z",
+      "data": {
+        "id": "B141-TYPECHECK",
+        "evidence": "Full mypy src passed69files after narrow artifact non-null guard and local rename. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:58Z",
+      "data": {
+        "id": "B141-GRAPH-CONTEXT",
+        "evidence": "Reject any starter graph_context; matching synthetic graph injection regression passes, preserving unknown graph data. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:59Z",
+      "data": {
+        "id": "B141-SOURCE-CATEGORY",
+        "evidence": "Uses production category normalization; lower-case/whitespace defensive category regression passes, no financial threshold change or live acquisition. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-06T09:23:02Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "c240ecc06102a2435a708149bfddc04a0bb32335009857b422e3506fcdb2c529",
+        "phase": "verification",
+        "session": "/root/issue141_owner",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter",
+          "generation": 1
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:27:30Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "fail",
+        "evidence": "Corrected content c240ecc06102a2435a708149bfddc04a0bb32335009857b422e3506fcdb2c529 passed Ruff/format, mypy src69files, workflow validators, build/Compose/diff. Isolated uv sync --frozen CI-default environment starter tests:6passed1skipped7failed because mocked collector tests import absent optional yfinance before injected adapter. Exact extras full-pytest session32838 deliberately interrupted at about17% without reported failures, exit1; no full pass claimed. No tracked changes during verification. Default sole remediation is consumed; stop for explicit finite user extension before applying a test-only fixture fix."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:27:31Z",
+      "data": {
+        "id": "B141-CI-TEST-DEPENDENCY",
+        "criterion": "AC141-5",
+        "scenario": "Seven mocked starter collector test cases fail under default CI dependencies because run_pass imports optional yfinance before injected adapter. Tests must inject a minimal module stub; product optional-dependency rejection remains correct.",
+        "evidence": "Isolated57-package base/dev environment uv sync --frozen, targeted starter result6pass1skip7fail. Owner read-only diagnosis locates three mocked test functions; proposed ignored patch pending. Closure is narrowly stubbed mock fixture, default starter suite then full corrected verification and independent finalreview. No runtime/source changes or new collection."
+      }
+    },
+    {
+      "data": {
+        "seconds": 0,
+        "reason": "One finite same-owner test-fixture repair for B141-CI-TEST-DEPENDENCY against AC141-5. Default remediation consumed. Existing final_review remains available; no source attempt, reset or changed product scope.",
+        "counts": {
+          "implementation": 0,
+          "final_review": 0,
+          "initial_review": 0,
+          "design_reset": 0,
+          "remediation": 1
+        },
+        "authority": {
+          "evidence": "On 2026-11-07 the user replied approved to the exact request: Authorize one additional repair pass to apply the prepared test-only optional-yfinance fixture fix, finish verification and use the existing independent-review slot, with no further live collection. This grants remediation +1 only, zero seconds and zero other phase deltas.",
+          "kind": "user",
+          "name": "burha"
+        }
+      },
+      "at": "2026-11-07T11:22:02Z",
+      "type": "extension"
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "phase": "remediation",
+        "session": "/root/issue141_owner"
+      },
+      "at": "2026-11-07T11:22:58Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T11:34:39Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Nov7 explicitly authorized sole extra test-only repair completed under same owner. Exact prepared patch adds stub optional yfinance module to three mocked collector tests,13added1removed lines only tests/test_issue141_starter.py. Isolated CI-default starter13passed1expected Streamlit skip0failed; extras starter14passed. Changed test Ruff/check-format and diff passed. No product/doc/source edit or live acquisition. Existing finalreview slot unchanged."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T11:34:40Z",
+      "data": {
+        "id": "B141-CI-TEST-DEPENDENCY",
+        "evidence": "Mocked tests now inject minimal ModuleType yfinance stub before run_pass, preserving product optional-dependency rejection. Default starter13pass1skip0fail and extras14pass. A141-1 new material CI-default evidence addressed by narrow repair under explicit Nov7 remediation+1 extension; no criterion/source/actor change. Corrected content still needs complete verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T11:34:42Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter",
+          "generation": 1
+        },
+        "phase": "verification",
+        "session": "/root/issue141_owner"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T11:59:07Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Unchanged a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7. Complete sequential extras2011passed40skipped0failed (510.67s), isolated CI-default1968passed83skipped0failed (667.64s). JUnit .artifacts/issue141-verification/pytest-final-extras-sequential.xml and pytest-final-minimal.xml. Original parallel extras1failed2010passed40skipped (3s existing Streamlit AppTest timeout) retained separately at pytest-final-extras.xml; exact node passed alone and full sequential rerun passed. Full Ruff/check-format, mypy69sourcefiles, both workflow validators, build/Compose/diff passed. Cached November5 actual-source Streamlit/run/load reached human review with no new collection. Source observations and whole-bundle stale/future block retained. No tracked content changes during verification."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-07T11:59:07Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "AC1 normal starter UI/backend20-member preparation/load and count/exclusion display reach human review without registry/retrieval stores. AC2 exact returned listing/type/venue/USD, identity/duplicate/source-error, category normalization, full pool/shortlist<=10 and existing finance/exact-money regressions pass. AC3 profile/artifact/context/selection binding, graph injection rejection, durable-memory offline restore and tamper tests pass with source/file/clock denial; existing contracts preserved. AC4 one November5 pass20collected17sample-screened eligible,10shortlist5positions, cached actual-source AppTest also passed on November7 without acquisition. Scope is provider-listing identity; shared-index exposures can overlap, and current whole-bundle freshness may block source artifacts. Audit limits (unmeasured bytes/internal BND attempts, lost pre-refactor harness bytes) remain explicit. AC5 full default1968pass83skip and complete sequential extras2011pass40skip plus required gates pass on identical content; independent finalreview/delivery still pending. Failed historical verification/tests remain failed records, A141-1 focused repairs and explicit Nov7 extra test repair closed recorded blockers."
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue141_final_review",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "role": "code_reviewer",
+        "phase": "final_review"
+      },
+      "at": "2026-11-07T11:59:09Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T12:06:04Z",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "outcome": "fail",
+        "evidence": "Independent final code_reviewer FAIL on accepted/verified a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7. Actual saved Nov5 artifact at injected Nov15 clock is blocked with20stale health observations, but _render_starter_counts shows excluded0 and historical existing_category_and_thresholds_pass without current per-symbol health. AC141-1/INV141-2 reporting defect, separate from correct whole-bundle freshness policy. Second AC141-1/AC141-3 selection defect: labels use collected count+preparation minute; labels.index always selects first of two colliding labels, making second digest unselectable. Code-path demonstrated, separate UI reproduction not run. No reviewer writes/source calls. Final slot consumed; BLOCKED_FOR_DECISION, no delivery or further automatic repair."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T12:06:05Z",
+      "data": {
+        "id": "B141-STALE-REPORT",
+        "criterion": "AC141-1",
+        "scenario": "At a new check time where cached observations are stale, global evidence correctly blocks but starter rows show historical passing source reasons and excluded0 with no per-symbol stale health explanation.",
+        "evidence": "Independent read-only reproduction with actual ignored Nov5 artifact and injected Nov15 UTC:20stale health observations,0candidates,requested20/collected20/screened0/eligible0/excluded0; SPY Reason existing_category_and_thresholds_pass. dashboard_app.py134+ and evidence.py895. Repair must render current health/reason and coherent pre-screen exclusion/not-screened counts without changing freshness/financial policy."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T12:06:05Z",
+      "data": {
+        "id": "B141-ARTIFACT-CHOICE",
+        "criterion": "AC141-3",
+        "scenario": "Two different prepared artifacts with identical collected count and preparation minute produce identical selectbox labels. labels.index returns the first artifact even when the second option is chosen.",
+        "evidence": "Independent final review code-path at dashboard_app.py121-126. No separate UI reproduction yet. Repair use digest/unique object as actual option value, readable formatting, and focused test selecting second colliding-label artifact; chosen request must bind that exact digest."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-11-07T18:03:32Z",
+      "data": {
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "final_review": 1,
+          "remediation": 1,
+          "design_reset": 0
+        },
+        "authority": {
+          "evidence": "On 2026-11-07 the user replied approved to the distinct post-final-review request: Approve one repair pass and one independent final review for stale-data reporting and colliding prepared-dataset selection UI defects, reusing existing source data. This grants remediation +1 and final_review +1 only, zero seconds and zero other phase deltas.",
+          "name": "burha",
+          "kind": "user"
+        },
+        "reason": "Finite same-owner UI-only repair for B141-STALE-REPORT and B141-ARTIFACT-CHOICE after failed independent final review. Preserve whole-bundle freshness, financial policy, scope, source history and all old outcomes. Additional independent review binds corrected content.",
+        "seconds": 0
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T18:03:50Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "phase": "remediation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T18:13:09Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Explicitly approved UI-only remediation #3 completed. Only dashboard_app.py and test_issue141_starter.py changed/staged. Picker binds distinct digest values and readable labels. Coverage current stale/future health overrides old source-pass reasons; current members in blocked bundle are not screened; ready screening/shortlist reasons preserved; excluded/not-screened counts avoid overlap. Extras starter19passed, isolated default18passed1expected Streamlit skip. Changed Ruff/check-format, full mypy69files and diff passed. No source/contract/docs edits or provider calls. A141-1 narrow repair focused closure met; fresh verification/review pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T18:13:19Z",
+      "data": {
+        "id": "B141-STALE-REPORT",
+        "evidence": "Current per-symbol stale/future health now drives displayed reasons and source exclusions. Mixed current/blocked members are labelled not screened, never historical pass; ready case keeps real screening reasons and counts avoid overlap. Focused stale/future/mixed/ready regression cases pass in rich/default environments. Whole-bundle freshness remains unchanged. Same-owner completed remediation #3, A141-1 reporting defect closure."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T18:13:20Z",
+      "data": {
+        "id": "B141-ARTIFACT-CHOICE",
+        "evidence": "Selectbox values are distinct artifact digests, formatted with readable distinct dataset labels; labels.index removed. Two distinct artifacts with same preparation minute/count can select second exact digest. Focused collision selection test passes, same-owner completed remediation #3; fresh content-bound finalreview remains required."
+      }
+    },
+    {
+      "at": "2026-11-07T18:13:23Z",
+      "type": "phase_start",
+      "data": {
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "role": "implementation_worker",
+        "capsule": {
+          "generation": 1,
+          "id": "issue-141-curated-us-starter",
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "session": "/root/issue141_owner",
+        "phase": "verification"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T18:29:47Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Qualified required verification PASS on unchanged00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b. Complete repository CI-default suite1973passed83skipped0failed(316.51s), pytest-ui-final-minimal.xml. Focused optional starter19passed/default18passed1expected skip. All repo Ruff/check-format260files, mypy69, both workflow validators, build wheel/sdist, Compose/diff passed. Actual saved Nov5 artifact UI replay at original saved check time reached human review with all panels/zero errors, no collection. Optional full remains FAILED1timeout2015passed40skipped(475.32s), pytest-ui-final-extras.xml: legacy initial AppTest3s timeout; exact unchanged node passes alone on current and clean main using same interpreter, main imports verified. No assertion/product failure demonstrated. A141-1 accountable contract clarification https://github.com/beagle1903/agentic-etf-advisor/issues/141#issuecomment-6711288372 maps required gates to frozen AC141-5 and actual default CI workflow, which has no3s startup SLA. Failed optional check is retained/disclosed, never claimed PASS. No code/source edits during verification. Independent final review must assess material uncertainty/concrete frozen failures."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-07T18:29:47Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "AC1 normal20-member starter UI/backend plus current-health/exclusion/not-screened reporting and digest-valued artifact selection validated; focused tests reproduce stale/future/mixed/ready and second same-minute/count option. AC2 exact listing/source validation, preserved finance/shortlist<=10/exact money regressions pass. AC3 bound profile/artifact/evidence/selection, offline restore, tamper and graph injection rejection preserved; new selector binds actual second digest. AC4 original one Nov5 source pass20collected17sampleeligible10shortlist5positions, actual-data UI replay at saved historical time passes; no current market-data refresh or new collection claim. AC5 all current required/default1973pass83skip, focused optional19pass and static/build/workflow gates pass. Optional full FAIL1legacy3s startup timeout2015pass40skip retained with current/main exact-node PASS; no blanket all-suites-green claim. A141-1 clarification public evidence above, no financial/freshness change or hidden waiver. Source audit limits retained (unmeasured byte/internal fallback counts, lost original runner bytes). Additional independent review/delivery still separate pending gates."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "role": "code_reviewer",
+        "phase": "final_review"
+      },
+      "at": "2026-11-07T18:29:49Z"
+    },
+    {
+      "at": "2026-11-07T18:31:36Z",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "evidence": "Independent additional final code_reviewer PASS on exact00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b. Read-only actual saved-artifact stale reproduction now shows20stale reasons20exclusions, fixing AC141-1/INV141-2. Picker binds distinct artifact digests, resolving AC141-1/AC141-3 collision. No new frozen-criterion failure found. Required default1973pass83skip and focused19starter pass; optional complete suite remains FAILED on disclosed legacy3s AppTest startup timeout, exact node passed alone current/main. A141-1 qualified verification accepted without relabeling failed check. No reviewer writes/source calls.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
     }
   ]
 }

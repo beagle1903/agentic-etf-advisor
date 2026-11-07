@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import MutableMapping
 from datetime import timedelta
@@ -10,6 +11,7 @@ from decimal import Decimal
 from importlib import import_module
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 from etf_advisor.catalogue.mapping import EXCLUDED_CODES, UNSUPPORTED_EU
 from etf_advisor.catalogue.research_job import (
@@ -43,12 +45,19 @@ from etf_advisor.dashboard import (
 )
 from etf_advisor.dashboard_comparison import comparison_rows
 from etf_advisor.dashboard_overlap import display_amount, reported_holdings_overlap
+from etf_advisor.data.starter_collection import run_pass
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
 from etf_advisor.domain.us_eu import listing_region
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore
 from etf_advisor.rag.snapshots import publish_research_snapshot
+from etf_advisor.research.us_starter import (
+    ARTIFACT_ROOT,
+    StarterArtifact,
+    StarterRequestV1,
+    prepare_from_pass,
+)
 
 _CREATION_IN_PROGRESS_KEY = "review_creation_in_progress"
 _CREATION_ERROR_KEY = "review_creation_error"
@@ -75,6 +84,134 @@ def _scope_preview_error(error: ScopeError) -> str:
     return (
         f"Scope limit exceeded: matched={matched} limit={limit}. "
         "Narrow the filters and preview again."
+    )
+
+
+def _render_starter_preparation(st: Any) -> StarterRequestV1 | None:
+    st.caption(
+        "Twenty US ETF research leads. Source checks can exclude individual funds; "
+        "shared indexes may still overlap in exposure."
+    )
+    if st.button("Collect current starter data"):
+        try:
+            with st.spinner("Checking the twenty starter funds..."):
+                pass_path = run_pass(Path(".artifacts/issue141-source-runs") / str(uuid4()))
+                source = json.loads(pass_path.read_text(encoding="utf-8"))
+                if source["status"] == "complete":
+                    prepare_from_pass(pass_path)
+                    st.success("Starter source data prepared.")
+                else:
+                    st.warning(
+                        "Source checks stopped before a complete starter set was prepared. "
+                        "The recorded outcomes are available locally for inspection."
+                    )
+        except Exception:
+            st.error(
+                "Starter source checks could not complete. Recorded outcomes, if any, remain local."
+            )
+    available: list[StarterArtifact] = []
+    for path in sorted(ARTIFACT_ROOT.glob("*.json")) if ARTIFACT_ROOT.exists() else []:
+        try:
+            available.append(StarterArtifact.load(path))
+        except Exception:
+            continue
+    if not available:
+        st.info("No prepared starter data is available yet.")
+        return None
+    artifacts = {artifact.digest: artifact for artifact in available}
+    labels = {
+        artifact.digest: (
+            f"Collected {sum(item.status == 'collected' for item in artifact.outcomes)}/20 · "
+            f"prepared {artifact.prepared_at:%Y-%m-%d %H:%M} UTC · dataset {index}"
+        )
+        for index, artifact in enumerate(available, start=1)
+    }
+    selected_digest = st.selectbox(
+        "Prepared starter data", list(artifacts), format_func=labels.__getitem__
+    )
+    selected = artifacts[selected_digest]
+    return StarterRequestV1(
+        schema="us-starter-request-v1",
+        universe_digest=selected.universe_digest,
+        artifact_digest=selected.digest,
+    )
+
+
+def _render_starter_counts(st: Any, state: dict[str, Any]) -> None:
+    evidence = state["candidate_evidence"]
+    artifact = evidence["starter_context"]["artifact"]
+    screening = state.get("candidate_screening") or {}
+    construction = state.get("portfolio_construction") or {}
+    results = screening.get("candidates") or []
+    report = construction.get("starter_selection") or {}
+    positions = (construction.get("draft") or {}).get("positions") or []
+    health = {item["symbol"]: item for item in evidence["health"]["observations"]}
+    screened = {item["symbol"]: item for item in results}
+    dispositions = {item["symbol"]: item["reason"] for item in report.get("dispositions") or []}
+    rows = []
+    for outcome in artifact["outcomes"]:
+        symbol = outcome["symbol"]
+        source_health = health.get(symbol)
+        screening_result = screened.get(symbol)
+        if outcome["status"] != "collected":
+            source_status, reason = outcome["status"], outcome["reason"]
+        elif source_health is not None and source_health["status"] != "current":
+            source_status = source_health["status"]
+            reason = source_health["message"]
+        elif source_health is None:
+            source_status = "unknown"
+            reason = "Not screened: source health unavailable"
+        elif evidence["status"] != "ready":
+            source_status = "current"
+            reason = "Not screened: source bundle blocked"
+        elif screening_result is None:
+            source_status = "current"
+            reason = "Not screened: screening unavailable"
+        else:
+            source_status = "current"
+            reason = dispositions.get(symbol)
+            if reason is None:
+                reason = (
+                    "Passed screening; shortlist unavailable"
+                    if screening_result["verdict"] == "pass"
+                    else "Screening did not pass"
+                )
+        rows.append({"Fund": symbol, "Source": source_status, "Reason": reason})
+    counts = dict(
+        requested=len(artifact["members"]),
+        attempted=sum(item["status"] != "unattempted" for item in artifact["outcomes"]),
+        collected=sum(item["status"] == "collected" for item in artifact["outcomes"]),
+        screened=sum(
+            row["Source"] == "current"
+            and not row["Reason"].startswith("Not screened:")
+            and row["Fund"] in screened
+            for row in rows
+        ),
+        eligible=sum(
+            row["Source"] == "current"
+            and screened.get(row["Fund"], {}).get("verdict") == "pass"
+            and not row["Reason"].startswith("Not screened:")
+            for row in rows
+        ),
+        excluded=sum(
+            row["Source"] in {"failed", "unattempted", "stale", "future"}
+            or (
+                row["Source"] == "current"
+                and screened.get(row["Fund"], {}).get("verdict") not in {None, "pass"}
+                and not row["Reason"].startswith("Not screened:")
+            )
+            for row in rows
+        ),
+        not_screened=sum(row["Reason"].startswith("Not screened:") for row in rows),
+        shortlisted=len(report.get("shortlist_ids") or []),
+        final=len(positions),
+    )
+    st.subheader("Starter coverage")
+    st.write(counts)
+    st.dataframe(rows, hide_index=True)
+    st.caption(
+        "Listing identity is verified per Yahoo symbol and exchange. Funds sharing an index "
+        "may still overlap; no legal Fund or share-class inventory is certified."
     )
 
 
@@ -123,10 +260,17 @@ def main() -> None:
 
         advisory_mode = st.selectbox(
             "Advisory scope",
-            ["Legacy US / USD", "US / EU (us-eu-v1)", "US / EU catalogue research"],
+            [
+                "Legacy US / USD",
+                "Curated US starter",
+                "US / EU (us-eu-v1)",
+                "US / EU catalogue research",
+            ],
         )
 
-        new_contract = advisory_mode != "Legacy US / USD"
+        starter_mode = advisory_mode == "Curated US starter"
+        starter_request = _render_starter_preparation(st) if starter_mode else None
+        new_contract = advisory_mode not in {"Legacy US / USD", "Curated US starter"}
         catalogue_mode = advisory_mode == "US / EU catalogue research"
         catalogue_request = _render_catalogue_preparation(st) if catalogue_mode else None
         curator_identity = (
@@ -166,6 +310,8 @@ def main() -> None:
         with_evidence = st.checkbox(
             "Attach local source evidence",
             help="Requires indexed Chroma and Neo4j data.",
+            value=starter_mode,
+            disabled=starter_mode,
         )
         with_explanation = st.checkbox(
             "Generate grounded explanation",
@@ -205,6 +351,10 @@ def main() -> None:
                 if catalogue_request is None:
                     raise ValueError("Select a published catalogue research scope first.")
                 profile["catalogue_request"] = catalogue_request.model_dump(mode="json")
+            if starter_mode:
+                if starter_request is None:
+                    raise ValueError("Prepare or select starter source data first.")
+                profile["starter_request"] = starter_request.model_dump(mode="json")
             if curator_identity:
                 if st.session_state.get("catalogue_review_identity_contract") != "curator-fund-v1":
                     raise ValueError("Selected catalogue snapshot lacks curator Fund proof.")
@@ -213,7 +363,7 @@ def main() -> None:
             st.session_state["dashboard_run"] = start_dashboard_run(
                 profile,
                 DashboardOptions(
-                    with_evidence=with_evidence,
+                    with_evidence=with_evidence or starter_mode,
                     with_explanation=with_explanation if with_evidence else False,
                     durable_checkpoint=durable_checkpoint,
                     candidate_limit=candidate_limit,
@@ -350,6 +500,8 @@ def _render_run(st: Any, run: DashboardRun) -> None:
                 _render_screening(st, payload["candidate_screening"])
             if "candidate_evidence" in payload:
                 _render_evidence(st, payload["candidate_evidence"])
+                if payload["candidate_evidence"].get("starter_context"):
+                    _render_starter_counts(st, state)
             if "draft_explanation" in payload:
                 _render_explanation(st, payload["draft_explanation"])
             if managed_revision and history is not None and not run.submission_outcome_unknown:
@@ -365,6 +517,10 @@ def _render_run(st: Any, run: DashboardRun) -> None:
             "catalogue_context"
         ):
             _render_catalogue_evidence_counts(st, state["candidate_evidence"])
+        if isinstance(state.get("candidate_evidence"), dict) and state["candidate_evidence"].get(
+            "starter_context"
+        ):
+            _render_starter_counts(st, state)
         if isinstance(state.get("portfolio_construction"), dict) and state[
             "portfolio_construction"
         ].get("catalogue_selection"):

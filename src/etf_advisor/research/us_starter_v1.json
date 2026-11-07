@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "universe_id": "us-starter",
+  "universe_version": "1",
+  "members": [
+    {"symbol": "SPY", "role": "US large blend lead"},
+    {"symbol": "IVV", "role": "US large blend lead"},
+    {"symbol": "VOO", "role": "US large blend lead"},
+    {"symbol": "VTI", "role": "US broad market lead"},
+    {"symbol": "ITOT", "role": "US broad market lead"},
+    {"symbol": "SCHB", "role": "US broad market lead"},
+    {"symbol": "QQQ", "role": "US growth lead"},
+    {"symbol": "VUG", "role": "US growth lead"},
+    {"symbol": "SCHG", "role": "US growth lead"},
+    {"symbol": "IWF", "role": "US growth lead"},
+    {"symbol": "VEA", "role": "Developed-market equity lead"},
+    {"symbol": "IEFA", "role": "Developed-market equity lead"},
+    {"symbol": "SCHF", "role": "Developed-market equity lead"},
+    {"symbol": "VWO", "role": "Emerging-market equity lead"},
+    {"symbol": "IEMG", "role": "Emerging-market equity lead"},
+    {"symbol": "SCHE", "role": "Emerging-market equity lead"},
+    {"symbol": "BND", "role": "Intermediate core bond lead"},
+    {"symbol": "AGG", "role": "Intermediate core bond lead"},
+    {"symbol": "SCHZ", "role": "Intermediate core bond lead"},
+    {"symbol": "SPAB", "role": "Intermediate core bond lead"}
+  ]
+}
