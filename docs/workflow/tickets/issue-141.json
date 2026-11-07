@@ -578,6 +578,21 @@
         "outcome": "pass"
       },
       "type": "phase_end"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-07T18:32:37Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 142,
+        "evidence": "Bind original Issue141 PR142 after native delivery check and independent additional finalreview PASS on identical00e9 content. Required default1973pass83skip, focused optional19pass, static/build/workflow and historical cached-source UI pass. Optional full FAIL1legacy3s startup timeout2015pass40skip is retained and disclosed; exact current/main node passes alone. A141-1 qualified gate clarification recorded publicly and in ledger. All financial/source policies, failed outcomes and finite counts preserved. Source audit limitations disclosed in PR. Final-head remote CI follows binding; no merge claimed."
+      }
     }
   ]
 }
