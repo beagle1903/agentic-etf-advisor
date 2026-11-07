@@ -451,6 +451,8 @@ class RevisionRuntime:
                     else None
                 )
                 != profile.catalogue_request
+                or (bundle.starter_context.request if bundle.starter_context is not None else None)
+                != profile.starter_request
                 or bundle.requested_limit
                 != state["revision_ledger"]["revisions"][-1]["inputs"]["candidate_limit"]
             ):

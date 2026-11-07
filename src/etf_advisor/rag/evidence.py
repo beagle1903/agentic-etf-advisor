@@ -46,6 +46,7 @@ from etf_advisor.encoding import (
     validate_document,
 )
 from etf_advisor.rag.models import GraphContext, GraphEnrichedSource, MetadataValue
+from etf_advisor.research.us_starter import ARTIFACT_ROOT, StarterArtifact, StarterRequestV1
 
 MAX_CANDIDATE_LIMIT = 50
 
@@ -283,6 +284,22 @@ class CatalogueEvidenceContext(BaseModel):
         return self
 
 
+class StarterEvidenceContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    request: StarterRequestV1
+    artifact: StarterArtifact
+
+    @model_validator(mode="after")
+    def validate_binding(self) -> StarterEvidenceContext:
+        if (
+            self.request.universe_digest != self.artifact.universe_digest
+            or self.request.artifact_digest != self.artifact.digest
+        ):
+            raise ValueError("Starter request differs from prepared artifact.")
+        return self
+
+
 class CandidateEvidenceBundle(StrictWireModel):
     """Review-ready evidence, including freshness results and explicit blockers."""
 
@@ -307,6 +324,7 @@ class CandidateEvidenceBundle(StrictWireModel):
     registry_envelope: RegistryEnvelope | None = None
     fx_reference: FxReferenceObservation | None = None
     catalogue_context: CatalogueEvidenceContext | None = None
+    starter_context: StarterEvidenceContext | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -350,9 +368,15 @@ class CandidateEvidenceBundle(StrictWireModel):
             value["catalogue_context"] is None or marker != "us-eu-v1"
         ):
             raise ValueError("Catalogue evidence requires a non-null US/EU context.")
+        if "starter_context" in value and (
+            value["starter_context"] is None or marker is not None or "catalogue_context" in value
+        ):
+            raise ValueError("Starter evidence requires a standalone context.")
         # An empty blocked result has no candidate encoding to infer. Retain the
         # explicitly selected semantic contract; nonempty candidates remain authoritative.
-        version = next(iter(versions), 2 if marker == "us-eu-v1" else 1)
+        version = next(
+            iter(versions), 2 if marker == "us-eu-v1" or "starter_context" in value else 1
+        )
         if "schema_version" in value and schema_version(value["schema_version"]) != version:
             raise ValueError("Evidence schema differs from its candidates.")
         if version == 2 and "schema_version" not in value:
@@ -399,6 +423,8 @@ class CandidateEvidenceBundle(StrictWireModel):
             result.pop("registry_envelope", None)
         if self.catalogue_context is None:
             result.pop("catalogue_context", None)
+        if self.starter_context is None:
+            result.pop("starter_context", None)
         return result
 
     @field_validator("checked_at")
@@ -410,6 +436,10 @@ class CandidateEvidenceBundle(StrictWireModel):
 
     @model_validator(mode="after")
     def validate_ready_bundle(self) -> CandidateEvidenceBundle:
+        if self.starter_context is not None and any(
+            candidate.graph_context is not None for candidate in self.candidates
+        ):
+            raise ValueError("Starter evidence cannot attach unsourced graph context.")
         if self.identity_contract == IDENTITY_CONTRACT:
             if self.status == EvidenceStatus.READY and self.registry_envelope is None:
                 raise ValueError("Ready curator evidence requires bound proof.")
@@ -500,6 +530,7 @@ class CandidateEvidenceBundle(StrictWireModel):
                     or len(self.health.observations) != len(self.candidates)
                     or (
                         self.catalogue_context is None
+                        and self.starter_context is None
                         and len(self.candidates) > self.requested_limit
                     )
                 ):
@@ -521,6 +552,23 @@ class CandidateEvidenceBundle(StrictWireModel):
                         )
                     ):
                         raise ValueError("Catalogue evidence must contain the complete scope.")
+                if self.starter_context is not None:
+                    artifact = self.starter_context.artifact
+                    if artifact.snapshot is None:
+                        raise ValueError("Starter has no collected source snapshot.")
+                    expected = artifact.snapshot.to_source_documents()
+                    if [candidate.document_id for candidate in self.candidates] != [
+                        doc.document_id for doc in expected
+                    ]:
+                        raise ValueError(
+                            "Starter evidence omitted or reordered a collected member."
+                        )
+                    for candidate, doc in zip(self.candidates, expected, strict=True):
+                        if (
+                            candidate.content != doc.content
+                            or candidate.metadata != doc.chroma_metadata()
+                        ):
+                            raise ValueError("Starter candidate differs from prepared source.")
             for candidate in self.candidates:
                 candidate_source = (
                     candidate.symbol,
@@ -585,6 +633,53 @@ class CandidateEvidenceRetriever(Protocol):
     """Replaceable boundary for retrieving evidence inside the graph."""
 
     def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle: ...
+
+
+class PreparedStarterEvidenceRetriever:
+    """Read one validated local artifact at construction, with no retrieval database."""
+
+    def __init__(
+        self,
+        request: StarterRequestV1,
+        *,
+        clock: Clock,
+        max_age: timedelta,
+        future_tolerance: timedelta,
+        root: Any = ARTIFACT_ROOT,
+    ) -> None:
+        self._request = request
+        self._artifact = StarterArtifact.load(root / f"{request.artifact_digest}.json")
+        if (
+            self._artifact.digest != request.artifact_digest
+            or self._artifact.universe_digest != request.universe_digest
+        ):
+            raise ValueError("Starter artifact differs from request.")
+        self._clock = clock
+        self._max_age = max_age
+        self._future_tolerance = future_tolerance
+
+    def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+        if profile.starter_request != self._request or self._artifact.snapshot is None:
+            raise EvidenceRetrievalError(
+                "Starter request or source evidence unavailable.", code="retrieval_unavailable"
+            )
+        documents = self._artifact.snapshot.to_source_documents()
+        results = [
+            GraphEnrichedSource(
+                document_id=doc.document_id, content=doc.content, metadata=doc.chroma_metadata()
+            )
+            for doc in documents
+        ]
+        return select_candidate_evidence(
+            profile,
+            results,
+            query=build_candidate_query(profile),
+            checked_at=self._clock(),
+            max_age=self._max_age,
+            future_tolerance=self._future_tolerance,
+            limit=limit,
+            starter_artifact=self._artifact,
+        )
 
 
 class HybridSearch(Protocol):
@@ -718,6 +813,7 @@ def select_candidate_evidence(
     future_tolerance: timedelta = timedelta(minutes=5),
     limit: int = 5,
     fx_reference: FxReferenceObservation | None = None,
+    starter_artifact: StarterArtifact | None = None,
 ) -> CandidateEvidenceBundle:
     """Validate and preserve ranked source evidence without making ETF recommendations."""
 
@@ -730,7 +826,14 @@ def select_candidate_evidence(
     if checked_at.tzinfo is None or checked_at.utcoffset() is None:
         raise ValueError("checked_at must be timezone-aware.")
 
-    if profile.catalogue_request is not None:
+    if profile.starter_request is not None:
+        if starter_artifact is None or starter_artifact.snapshot is None:
+            raise ValueError("Starter prepared artifact unavailable.")
+        expected = starter_artifact.snapshot.to_source_documents()
+        if [result.document_id for result in results] != [doc.document_id for doc in expected]:
+            raise ResearchIntegrityError("starter_scope_integrity")
+        bounded_results = list(results)
+    elif profile.catalogue_request is not None:
         request = profile.catalogue_request
         expected_ids = [
             f"research:{request.snapshot_version}:{request.snapshot_digest}:{member.symbol.lower()}"
@@ -909,7 +1012,9 @@ def select_candidate_evidence(
             extra_fields["registry_envelope"] = proof
     bundle_fields: dict[str, Any] = dict(
         schema_version=(
-            document_schema(candidates[0].metadata) if candidates else (2 if marker else 1)
+            document_schema(candidates[0].metadata)
+            if candidates
+            else (2 if marker or profile.starter_request is not None else 1)
         ),
         **extra_fields,
         query=query,
@@ -930,6 +1035,12 @@ def select_candidate_evidence(
             retrieved_listing_ids=[
                 member.listing_id for member in profile.catalogue_request.scope.members
             ],
+        )
+    if profile.starter_request is not None:
+        if starter_artifact is None:
+            raise ValueError("Starter prepared artifact unavailable.")
+        bundle_fields["starter_context"] = StarterEvidenceContext(
+            request=profile.starter_request, artifact=starter_artifact
         )
     return CandidateEvidenceBundle.model_validate(bundle_fields)
 

@@ -6,6 +6,7 @@ from typing import Any, Final, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from etf_advisor.catalogue.research_scope import CatalogueRequestV1
+from etf_advisor.research.us_starter import StarterRequestV1
 
 MAX_CASH_FLOW_USD: Final[int] = 1_000_000_000_000
 
@@ -44,6 +45,7 @@ class InvestorProfile(BaseModel):
     )
     excluded_sectors: list[str] = Field(default_factory=list, max_length=25)
     catalogue_request: CatalogueRequestV1 | None = None
+    starter_request: StarterRequestV1 | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -51,6 +53,21 @@ class InvestorProfile(BaseModel):
         if not isinstance(value, dict):
             return value
         marker = value.get("advisory_contract")
+        if "starter_request" in value and (
+            value["starter_request"] is None
+            or any(
+                key in value
+                for key in (
+                    "advisory_contract",
+                    "identity_contract",
+                    "catalogue_request",
+                    "base_currency",
+                    "initial_investment_minor",
+                    "recurring_monthly_minor",
+                )
+            )
+        ):
+            raise ValueError("Starter request requires standalone legacy USD cash.")
         if "identity_contract" in value and value["identity_contract"] != "curator-fund-v1":
             raise ValueError("Unknown or null profile identity contract.")
         if value.get("identity_contract") == "curator-fund-v1" and marker != "us-eu-v1":
@@ -96,6 +113,8 @@ class InvestorProfile(BaseModel):
         result: dict[str, Any] = handler(self)
         if self.identity_contract is None:
             result.pop("identity_contract", None)
+        if self.starter_request is None:
+            result.pop("starter_request", None)
         if self.advisory_contract == "us-eu-v1":
             result.pop("initial_investment_usd", None)
             result.pop("recurring_monthly_usd", None)

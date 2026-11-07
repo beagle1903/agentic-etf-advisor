@@ -19,6 +19,9 @@ risk controls, and explicit human review.
 
 - Default legacy US-listed ETF research; explicit `us-eu-v1` opt-in adds mapped
   US/EU listings and exact USD/EUR cash, with attributed share-class/fund identity.
+- Explicit curated US/USD starter research uses twenty packaged source leads,
+  exact Yahoo listing checks, bounded preparation and a ten-candidate shortlist.
+  It does not claim legal Fund identity or independent economic risk.
 - Explicit catalogue research can pin and collect at most 100 selected US/EU
   direct listings, then show full-pool evidence and a bounded illustrative
   shortlist; it does not infer eligibility from directory membership.
