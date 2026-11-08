@@ -94,6 +94,11 @@ class RevisionInputs(Contract):
             raise ValueError("Catalogue selection requires evidence.")
         if self.profile.starter_request is not None and not self.with_evidence:
             raise ValueError("Starter selection requires evidence.")
+        if (
+            self.construction_policy.starter_shortlist_algorithm is not None
+            and self.profile.starter_request is None
+        ):
+            raise ValueError("Starter shortlist algorithm requires starter research.")
         if self.explanation_instruction and not self.with_explanation:
             raise ValueError("Instruction targets a disabled provider.")
         return self
@@ -118,6 +123,12 @@ class ScreeningFeedback(Contract):
 class ConstructionFeedback(Contract):
     kind: Literal["construction_policy"]
     patch: dict[str, JsonValue] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def reject_algorithm_edit(self) -> ConstructionFeedback:
+        if "starter_shortlist_algorithm" in self.patch:
+            raise ValueError("A saved review cannot change its shortlist algorithm.")
+        return self
 
 
 class ExplanationFeedback(Contract):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from contextlib import nullcontext
@@ -20,7 +21,23 @@ from etf_advisor.checkpoint import MemoryCheckpointStore
 from etf_advisor.dashboard import DashboardOptions, review_payload
 from etf_advisor.data.quality import assess_observations
 from etf_advisor.data.yahoo_research import YahooResearchAdapter, _ExposureCollection, _RawResearch
+from etf_advisor.domain.construction import (
+    PortfolioConstructionInput,
+    PortfolioConstructionPolicy,
+    PortfolioSleeve,
+    _catalogue_input_digest,
+    _classify_candidates,
+    _starter_shortlist_report_v2,
+    construct_model_portfolio,
+    validate_persisted_construction,
+)
 from etf_advisor.domain.profile import InvestorProfile
+from etf_advisor.domain.revision import (
+    ConstructionFeedback,
+    ReviewDecision,
+    RevisionInputs,
+    plan_revision,
+)
 from etf_advisor.rag.evidence import CandidateEvidenceBundle, PreparedStarterEvidenceRetriever
 from etf_advisor.research.models import ETFResearchSnapshot, WeightedExposure
 
@@ -115,6 +132,23 @@ def _synthetic_artifact(tmp_path: Path) -> starter.StarterArtifact:
     path = tmp_path / f"{artifact.digest}.json"
     path.write_bytes(starter._canonical(artifact.model_dump(mode="json")))
     assert starter.StarterArtifact.load(path) == artifact
+    return artifact
+
+
+def _artifact_with_categories(
+    tmp_path: Path, changes: dict[str, str | None]
+) -> starter.StarterArtifact:
+    original = _synthetic_artifact(tmp_path)
+    plain = original.model_dump(mode="json", exclude={"digest"})
+    for record in plain["snapshot"]["records"]:
+        if record["symbol"] in changes:
+            value = changes[record["symbol"]]
+            record["category"]["value"] = value
+            record["category"]["missing_reason"] = None if value is not None else "not_reported"
+    artifact = starter.StarterArtifact.model_validate({**plain, "digest": starter._digest(plain)})
+    (tmp_path / f"{artifact.digest}.json").write_bytes(
+        starter._canonical(artifact.model_dump(mode="json"))
+    )
     return artifact
 
 
@@ -500,6 +534,358 @@ def test_starter_counts_keep_ready_screening_and_shortlist_reasons(
     for item in dispositions:
         assert by_symbol[item["symbol"]]["Reason"] == item["reason"]
         assert by_symbol[item["symbol"]]["Source"] == "current"
+
+
+@pytest.mark.parametrize(
+    "risk,objective,expected",
+    [
+        ("aggressive", "growth", [("SPY", 4750), ("QQQ", 4750), ("BND", 500)]),
+        ("conservative", "income", [("SPY", 2000), ("BND", 4000), ("AGG", 4000)]),
+    ],
+)
+def test_fresh_starter_v2_seeds_feasible_sleeves(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    risk: str,
+    objective: str,
+    expected: list[tuple[str, int]],
+) -> None:
+    artifact = _artifact_with_categories(tmp_path, {"QQQ": "Large Growth"})
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        {**_profile(artifact), "risk_tolerance": risk, "objective": objective},
+        DashboardOptions(with_evidence=True, candidate_limit=3),
+    )
+    construction = run.state["portfolio_construction"]
+    assert run.state["status"] == "awaiting_human_review"
+    assert construction["policy"]["starter_shortlist_algorithm"] == "sleeve-category-feasible-v2"
+    assert construction["starter_selection"]["algorithm"] == "sleeve-category-feasible-v2"
+    assert construction["starter_selection"]["usable_count"] == 20
+    assert [
+        (item["symbol"], item["weight_bps"]) for item in construction["draft"]["positions"]
+    ] == expected
+    revision = run.state["revision_ledger"]["revisions"][0]
+    assert revision["inputs"]["construction_policy"]["starter_shortlist_algorithm"] == (
+        "sleeve-category-feasible-v2"
+    )
+    inputs = PortfolioConstructionInput.model_validate(
+        dict(
+            profile=run.state["profile"],
+            policy_calculation=run.state["draft_policy"],
+            candidate_evidence=run.state["candidate_evidence"],
+            candidate_screening=run.state["candidate_screening"],
+            construction_policy=construction["policy"],
+        )
+    )
+    assert construction["starter_selection"]["input_digest"] == _catalogue_input_digest(inputs)
+    other_profile = InvestorProfile.model_validate(
+        {**inputs.profile.model_dump(mode="json"), "objective": "balanced"}
+    )
+    assert (
+        _catalogue_input_digest(inputs.model_copy(update={"profile": other_profile}))
+        != construction["starter_selection"]["input_digest"]
+    )
+    review_payload(run.state)
+    for change in (
+        lambda report: report.__setitem__("algorithm", "sleeve-category-round-robin-v1"),
+        lambda report: report.pop("algorithm"),
+        lambda report: report.__setitem__("input_digest", "0" * 64),
+    ):
+        tampered = deepcopy(run.state)
+        change(tampered["portfolio_construction"]["starter_selection"])
+        with pytest.raises(ValueError):
+            review_payload(tampered)
+    tampered = deepcopy(run.state)
+    tampered["portfolio_construction"]["policy"].pop("starter_shortlist_algorithm")
+    with pytest.raises(ValueError):
+        review_payload(tampered)
+    inputs = revision["inputs"]
+    for feedback in (
+        {"kind": "construction_policy", "patch": {"max_positions": 4}},
+        {"kind": "profile", "patch": {"objective": "balanced"}},
+        {"kind": "evidence", "refresh": True, "candidate_limit": 3},
+    ):
+        decision = ReviewDecision.model_validate(
+            dict(
+                decision_id="decision-v2",
+                revision_id=revision["revision_id"],
+                action="edit",
+                disposition="revise",
+                note="Inspect an illustrative change.",
+                feedback=[feedback],
+                submitted_at=NOW,
+            )
+        )
+        child = plan_revision(decision, inputs)
+        assert child.inputs["construction_policy"]["starter_shortlist_algorithm"] == (
+            "sleeve-category-feasible-v2"
+        )
+
+
+@pytest.mark.parametrize(
+    "name,overrides,limit,expected_sha256",
+    [
+        ("ready", {}, 10, "6ecfcce09d569924e448df3984ef20032b0a111513528f36773f99e251f272be"),
+        (
+            "blocked",
+            {"risk_tolerance": "aggressive", "objective": "growth"},
+            3,
+            "0ed61caab908a91c5c1032aea507d3e0b8e181a356a2bfdd83d069b4b2dfe64a",
+        ),
+    ],
+)
+def test_saved_v1_starter_output_matches_pre_repair_golden_offline(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    overrides: dict[str, str],
+    limit: int,
+    expected_sha256: str,
+) -> None:
+    artifact = _synthetic_artifact(tmp_path)
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        {**_profile(artifact), **overrides},
+        DashboardOptions(with_evidence=True, candidate_limit=limit),
+    )
+    state = run.state
+    policy = PortfolioConstructionPolicy()
+    assert "starter_shortlist_algorithm" not in policy.model_dump(mode="python")
+    assert "starter_shortlist_algorithm" not in policy.model_dump(mode="json")
+    old_inputs = PortfolioConstructionInput.model_validate(
+        dict(
+            profile=state["profile"],
+            policy_calculation=state["draft_policy"],
+            candidate_evidence=state["candidate_evidence"],
+            candidate_screening=state["candidate_screening"],
+            construction_policy=policy.model_dump(mode="json"),
+        )
+    )
+    old = construct_model_portfolio(old_inputs)
+    encoded = json.dumps(old.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+    assert hashlib.sha256(encoded).hexdigest() == expected_sha256
+    assert ("starter_selection" in old.model_dump(mode="json")) == (name == "ready")
+    revision_inputs = deepcopy(state["revision_ledger"]["revisions"][0]["inputs"])
+    revision_inputs["construction_policy"].pop("starter_shortlist_algorithm")
+    restored_inputs = RevisionInputs.model_validate(revision_inputs).model_dump(mode="json")
+    assert "starter_shortlist_algorithm" not in restored_inputs["construction_policy"]
+    revision_sha256 = {
+        "ready": "78e93716cbe086e796f2f2c5c65c1ba4fc39ad944034b386e4fce9d38c7e4639",
+        "blocked": "382695c9491bfc529b0185ddf750ba2ff88a59fa005820c4e079cff50b90e72e",
+    }
+    assert (
+        hashlib.sha256(
+            json.dumps(restored_inputs, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        == revision_sha256[name]
+    )
+    monkeypatch.setattr(Path, "read_bytes", lambda self: pytest.fail("offline artifact read"))
+    monkeypatch.setattr(Path, "read_text", lambda self, **kw: pytest.fail("offline artifact read"))
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: pytest.fail("offline clock read"))
+    assert validate_persisted_construction(old_inputs, old) == old
+
+
+def test_v2_post_shortlist_block_retains_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifact = _synthetic_artifact(tmp_path)
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        {**_profile(artifact), "risk_tolerance": "aggressive", "objective": "growth"},
+        DashboardOptions(with_evidence=True, candidate_limit=3),
+    )
+    construction = run.state["portfolio_construction"]
+    assert construction["status"] == "blocked"
+    assert construction["errors"][0]["code"] == "category_limit_infeasible"
+    assert construction["starter_selection"]["algorithm"] == "sleeve-category-feasible-v2"
+    assert construction["starter_selection"]["final_position_ids"] == []
+    assert construction["starter_selection"]["usable_count"] == 20
+
+
+def test_v2_scarce_supply_fallback_is_bounded_and_deterministic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifact = _artifact_with_categories(tmp_path, {"QQQ": "Large Growth"})
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        {**_profile(artifact), "risk_tolerance": "aggressive", "objective": "growth"},
+        DashboardOptions(with_evidence=True, candidate_limit=3),
+    )
+    state = run.state
+    inputs = PortfolioConstructionInput.model_validate(
+        dict(
+            profile=state["profile"],
+            policy_calculation=state["draft_policy"],
+            candidate_evidence=state["candidate_evidence"],
+            candidate_screening=state["candidate_screening"],
+            construction_policy=state["portfolio_construction"]["policy"],
+        )
+    )
+    eligible, excluded, error = _classify_candidates(inputs, inputs.construction_policy)
+    assert error is None
+    scarce = [item for item in eligible if item.candidate.symbol in {"SPY", "BND"}]
+    targets = {PortfolioSleeve.GROWTH: 9500, PortfolioSleeve.DEFENSIVE: 500}
+    first = _starter_shortlist_report_v2(inputs, scarce, excluded, targets)
+    second = _starter_shortlist_report_v2(inputs, scarce, excluded, targets)
+    assert first == second
+    assert first is not None
+    assert first["capacity"] == 3
+    assert [item.rsplit(":", 1)[-1] for item in first["shortlist_ids"]] == ["bnd", "spy"]
+    assert len(first["shortlist_ids"]) <= first["capacity"]
+
+    tightened = PortfolioConstructionInput.model_validate(
+        {
+            **inputs.model_dump(mode="json"),
+            "construction_policy": {
+                **inputs.construction_policy.model_dump(mode="json"),
+                "min_position_weight_bps": 600,
+            },
+        }
+    )
+    blocked = construct_model_portfolio(tightened).model_dump(mode="json")
+    assert blocked["status"] == "blocked"
+    assert blocked["errors"][0]["code"] == "position_constraints_infeasible"
+    assert blocked["starter_selection"]["final_position_ids"] == []
+
+
+def test_starter_algorithm_input_boundaries_reject_edits_and_nonstarter(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for value in (None, "unknown"):
+        with pytest.raises(ValueError):
+            PortfolioConstructionPolicy.model_validate({"starter_shortlist_algorithm": value})
+    with pytest.raises(ValueError):
+        ConstructionFeedback.model_validate(
+            {"kind": "construction_policy", "patch": {"starter_shortlist_algorithm": None}}
+        )
+    artifact = _synthetic_artifact(tmp_path)
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        _profile(artifact), DashboardOptions(with_evidence=True, candidate_limit=10)
+    )
+    revision_inputs = deepcopy(run.state["revision_ledger"]["revisions"][0]["inputs"])
+    revision_inputs["profile"].pop("starter_request")
+    with pytest.raises(ValueError, match="requires starter research"):
+        RevisionInputs.model_validate(revision_inputs)
+    construction_inputs = dict(
+        profile=revision_inputs["profile"],
+        policy_calculation=run.state["draft_policy"],
+        candidate_evidence=run.state["candidate_evidence"],
+        candidate_screening=run.state["candidate_screening"],
+        construction_policy=revision_inputs["construction_policy"],
+    )
+    with pytest.raises(ValueError, match="requires starter research"):
+        PortfolioConstructionInput.model_validate(construction_inputs)
+
+
+def test_starter_counts_use_construction_eligibility_and_reportless_unknown(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    artifact = _artifact_with_categories(tmp_path, {"IVV": None, "VOO": "Unsupported"})
+    original = PreparedStarterEvidenceRetriever
+    monkeypatch.setattr(
+        dashboard,
+        "PreparedStarterEvidenceRetriever",
+        lambda request, **kw: original(request, root=tmp_path, **kw),
+    )
+    monkeypatch.setattr(dashboard, "system_utc_now", lambda: NOW + timedelta(hours=1))
+    run = dashboard.start_dashboard_run(
+        _profile(artifact), DashboardOptions(with_evidence=True, candidate_limit=10)
+    )
+    assert all(
+        item["verdict"] == "pass"
+        for item in run.state["candidate_screening"]["candidates"]
+        if item["symbol"] in {"IVV", "VOO"}
+    )
+    counts: list[dict[str, object]] = []
+    rows: list[list[dict[str, str]]] = []
+    display = SimpleNamespace(
+        subheader=lambda _: None,
+        write=counts.append,
+        dataframe=lambda value, **_: rows.append(value),
+        caption=lambda _: None,
+    )
+    dashboard_app._render_starter_counts(display, run.state)
+    assert counts[0]["eligible"] == 18
+    assert counts[0]["excluded"] == 2
+    by_symbol = {row["Fund"]: row for row in rows[0]}
+    assert by_symbol["IVV"]["Reason"] == "category_missing"
+    assert by_symbol["VOO"]["Reason"] == "category_unsupported"
+    assert by_symbol["SPY"]["Reason"] in {
+        "shortlisted_sleeve_category_coverage",
+        "bounded_shortlist_omission",
+    }
+    old_inputs = PortfolioConstructionInput.model_validate(
+        dict(
+            profile=run.state["profile"],
+            policy_calculation=run.state["draft_policy"],
+            candidate_evidence=run.state["candidate_evidence"],
+            candidate_screening=run.state["candidate_screening"],
+            construction_policy=PortfolioConstructionPolicy().model_dump(mode="json"),
+        )
+    )
+    old_state = deepcopy(run.state)
+    old_state["portfolio_construction"] = construct_model_portfolio(old_inputs).model_dump(
+        mode="json"
+    )
+    assert old_state["portfolio_construction"]["starter_selection"]["algorithm"] == (
+        "sleeve-category-round-robin-v1"
+    )
+    dashboard_app._render_starter_counts(display, old_state)
+    assert counts[1]["eligible"] == 18
+    assert counts[1]["excluded"] == 2
+    reportless = deepcopy(run.state)
+    reportless["portfolio_construction"].pop("starter_selection")
+    dashboard_app._render_starter_counts(display, reportless)
+    assert counts[2]["eligible"] is None
+    assert counts[2]["excluded"] == 2
+    assert {row["Fund"]: row for row in rows[2]}["SPY"]["Reason"] == (
+        "Passed screening; construction eligibility unavailable"
+    )
+    blocked = dashboard.start_dashboard_run(
+        {**_profile(artifact), "risk_tolerance": "aggressive", "objective": "growth"},
+        DashboardOptions(with_evidence=True, candidate_limit=3),
+    )
+    assert blocked.state["portfolio_construction"]["status"] == "blocked"
+    assert blocked.state["portfolio_construction"]["starter_selection"]["usable_count"] == 18
+    dashboard_app._render_starter_counts(display, blocked.state)
+    assert counts[3]["eligible"] == 18
+    assert counts[3]["excluded"] == 2
+    blocked_rows = {row["Fund"]: row for row in rows[3]}
+    assert blocked_rows["IVV"]["Reason"] == "category_missing"
+    assert blocked_rows["VOO"]["Reason"] == "category_unsupported"
 
 
 @pytest.mark.parametrize(

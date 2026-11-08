@@ -148,6 +148,23 @@ def _render_starter_counts(st: Any, state: dict[str, Any]) -> None:
     health = {item["symbol"]: item for item in evidence["health"]["observations"]}
     screened = {item["symbol"]: item for item in results}
     dispositions = {item["symbol"]: item["reason"] for item in report.get("dispositions") or []}
+    construction_exclusions = {
+        item["symbol"]: item["reason_code"]
+        for item in construction.get("excluded_candidates") or []
+    }
+    screened_ready = evidence["status"] == "ready" and screening.get("status") == "ready"
+    classified = screened_ready and bool(report)
+    if classified:
+        eligible_count: int | None = report.get("usable_count")
+        if eligible_count is None:
+            eligible_count = sum(
+                item["status"] == "collected"
+                and item["reason"]
+                in {"shortlisted_sleeve_category_coverage", "bounded_shortlist_omission"}
+                for item in report["dispositions"]
+            )
+    else:
+        eligible_count = None if screened_ready else 0
     rows = []
     for outcome in artifact["outcomes"]:
         symbol = outcome["symbol"]
@@ -169,7 +186,9 @@ def _render_starter_counts(st: Any, state: dict[str, Any]) -> None:
             reason = "Not screened: screening unavailable"
         else:
             source_status = "current"
-            reason = dispositions.get(symbol)
+            reason = construction_exclusions.get(symbol) or dispositions.get(symbol)
+            if reason is None and screening_result["verdict"] == "pass" and not classified:
+                reason = "Passed screening; construction eligibility unavailable"
             if reason is None:
                 reason = (
                     "Passed screening; shortlist unavailable"
@@ -187,18 +206,16 @@ def _render_starter_counts(st: Any, state: dict[str, Any]) -> None:
             and row["Fund"] in screened
             for row in rows
         ),
-        eligible=sum(
-            row["Source"] == "current"
-            and screened.get(row["Fund"], {}).get("verdict") == "pass"
-            and not row["Reason"].startswith("Not screened:")
-            for row in rows
-        ),
+        eligible=eligible_count,
         excluded=sum(
             row["Source"] in {"failed", "unattempted", "stale", "future"}
             or (
                 row["Source"] == "current"
-                and screened.get(row["Fund"], {}).get("verdict") not in {None, "pass"}
                 and not row["Reason"].startswith("Not screened:")
+                and (
+                    screened.get(row["Fund"], {}).get("verdict") not in {None, "pass"}
+                    or row["Fund"] in construction_exclusions
+                )
             )
             for row in rows
         ),

@@ -137,6 +137,21 @@ class PortfolioConstructionPolicy(BaseModel):
     category_sleeves: dict[PortfolioSleeve, list[str]] = Field(
         default_factory=_default_category_sleeves
     )
+    starter_shortlist_algorithm: Literal["sleeve-category-feasible-v2"] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_null_starter_algorithm(cls, value: Any) -> Any:
+        if isinstance(value, dict) and value.get("starter_shortlist_algorithm", "absent") is None:
+            raise ValueError("Starter shortlist algorithm cannot be null.")
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_policy(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.starter_shortlist_algorithm is None:
+            result.pop("starter_shortlist_algorithm", None)
+        return result
 
     @model_validator(mode="after")
     def validate_bounds_and_categories(self) -> PortfolioConstructionPolicy:
@@ -551,6 +566,15 @@ class PortfolioConstructionInput(StrictWireModel):
     candidate_screening: CandidateScreeningBundle
     construction_policy: PortfolioConstructionPolicy = DEFAULT_CONSTRUCTION_POLICY
 
+    @model_validator(mode="after")
+    def validate_starter_algorithm(self) -> PortfolioConstructionInput:
+        if (
+            self.construction_policy.starter_shortlist_algorithm is not None
+            and self.profile.starter_request is None
+        ):
+            raise ValueError("Starter shortlist algorithm requires starter research.")
+        return self
+
 
 @dataclass(frozen=True)
 class _EligibleCandidate:
@@ -614,7 +638,12 @@ def construct_model_portfolio(
             catalogue_selection=_catalogue_not_evaluated(inputs, category_error),
         )
     eligible, catalogue_report = _catalogue_shortlist(inputs, eligible, excluded, targets)
-    starter_report = _starter_shortlist_report(inputs, eligible, excluded)
+    starter_v2 = policy.starter_shortlist_algorithm is not None
+    starter_report = (
+        _starter_shortlist_report_v2(inputs, eligible, excluded, targets)
+        if starter_v2
+        else _starter_shortlist_report(inputs, eligible, excluded)
+    )
     if starter_report is not None:
         starter_shortlist_ids = set(starter_report["shortlist_ids"])
         eligible = [
@@ -629,6 +658,7 @@ def construct_model_portfolio(
             advisory_contract=inputs.profile.advisory_contract,
             identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
+            starter_selection=starter_report if starter_v2 else None,
         )
     passed.add(ConstructionCheckName.ELIGIBILITY)
 
@@ -642,6 +672,7 @@ def construct_model_portfolio(
             advisory_contract=inputs.profile.advisory_contract,
             identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
+            starter_selection=starter_report if starter_v2 else None,
         )
 
     positions_without_cash, weights = selected
@@ -665,6 +696,7 @@ def construct_model_portfolio(
             advisory_contract=inputs.profile.advisory_contract,
             identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
+            starter_selection=starter_report if starter_v2 else None,
         )
 
     selected_needs_fx = new_contract and any(
@@ -685,6 +717,7 @@ def construct_model_portfolio(
                 advisory_contract="us-eu-v1",
                 identity_contract=inputs.profile.identity_contract,
                 catalogue_selection=catalogue_report,
+                starter_selection=starter_report if starter_v2 else None,
             )
     positions = [
         _position_from_candidate(
@@ -758,6 +791,9 @@ def construct_model_portfolio(
             advisory_contract=inputs.profile.advisory_contract,
             identity_contract=inputs.profile.identity_contract,
             catalogue_selection=catalogue_report,
+            starter_selection={**starter_report, "final_position_ids": []}
+            if starter_v2 and starter_report is not None
+            else None,
         )
     payload: dict[str, Any] = {
         **contract_fields("us-eu-v1" if new_contract else None),
@@ -1280,6 +1316,132 @@ def _starter_shortlist_report(
     )
 
 
+def _starter_shortlist_report_v2(
+    inputs: PortfolioConstructionInput,
+    eligible: list[_EligibleCandidate],
+    excluded: list[ExcludedCandidate],
+    targets: dict[PortfolioSleeve, int],
+) -> dict[str, Any] | None:
+    """Seed feasible sleeve counts, then fill the bounded shortlist by target debt."""
+    context = inputs.candidate_evidence.starter_context
+    if context is None:
+        return None
+    policy = inputs.construction_policy
+    capacity = min(inputs.candidate_evidence.requested_limit, policy.max_candidate_pool_size, 10)
+    available = [item for item in eligible if targets[item.sleeve] > 0]
+    supply = {
+        sleeve: sum(item.sleeve == sleeve for item in available) for sleeve in PortfolioSleeve
+    }
+    count_pairs: list[tuple[int, int]] = []
+
+    def count_fits(sleeve: PortfolioSleeve, count: int) -> bool:
+        if count == 0:
+            return targets[sleeve] == 0
+        quotient, remainder = divmod(targets[sleeve], count)
+        return (
+            policy.min_position_weight_bps <= quotient
+            and quotient + (remainder > 0) <= policy.max_position_weight_bps
+        )
+
+    for defensive in range(min(supply[PortfolioSleeve.DEFENSIVE], capacity) + 1):
+        for growth in range(min(supply[PortfolioSleeve.GROWTH], capacity - defensive) + 1):
+            total = defensive + growth
+            if not policy.min_positions <= total <= min(policy.max_positions, capacity):
+                continue
+            counts = {PortfolioSleeve.DEFENSIVE: defensive, PortfolioSleeve.GROWTH: growth}
+            if any(targets[sleeve] > 0 and counts[sleeve] == 0 for sleeve in PortfolioSleeve):
+                continue
+            if any(not count_fits(sleeve, counts[sleeve]) for sleeve in PortfolioSleeve):
+                continue
+            count_pairs.append((defensive, growth))
+    if count_pairs:
+        defensive_seed, growth_seed = max(
+            count_pairs,
+            key=lambda pair: (
+                sum(pair),
+                -abs(10_000 * pair[1] - sum(pair) * targets[PortfolioSleeve.GROWTH]),
+                pair[1],
+            ),
+        )
+    else:
+        defensive_seed = int(
+            targets[PortfolioSleeve.DEFENSIVE] > 0 and supply[PortfolioSleeve.DEFENSIVE] > 0
+        )
+        growth_seed = int(
+            targets[PortfolioSleeve.GROWTH] > 0
+            and supply[PortfolioSleeve.GROWTH] > 0
+            and defensive_seed < capacity
+        )
+    chosen: list[_EligibleCandidate] = []
+    remaining = list(available)
+    counts = {sleeve: 0 for sleeve in PortfolioSleeve}
+    categories: set[str] = set()
+
+    def take(sleeve: PortfolioSleeve) -> None:
+        choices = [item for item in remaining if item.sleeve == sleeve]
+        winner = min(
+            choices, key=lambda item: (_normalize_category(item.category) in categories, item.index)
+        )
+        chosen.append(winner)
+        remaining.remove(winner)
+        counts[sleeve] += 1
+        categories.add(_normalize_category(winner.category))
+
+    for sleeve, count in (
+        (PortfolioSleeve.DEFENSIVE, defensive_seed),
+        (PortfolioSleeve.GROWTH, growth_seed),
+    ):
+        for _ in range(count):
+            take(sleeve)
+    while remaining and len(chosen) < capacity:
+        slot = len(chosen)
+        sleeves = {item.sleeve for item in remaining}
+        sleeve = max(
+            sleeves,
+            key=lambda value: (
+                (slot + 1) * targets[value] - TOTAL_WEIGHT_BPS * counts[value],
+                value == PortfolioSleeve.GROWTH,
+            ),
+        )
+        take(sleeve)
+    shortlist = [item.candidate.document_id for item in chosen]
+    excluded_by_symbol = {item.symbol: item.reason_code.value for item in excluded}
+    document_by_symbol = {
+        item.symbol: item.document_id for item in inputs.candidate_evidence.candidates
+    }
+    dispositions = []
+    for outcome in context.artifact.outcomes:
+        document_id = document_by_symbol.get(outcome.symbol)
+        if outcome.status != "collected":
+            reason = outcome.reason
+        elif outcome.symbol in excluded_by_symbol:
+            reason = excluded_by_symbol[outcome.symbol]
+        elif document_id in shortlist:
+            reason = "shortlisted_sleeve_category_coverage"
+        else:
+            reason = "bounded_shortlist_omission"
+        dispositions.append(
+            dict(
+                symbol=outcome.symbol,
+                status=outcome.status,
+                document_id=document_id,
+                reason=reason,
+                shortlisted=document_id in shortlist,
+            )
+        )
+    return dict(
+        algorithm="sleeve-category-feasible-v2",
+        artifact_digest=context.artifact.digest,
+        input_digest=_catalogue_input_digest(inputs),
+        capacity=capacity,
+        target_bps=targets,
+        usable_count=len(eligible),
+        shortlist_ids=shortlist,
+        final_position_ids=[],
+        dispositions=dispositions,
+    )
+
+
 def _classify_candidates_impl(
     inputs: PortfolioConstructionInput,
     policy: PortfolioConstructionPolicy,
@@ -1765,6 +1927,7 @@ def _blocked_bundle(
     advisory_contract: Literal["us-eu-v1"] | None = None,
     identity_contract: Literal["curator-fund-v1"] | None = None,
     catalogue_selection: CatalogueSelectionReport | None = None,
+    starter_selection: dict[str, Any] | None = None,
 ) -> PortfolioConstructionBundle:
     if validation is None:
         passed = passed_checks or set()
@@ -1783,6 +1946,8 @@ def _blocked_bundle(
         payload["identity_contract"] = identity_contract
     if catalogue_selection is not None:
         payload["catalogue_selection"] = catalogue_selection
+    if starter_selection is not None:
+        payload["starter_selection"] = starter_selection
     return PortfolioConstructionBundle.model_validate(payload)
 
 

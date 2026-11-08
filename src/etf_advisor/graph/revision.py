@@ -321,6 +321,11 @@ class RevisionRuntime:
             if result["validation_errors"]:
                 return result
             inputs = {**self.inputs, "profile": result["profile"]}
+            if result["profile"].get("starter_request") is not None:
+                policy = PortfolioConstructionPolicy.model_validate(inputs["construction_policy"])
+                inputs["construction_policy"] = policy.model_copy(
+                    update={"starter_shortlist_algorithm": "sleeve-category-feasible-v2"}
+                ).model_dump(mode="json")
             now = self.clock()
             ledger = RevisionLedger(
                 thread_id=str(config["configurable"]["thread_id"]),

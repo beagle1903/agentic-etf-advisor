@@ -2,6 +2,11 @@
 
 Issue 141 adds the distinct prepared US/USD starter path in
 [ADR 0047](decisions/0047-curated-us-starter.md) and the [usage guide](../us-starter.md).
+The post-delivery PR142 repair in [ADR 0048](decisions/0048-starter-shortlist-input-version.md)
+pins a bounded feasible shortlist version only for fresh starter roots. Absent
+policy selection preserves saved v1 construction and replay bytes; v2 remains
+input-bound through retry and revision. Construction eligibility is reported
+separately from source screening.
 One ignored immutable artifact binds twenty ordered source outcomes to a selected
 profile and embedded review evidence. The normal dashboard uses its prepared
 retriever without Chroma/Neo4j, screens the full collected pool, then shortlists

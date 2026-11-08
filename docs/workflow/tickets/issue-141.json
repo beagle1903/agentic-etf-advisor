@@ -593,6 +593,262 @@
         "pr": 142,
         "evidence": "Bind original Issue141 PR142 after native delivery check and independent additional finalreview PASS on identical00e9 content. Required default1973pass83skip, focused optional19pass, static/build/workflow and historical cached-source UI pass. Optional full FAIL1legacy3s startup timeout2015pass40skip is retained and disclosed; exact current/main node passes alone. A141-1 qualified gate clarification recorded publicly and in ledger. All financial/source policies, failed outcomes and finite counts preserved. Source audit limitations disclosed in PR. Final-head remote CI follows binding; no merge claimed."
       }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-11-07T18:43:06Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "On 2026-11-07 user said ok fix them bro after the explicit bounded proposal to fix both PR142 P2 findings with one repair pass and one independent review, stopping on wider contract needs/unresolved defects. Grants exactly remediation+1 and final_review+1 for Issue141 on original PR142; no new acquisition or broader optimizer scope."
+        },
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Post-delivery bounded repair for PR142 comments4503240104 and4503240105: allocation-aware sleeve shortlisting and construction-aware eligibility counts. Preserve saved-review behavior, source/financial thresholds, all history and original repository/PR binding. Available existing architect reset may resolve consequential replay ambiguity before writes; no automatic count reset."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T18:43:07Z",
+      "data": {
+        "id": "B141-SLEEVE-FEASIBILITY",
+        "criterion": "AC141-2",
+        "scenario": "At capacity3 defensive-first round robin selects2defensive1growth when both sleeves have candidates. A95/5 target cannot satisfy max80percent per-position and min5percent per-position, despite feasible SPY/QQQ47.5each+BND5 in full pool.",
+        "evidence": "PR142 discussion4503240104, current _starter_shortlist_report counts-only defensive-first sleeve order, existing policy max8000/min500bps and aggressive/growth target95/5. Source-level coordinator confirmation, no new source/test run."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T18:43:08Z",
+      "data": {
+        "id": "B141-CONSTRUCTION-COUNTS",
+        "criterion": "AC141-1",
+        "scenario": "A screening-pass candidate excluded during construction as category_missing/category_unsupported is still counted eligible and omitted from excluded count, contradicting its disposition and actual construction pool.",
+        "evidence": "PR142 discussion4503240105. _classify_candidates_impl excludes after screening pass; _render_starter_counts counts screening verdict alone while row reason uses construction disposition. Source-level coordinator confirmation."
+      }
+    },
+    {
+      "type": "charge",
+      "at": "2026-11-07T18:43:55Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Measure native post-delivery continuation-to-resume coordination interval from stored continuation UTC timestamp; no unrecorded audit subtraction."
+        },
+        "seconds": 49,
+        "evidence": "Native delivery stopped the audit clock. Continuation preserved that stopped state; actual preliminary coordination interval since continuation is charged before explicit resume. No retrospective pause/slot grant."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-11-07T18:43:56Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume nonterminal Issue141 audit clock following explicit user-authorized finite post-delivery continuation. Measured pre-resume interval charged."
+        },
+        "evidence": "Native gate required explicit coordination resume because delivery stopped clock. Existing user authority covers bounded repair/review, existing design reset remains available; no new allowance."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T18:43:57Z",
+      "data": {
+        "criterion": "INV141-3",
+        "phase": "design_reset",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_pr_design",
+        "role": "design_architect",
+        "reason": "Concrete replay ambiguity: validate_portfolio_construction recomputes using current construct_model_portfolio, while persisted starter report names algorithm v1. Correcting v1 selection changes old deterministic reports/blocked states, conflicting with frozen saved-review preservation. Need version/replay contract within same two-finding scope; existing reset slot, no broader financial policy."
+      }
+    },
+    {
+      "at": "2026-11-07T18:49:58Z",
+      "data": {
+        "session": "/root/issue141_pr_design",
+        "evidence": "Separate fresh architect DESIGN_READY on generation2. Input-bound absent/v2 construction-policy selector preserves old ready/reportless-blocked reviews, fresh roots pin v2, immutable through retries/children. Bounded two-sleeve feasible count-pair seed with existing bounds, construction-authoritative counts. Full handoff docs/workflow/issue141-pr142-handoff.md. No source/tests/edits by designer, no widened financial scope.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-11-07T18:50:00Z",
+      "data": {
+        "session": "/root/issue141_pr_challenge",
+        "capsule": {
+          "generation": 2,
+          "id": "issue-141-curated-us-starter",
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "role": "code_reviewer",
+        "phase": "challenge"
+      },
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue141_pr_challenge",
+        "evidence": "Independent gen2 code_reviewer challenge PASS. Input-bound absent=v1/exact-v2 selector, fresh-root pin before sealing, unchanged old bytes/retry/child policies and rejection of feedback edits preserve INV141-3. Feasible two-sleeve count seed respects existing weights/categories/cent rules; construction-aware counts/reportless conservatism address AC1. Verify all post-shortlist v2 blocked paths retain reports and both input boundaries reject nonstarter marker. No edits/tests/source calls."
+      },
+      "at": "2026-11-07T18:54:05Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "Approve docs/workflow/issue141-pr142-handoff.md and post-delivery A141-1 revision. Absent policy marker preserves exact v1; fresh starter root pins feasible-v2, lineage/receipts retain version. Bounded feasible count seed and construction-aware counts only; numerical financial rules/source/scope unchanged. Same original owner; one counted repair and finalreview available.",
+        "authority": {
+          "evidence": "Approve exact Issue141 generation2 after separate fresh architect DESIGN_READY and independent design challenge PASS, within user-authorized two-finding bounded continuation.",
+          "name": "/root",
+          "kind": "coordinator"
+        },
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        }
+      },
+      "at": "2026-11-07T18:54:06Z",
+      "type": "design_ready"
+    },
+    {
+      "data": {
+        "session": "/root/issue141_owner",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "phase": "remediation",
+        "role": "implementation_worker"
+      },
+      "at": "2026-11-07T18:54:08Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-08T05:00:59Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Post-delivery gen2 remediation4/4 completed after Nov8 same-reservation usage-limit resume. Versioned absent-v1/present-v2 policy selector, fresh-root pin, replay/feedback guards, bounded feasible count seed and construction-aware UI counts implemented exactly. Pre-edit synthetic v1 READY and reportless BLOCKED construction/revision-input SHA goldens remain byte-identical. Normal fresh v2 cap3 aggressive95/5 SPY/QQQ/BND4750/4750/500, opposite20/80, scarce/infeasible, v2 blocked report, category ready/blocked/reportless, marker/tamper/child/offline focused cases pass. Extras starter27passed, isolated default26passed1expected skip; changed Ruff/format, mypy69, diff pass. ADR0048/guide/system/iteration updated, accepted0047 preserved. No source collection, threshold/general optimizer changes or protected checkout edits. Full current required verification/finalreview still pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-08T05:01:00Z",
+      "data": {
+        "id": "B141-SLEEVE-FEASIBILITY",
+        "evidence": "Fresh starter root pins input-bound feasible-v2. Existing position/count bounds choose feasible two-sleeve count seed before bounded category/target-debt fill. Normal cap3 95/5 case produces two growth4750bps and one defensive500bps, unchanged numeric financial rules. Historical absent-v1 ready/blocked bytes and input SHA preserved, lineage/retry guards and marker tests pass. Same-owner completed gen2 repair; certified review pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-08T05:01:02Z",
+      "data": {
+        "id": "B141-CONSTRUCTION-COUNTS",
+        "evidence": "UI derives evaluated v2 eligibility from usable_count and v1 from authoritative dispositions; construction exclusions joined by identity and row reason. Missing/unsupported categories pass screening but count excluded. Omissions stay eligible; historical reportless eligibility unavailable, source-health/not-screened behavior retained. Focused ready/post-shortlist-blocked/reportless category regressions pass. Same-owner completed gen2 repair; certified review pending."
+      }
+    },
+    {
+      "data": {
+        "phase": "verification",
+        "capsule": {
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab",
+          "id": "issue-141-curated-us-starter",
+          "generation": 2
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "session": "/root/issue141_owner",
+        "role": "implementation_worker"
+      },
+      "at": "2026-11-08T05:01:08Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-08T05:35:46Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Gen2 unchanged651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667 required full isolated default1981passed83skipped0fail(1840.86s with environment/tool delay); pytest-pr142-gen2-default.xml. Relevant optional starter/revision/construction/dashboard revision controls218passed0skips0fail, pytest-pr142-gen2-focused-extras.xml. Repo Ruff/check-format263files, mypy69, both workflow validators, build wheel/sdist, Compose/diff all PASS. Actual cached Nov5 artifact822b87 through AppTest at explicit historical check2026-11-05T08:00Z reaches human review with ready v2 construction/all panels/zero errors. Same review_payload passes with byte/text file/source-clock reads denied. No collection/edits during verification. Earlier complete optional3s legacy AppTest timeout remains failed/disclosed historical evidence, no all-suites-green claim."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-08T05:35:47Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "Bounded PR142 continuation: AC1 construction-aware eligible/excluded counts agree with category_missing/unsupported dispositions; omissions remain eligible, reportless unknown classification unavailable, prior health/not-screened behavior retained. AC2 fresh starter v2 cap3 95/5 normal graph produces SPY/QQQ4750each+BND500, opposite/scarce/infeasible/capacity/category cases pass under unchanged numeric rules. AC3 input policy version pinned only fresh roots, absent exactv1 Python/JSON/golden ready+reportless-blocked/revision SHA preserved, offline/retry/child/feedback/null/unknown/nonstarter/tamper cases pass; report cannot self-select algorithm. AC4 original historical source demonstration retained, current v2 UI replay uses same immutable Nov5 artifact at historical time with no acquisition; no fresh market claim. AC5 current complete required1981pass83skip +relevant optional218pass and static/build/workflow checks PASS on same content; historical optional full timeout/source audit limitations remain explicit. Original PR142/authority history retained, independent finalreview and re-delivery still pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-08T05:35:49Z",
+      "data": {
+        "capsule": {
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab",
+          "generation": 2,
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_pr_final_review",
+        "phase": "final_review",
+        "role": "code_reviewer",
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667"
+      }
+    },
+    {
+      "data": {
+        "evidence": "Independent gen2 final code_reviewer PASS on exact651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667. No concrete AC141-1/AC141-2/INV141-3 failure. Fresh roots pin v2 before seal, bounded count seed fixes95/5 cap3 under unchanged bounds, counts use construction exclusions/evaluated eligibility with omissions eligible/reportless unavailable. Absent exactv1 ready/blocked omissions and input-bound retry/child/report dispatch preserved. Required verification/acceptance same content, historical optional timeout remains failed/disclosed. No reviewer edits/source calls.",
+        "outcome": "pass",
+        "session": "/root/issue141_pr_final_review"
+      },
+      "type": "phase_end",
+      "at": "2026-11-08T05:51:55Z"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-08T05:51:59Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 142,
+        "evidence": "Re-deliver ORIGINAL PR142 after explicit bounded continuation, existing design-reset replay clarification, separate gen2 architect/challenge/coordinator approval, same-owner repair, identical-content required verification/acceptance and independent finalreview PASS. Both bot findings corrected: allocation-feasible bounded shortlist for freshv2, construction-aware counts. V1 bytes/replay retained. Required1981pass83skip and relevant optional218pass, static/build/history-source UI checks PASS; no new acquisition. Historical optional full3s timeout/audit limits remain disclosed. New published-head CI and thread replies follow; no merge claimed."
+      }
     }
   ]
 }
