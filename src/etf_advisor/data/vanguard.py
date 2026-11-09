@@ -240,20 +240,21 @@ class VanguardHoldingsClient:
         *,
         transport: HoldingsTransport | None = None,
         monotonic: Callable[[], float] = time.monotonic,
+        deadline: float | None = None,
     ) -> None:
         self.transport = transport or HTTPSHoldingsTransport(monotonic=monotonic)
         self.monotonic = monotonic
+        self.deadline = deadline
 
     def fetch(self) -> IssuerHoldings:
         started = self.monotonic()
+        limit = min(started + 90, self.deadline) if self.deadline is not None else started + 90
         for attempt in range(3):
             response: StreamingResponse | None = None
             try:
-                if self.monotonic() - started >= 90:
+                if self.monotonic() >= limit:
                     raise IssuerSourceError("issuer_elapsed_limit")
-                response = self.transport.open(
-                    connect_timeout=5, read_timeout=10, deadline=started + 90
-                )
+                response = self.transport.open(connect_timeout=5, read_timeout=10, deadline=limit)
                 if response.status in {429, 500, 502, 503, 504}:
                     if attempt < 2:
                         continue
@@ -264,10 +265,10 @@ class VanguardHoldingsClient:
                     raise IssuerSourceError("issuer_content_encoding")
                 body = bytearray()
                 while True:
-                    if self.monotonic() - started >= 90:
+                    if self.monotonic() >= limit:
                         raise IssuerSourceError("issuer_elapsed_limit")
                     chunk = response.read(min(65536, MAX_BYTES + 1 - len(body)))
-                    if self.monotonic() - started >= 90:
+                    if self.monotonic() >= limit:
                         raise IssuerSourceError("issuer_elapsed_limit")
                     if not chunk:
                         break
@@ -275,7 +276,7 @@ class VanguardHoldingsClient:
                     if len(body) > MAX_BYTES:
                         raise IssuerSourceError("issuer_byte_limit")
                 result = parse_holdings(bytes(body))
-                if self.monotonic() - started >= 90:
+                if self.monotonic() >= limit:
                     raise IssuerSourceError("issuer_elapsed_limit")
                 return result
             except IssuerSourceError:

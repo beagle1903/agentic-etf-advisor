@@ -1,0 +1,854 @@
+{
+  "schema": 1,
+  "events": [
+    {
+      "type": "initialize",
+      "at": "2026-11-05T07:10:04Z",
+      "data": {
+        "repo": "beagle1903/agentic-etf-advisor",
+        "issue": 141,
+        "classification": "consequential",
+        "scope": [
+          "S141-1",
+          "S141-2"
+        ],
+        "invariants": [
+          "INV141-1",
+          "INV141-2",
+          "INV141-3",
+          "INV141-4"
+        ],
+        "acceptance": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "review_required": true,
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "User burha on 2026-11-05 said \"ok go on bro\" to the concrete curated US-first starter proposal: roughly 15\u201325 candidates, current sourced inputs and explicit duplicate checks, removal of exhaustive active-class/continuity proof from the starter workflow, targeted simplification with consequential design review and implementation. This supersedes only the desired starter outcome of Issue123; no old count/root/acquisition/publication authority is reused."
+        },
+        "adoption": null,
+        "predecessor": null,
+        "policy": "owner-led-v1",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "repo": "beagle1903/agentic-etf-advisor",
+          "issue": 141,
+          "classification": "consequential",
+          "owner": {
+            "role": "implementation_worker",
+            "model": "gpt-6-sol",
+            "effort": "medium",
+            "session": "/root/issue141_owner"
+          },
+          "rationale": "A reduced financial eligibility and duplicate-listing identity contract needs a separate architect, independent challenge and coordinator approval. Ordinary implementation remains with the approved owner.",
+          "authorization": {
+            "kind": "user",
+            "name": "burha",
+            "evidence": "User burha on 2026-11-05 said \"ok go on bro\" to the concrete curated US-first starter proposal: roughly 15\u201325 candidates, current sourced inputs and explicit duplicate checks, removal of exhaustive active-class/continuity proof from the starter workflow, targeted simplification with consequential design review and implementation. This supersedes only the desired starter outcome of Issue123; no old count/root/acquisition/publication authority is reused."
+          },
+          "scope": {
+            "S141-1": "Deliver an explicitly selected curated US-listed USD starter workflow with approximately 15\u201325 packaged candidate listings, verified listing identity and explicit duplicate-listing checks, source-backed current portfolio inputs, per-candidate exclusions, bounded shortlist and normal UI portfolio construction. Remove exhaustive curator Fund/class registry proof as a prerequisite of this distinct starter mode. Reuse existing collector, screening/construction/retrieval and review mechanisms where correct.",
+            "S141-2": "Document the narrower identity guarantee, retained older paths, scope supersession of Issue123 starter outcome, focused tests and one bounded real source feasibility/normal app demonstration in an isolated checkout. Preserve failed Issue123 and protected Issue117 evidence."
+          },
+          "non_goals": [
+            "Worldwide or EU expansion, legal Fund identity across all share classes, complete active-class inventories, continuity/succession registry, automatic saved-review migration, broad rollback, financial threshold weakening, trades, external financial writes, or retrying/renewing Issue123 operational authorities."
+          ],
+          "invariants": {
+            "INV141-1": "Distinct explicit starter selection. US-listed ETFs and USD only. Verified exact provider listing identity and directly supported conservative duplicate grouping; names, index or directory membership alone do not prove legal Fund equality. Missing or ambiguous supported identity blocks the candidate. State the narrower guarantee honestly; no invented ISIN or legal Fund certification.",
+            "INV141-2": "Preserve existing financial category/threshold, source provenance and original observation freshness, holdings/concentration validation, exact monetary allocation, partial-evidence reporting and fail-closed restore/review safety. Unsupported candidates have explicit reasons.",
+            "INV141-3": "Preserve legacy and already selected us-eu-v1/curator contracts and saved bytes/receipts. No marker stripping, silent downgrade or existing saved-review migration. New starter persistence/replay must bind its selected scope and candidate identities and validate offline.",
+            "INV141-4": "Isolated new worktree and finite owner-led lifetime. Preserve Issue123 counts, root, failed attempts and blockers and all protected Issue117 edits. New live feasibility is only for the distinct starter contract after approved design; no registry/key/Issue123 publication operation. Bounded no-retry collection, safe source/error logs, no credentials/raw private data in git."
+          },
+          "interfaces": [
+            "Normal Streamlit/dashboard profile and research entry points; curated universe and source collector; identity/duplicate validation, snapshot/evidence/screening/shortlist/construction, checkpoint/restore and explanation. Architect must specify the smallest complete path. Provider/database boundaries remain replaceable."
+          ],
+          "json_state_impact": "A new explicitly selected starter contract or equivalently unambiguous bounded versioned input may add bound curated-universe/listing/duplicate evidence to new snapshots, jobs and review state. JSON-serializable, exact offline validation; existing absent or selected markers and saved bytes retain semantics. Architect must specify exact representation before implementation.",
+          "acceptance": {
+            "AC141-1": "Normal app can select and research a packaged approximately 15\u201325 listing US/USD starter set without curator registry, and explain each requested/collected/screened/eligible/excluded/shortlisted/final count and candidate exclusion.",
+            "AC141-2": "Focused tests prove exact listing and duplicate constraints, unsupported/missing/stale/malformed inputs, defensive/growth coverage, shortlist construction and actual normal entry-point wiring. Existing financial controls remain enforced.",
+            "AC141-3": "New starter save/reload and offline restore preserve selected identity and decision, reject tampering/downgrade, and preserve legacy/us-eu/curator behavior and saved serialization.",
+            "AC141-4": "One bounded feasibility pass retains measured outcomes and provenance; demonstrate the normal app constructing an illustrative portfolio from actual supported expanded pool with equity and defensive coverage when sources support it. Report a specific source blocker if live evidence cannot meet this; offline fixtures alone cannot certify live readiness.",
+            "AC141-5": "Record design/handoff/ADR, scope supersession and operational use, run focused and required verification with identical-content independent review, commit/push/create PR."
+          },
+          "verification": [
+            "Focused pure and entry-point tests for starter collection, identity, per-candidate gaps, shortlist, portfolio construction, exact-money, serialization/replay and old-contract regression. Required repository lint/type/workflow gates and relevant full tests. One bounded live pass/demonstration only after source plan approval; source failure is reported truthfully."
+          ],
+          "documentation": [
+            "New ADR for reduced US starter identity guarantee, active iteration and usage instructions, architecture/product scope update and explicit Issue123 supersession disposition with no grant or historical rewrite."
+          ],
+          "risks": [
+            "Duplicate economic exposure confused with duplicate listings, starter marker downgrade, legacy replay change, incomplete holdings causing defensive-source failure, candidate expansion mistaken for live eligibility, or scope growth into general curation."
+          ],
+          "escalation_triggers": [
+            "Consequential ambiguity returns to architect within finite allowance. Demonstrated implementation defect stays with owner and authorized remediation. High-risk financial/persistence change requires independent review. Failed live feasibility or review remains a blocker; no silent new attempt or allowance."
+          ],
+          "escalation": null
+        }
+      }
+    },
+    {
+      "at": "2026-11-05T07:10:24Z",
+      "type": "phase_start",
+      "data": {
+        "role": "design_architect",
+        "session": "/root/issue141_design",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "phase": "design"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-05T07:18:53Z",
+      "data": {
+        "outcome": "pass",
+        "evidence": "Separate design_architect DESIGN_READY on exact generation1. Minimal prepared evidence starter boundary, direct listing identity, bounded early source gate, state/replay bindings and focused verification recorded in docs/workflow/issue141-design-handoff.md. No source calls or edits by designer.",
+        "session": "/root/issue141_design"
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-05T07:18:54Z",
+      "data": {
+        "phase": "challenge",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_challenge",
+        "role": "code_reviewer"
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue141_challenge",
+        "evidence": "Independent code_reviewer DESIGN CHALLENGE PASS on identical frozen generation1 and handoff. No concrete INV141-1..4/AC141-1..5 failure. Verify returned Yahoo symbol, all20 normal-path candidates and unattempted outcomes on source-stop. No source calls or writes.",
+        "outcome": "pass"
+      },
+      "type": "phase_end",
+      "at": "2026-11-05T07:21:42Z"
+    },
+    {
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "evidence": "Approve exact Issue141 generation1 after separate /root/issue141_design DESIGN_READY and independent /root/issue141_challenge PASS under direct user go-on authorization for the reduced starter scope.",
+          "name": "/root"
+        },
+        "evidence": "Approved docs/workflow/issue141-design-handoff.md, including exact listing identity, immutable prepared evidence at existing retriever boundary, source-first gate, one bounded new live pass, complete normal UI and replay binding. No Issue123 authority reused.",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "type": "design_ready",
+      "at": "2026-11-05T07:21:43Z"
+    },
+    {
+      "data": {
+        "session": "/root/issue141_owner",
+        "role": "implementation_worker",
+        "phase": "implementation",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "type": "phase_start",
+      "at": "2026-11-05T07:21:44Z"
+    },
+    {
+      "type": "phase_end",
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue141_owner",
+        "evidence": "Same owner resumed reserved implementation after usage-limit interruption; all elapsed audit retained. Implemented distinct20-member prepared-evidence starter, reusable bounded UI collector, profile/evidence/shortlist/replay binding, docs and tests. One real source pass20collected/17screening eligible, same artifact normal backend/AppTest reached human review. Focused70tests, changed Ruff/focused mypy and diff passed. Audit limits in iteration043: native byte ceilings rather than measured totals, BND internal HTTP attempts unmeasured, pre-refactor harness bytes unavailable. Full content-bound verification pending."
+      },
+      "at": "2026-11-06T09:08:41Z"
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue141_owner",
+        "content": "c1e4a7ff0c17b6a6a3ba6023c141a0ee0cbb84c7e610bdfe696845797256225f",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        },
+        "role": "implementation_worker",
+        "phase": "verification"
+      },
+      "at": "2026-11-06T09:08:45Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:15:37Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "fail",
+        "evidence": "Verification c1e4a7ff0c17b6a6a3ba6023c141a0ee0cbb84c7e610bdfe696845797256225f failed full mypy: optional StarterArtifact at evidence.py1037 and set/tuple local selected reuse at construction.py633. Owner self-review also demonstrated unsourced starter graph-context acceptance and category-case false exclusions. Full pytest deliberately interrupted exact session88080 at about24%, no failures shown, no full pass claimed. Ruff/format, workflow validators, build and Compose passed on old binding. No tracked edits during verification."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:38Z",
+      "data": {
+        "id": "B141-TYPECHECK",
+        "criterion": "AC141-5",
+        "scenario": "Full mypy rejects optional artifact passed to required StarterEvidenceContext and selected local reused as set and subset tuple. Required verification cannot pass.",
+        "evidence": "Owner exact full-source mypy on certified c1e4a7ff reported rag/evidence.py1037 and domain/construction.py633. Closure is narrow non-null artifact narrowing/local rename and full mypy plus focused/full verification."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:39Z",
+      "data": {
+        "id": "B141-GRAPH-CONTEXT",
+        "criterion": "INV141-2",
+        "scenario": "Starter candidate validation permits an injected matching non-null graph_context although prepared artifact has no graph source, changing sector-exclusion behavior.",
+        "evidence": "Owner read-only self-review of CandidateEvidenceBundle.validate_ready_bundle. Closure reject any starter candidate graph_context and regression exercising injected context; preserve absent graph knowledge."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:15:40Z",
+      "data": {
+        "id": "B141-SOURCE-CATEGORY",
+        "criterion": "AC141-4",
+        "scenario": "Source preflight uses case-sensitive category literals while production normalizes whitespace/case, falsely excluding supported lower-case defensive categories and potentially stopping growth.",
+        "evidence": "Owner read-only self-review of starter_collection._classify versus production _normalize_category. Actual Nov5 source used canonical names and remains valid. Closure reuse production normalization/map and focused lower-case/whitespace regression, no new acquisition."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "role": "implementation_worker",
+        "session": "/root/issue141_owner",
+        "phase": "remediation",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        }
+      },
+      "at": "2026-11-06T09:15:43Z"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:22:56Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Same-owner narrow remediation completed all A141-1 repairs: explicit artifact type narrowing, local rename, reject unsourced starter graph_context, reuse production category normalization and pure frozen-universe validation on restore. Focused starter/profile/Vanguard75passed, full mypy src69files, changed Ruff and diff passed. Actual durable-memory load_dashboard_run test denies artifact file/source-clock reads; graph injection and normalized-category regressions pass. No source acquisition. A141-1 focused closure met; fresh certification still required."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:57Z",
+      "data": {
+        "id": "B141-TYPECHECK",
+        "evidence": "Full mypy src passed69files after narrow artifact non-null guard and local rename. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:58Z",
+      "data": {
+        "id": "B141-GRAPH-CONTEXT",
+        "evidence": "Reject any starter graph_context; matching synthetic graph injection regression passes, preserving unknown graph data. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-06T09:22:59Z",
+      "data": {
+        "id": "B141-SOURCE-CATEGORY",
+        "evidence": "Uses production category normalization; lower-case/whitespace defensive category regression passes, no financial threshold change or live acquisition. Same-owner completed remediation and focused75tests. Corrected content requires fresh verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-06T09:23:02Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "c240ecc06102a2435a708149bfddc04a0bb32335009857b422e3506fcdb2c529",
+        "phase": "verification",
+        "session": "/root/issue141_owner",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter",
+          "generation": 1
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-06T09:27:30Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "fail",
+        "evidence": "Corrected content c240ecc06102a2435a708149bfddc04a0bb32335009857b422e3506fcdb2c529 passed Ruff/format, mypy src69files, workflow validators, build/Compose/diff. Isolated uv sync --frozen CI-default environment starter tests:6passed1skipped7failed because mocked collector tests import absent optional yfinance before injected adapter. Exact extras full-pytest session32838 deliberately interrupted at about17% without reported failures, exit1; no full pass claimed. No tracked changes during verification. Default sole remediation is consumed; stop for explicit finite user extension before applying a test-only fixture fix."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-06T09:27:31Z",
+      "data": {
+        "id": "B141-CI-TEST-DEPENDENCY",
+        "criterion": "AC141-5",
+        "scenario": "Seven mocked starter collector test cases fail under default CI dependencies because run_pass imports optional yfinance before injected adapter. Tests must inject a minimal module stub; product optional-dependency rejection remains correct.",
+        "evidence": "Isolated57-package base/dev environment uv sync --frozen, targeted starter result6pass1skip7fail. Owner read-only diagnosis locates three mocked test functions; proposed ignored patch pending. Closure is narrowly stubbed mock fixture, default starter suite then full corrected verification and independent finalreview. No runtime/source changes or new collection."
+      }
+    },
+    {
+      "data": {
+        "seconds": 0,
+        "reason": "One finite same-owner test-fixture repair for B141-CI-TEST-DEPENDENCY against AC141-5. Default remediation consumed. Existing final_review remains available; no source attempt, reset or changed product scope.",
+        "counts": {
+          "implementation": 0,
+          "final_review": 0,
+          "initial_review": 0,
+          "design_reset": 0,
+          "remediation": 1
+        },
+        "authority": {
+          "evidence": "On 2026-11-07 the user replied approved to the exact request: Authorize one additional repair pass to apply the prepared test-only optional-yfinance fixture fix, finish verification and use the existing independent-review slot, with no further live collection. This grants remediation +1 only, zero seconds and zero other phase deltas.",
+          "kind": "user",
+          "name": "burha"
+        }
+      },
+      "at": "2026-11-07T11:22:02Z",
+      "type": "extension"
+    },
+    {
+      "data": {
+        "role": "implementation_worker",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "phase": "remediation",
+        "session": "/root/issue141_owner"
+      },
+      "at": "2026-11-07T11:22:58Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T11:34:39Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Nov7 explicitly authorized sole extra test-only repair completed under same owner. Exact prepared patch adds stub optional yfinance module to three mocked collector tests,13added1removed lines only tests/test_issue141_starter.py. Isolated CI-default starter13passed1expected Streamlit skip0failed; extras starter14passed. Changed test Ruff/check-format and diff passed. No product/doc/source edit or live acquisition. Existing finalreview slot unchanged."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T11:34:40Z",
+      "data": {
+        "id": "B141-CI-TEST-DEPENDENCY",
+        "evidence": "Mocked tests now inject minimal ModuleType yfinance stub before run_pass, preserving product optional-dependency rejection. Default starter13pass1skip0fail and extras14pass. A141-1 new material CI-default evidence addressed by narrow repair under explicit Nov7 remediation+1 extension; no criterion/source/actor change. Corrected content still needs complete verification/acceptance/finalreview."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T11:34:42Z",
+      "data": {
+        "role": "implementation_worker",
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter",
+          "generation": 1
+        },
+        "phase": "verification",
+        "session": "/root/issue141_owner"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T11:59:07Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Unchanged a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7. Complete sequential extras2011passed40skipped0failed (510.67s), isolated CI-default1968passed83skipped0failed (667.64s). JUnit .artifacts/issue141-verification/pytest-final-extras-sequential.xml and pytest-final-minimal.xml. Original parallel extras1failed2010passed40skipped (3s existing Streamlit AppTest timeout) retained separately at pytest-final-extras.xml; exact node passed alone and full sequential rerun passed. Full Ruff/check-format, mypy69sourcefiles, both workflow validators, build/Compose/diff passed. Cached November5 actual-source Streamlit/run/load reached human review with no new collection. Source observations and whole-bundle stale/future block retained. No tracked content changes during verification."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-07T11:59:07Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "AC1 normal starter UI/backend20-member preparation/load and count/exclusion display reach human review without registry/retrieval stores. AC2 exact returned listing/type/venue/USD, identity/duplicate/source-error, category normalization, full pool/shortlist<=10 and existing finance/exact-money regressions pass. AC3 profile/artifact/context/selection binding, graph injection rejection, durable-memory offline restore and tamper tests pass with source/file/clock denial; existing contracts preserved. AC4 one November5 pass20collected17sample-screened eligible,10shortlist5positions, cached actual-source AppTest also passed on November7 without acquisition. Scope is provider-listing identity; shared-index exposures can overlap, and current whole-bundle freshness may block source artifacts. Audit limits (unmeasured bytes/internal BND attempts, lost pre-refactor harness bytes) remain explicit. AC5 full default1968pass83skip and complete sequential extras2011pass40skip plus required gates pass on identical content; independent finalreview/delivery still pending. Failed historical verification/tests remain failed records, A141-1 focused repairs and explicit Nov7 extra test repair closed recorded blockers."
+      }
+    },
+    {
+      "data": {
+        "session": "/root/issue141_final_review",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "content": "a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7",
+        "role": "code_reviewer",
+        "phase": "final_review"
+      },
+      "at": "2026-11-07T11:59:09Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T12:06:04Z",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "outcome": "fail",
+        "evidence": "Independent final code_reviewer FAIL on accepted/verified a2537794e1e7797b7687bd17ce488ba8b7c5c6dfca42748c9fa6fe64d89048f7. Actual saved Nov5 artifact at injected Nov15 clock is blocked with20stale health observations, but _render_starter_counts shows excluded0 and historical existing_category_and_thresholds_pass without current per-symbol health. AC141-1/INV141-2 reporting defect, separate from correct whole-bundle freshness policy. Second AC141-1/AC141-3 selection defect: labels use collected count+preparation minute; labels.index always selects first of two colliding labels, making second digest unselectable. Code-path demonstrated, separate UI reproduction not run. No reviewer writes/source calls. Final slot consumed; BLOCKED_FOR_DECISION, no delivery or further automatic repair."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T12:06:05Z",
+      "data": {
+        "id": "B141-STALE-REPORT",
+        "criterion": "AC141-1",
+        "scenario": "At a new check time where cached observations are stale, global evidence correctly blocks but starter rows show historical passing source reasons and excluded0 with no per-symbol stale health explanation.",
+        "evidence": "Independent read-only reproduction with actual ignored Nov5 artifact and injected Nov15 UTC:20stale health observations,0candidates,requested20/collected20/screened0/eligible0/excluded0; SPY Reason existing_category_and_thresholds_pass. dashboard_app.py134+ and evidence.py895. Repair must render current health/reason and coherent pre-screen exclusion/not-screened counts without changing freshness/financial policy."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T12:06:05Z",
+      "data": {
+        "id": "B141-ARTIFACT-CHOICE",
+        "criterion": "AC141-3",
+        "scenario": "Two different prepared artifacts with identical collected count and preparation minute produce identical selectbox labels. labels.index returns the first artifact even when the second option is chosen.",
+        "evidence": "Independent final review code-path at dashboard_app.py121-126. No separate UI reproduction yet. Repair use digest/unique object as actual option value, readable formatting, and focused test selecting second colliding-label artifact; chosen request must bind that exact digest."
+      }
+    },
+    {
+      "type": "extension",
+      "at": "2026-11-07T18:03:32Z",
+      "data": {
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "final_review": 1,
+          "remediation": 1,
+          "design_reset": 0
+        },
+        "authority": {
+          "evidence": "On 2026-11-07 the user replied approved to the distinct post-final-review request: Approve one repair pass and one independent final review for stale-data reporting and colliding prepared-dataset selection UI defects, reusing existing source data. This grants remediation +1 and final_review +1 only, zero seconds and zero other phase deltas.",
+          "name": "burha",
+          "kind": "user"
+        },
+        "reason": "Finite same-owner UI-only repair for B141-STALE-REPORT and B141-ARTIFACT-CHOICE after failed independent final review. Preserve whole-bundle freshness, financial policy, scope, source history and all old outcomes. Additional independent review binds corrected content.",
+        "seconds": 0
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T18:03:50Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "phase": "remediation",
+        "role": "implementation_worker",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        }
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T18:13:09Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Explicitly approved UI-only remediation #3 completed. Only dashboard_app.py and test_issue141_starter.py changed/staged. Picker binds distinct digest values and readable labels. Coverage current stale/future health overrides old source-pass reasons; current members in blocked bundle are not screened; ready screening/shortlist reasons preserved; excluded/not-screened counts avoid overlap. Extras starter19passed, isolated default18passed1expected Streamlit skip. Changed Ruff/check-format, full mypy69files and diff passed. No source/contract/docs edits or provider calls. A141-1 narrow repair focused closure met; fresh verification/review pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T18:13:19Z",
+      "data": {
+        "id": "B141-STALE-REPORT",
+        "evidence": "Current per-symbol stale/future health now drives displayed reasons and source exclusions. Mixed current/blocked members are labelled not screened, never historical pass; ready case keeps real screening reasons and counts avoid overlap. Focused stale/future/mixed/ready regression cases pass in rich/default environments. Whole-bundle freshness remains unchanged. Same-owner completed remediation #3, A141-1 reporting defect closure."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-07T18:13:20Z",
+      "data": {
+        "id": "B141-ARTIFACT-CHOICE",
+        "evidence": "Selectbox values are distinct artifact digests, formatted with readable distinct dataset labels; labels.index removed. Two distinct artifacts with same preparation minute/count can select second exact digest. Focused collision selection test passes, same-owner completed remediation #3; fresh content-bound finalreview remains required."
+      }
+    },
+    {
+      "at": "2026-11-07T18:13:23Z",
+      "type": "phase_start",
+      "data": {
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "role": "implementation_worker",
+        "capsule": {
+          "generation": 1,
+          "id": "issue-141-curated-us-starter",
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "session": "/root/issue141_owner",
+        "phase": "verification"
+      }
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-07T18:29:47Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Qualified required verification PASS on unchanged00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b. Complete repository CI-default suite1973passed83skipped0failed(316.51s), pytest-ui-final-minimal.xml. Focused optional starter19passed/default18passed1expected skip. All repo Ruff/check-format260files, mypy69, both workflow validators, build wheel/sdist, Compose/diff passed. Actual saved Nov5 artifact UI replay at original saved check time reached human review with all panels/zero errors, no collection. Optional full remains FAILED1timeout2015passed40skipped(475.32s), pytest-ui-final-extras.xml: legacy initial AppTest3s timeout; exact unchanged node passes alone on current and clean main using same interpreter, main imports verified. No assertion/product failure demonstrated. A141-1 accountable contract clarification https://github.com/beagle1903/agentic-etf-advisor/issues/141#issuecomment-6711288372 maps required gates to frozen AC141-5 and actual default CI workflow, which has no3s startup SLA. Failed optional check is retained/disclosed, never claimed PASS. No code/source edits during verification. Independent final review must assess material uncertainty/concrete frozen failures."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-07T18:29:47Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "AC1 normal20-member starter UI/backend plus current-health/exclusion/not-screened reporting and digest-valued artifact selection validated; focused tests reproduce stale/future/mixed/ready and second same-minute/count option. AC2 exact listing/source validation, preserved finance/shortlist<=10/exact money regressions pass. AC3 bound profile/artifact/evidence/selection, offline restore, tamper and graph injection rejection preserved; new selector binds actual second digest. AC4 original one Nov5 source pass20collected17sampleeligible10shortlist5positions, actual-data UI replay at saved historical time passes; no current market-data refresh or new collection claim. AC5 all current required/default1973pass83skip, focused optional19pass and static/build/workflow gates pass. Optional full FAIL1legacy3s startup timeout2015pass40skip retained with current/main exact-node PASS; no blanket all-suites-green claim. A141-1 clarification public evidence above, no financial/freshness change or hidden waiver. Source audit limits retained (unmeasured byte/internal fallback counts, lost original runner bytes). Additional independent review/delivery still separate pending gates."
+      }
+    },
+    {
+      "type": "phase_start",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "capsule": {
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "id": "issue-141-curated-us-starter"
+        },
+        "role": "code_reviewer",
+        "phase": "final_review"
+      },
+      "at": "2026-11-07T18:29:49Z"
+    },
+    {
+      "at": "2026-11-07T18:31:36Z",
+      "data": {
+        "session": "/root/issue141_final_review",
+        "evidence": "Independent additional final code_reviewer PASS on exact00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b. Read-only actual saved-artifact stale reproduction now shows20stale reasons20exclusions, fixing AC141-1/INV141-2. Picker binds distinct artifact digests, resolving AC141-1/AC141-3 collision. No new frozen-criterion failure found. Required default1973pass83skip and focused19starter pass; optional complete suite remains FAILED on disclosed legacy3s AppTest startup timeout, exact node passed alone current/main. A141-1 qualified verification accepted without relabeling failed check. No reviewer writes/source calls.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-07T18:32:37Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "content": "00e9f53c42c1ec0be195536f94993b99c75d0a084e398578ef9ac6dade46ba9b",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 142,
+        "evidence": "Bind original Issue141 PR142 after native delivery check and independent additional finalreview PASS on identical00e9 content. Required default1973pass83skip, focused optional19pass, static/build/workflow and historical cached-source UI pass. Optional full FAIL1legacy3s startup timeout2015pass40skip is retained and disclosed; exact current/main node passes alone. A141-1 qualified gate clarification recorded publicly and in ledger. All financial/source policies, failed outcomes and finite counts preserved. Source audit limitations disclosed in PR. Final-head remote CI follows binding; no merge claimed."
+      }
+    },
+    {
+      "type": "continuation",
+      "at": "2026-11-07T18:43:06Z",
+      "data": {
+        "authority": {
+          "kind": "user",
+          "name": "burha",
+          "evidence": "On 2026-11-07 user said ok fix them bro after the explicit bounded proposal to fix both PR142 P2 findings with one repair pass and one independent review, stopping on wider contract needs/unresolved defects. Grants exactly remediation+1 and final_review+1 for Issue141 on original PR142; no new acquisition or broader optimizer scope."
+        },
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 1,
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585"
+        },
+        "counts": {
+          "implementation": 0,
+          "initial_review": 0,
+          "remediation": 1,
+          "final_review": 1,
+          "design_reset": 0
+        },
+        "reason": "Post-delivery bounded repair for PR142 comments4503240104 and4503240105: allocation-aware sleeve shortlisting and construction-aware eligibility counts. Preserve saved-review behavior, source/financial thresholds, all history and original repository/PR binding. Available existing architect reset may resolve consequential replay ambiguity before writes; no automatic count reset."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T18:43:07Z",
+      "data": {
+        "id": "B141-SLEEVE-FEASIBILITY",
+        "criterion": "AC141-2",
+        "scenario": "At capacity3 defensive-first round robin selects2defensive1growth when both sleeves have candidates. A95/5 target cannot satisfy max80percent per-position and min5percent per-position, despite feasible SPY/QQQ47.5each+BND5 in full pool.",
+        "evidence": "PR142 discussion4503240104, current _starter_shortlist_report counts-only defensive-first sleeve order, existing policy max8000/min500bps and aggressive/growth target95/5. Source-level coordinator confirmation, no new source/test run."
+      }
+    },
+    {
+      "type": "blocker",
+      "at": "2026-11-07T18:43:08Z",
+      "data": {
+        "id": "B141-CONSTRUCTION-COUNTS",
+        "criterion": "AC141-1",
+        "scenario": "A screening-pass candidate excluded during construction as category_missing/category_unsupported is still counted eligible and omitted from excluded count, contradicting its disposition and actual construction pool.",
+        "evidence": "PR142 discussion4503240105. _classify_candidates_impl excludes after screening pass; _render_starter_counts counts screening verdict alone while row reason uses construction disposition. Source-level coordinator confirmation."
+      }
+    },
+    {
+      "type": "charge",
+      "at": "2026-11-07T18:43:55Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Measure native post-delivery continuation-to-resume coordination interval from stored continuation UTC timestamp; no unrecorded audit subtraction."
+        },
+        "seconds": 49,
+        "evidence": "Native delivery stopped the audit clock. Continuation preserved that stopped state; actual preliminary coordination interval since continuation is charged before explicit resume. No retrospective pause/slot grant."
+      }
+    },
+    {
+      "type": "coordination_resume",
+      "at": "2026-11-07T18:43:56Z",
+      "data": {
+        "authority": {
+          "kind": "coordinator",
+          "name": "/root",
+          "evidence": "Resume nonterminal Issue141 audit clock following explicit user-authorized finite post-delivery continuation. Measured pre-resume interval charged."
+        },
+        "evidence": "Native gate required explicit coordination resume because delivery stopped clock. Existing user authority covers bounded repair/review, existing design reset remains available; no new allowance."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-07T18:43:57Z",
+      "data": {
+        "criterion": "INV141-3",
+        "phase": "design_reset",
+        "capsule": {
+          "digest": "7ddfbbc5935788590d553b141f64bc53ddf999169d372a18962f979b25840585",
+          "generation": 1,
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_pr_design",
+        "role": "design_architect",
+        "reason": "Concrete replay ambiguity: validate_portfolio_construction recomputes using current construct_model_portfolio, while persisted starter report names algorithm v1. Correcting v1 selection changes old deterministic reports/blocked states, conflicting with frozen saved-review preservation. Need version/replay contract within same two-finding scope; existing reset slot, no broader financial policy."
+      }
+    },
+    {
+      "at": "2026-11-07T18:49:58Z",
+      "data": {
+        "session": "/root/issue141_pr_design",
+        "evidence": "Separate fresh architect DESIGN_READY on generation2. Input-bound absent/v2 construction-policy selector preserves old ready/reportless-blocked reviews, fresh roots pin v2, immutable through retries/children. Bounded two-sleeve feasible count-pair seed with existing bounds, construction-authoritative counts. Full handoff docs/workflow/issue141-pr142-handoff.md. No source/tests/edits by designer, no widened financial scope.",
+        "outcome": "pass"
+      },
+      "type": "phase_end"
+    },
+    {
+      "at": "2026-11-07T18:50:00Z",
+      "data": {
+        "session": "/root/issue141_pr_challenge",
+        "capsule": {
+          "generation": 2,
+          "id": "issue-141-curated-us-starter",
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "role": "code_reviewer",
+        "phase": "challenge"
+      },
+      "type": "phase_start"
+    },
+    {
+      "data": {
+        "outcome": "pass",
+        "session": "/root/issue141_pr_challenge",
+        "evidence": "Independent gen2 code_reviewer challenge PASS. Input-bound absent=v1/exact-v2 selector, fresh-root pin before sealing, unchanged old bytes/retry/child policies and rejection of feedback edits preserve INV141-3. Feasible two-sleeve count seed respects existing weights/categories/cent rules; construction-aware counts/reportless conservatism address AC1. Verify all post-shortlist v2 blocked paths retain reports and both input boundaries reject nonstarter marker. No edits/tests/source calls."
+      },
+      "at": "2026-11-07T18:54:05Z",
+      "type": "phase_end"
+    },
+    {
+      "data": {
+        "evidence": "Approve docs/workflow/issue141-pr142-handoff.md and post-delivery A141-1 revision. Absent policy marker preserves exact v1; fresh starter root pins feasible-v2, lineage/receipts retain version. Bounded feasible count seed and construction-aware counts only; numerical financial rules/source/scope unchanged. Same original owner; one counted repair and finalreview available.",
+        "authority": {
+          "evidence": "Approve exact Issue141 generation2 after separate fresh architect DESIGN_READY and independent design challenge PASS, within user-authorized two-finding bounded continuation.",
+          "name": "/root",
+          "kind": "coordinator"
+        },
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        }
+      },
+      "at": "2026-11-07T18:54:06Z",
+      "type": "design_ready"
+    },
+    {
+      "data": {
+        "session": "/root/issue141_owner",
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "phase": "remediation",
+        "role": "implementation_worker"
+      },
+      "at": "2026-11-07T18:54:08Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-08T05:00:59Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Post-delivery gen2 remediation4/4 completed after Nov8 same-reservation usage-limit resume. Versioned absent-v1/present-v2 policy selector, fresh-root pin, replay/feedback guards, bounded feasible count seed and construction-aware UI counts implemented exactly. Pre-edit synthetic v1 READY and reportless BLOCKED construction/revision-input SHA goldens remain byte-identical. Normal fresh v2 cap3 aggressive95/5 SPY/QQQ/BND4750/4750/500, opposite20/80, scarce/infeasible, v2 blocked report, category ready/blocked/reportless, marker/tamper/child/offline focused cases pass. Extras starter27passed, isolated default26passed1expected skip; changed Ruff/format, mypy69, diff pass. ADR0048/guide/system/iteration updated, accepted0047 preserved. No source collection, threshold/general optimizer changes or protected checkout edits. Full current required verification/finalreview still pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-08T05:01:00Z",
+      "data": {
+        "id": "B141-SLEEVE-FEASIBILITY",
+        "evidence": "Fresh starter root pins input-bound feasible-v2. Existing position/count bounds choose feasible two-sleeve count seed before bounded category/target-debt fill. Normal cap3 95/5 case produces two growth4750bps and one defensive500bps, unchanged numeric financial rules. Historical absent-v1 ready/blocked bytes and input SHA preserved, lineage/retry guards and marker tests pass. Same-owner completed gen2 repair; certified review pending."
+      }
+    },
+    {
+      "type": "resolve",
+      "at": "2026-11-08T05:01:02Z",
+      "data": {
+        "id": "B141-CONSTRUCTION-COUNTS",
+        "evidence": "UI derives evaluated v2 eligibility from usable_count and v1 from authoritative dispositions; construction exclusions joined by identity and row reason. Missing/unsupported categories pass screening but count excluded. Omissions stay eligible; historical reportless eligibility unavailable, source-health/not-screened behavior retained. Focused ready/post-shortlist-blocked/reportless category regressions pass. Same-owner completed gen2 repair; certified review pending."
+      }
+    },
+    {
+      "data": {
+        "phase": "verification",
+        "capsule": {
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab",
+          "id": "issue-141-curated-us-starter",
+          "generation": 2
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "session": "/root/issue141_owner",
+        "role": "implementation_worker"
+      },
+      "at": "2026-11-08T05:01:08Z",
+      "type": "phase_start"
+    },
+    {
+      "type": "phase_end",
+      "at": "2026-11-08T05:35:46Z",
+      "data": {
+        "session": "/root/issue141_owner",
+        "outcome": "pass",
+        "evidence": "Gen2 unchanged651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667 required full isolated default1981passed83skipped0fail(1840.86s with environment/tool delay); pytest-pr142-gen2-default.xml. Relevant optional starter/revision/construction/dashboard revision controls218passed0skips0fail, pytest-pr142-gen2-focused-extras.xml. Repo Ruff/check-format263files, mypy69, both workflow validators, build wheel/sdist, Compose/diff all PASS. Actual cached Nov5 artifact822b87 through AppTest at explicit historical check2026-11-05T08:00Z reaches human review with ready v2 construction/all panels/zero errors. Same review_payload passes with byte/text file/source-clock reads denied. No collection/edits during verification. Earlier complete optional3s legacy AppTest timeout remains failed/disclosed historical evidence, no all-suites-green claim."
+      }
+    },
+    {
+      "type": "acceptance",
+      "at": "2026-11-08T05:35:47Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "ids": [
+          "AC141-1",
+          "AC141-2",
+          "AC141-3",
+          "AC141-4",
+          "AC141-5"
+        ],
+        "evidence": "Bounded PR142 continuation: AC1 construction-aware eligible/excluded counts agree with category_missing/unsupported dispositions; omissions remain eligible, reportless unknown classification unavailable, prior health/not-screened behavior retained. AC2 fresh starter v2 cap3 95/5 normal graph produces SPY/QQQ4750each+BND500, opposite/scarce/infeasible/capacity/category cases pass under unchanged numeric rules. AC3 input policy version pinned only fresh roots, absent exactv1 Python/JSON/golden ready+reportless-blocked/revision SHA preserved, offline/retry/child/feedback/null/unknown/nonstarter/tamper cases pass; report cannot self-select algorithm. AC4 original historical source demonstration retained, current v2 UI replay uses same immutable Nov5 artifact at historical time with no acquisition; no fresh market claim. AC5 current complete required1981pass83skip +relevant optional218pass and static/build/workflow checks PASS on same content; historical optional full timeout/source audit limitations remain explicit. Original PR142/authority history retained, independent finalreview and re-delivery still pending."
+      }
+    },
+    {
+      "type": "phase_start",
+      "at": "2026-11-08T05:35:49Z",
+      "data": {
+        "capsule": {
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab",
+          "generation": 2,
+          "id": "issue-141-curated-us-starter"
+        },
+        "session": "/root/issue141_pr_final_review",
+        "phase": "final_review",
+        "role": "code_reviewer",
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667"
+      }
+    },
+    {
+      "data": {
+        "evidence": "Independent gen2 final code_reviewer PASS on exact651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667. No concrete AC141-1/AC141-2/INV141-3 failure. Fresh roots pin v2 before seal, bounded count seed fixes95/5 cap3 under unchanged bounds, counts use construction exclusions/evaluated eligibility with omissions eligible/reportless unavailable. Absent exactv1 ready/blocked omissions and input-bound retry/child/report dispatch preserved. Required verification/acceptance same content, historical optional timeout remains failed/disclosed. No reviewer edits/source calls.",
+        "outcome": "pass",
+        "session": "/root/issue141_pr_final_review"
+      },
+      "type": "phase_end",
+      "at": "2026-11-08T05:51:55Z"
+    },
+    {
+      "type": "delivery",
+      "at": "2026-11-08T05:51:59Z",
+      "data": {
+        "capsule": {
+          "id": "issue-141-curated-us-starter",
+          "generation": 2,
+          "digest": "3d1fdf814724c540fcc118c8fa37980aa2063d6fcb735df1587628bb3c4958ab"
+        },
+        "content": "651394a067b85c0d5701a03d876da8a213d83aabd053b319b13dabb9d79ef667",
+        "repo": "beagle1903/agentic-etf-advisor",
+        "pr": 142,
+        "evidence": "Re-deliver ORIGINAL PR142 after explicit bounded continuation, existing design-reset replay clarification, separate gen2 architect/challenge/coordinator approval, same-owner repair, identical-content required verification/acceptance and independent finalreview PASS. Both bot findings corrected: allocation-feasible bounded shortlist for freshv2, construction-aware counts. V1 bytes/replay retained. Required1981pass83skip and relevant optional218pass, static/build/history-source UI checks PASS; no new acquisition. Historical optional full3s timeout/audit limits remain disclosed. New published-head CI and thread replies follow; no merge claimed."
+      }
+    }
+  ]
+}
