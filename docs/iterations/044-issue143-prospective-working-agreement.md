@@ -47,7 +47,13 @@ The independent final diff review by `/root/issue143_workflow_review` reported P
 actionable defect. That review is substantive advice against W143-AC1..5, not a native ticket
 certificate or historical ledger event.
 
-The full default service-free `uv run pytest -q` is running; no final result or passed count
-is claimed yet. No external services or
-market-data source calls were launched; the real-store suite is not applicable to governance-only
-changes. CI and final PR review remain for delivery.
+The full service-free CI run on reviewed commit
+`330286dc58ec6f926d04ff8c80becbe0e0729d6e`
+[passed](https://github.com/beagle1903/agentic-etf-advisor/actions/runs/43061429441):
+1,704 passed and 83 skipped in 80.79 seconds. Locked install, role validation, Ruff lint and
+format, and pytest all passed. The 83 skips are the suite's optional cases; no live-store or
+market-data source verification is claimed. The duplicate local Windows `uv run pytest -q`
+was intentionally interrupted after CI success at the observed 84% progress marker; it is
+neither a local pass nor a test failure. No external services or market-data source calls were
+launched locally; the real-store suite is not applicable to governance-only changes. Final PR
+review remains for delivery.
