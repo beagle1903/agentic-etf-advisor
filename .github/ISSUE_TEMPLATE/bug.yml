@@ -58,29 +58,15 @@ body:
   - type: textarea
     id: execution-workflow
     attributes:
-      label: Codex execution workflow
-      description: Classify by impact, record the capsule before edits, and keep routine work with one owner session.
+      label: Codex working agreement
+      description: Record the accountable role, authorization, scope and verification proportionately.
       value: |
-        Classification: mechanical, ordinary, consequential, high-risk/disputed, or difficult
-        Owner role / model / effort: selection and rationale
-        User authorization: evidence
-        Design handoff: recorded DESIGN_READY capsule link, or pending
-        Capsule: scope/non-goals; invariants/interfaces; JSON/state impact; acceptance and focused verification; documentation; risks/triggers
-        Routine execution: one owner session from capsule through focused tests, self-review, and verification
-        Consequential approval: separate design_architect handoff and coordinator approval, or not required
-        Independent review: high-risk/disputed trigger and findings, or not used
-        Escalations: concrete evidence and fresh separate sequential session, or none
-        Finite ticket lifetime: ledger docs/workflow/tickets/issue-N.json; default 120 active minutes
-        Policy: owner-led-v1 for new tickets; elapsed audit only, finite counted slots; timed-v1 history unchanged
-        Continuation: explicit finite same-scope repair grant after implementation/delivery, or none
-        Historical delivery binding: preserve old bindings; redelivery must use original repository and PR
-        Frozen acceptance/invariant IDs: complete definitions plus capsule ID/generation/SHA256 before implementation
-        Content binding: review, verification, acceptance and original delivery PR share one digest
-        Lifetime reservations: initial review 1; remediation 1; final review 1; design reset 1
-        Consequential design challenge: separate independent session before coordinator approval
-        Explicit finite user extensions: none, or named authorization and finite deltas
-        Split lineage: validated predecessor, inherited counters and allocated remainder, or none
-        Stop: BLOCKED_FOR_DECISION on exhaustion, failed final review or unresolved serious blocker
-        Gate: capsule precedes implementation edits; reviewer findings do not authorize changes
+        Authorized scope and non-goals:
+        Observable acceptance criteria:
+        Accountable owner / role / model / effort and rationale:
+        Consequential design advice and coordinator approval, if applicable:
+        Independent review and concrete findings, if applicable:
+        Focused tests, self-review and verification:
+        Material risks, limitations or follow-up:
     validations:
       required: true

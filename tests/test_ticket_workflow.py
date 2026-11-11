@@ -2740,7 +2740,9 @@ def test_R3_future_adoption_cannot_fabricate_role_order_or_independence():
 
 def test_R3_known_issue73_bootstrap_prefix_remains_exact_and_gets_bound():
     root = Path(__file__).resolve().parents[1]
-    recorded = workflow.read_all(root)[73]
+    recorded = workflow.load(
+        (root / workflow.DIRECTORY / "issue-73.json").read_text(encoding="utf-8")
+    )
     prefix = {"schema": 1, "events": recorded["events"][: workflow.BOOTSTRAP_EVENTS]}
     assert workflow.digest(prefix) == workflow.BOOTSTRAP_DIGEST
     bound = {"schema": 1, "events": recorded["events"][: workflow.BOOTSTRAP_EVENTS + 1]}
@@ -2755,7 +2757,9 @@ def test_R3_known_issue73_bootstrap_prefix_remains_exact_and_gets_bound():
 
 def test_issue73_bootstrap_transition_validates_full_map_and_source_records():
     root = Path(__file__).resolve().parents[1]
-    historical = copy.deepcopy(workflow.read_all(root)[73])
+    historical = copy.deepcopy(
+        workflow.load((root / workflow.DIRECTORY / "issue-73.json").read_text(encoding="utf-8"))
+    )
     prior = workflow.replay(historical, datetime.now(UTC))
     assert prior.capsule is not None
     transition_time = workflow.timestamp(historical["events"][-1]["at"]) + timedelta(seconds=1)

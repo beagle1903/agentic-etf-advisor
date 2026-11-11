@@ -2,37 +2,24 @@
 
 -
 
-Primary issue: #N
-
 ## Tracking
 
-- Parent iteration: Part of #
-- Completed work item: Closes #
-- Canonical iteration document: `docs/iterations/NNN-*.md`
+- Issue: Closes #
+- Iteration: Part of #
+- Durable evidence: `docs/iterations/NNN-*.md`
 
-## Design capsule and model routing
+## Agreement and review
 
-- Classification: mechanical, ordinary, consequential, high-risk/disputed, or difficult
-- Design handoff: document or issue link, with recorded `DESIGN_READY`
-- Authorization: user authorization evidence
-- Owner role / model / effort: actual selection and rationale
-- Separate architect approval: approver and evidence for consequential work, or not required
-- Independent review: recorded high-risk/disputed trigger, role/model/effort, and findings, or not used
-- Escalations: concrete reason, approval, and fresh separate sequential session evidence, or none
-- Bootstrap or one-off exception: recorded authorization, or none
-- [ ] The complete design capsule was recorded before implementation edits
-- [ ] Routine work used one owner session, or the reason for another session is recorded
-- [ ] Consequential work had a separate `design_architect` handoff and coordinator approval
-- [ ] Implementation followed the approved scope
-- [ ] Self-review and focused tests were completed by the owner
-- [ ] Architectural ambiguity returned to `design_architect`; reviewer findings did not authorize changes
-
-## Acceptance criteria covered
-
-- [ ]
+- Authorized scope and non-goals:
+- Acceptance criteria and observed results:
+- Accountable owner / role / model / effort and rationale:
+- Consequential design advice and coordinator approval, if applicable:
+- Independent review findings and resolution, if applicable:
+- Material limitations or follow-up:
 
 ## Verification
 
+- [ ] Focused tests and owner self-review
 - [ ] `uv run ruff check .`
 - [ ] `uv run ruff format --check .`
 - [ ] `uv run mypy`
@@ -40,49 +27,15 @@ Primary issue: #N
 - [ ] `uv build`
 - [ ] `docker compose config --quiet`
 - [ ] `git diff --check`
-- [ ] Required manual or live verification completed, or not required
+- [ ] Required manual or live verification, if applicable
 
-Evidence summary:
+Commands, results and tested commit:
 
 -
 
-Claim boundaries:
-
-- Static workflow validation: pass/fail and command
-- Live-session provenance: evidence or not verified
-- Codex CLI compatibility: evidence or not verified
-- Measured quota savings: evidence or not measured
-
-## Documentation and decisions
-
-- [ ] Product, architecture, iteration, runbook, and ADR files are updated where required
-- [ ] No accepted ADR history was rewritten
-- [ ] Remaining limitations and follow-up issues are linked
-
 ## Safety and data handling
 
-- [ ] No credentials, `.env` values, private data, prompts, raw provider responses, or review tokens are committed or posted
-- [ ] Market-data results retain source and observation timestamp metadata
-- [ ] The change does not execute trades or imply guaranteed returns
-- [ ] Any future external financial write remains behind separate immediate human approval
-
-## Finite ticket lifetime
-
-- Ledger: `docs/workflow/tickets/issue-N.json`
-- Policy: `owner-led-v1` for new tickets, or recorded `timed-v1` history
-- Frozen acceptance/invariant IDs and coverage:
-- Active seconds used / finite budget:
-- Counted lifetime limits and consumed reservations:
-- Finite continuation authority, same-scope repair and fresh review evidence, or none:
-- Lifetime initial review / remediation / final review / design reset reservations:
-- Independent consequential design challenge and coordinator approval:
-- Unresolved blockers: none, or delivery remains blocked
-- Explicit finite user extensions or predecessor/successor allocations: none, or evidence
-- Delivery gate: `uv run python scripts/ticket_workflow.py check --issue N --phase delivery`
-- Recorded enforcement is not a runtime kill switch or authenticated approval evidence.
-
-- Complete capsule ID / generation / SHA256 binding:
-- Reviewed, verified and accepted repository content SHA256:
-- Original delivery PR identity and content binding (for CI reruns):
-- Historical delivery bindings and current binding after continuation:
-- Actual saved delivered ledger, immutable-prefix and exact PR/content publication checks:
+- [ ] No credentials, private data or `.env` values committed
+- [ ] No trade execution or guaranteed-return claim introduced
+- [ ] Market-data changes retain source and observation time
+- [ ] External financial writes have separate human approval, if applicable
