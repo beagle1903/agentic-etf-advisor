@@ -1,6 +1,14 @@
-# Finite development ledger
+# Historical finite development ledger
 
-AGENTS, ADR 0026 and ADR 0033 define the policy. This directory stores development governance,
+This directory preserves the historical ticket ledger procedure and its outcomes. The
+[current prospective working agreement](../architecture/decisions/0049-prospective-working-agreement.md)
+uses issue and PR evidence without mandatory ledgers, phase reservations, elapsed-time
+budgets, finite grants, content certificates or delivery bindings. `scripts/ticket_workflow.py`,
+existing ledgers and the procedure below remain available for historical inspection; they are
+not gates for new work or normal use of a merged application.
+
+## Archived procedure
+The former AGENTS guidance, ADR 0026 and ADR 0033 defined this policy. This directory stores development governance,
 outside application graph state. One issue has one canonical `tickets/issue-N.json`. Future initialization requires a complete frozen
 capsule with actual definitions (not IDs alone), pinned approved owner and named user
 authorization. Bootstrap adoption is restricted to the exact approved Issue73 prefix;

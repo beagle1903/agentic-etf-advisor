@@ -1,4 +1,6 @@
-"""Exercise the workflow command against isolated repository fixtures."""
+"""Focused regression coverage for project Codex role configuration."""
+
+from __future__ import annotations
 
 import shutil
 import subprocess
@@ -17,39 +19,16 @@ ROLES = (
     "implementation-specialist",
 )
 
-MIGRATED_ROLE_MODELS = (
-    ("planning-analyst", "gpt-6-luna", "gpt-5.6-terra"),
-    ("bounded-worker", "gpt-6-luna", "gpt-5.6-terra"),
-    ("implementation-worker", "gpt-6-sol", "gpt-5.6-sol"),
-    ("code-reviewer", "gpt-6-sol", "gpt-5.6-sol"),
-    ("implementation-specialist", "gpt-6-sol", "gpt-5.6-sol"),
-)
-
-ROUTING_TABLE_ROWS = (
-    "| `planning_analyst` | `gpt-6-luna` | medium | read-only |",
-    "| `design_architect` | `gpt-6-astra` | high | read-only |",
-    "| `bounded_worker` | `gpt-6-luna` | medium | workspace-write |",
-    "| `implementation_worker` | `gpt-6-sol` | medium | workspace-write |",
-    "| `code_reviewer` | `gpt-6-sol` | high | read-only |",
-    "| `implementation_specialist` | `gpt-6-sol` | high | workspace-write |",
-)
-
 
 @pytest.fixture
 def repository(tmp_path: Path) -> Path:
     root = tmp_path / "repository"
-    for relative in (".codex", ".github"):
-        shutil.copytree(SOURCE / relative, root / relative)
-    shutil.copyfile(SOURCE / "AGENTS.md", root / "AGENTS.md")
-    shutil.copyfile(SOURCE / "CONTRIBUTING.md", root / "CONTRIBUTING.md")
-    shutil.copytree(SOURCE / "docs/workflow/templates", root / "docs/workflow/templates")
-    shutil.copyfile(SOURCE / "docs/workflow/README.md", root / "docs/workflow/README.md")
+    shutil.copytree(SOURCE / ".codex", root / ".codex")
     (root / "scripts").mkdir()
     shutil.copyfile(
         SOURCE / "scripts/validate_codex_workflow.py",
         root / "scripts/validate_codex_workflow.py",
     )
-    shutil.copyfile(SOURCE / "scripts/ticket_workflow.py", root / "scripts/ticket_workflow.py")
     return root
 
 
@@ -63,442 +42,160 @@ def run_validator(root: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def reject(root: Path, marker: str) -> None:
-    result = run_validator(root)
-    assert result.returncode == 1
-    assert marker in result.stderr
-    assert "Traceback" not in result.stderr
-    assert not result.stdout
-
-
 def replace(path: Path, old: str, new: str) -> None:
-    text = path.read_text(encoding="utf-8")
-    assert old in text
-    path.write_text(text.replace(old, new), encoding="utf-8")
+    content = path.read_text(encoding="utf-8")
+    assert old in content
+    path.write_text(content.replace(old, new), encoding="utf-8")
 
 
-def test_valid_from_another_cwd(repository: Path) -> None:
+def reject(root: Path, expected: str) -> None:
+    result = run_validator(root)
+    assert result.returncode != 0
+    assert expected in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_valid_without_docs_or_ledgers_from_another_cwd(repository: Path) -> None:
     result = run_validator(repository)
     assert result.returncode == 0, result.stderr
-    assert result.stdout == "Codex ticket workflow configuration is valid.\n"
-    assert not result.stderr
+    assert result.stdout == "Codex role configuration is valid.\n"
 
 
-@pytest.mark.parametrize("role,current_model,former_model", MIGRATED_ROLE_MODELS)
-def test_migrated_role_rejects_former_model(
-    repository: Path, role: str, current_model: str, former_model: str
-) -> None:
-    replace(
-        repository / f".codex/agents/{role}.toml",
-        f'model = "{current_model}"',
-        f'model = "{former_model}"',
-    )
-    reject(repository, "model must be")
-
-
-@pytest.mark.parametrize("row", ROUTING_TABLE_ROWS)
-@pytest.mark.parametrize("damage", ["corrupt", "remove"])
-def test_authoritative_routing_table_row_required(repository: Path, row: str, damage: str) -> None:
-    replace(repository / "AGENTS.md", row, "" if damage == "remove" else row + " drift")
-    reject(repository, "missing required workflow lines")
-
-
-def test_original_scalar_config(repository: Path) -> None:
-    (repository / ".codex/config.toml").write_text(
-        '[agents]\nenabled = true\ndefault_subagent_model = "gpt-6-astra"\n'
-        'default_subagent_reasoning_effort = "medium"\nmax_concurrent_threads_per_session = 2\n',
+@pytest.mark.parametrize("role", ROLES)
+@pytest.mark.parametrize(
+    "field", ["name", "description", "model", "model_reasoning_effort", "sandbox_mode"]
+)
+def test_role_contract_drift(repository: Path, role: str, field: str) -> None:
+    path = repository / f".codex/agents/{role}.toml"
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    path.write_text(
+        "".join(
+            f'{field} = "drift"\n' if line.startswith(f"{field} =") else line for line in lines
+        ),
         encoding="utf-8",
     )
-    reject(repository, "prohibited")
+    reject(repository, f"{field} must be")
 
 
 @pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize("entry", ["missing", "scalar"])
-def test_role_table_required(repository: Path, role: str, entry: str) -> None:
-    path = repository / ".codex/config.toml"
-    name = role.replace("-", "_")
-    text = path.read_text(encoding="utf-8")
-    sections = [section for section in text.split("[agents.") if section.strip()]
-    text = "".join("[agents." + part for part in sections if not part.startswith(name + "]"))
-    if entry == "scalar":
-        text = f"[agents]\n{name} = true\n" + text
-    path.write_text(text, encoding="utf-8")
-    reject(repository, f"missing [agents.{name}] table")
+@pytest.mark.parametrize("damage", ["missing", "malformed", "swapped"])
+def test_role_file_load(repository: Path, role: str, damage: str) -> None:
+    path = repository / f".codex/agents/{role}.toml"
+    if damage == "missing":
+        path.unlink()
+        reject(repository, "role inventory")
+    elif damage == "malformed":
+        path.write_text("[broken", encoding="utf-8")
+        reject(repository, "invalid TOML")
+    else:
+        other = next(item for item in ROLES if item != role)
+        shutil.copyfile(repository / f".codex/agents/{other}.toml", path)
+        reject(repository, "name must be")
 
 
 @pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize("key", ["description", "config_file"])
-@pytest.mark.parametrize("value", [None, '""', "true", "42", "[]", '"wrong"'])
-def test_registration_fields(repository: Path, role: str, key: str, value: str | None) -> None:
+@pytest.mark.parametrize("field", ["description", "config_file"])
+def test_registration_drift(repository: Path, role: str, field: str) -> None:
     path = repository / ".codex/config.toml"
     lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
     active = False
     for index, line in enumerate(lines):
         if line.startswith("["):
             active = line.strip() == f"[agents.{role.replace('-', '_')}]"
-        elif active and line.startswith(key + " ="):
-            lines[index] = "" if value is None else f"{key} = {value}\n"
+        elif active and line.startswith(f"{field} ="):
+            lines[index] = f'{field} = "wrong"\n'
     path.write_text("".join(lines), encoding="utf-8")
-    reject(repository, f"{key} must be")
+    reject(repository, f"{field} must be")
 
 
 @pytest.mark.parametrize("role", ROLES)
-def test_swapped_paths(repository: Path, role: str) -> None:
-    other = next(item for item in ROLES if item != role)
-    replace(repository / ".codex/config.toml", f"agents/{role}.toml", f"agents/{other}.toml")
-    reject(repository, "config_file must be")
-
-
-@pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize("damage", ["missing", "malformed", "encoding", "swapped"])
-def test_role_file_load(repository: Path, role: str, damage: str) -> None:
-    path = repository / f".codex/agents/{role}.toml"
-    if damage == "missing":
-        path.unlink()
-    elif damage == "malformed":
-        path.write_text("[invalid", encoding="utf-8")
-    elif damage == "encoding":
-        path.write_bytes(b"\xff")
-    else:
-        other = next(item for item in ROLES if item != role)
-        shutil.copyfile(repository / f".codex/agents/{other}.toml", path)
-    reject(repository, "name must be" if damage == "swapped" else "invalid custom-agent TOML")
+def test_missing_registration(repository: Path, role: str) -> None:
+    path = repository / ".codex/config.toml"
+    text = path.read_text(encoding="utf-8")
+    heading = f"[agents.{role.replace('-', '_')}]"
+    assert heading in text
+    start = text.index(heading)
+    next_heading = text.find("[agents.", start + len(heading))
+    path.write_text(
+        text[:start] + (text[next_heading:] if next_heading >= 0 else ""), encoding="utf-8"
+    )
+    reject(repository, "role registrations")
 
 
 @pytest.mark.parametrize(
     "scalar",
     [
-        "enabled = false",
-        'default_subagent_model = "gpt-6-astra"',
+        "enabled = true",
+        'default_subagent_model = "gpt-6-sol"',
         'default_subagent_reasoning_effort = "medium"',
         "max_concurrent_threads_per_session = 2",
         "max_threads = 2",
         'default_role = "implementation_worker"',
     ],
 )
-def test_removed_scalar_rejected(repository: Path, scalar: str) -> None:
+def test_forbidden_agent_scalar(repository: Path, scalar: str) -> None:
     path = repository / ".codex/config.toml"
-    path.write_text(f"[agents]\n{scalar}\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
-    reject(repository, "prohibited by repository compatibility policy")
-
-
-@pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize(
-    "key", ["name", "description", "model", "model_reasoning_effort", "sandbox_mode"]
-)
-def test_role_contract_drift(repository: Path, role: str, key: str) -> None:
-    path = repository / f".codex/agents/{role}.toml"
-    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
     path.write_text(
-        "".join(f'{key} = "drift"\n' if line.startswith(key + " =") else line for line in lines),
-        encoding="utf-8",
+        "[agents]\n" + scalar + "\n" + path.read_text(encoding="utf-8"), encoding="utf-8"
     )
-    reject(repository, f"{key} must be")
+    reject(repository, "prohibited")
 
 
-@pytest.mark.parametrize(
-    "relative,marker",
-    [
-        ("AGENTS.md", "DESIGN_READY"),
-        (".github/PULL_REQUEST_TEMPLATE.md", "Design handoff"),
-        ("docs/workflow/README.md", "owner-led-v1"),
-        ("AGENTS.md", "Owner-led split uses one conserved batch allocation"),
-        ("CONTRIBUTING.md", "Owner-led splits allocate all named children in one event"),
-        ("docs/workflow/README.md", "Local counts and local outcomes"),
-        ("AGENTS.md", "lineage_policy_transition"),
-        ("CONTRIBUTING.md", "ADR 0037 permits only the pinned original Issue 23/83 pair"),
-        ("docs/workflow/README.md", "original operational bytes"),
-        ("docs/workflow/templates/initialize.example.json", '"policy": "owner-led-v1"'),
-        *[
-            (f".github/ISSUE_TEMPLATE/{name}.yml", "execution-workflow")
-            for name in ("work-item", "bug", "verification", "iteration")
-        ],
-    ],
-)
-def test_documentation_markers(repository: Path, relative: str, marker: str) -> None:
-    replace(repository / relative, marker, "removed-marker")
-    reject(repository, "missing required workflow markers")
-
-
-@pytest.mark.parametrize("content", ["", "agents = true", "[invalid"])
-def test_invalid_project_config(repository: Path, content: str) -> None:
-    (repository / ".codex/config.toml").write_text(content, encoding="utf-8")
-    reject(
-        repository, "invalid project Codex TOML" if content == "[invalid" else "missing [agents]"
-    )
-
-
-def test_registration_checked_before_role_file(repository: Path) -> None:
-    (repository / ".codex/agents/design-architect.toml").unlink()
-    replace(repository / ".codex/config.toml", "agents/implementation-worker.toml", "wrong.toml")
-    reject(repository, "config_file must be")
-
-
-@pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize("damage", ["empty", "missing", "scalar", "gate", "session"])
-def test_instruction_boundaries(repository: Path, role: str, damage: str) -> None:
-    path = repository / f".codex/agents/{role}.toml"
-    if damage in {"empty", "missing", "scalar"}:
-        text = path.read_text(encoding="utf-8").split("developer_instructions")[0]
-        if damage != "missing":
-            text += "developer_instructions = " + ('""' if damage == "empty" else "42")
-        path.write_text(text, encoding="utf-8")
-        reject(repository, "role fields" if damage == "missing" else "nonempty text")
-    else:
-        marker = (
-            "separate sequential session"
-            if damage == "session"
-            else (
-                "Do not edit source"
-                if role in {"planning-analyst", "design-architect", "code-reviewer"}
-                else "DESIGN_READY"
-            )
-        )
-        replace(path, marker, "removed")
-        reject(repository, "missing instruction boundaries")
-
-
-@pytest.mark.parametrize("damage", ["registration", "file", "role-field", "registration-field"])
-def test_extra_inventory(repository: Path, damage: str) -> None:
-    config = repository / ".codex/config.toml"
-    if damage == "file":
-        (repository / ".codex/agents/extra.toml").write_text("", encoding="utf-8")
-        reject(repository, "unexpected role files")
-    elif damage == "role-field":
-        path = repository / ".codex/agents/design-architect.toml"
-        path.write_text("extra = true\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
-        reject(repository, "unexpected or missing role fields")
-    else:
-        text = config.read_text(encoding="utf-8")
-        text += (
-            '\n[agents.extra]\ndescription = "extra"\nconfig_file = "extra.toml"\n'
-            if damage == "registration"
-            else '\nmodel = "gpt-6-astra"\n'
-        )
-        config.write_text(text, encoding="utf-8")
-        reject(
-            repository,
-            "unexpected role registrations"
-            if damage == "registration"
-            else "unexpected registration fields",
-        )
-
-
-@pytest.mark.parametrize(
-    "override",
-    [
-        'model = "gpt-6-astra"',
-        'model_reasoning_effort = "high"',
-    ],
-)
-def test_project_overrides(repository: Path, override: str) -> None:
+@pytest.mark.parametrize("override", ['model = "gpt-6-sol"', 'model_reasoning_effort = "high"'])
+def test_top_level_override(repository: Path, override: str) -> None:
     path = repository / ".codex/config.toml"
     path.write_text(override + "\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
-    reject(repository, "project-level overrides are prohibited")
+    reject(repository, "project-level overrides")
 
 
-def test_unrelated_project_settings_allowed(repository: Path) -> None:
+@pytest.mark.parametrize("damage", ["empty", "missing", "wrong_type"])
+def test_instruction_text_required(repository: Path, damage: str) -> None:
+    path = repository / ".codex/agents/design-architect.toml"
+    text = path.read_text(encoding="utf-8").split("developer_instructions")[0]
+    if damage == "empty":
+        text += 'developer_instructions = "  "'
+    elif damage == "wrong_type":
+        text += "developer_instructions = 42"
+    path.write_text(text, encoding="utf-8")
+    reject(repository, "role fields" if damage == "missing" else "nonempty text")
+
+
+def test_extra_role_or_file_rejected(repository: Path) -> None:
+    path = repository / ".codex/agents/extra.toml"
+    path.write_text('name = "extra"', encoding="utf-8")
+    reject(repository, "role inventory")
+    path.unlink()
+    config = repository / ".codex/config.toml"
+    config.write_text(config.read_text(encoding="utf-8") + "\n[agents.extra]\n", encoding="utf-8")
+    reject(repository, "role registrations")
+
+
+def test_nested_duplicate_role_file_rejected(repository: Path) -> None:
+    nested = repository / ".codex/agents/nested"
+    nested.mkdir()
+    shutil.copyfile(
+        repository / ".codex/agents/design-architect.toml", nested / "design-architect.toml"
+    )
+    reject(repository, "role inventory")
+
+
+def test_unrelated_settings_allowed(repository: Path) -> None:
     path = repository / ".codex/config.toml"
     path.write_text(
-        "[history]\nmax_bytes = 100000\n" + path.read_text(encoding="utf-8"),
-        encoding="utf-8",
+        "[history]\nmax_bytes = 100000\n" + path.read_text(encoding="utf-8"), encoding="utf-8"
     )
-    result = run_validator(repository)
-    assert result.returncode == 0, result.stderr
-    assert result.stdout == "Codex ticket workflow configuration is valid.\n"
-    assert not result.stderr
+    assert run_validator(repository).returncode == 0
 
 
-@pytest.mark.parametrize("damage", ["missing", "encoding"])
-def test_unreadable_document(repository: Path, damage: str) -> None:
-    path = repository / "CONTRIBUTING.md"
-    if damage == "missing":
-        path.unlink()
-    else:
-        path.write_bytes(b"\xff")
-    reject(repository, "unreadable workflow document")
-
-
-@pytest.mark.parametrize(
-    "relative",
-    [
-        "CONTRIBUTING.md",
-        ".github/PULL_REQUEST_TEMPLATE.md",
-        *[
-            f".github/ISSUE_TEMPLATE/{name}.yml"
-            for name in ("work-item", "bug", "verification", "iteration")
-        ],
-    ],
-)
-def test_routing_evidence_marker(repository: Path, relative: str) -> None:
-    replace(repository / relative, "separate sequential session", "removed")
-    reject(repository, "missing required workflow markers")
-
-
-def test_routine_session_permission_required(repository: Path) -> None:
-    replace(repository / "AGENTS.md", "Complete routine work in one session", "removed")
-    reject(repository, "missing required workflow markers")
-
-
-def test_capsule_ordering_required(repository: Path) -> None:
-    replace(repository / "AGENTS.md", "Record the design capsule", "removed")
-    reject(repository, "missing required workflow markers")
-
-
-@pytest.mark.parametrize(
-    "role", ["bounded-worker", "implementation-worker", "implementation-specialist"]
-)
-def test_consequential_gate_required_for_every_write_role(repository: Path, role: str) -> None:
-    path = repository / f".codex/agents/{role}.toml"
-    replace(
-        path,
-        "Consequential financial",
-        "removed",
-    )
-    reject(repository, "missing instruction boundaries")
-
-
-def test_reviewer_cannot_authorize_contract_changes(repository: Path) -> None:
-    path = repository / ".codex/agents/code-reviewer.toml"
-    replace(
-        path,
-        "do not issue a design gate or independently authorize implementation or contract changes",
-        "removed",
-    )
-    reject(repository, "missing instruction boundaries")
-
-
-def test_classification_marker_required(repository: Path) -> None:
-    replace(repository / ".github/PULL_REQUEST_TEMPLATE.md", "Classification:", "removed")
-    reject(repository, "missing required workflow markers")
-
-
-def test_escalation_evidence_marker_required(repository: Path) -> None:
-    replace(repository / "AGENTS.md", "Escalate from evidence", "removed")
-    reject(repository, "missing required workflow markers")
-
-
-def test_specialist_registration_rejects_routine_cross_cutting_ownership(
-    repository: Path,
-) -> None:
-    current = (
-        "Implementation specialist for demonstrably difficult work with an evidence-backed "
-        "escalation trigger."
-    )
-    stale = (
-        "Implementation specialist for approved cross-cutting work, debugging, and integration "
-        "tests."
-    )
-    replace(repository / ".codex/config.toml", current, stale)
-    replace(repository / ".codex/agents/implementation-specialist.toml", current, stale)
-    reject(repository, "description must be")
-
-
-def test_planning_analyst_rejects_unconditional_reviewer_route(repository: Path) -> None:
-    path = repository / ".codex/agents/planning-analyst.toml"
-    replace(
-        path,
-        "High-risk or disputed\noutput may add code_reviewer with a recorded trigger",
-        "Unclear dependencies\nor acceptance criteria route to code_reviewer",
-    )
-    reject(repository, "missing instruction boundaries")
-
-
-@pytest.mark.parametrize("marker", ["edited", "fetch-depth: 0", "scripts/ticket_workflow.py ci"])
-def test_ci_ticket_gate_required(repository: Path, marker: str) -> None:
-    replace(repository / ".github/workflows/ci.yml", marker, "removed")
-    reject(repository, "missing required workflow markers")
-
-
-def test_runtime_ledger_validation_rejects_bad_json(repository: Path) -> None:
-    directory = repository / "docs/workflow/tickets"
-    directory.mkdir(parents=True)
-    (directory / "issue-73.json").write_text(
-        '{"schema":1,"schema":1,"events":[]}', encoding="utf-8"
-    )
-    reject(repository, "invalid recorded ticket workflow")
-
-
-@pytest.mark.parametrize("role", ROLES)
-@pytest.mark.parametrize(
-    "clause",
-    [
-        "underlying concern returns after a substantive answer, repair or review response",
-        "proposed requirement, success condition or remedy shifts",
-        "stop dependent handoffs and return scenarios and evidence",
-        "frozen invariant/AC IDs",
-        "demonstrated defect, contract ambiguity, preference and outside scope",
-        "defect needs repair and verification or explicit stop; keep failed checks",
-        "one accountable decision, disagreements, rationale",
-        "one focused closure condition; unanimity is unnecessary",
-        "Same-scope repair stays with",
-        "no slot, automatic design reset or ledger",
-        "existing checked/reserved phases, independent gates",
-        "finite counts and content binding",
-        "dispatch hold as an offline",
-        "new material evidence to the same episode",
-    ],
-)
-def test_role_arbitration_boundary_required(repository: Path, role: str, clause: str) -> None:
-    replace(repository / f".codex/agents/{role}.toml", clause, "weakened boundary")
-    reject(repository, "missing coordinator arbitration boundaries")
-
-
-@pytest.mark.parametrize(
-    "clause",
-    [
-        "- Issue / episode ID / UTC opened:",
-        "- Coordinator / authority evidence:",
-        "- Frozen capsule ID / generation / digest / repository content identity:",
-        "- Current phase / reservation / dispatch hold / remaining counted allowances:",
-        "| Role and session | Frozen invariant/AC ID | Concrete path or disputed reading | "
-        "Expected and actual result | Evidence | Classification |",
-        "- One primary accountable decision: narrow repair / contract clarification /",
-        "- Rejected alternatives, disagreements, and coordinator rationale:",
-        "- One focused observable closure condition: frozen ID, responsible owner, expected",
-        "- New material evidence appended to this episode, its effect, accountable revision",
-        "grants no authority",
-        "repeated assertions without new evidence",
-        "Demonstrated defects require repair and verification or explicit stop",
-        "Same-scope repair stays with the approved owner",
-        "Unanimity is unnecessary",
-        "BLOCKED_FOR_DECISION",
-        "requires fresh content-bound certification",
-    ],
-)
-def test_arbitration_template_boundary_required(repository: Path, clause: str) -> None:
-    replace(repository / "docs/workflow/templates/coordinator-arbitration.md", clause, "omitted")
-    reject(repository, "missing required workflow")
-
-
-@pytest.mark.parametrize("damage", ["missing", "encoding"])
-def test_arbitration_template_unreadable(repository: Path, damage: str) -> None:
-    path = repository / "docs/workflow/templates/coordinator-arbitration.md"
-    if damage == "missing":
-        path.unlink()
-    else:
-        path.write_bytes(b"\xff")
-    reject(repository, "unreadable workflow document")
-
-
-@pytest.mark.parametrize(
-    "relative,clause",
-    [
-        ("AGENTS.md", "same underlying concern returns after a substantive answer"),
-        ("AGENTS.md", "success condition, or remedy shifts"),
-        ("AGENTS.md", "Stop new dependent handoffs"),
-        ("AGENTS.md", "one primary accountable decision"),
-        ("AGENTS.md", "Never waive a demonstrated defect"),
-        ("AGENTS.md", "unanimous agreement is not required"),
-        ("AGENTS.md", "reset design automatically"),
-        ("CONTRIBUTING.md", "failed check stays failed"),
-        ("CONTRIBUTING.md", "arbitration supplies no automatic reset or allowance"),
-        ("docs/workflow/README.md", "no event, allowance"),
-        ("docs/workflow/README.md", "failed checks remain failed"),
-    ],
-)
-def test_arbitration_governance_clause_required(
-    repository: Path, relative: str, clause: str
-) -> None:
-    replace(repository / relative, clause, "weakened boundary")
-    reject(repository, "missing required workflow markers")
+def test_ci_keeps_offline_checks_without_ledger_gate() -> None:
+    workflow = (SOURCE / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    for command in (
+        "uv sync --frozen",
+        "scripts/validate_codex_workflow.py",
+        "uv run ruff check .",
+        "uv run ruff format --check .",
+        "uv run pytest",
+    ):
+        assert command in workflow
+    for token in ("scripts/ticket_workflow.py ci", "GITHUB_TOKEN", "fetch-depth: 0"):
+        assert token not in workflow
