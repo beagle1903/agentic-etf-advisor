@@ -10,7 +10,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from itertools import combinations
-from typing import Any, Final, Literal, TypedDict
+from typing import Any, Final, Literal, TypedDict, overload
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -592,9 +592,38 @@ class _CategoryConflict(ValueError):
     pass
 
 
+@dataclass(frozen=True)
+class SelectionPrefix:
+    """Validated selection before any currency observation is consumed."""
+
+    document_ids: tuple[str, ...]
+
+
+def select_portfolio_prefix(
+    construction_input: PortfolioConstructionInput,
+) -> SelectionPrefix | PortfolioConstructionBundle:
+    """Use the constructor's authoritative pure prefix without requiring FX."""
+
+    return construct_model_portfolio(construction_input, _selection_only=True)
+
+
+@overload
+def construct_model_portfolio(
+    construction_input: PortfolioConstructionInput, *, _selection_only: Literal[True]
+) -> PortfolioConstructionBundle | SelectionPrefix: ...
+
+
+@overload
+def construct_model_portfolio(
+    construction_input: PortfolioConstructionInput, *, _selection_only: Literal[False] = False
+) -> PortfolioConstructionBundle: ...
+
+
 def construct_model_portfolio(
     construction_input: PortfolioConstructionInput,
-) -> PortfolioConstructionBundle:
+    *,
+    _selection_only: bool = False,
+) -> PortfolioConstructionBundle | SelectionPrefix:
     """Construct the same draft or blocker for the same validated inputs."""
 
     inputs = PortfolioConstructionInput.model_validate(construction_input.model_dump(mode="python"))
@@ -698,6 +727,9 @@ def construct_model_portfolio(
             catalogue_selection=catalogue_report,
             starter_selection=starter_report if starter_v2 else None,
         )
+
+    if _selection_only:
+        return SelectionPrefix(tuple(item.candidate.document_id for item in positions_without_cash))
 
     selected_needs_fx = new_contract and any(
         item.candidate.trading_currency != inputs.profile.base_currency

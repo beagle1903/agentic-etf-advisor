@@ -1154,10 +1154,12 @@ def test_curator_graph_review_restore_and_downstream_revision_are_offline(monkey
     class Retriever:
         calls = 0
 
-        def retrieve(self, _profile, *, limit):
+        def retrieve_selected(self, _profile, *, limit, selection):
             self.calls += 1
             copy = type(evidence).model_validate(evidence.model_dump(mode="json"))
             copy.requested_limit = limit
+            assert selection(copy)
+            copy.fx_staging = "selected-subset-v1"
             return copy
 
     retriever = Retriever()

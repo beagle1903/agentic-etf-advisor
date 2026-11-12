@@ -807,10 +807,12 @@ def test_managed_graph_restore_and_revision_keep_bound_fx_and_receipts():
     class Retriever:
         calls = 0
 
-        def retrieve(self, profile, *, limit):
+        def retrieve_selected(self, profile, *, limit, selection):
             self.calls += 1
             evidence = _evidence(profile=profile, fx=_fx())
             evidence.requested_limit = limit
+            assert selection(evidence)
+            evidence.fx_staging = "selected-subset-v1"
             return evidence
 
     adapter = Retriever()

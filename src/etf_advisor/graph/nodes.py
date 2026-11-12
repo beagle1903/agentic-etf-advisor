@@ -96,12 +96,69 @@ def retrieve_candidate_evidence(
     *,
     retriever: CandidateEvidenceRetriever,
     limit: int,
+    screening_policy: CandidateScreeningPolicy | None = None,
+    construction_policy: PortfolioConstructionPolicy | None = None,
+    fx_staging: str | None = None,
 ) -> AdvisorState:
     """Retrieve review evidence through an explicitly injected side-effect boundary."""
 
     profile = InvestorProfile.model_validate(state["profile"])
     try:
-        retrieved_bundle = retriever.retrieve(profile, limit=limit)
+        if fx_staging == "selected-subset-v1":
+            if screening_policy is None or construction_policy is None:
+                raise EvidenceRetrievalError(
+                    "Selected FX policies unavailable.", code="retrieval_unavailable"
+                )
+            calculation = calculate_policy(profile)
+            if PolicyCalculation.model_validate(state["draft_policy"]) != calculation:
+                raise EvidenceRetrievalError(
+                    "Policy calculation differs from profile.", code="retrieval_unavailable"
+                )
+
+            def selection(bundle: CandidateEvidenceBundle) -> bool:
+                from etf_advisor.domain.construction import (
+                    PortfolioConstructionInput,
+                    SelectionPrefix,
+                    select_portfolio_prefix,
+                )
+
+                try:
+                    screening = screen_candidate_evidence(bundle, screening_policy)
+                except (ScreeningFieldFreshnessError, ValueError, ValidationError):
+                    return False
+                outcome = select_portfolio_prefix(
+                    PortfolioConstructionInput(
+                        profile=profile,
+                        policy_calculation=calculation,
+                        candidate_evidence=bundle,
+                        candidate_screening=screening,
+                        construction_policy=construction_policy,
+                    )
+                )
+                if not isinstance(outcome, SelectionPrefix):
+                    return False
+                selected = set(outcome.document_ids)
+                return any(
+                    candidate.document_id in selected
+                    and candidate.trading_currency != profile.base_currency
+                    for candidate in bundle.candidates
+                )
+
+            selected_method = getattr(retriever, "retrieve_selected", None)
+            if selected_method is None:
+                raise EvidenceRetrievalError(
+                    "Selected FX adapter unavailable.", code="retrieval_unavailable"
+                )
+            retrieved_bundle = selected_method(profile, limit=limit, selection=selection)
+        elif fx_staging is None:
+            legacy_method = getattr(retriever, "retrieve_legacy", None)
+            retrieved_bundle = (
+                legacy_method(profile, limit=limit)
+                if profile.advisory_contract == "us-eu-v1" and legacy_method is not None
+                else retriever.retrieve(profile, limit=limit)
+            )
+        else:
+            raise EvidenceRetrievalError("Unknown FX staging.", code="retrieval_unavailable")
     except EvidenceRetrievalError as exc:
         diagnostic = integrity_diagnostic(
             exc
@@ -134,6 +191,8 @@ def retrieve_candidate_evidence(
         contract_errors.append("Evidence exclusions do not match the validated profile.")
     if bundle.requested_limit != limit:
         contract_errors.append("Evidence candidate limit does not match the workflow request.")
+    if bundle.fx_staging != fx_staging:
+        contract_errors.append("Evidence FX staging does not match the workflow request.")
     if (
         bundle.catalogue_context.request if bundle.catalogue_context is not None else None
     ) != profile.catalogue_request:

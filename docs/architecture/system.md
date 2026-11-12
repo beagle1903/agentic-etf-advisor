@@ -27,6 +27,16 @@ construction, selection, cash, FX, receipts or source artifacts.
 
 ## Current shape
 
+Issue 115 adds selected-subset FX staging for fresh evidence-enabled US/EU roots in
+[ADR 0050](decisions/0050-selected-subset-fx-staging.md). The existing retrieval
+receipt owns the single possible ECB call after actual screening and pure
+construction selection. Blocked or base-only selections skip FX; a selected
+foreign position requires it even with zero cash. Marked retrieval inputs bind
+the screening and construction policies, and offline replay validates the saved
+disposition against the producing revision. Historical absent-marker reviews
+retain their original raw-pool FX semantics and serialized identity. Downstream
+policy edits reuse saved evidence and cannot fetch a newly needed rate.
+
 Issue126 adds an explicit `curator-fund-v1` identity contract under
 [ADR0042](decisions/0042-proposed-curator-fund-identity.md). A bounded immutable
 registry envelope binds one opaque curator key to one legal Fund and its active
