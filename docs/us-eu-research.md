@@ -1,5 +1,14 @@
 # US/EU research and currency usage
 
+Fresh evidence-enabled US/EU reviews stage ECB FX after source validation,
+screening and deterministic portfolio selection. A base-currency-only selected
+portfolio or blocked selection records FX as `not_requested`; selected foreign
+listings require an attributed rate even when both cash amounts are zero. A
+later policy-only edit reuses the saved observation and check time. If it newly
+selects a foreign listing after FX was skipped, construction blocks with
+`fx_missing` until a new evidence refresh is explicitly requested. Older saved
+reviews without the version marker retain their original raw-pool behavior.
+
 The dashboard defaults to legacy US/USD. Choose **US / EU (us-eu-v1)** for a new
 review, choose USD/EUR base and enter decimal major-unit cash with at most two
 fractional places. The UI converts once to integer minor units. A base revision

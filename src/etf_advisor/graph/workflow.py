@@ -73,7 +73,16 @@ def build_graph(
                 ],
             }
         return nodes.retrieve_candidate_evidence(
-            state, retriever=candidate_retriever, limit=current_inputs(state)["candidate_limit"]
+            state,
+            retriever=candidate_retriever,
+            limit=current_inputs(state)["candidate_limit"],
+            screening_policy=CandidateScreeningPolicy.model_validate(
+                current_inputs(state)["screening_policy"]
+            ),
+            construction_policy=PortfolioConstructionPolicy.model_validate(
+                current_inputs(state)["construction_policy"]
+            ),
+            fx_staging=current_inputs(state).get("fx_staging"),
         )
 
     def explain(state: AdvisorState) -> AdvisorState:

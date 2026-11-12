@@ -10,7 +10,10 @@ from langchain_core.runnables import RunnableConfig
 
 from etf_advisor.clock import Clock
 from etf_advisor.domain.construction import (
+    PortfolioConstructionInput,
     PortfolioConstructionPolicy,
+    SelectionPrefix,
+    select_portfolio_prefix,
 )
 from etf_advisor.domain.policy import calculate_policy
 from etf_advisor.domain.profile import InvestorProfile
@@ -28,7 +31,7 @@ from etf_advisor.domain.revision import (
     digest,
     plan_revision,
 )
-from etf_advisor.domain.screening import CandidateScreeningPolicy
+from etf_advisor.domain.screening import CandidateScreeningPolicy, screen_candidate_evidence
 from etf_advisor.explanation import (
     ExplanationBundle,
     ExplanationResult,
@@ -177,11 +180,23 @@ def validate_revision_state(state: AdvisorState, thread_id: str | None = None) -
             if side_effect_id is None:
                 continue
             artifact = ledger.artifacts[side_effect_id]
+            if name == "candidate_evidence":
+                bundle = CandidateEvidenceBundle.model_validate(artifact.value)
+                if bundle.fx_staging != revision.inputs.get("fx_staging"):
+                    raise ValueError("Evidence FX staging differs from revision.")
+                if bundle.status != EvidenceStatus.READY:
+                    _validate_selected_fx_output(bundle, revision.inputs)
             if artifact.value.get("status") != "ready":
                 continue
             inherited = (
                 sequence > 1 and revision.plan is not None and name not in revision.plan.invalidated
             )
+            if name == "candidate_evidence":
+                bundle = CandidateEvidenceBundle.model_validate(artifact.value)
+                if bundle.fx_staging != revision.inputs.get("fx_staging"):
+                    raise ValueError("Evidence FX staging differs from revision.")
+                if not inherited:
+                    _validate_selected_fx_output(bundle, revision.inputs)
             if inherited:
                 if side_effect_id != ledger.revisions[sequence - 2].artifacts.get(name):
                     raise ValueError("Unchanged artifact identity was relabeled.")
@@ -217,6 +232,12 @@ def operation_digest(ledger: RevisionLedger, revision: Revision, stage: Operatio
     inputs = revision.inputs
     if stage == "retrieve_candidate_evidence":
         value = {"profile": inputs["profile"], "candidate_limit": inputs["candidate_limit"]}
+        if inputs.get("fx_staging") == "selected-subset-v1":
+            value.update(
+                fx_staging=inputs["fx_staging"],
+                screening_policy=inputs["screening_policy"],
+                construction_policy=inputs["construction_policy"],
+            )
     else:
         value = {
             "profile": inputs["profile"],
@@ -231,6 +252,79 @@ def operation_digest(ledger: RevisionLedger, revision: Revision, stage: Operatio
             "inputs": value,
         }
     )
+
+
+def _validate_selected_fx_output(bundle: CandidateEvidenceBundle, inputs: dict[str, Any]) -> None:
+    """Bind the saved FX disposition to the producing revision, not a later child."""
+
+    marker = inputs.get("fx_staging")
+    if bundle.fx_staging != marker:
+        raise ValueError("Evidence FX staging differs from producing revision.")
+    if marker is None:
+        return
+    fx = bundle.fx_reference
+    if (
+        fx is not None
+        and fx.status == "missing"
+        and fx.missing_reason == "not_requested"
+        and fx.observed_at != bundle.checked_at
+    ):
+        raise ValueError("Skipped FX timestamp differs from evidence check time.")
+    profile = InvestorProfile.model_validate(inputs["profile"])
+    if bundle.status != EvidenceStatus.READY:
+        fx = bundle.fx_reference
+        if fx is None or fx.status != "missing" or fx.missing_reason != "not_requested":
+            raise ValueError("Blocked marked evidence must skip FX.")
+        return
+    try:
+        screening = screen_candidate_evidence(
+            bundle, CandidateScreeningPolicy.model_validate(inputs["screening_policy"])
+        )
+    except (ValueError, TypeError):
+        screening = None
+    if screening is None:
+        fx = bundle.fx_reference
+        if fx is None or fx.status != "missing" or fx.missing_reason != "not_requested":
+            raise ValueError("Blocked screening must not request FX.")
+        return
+    outcome = select_portfolio_prefix(
+        PortfolioConstructionInput(
+            profile=profile,
+            policy_calculation=calculate_policy(profile),
+            candidate_evidence=bundle,
+            candidate_screening=screening,
+            construction_policy=PortfolioConstructionPolicy.model_validate(
+                inputs["construction_policy"]
+            ),
+        )
+    )
+    selected = set(outcome.document_ids) if isinstance(outcome, SelectionPrefix) else set()
+    needs_fx = any(
+        candidate.document_id in selected and candidate.trading_currency != profile.base_currency
+        for candidate in bundle.candidates
+    )
+    fx = bundle.fx_reference
+    if fx is None:
+        raise ValueError("Selected FX disposition is missing.")
+    if needs_fx:
+        if fx.status == "missing" and fx.missing_reason == "not_requested":
+            raise ValueError("Selected foreign positions cannot skip FX.")
+    elif fx.status != "missing" or fx.missing_reason != "not_requested":
+        raise ValueError("Unselected FX observation is inconsistent with producing revision.")
+
+
+def _evidence_origin_inputs(ledger: RevisionLedger) -> dict[str, Any]:
+    """Find the revision that produced the current evidence artifact."""
+
+    index = len(ledger.revisions) - 1
+    artifact_id = ledger.revisions[index].artifacts.get("candidate_evidence")
+    if artifact_id is not None:
+        while (
+            index > 0
+            and ledger.revisions[index - 1].artifacts.get("candidate_evidence") == artifact_id
+        ):
+            index -= 1
+    return ledger.revisions[index].inputs
 
 
 def _block(state: AdvisorState) -> AdvisorState:
@@ -321,6 +415,8 @@ class RevisionRuntime:
             if result["validation_errors"]:
                 return result
             inputs = {**self.inputs, "profile": result["profile"]}
+            if inputs["with_evidence"] and result["profile"].get("advisory_contract") == "us-eu-v1":
+                inputs["fx_staging"] = "selected-subset-v1"
             if result["profile"].get("starter_request") is not None:
                 policy = PortfolioConstructionPolicy.model_validate(inputs["construction_policy"])
                 inputs["construction_policy"] = policy.model_copy(
@@ -462,6 +558,8 @@ class RevisionRuntime:
                 != state["revision_ledger"]["revisions"][-1]["inputs"]["candidate_limit"]
             ):
                 raise ValueError("Evidence request mismatch.")
+            ledger = RevisionLedger.model_validate(state["revision_ledger"])
+            _validate_selected_fx_output(bundle, _evidence_origin_inputs(ledger))
         else:
             request = build_explanation_request(
                 profile=state["profile"],

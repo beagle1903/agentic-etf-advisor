@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any, Literal, Protocol
@@ -323,6 +323,7 @@ class CandidateEvidenceBundle(StrictWireModel):
     identity_contract: Literal["curator-fund-v1"] | None = None
     registry_envelope: RegistryEnvelope | None = None
     fx_reference: FxReferenceObservation | None = None
+    fx_staging: Literal["selected-subset-v1"] | None = None
     catalogue_context: CatalogueEvidenceContext | None = None
     starter_context: StarterEvidenceContext | None = None
 
@@ -352,6 +353,10 @@ class CandidateEvidenceBundle(StrictWireModel):
         if len({identity[1] for identity in identities}) != len(identities):
             raise ValueError("Evidence symbols must be unique.")
         marker = value.get("advisory_contract")
+        if "fx_staging" in value and (
+            value["fx_staging"] != "selected-subset-v1" or marker != "us-eu-v1"
+        ):
+            raise ValueError("Invalid selected FX staging marker.")
         curator = value.get("identity_contract")
         if "identity_contract" in value and curator != IDENTITY_CONTRACT:
             raise ValueError("Unknown or null evidence identity contract.")
@@ -416,6 +421,8 @@ class CandidateEvidenceBundle(StrictWireModel):
         if self.advisory_contract is None:
             result.pop("advisory_contract", None)
             result.pop("fx_reference", None)
+        if self.fx_staging is None:
+            result.pop("fx_staging", None)
         if self.identity_contract is None:
             result.pop("identity_contract", None)
             result.pop("registry_envelope", None)
@@ -710,6 +717,72 @@ class HybridCandidateEvidenceRetriever:
         self._catalogue_reader = catalogue_reader
 
     def retrieve(self, profile: InvestorProfile, *, limit: int = 5) -> CandidateEvidenceBundle:
+        if profile.advisory_contract == "us-eu-v1":
+            # Local import keeps the evidence model independent of construction.
+            from etf_advisor.domain.construction import (
+                PortfolioConstructionInput,
+                SelectionPrefix,
+                select_portfolio_prefix,
+            )
+            from etf_advisor.domain.policy import calculate_policy
+            from etf_advisor.domain.screening import screen_candidate_evidence
+
+            calculation = calculate_policy(profile)
+
+            def default_selection(bundle: CandidateEvidenceBundle) -> bool:
+                try:
+                    screening = screen_candidate_evidence(bundle)
+                except (ValueError, TypeError):
+                    return False
+                outcome = select_portfolio_prefix(
+                    PortfolioConstructionInput(
+                        profile=profile,
+                        policy_calculation=calculation,
+                        candidate_evidence=bundle,
+                        candidate_screening=screening,
+                    )
+                )
+                if not isinstance(outcome, SelectionPrefix):
+                    return False
+                selected = set(outcome.document_ids)
+                return any(
+                    candidate.document_id in selected
+                    and candidate.trading_currency != profile.base_currency
+                    for candidate in bundle.candidates
+                )
+
+            return self.retrieve_selected(profile, limit=limit, selection=default_selection)
+        return self._retrieve(profile, limit=limit, selection=None)
+
+    def retrieve_legacy(
+        self, profile: InvestorProfile, *, limit: int = 5
+    ) -> CandidateEvidenceBundle:
+        """Preserve the saved absent-marker raw-pool US/EU contract."""
+
+        return self._retrieve(profile, limit=limit, selection=None)
+
+    def retrieve_selected(
+        self,
+        profile: InvestorProfile,
+        *,
+        limit: int,
+        selection: Callable[[CandidateEvidenceBundle], bool],
+    ) -> CandidateEvidenceBundle:
+        """Run the selected-subset version with a pure, policy-bound selection callback."""
+
+        if profile.advisory_contract != "us-eu-v1":
+            raise EvidenceRetrievalError(
+                "Selected FX requires US/EU research.", code="retrieval_unavailable"
+            )
+        return self._retrieve(profile, limit=limit, selection=selection)
+
+    def _retrieve(
+        self,
+        profile: InvestorProfile,
+        *,
+        limit: int,
+        selection: Callable[[CandidateEvidenceBundle], bool] | None,
+    ) -> CandidateEvidenceBundle:
         _validate_limit(limit)
         if profile.catalogue_request is not None and limit > 10:
             raise EvidenceRetrievalError(
@@ -736,7 +809,7 @@ class HybridCandidateEvidenceRetriever:
         try:
             checked_at = self._clock()
             fx_reference = None
-            if profile.advisory_contract == "us-eu-v1":
+            if profile.advisory_contract == "us-eu-v1" and selection is None:
                 needs_rate = any(
                     result.metadata.get("advisory_contract") == "us-eu-v1"
                     and result.metadata.get("trading_currency") != profile.base_currency
@@ -761,7 +834,7 @@ class HybridCandidateEvidenceRetriever:
                         rate_decimal=None,
                         missing_reason="source_unavailable" if needs_rate else "not_requested",
                     )
-            return select_candidate_evidence(
+            bundle = select_candidate_evidence(
                 profile,
                 results,
                 query=query,
@@ -770,6 +843,28 @@ class HybridCandidateEvidenceRetriever:
                 future_tolerance=self._future_tolerance,
                 limit=limit,
                 fx_reference=fx_reference,
+                fx_staging="selected-subset-v1" if selection is not None else None,
+            )
+            if selection is None or bundle.status != EvidenceStatus.READY or not selection(bundle):
+                return bundle
+            try:
+                observation = (
+                    self._fx_provider.fetch_eur_usd() if self._fx_provider is not None else None
+                )
+            except Exception:
+                observation = None
+            if observation is None or (
+                observation.status == "missing" and observation.missing_reason == "not_requested"
+            ):
+                observation = FxReferenceObservation(
+                    status="missing",
+                    observed_at=checked_at,
+                    effective_date=None,
+                    rate_decimal=None,
+                    missing_reason="source_unavailable",
+                )
+            return CandidateEvidenceBundle.model_validate(
+                {**bundle.model_dump(mode="python"), "fx_reference": observation}
             )
         except Exception as exc:
             diagnostic = integrity_diagnostic(exc)
@@ -813,6 +908,7 @@ def select_candidate_evidence(
     future_tolerance: timedelta = timedelta(minutes=5),
     limit: int = 5,
     fx_reference: FxReferenceObservation | None = None,
+    fx_staging: Literal["selected-subset-v1"] | None = None,
     starter_artifact: StarterArtifact | None = None,
 ) -> CandidateEvidenceBundle:
     """Validate and preserve ranked source evidence without making ETF recommendations."""
@@ -1006,6 +1102,10 @@ def select_candidate_evidence(
         if marker
         else {}
     )
+    if fx_staging is not None:
+        if marker != "us-eu-v1":
+            raise ValueError("Selected FX requires US/EU evidence.")
+        extra_fields["fx_staging"] = fx_staging
     if curator == IDENTITY_CONTRACT:
         extra_fields["identity_contract"] = IDENTITY_CONTRACT
         if proof is not None:

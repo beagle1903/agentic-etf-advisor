@@ -7,7 +7,15 @@ import json
 from datetime import UTC, datetime
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from etf_advisor.domain.construction import PortfolioConstructionPolicy
 from etf_advisor.domain.profile import InvestorProfile
@@ -85,9 +93,28 @@ class RevisionInputs(Contract):
     with_evidence: bool = Field(strict=True)
     with_explanation: bool = Field(strict=True)
     explanation_instruction: str = Field(max_length=2000)
+    fx_staging: Literal["selected-subset-v1"] | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_null_fx_staging(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "fx_staging" in value and value["fx_staging"] is None:
+            raise ValueError("FX staging cannot be null.")
+        return value
+
+    @model_serializer(mode="wrap")
+    def serialize_inputs(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.fx_staging is None:
+            result.pop("fx_staging", None)
+        return result
 
     @model_validator(mode="after")
     def dependencies(self) -> RevisionInputs:
+        if self.fx_staging is not None and (
+            self.profile.advisory_contract != "us-eu-v1" or not self.with_evidence
+        ):
+            raise ValueError("Selected FX staging requires evidence-enabled US/EU research.")
         if self.with_explanation and not self.with_evidence:
             raise ValueError("Explanation requires evidence.")
         if self.profile.catalogue_request is not None and not self.with_evidence:
