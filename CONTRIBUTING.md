@@ -46,6 +46,44 @@ in prose. Add every parent, sub-issue, and related pull request to the active it
 Unscheduled work keeps the `[Roadmap]` prefix and receives an iteration number only when promoted.
 Never renumber completed iterations.
 
+## Early decomposition decision
+
+Consider decomposition before starting a broad implementation and again if evidence shows a
+contract question repeatedly reopening, acceptance expanding during repair, several independently
+useful outcomes, or components needing distinct review or evidence. Record the concrete scenario
+and the original acceptance condition it affects. File count, unfamiliarity and a routine defect
+are not triggers by themselves. The coordinator makes one accountable choice with an observable
+closure condition: keep a bounded same-scope repair with its owner, propose independently
+deliverable sub-issues, or explicitly stop the affected delivery. Use the
+[coordinator record](docs/workflow/templates/coordinator-arbitration.md) when a concern recurs or
+scope drifts; it is not a planning prerequisite for routine work. A material change of intended
+scope returns to the user under [ADR 0049](docs/architecture/decisions/0049-prospective-working-agreement.md).
+
+For each proposed child, state its independently useful outcome, acceptance criteria, non-goals,
+affected interfaces and state, dependencies, owner and verification. Map every original parent
+requirement to a child, an explicitly authorized deferral, or an unresolved blocker. Use GitHub's
+native parent/sub-issue and blocked-by links, and give each deliverable its own reviewable PR.
+Execute proposed children one at a time. Merging every child is insufficient to complete the
+parent: check the original acceptance criteria and blockers separately. A proposal does not
+replace an owner or bypass applicable design, review or PR checks. Keep an inseparable
+financial, identity, security, persistence/replay or architecture invariant together, with its
+separate design advice and coordinator approval. A demonstrated current correctness defect still
+blocks the affected delivery when enhancements are assigned elsewhere.
+
+| Scenario | Accountable disposition |
+| --- | --- |
+| Broad unstarted tracking parent with independently useful outcomes | Propose native sub-issues and dependencies before implementation; map the parent's complete acceptance. |
+| Started historical ledger ticket with remaining allowances | If a split is proposed for that historical ticket, preserve its recorded outcomes and use only its applicable authorized disposition; GitHub hierarchy alone never grants or resets an attempt. |
+| Historical exhausted ticket or failed final review | Keep the recorded failure or stop visible. A new issue may address a separately authorized outcome, but its number does not make the original acceptance pass. |
+| Single-scope defect found during implementation or review | Keep narrow repair and verification with the owner; splitting is unnecessary. |
+| Inseparable consequential contract | Keep the invariant in one deliverable and obtain separate design advice and approval before changing it; partial children cannot make it safe. |
+
+Prospective work follows ADR 0049 and needs no ledger, reservation, finite allowance or content
+certificate. Historical [ADR 0034](docs/architecture/decisions/0034-bounded-coordinator-arbitration.md)
+and [ADR 0036](docs/architecture/decisions/0036-owner-led-conserved-split-lineage.md) explain
+their recorded tickets; do not rewrite their events, failed outcomes or PR bindings. A new issue
+number is a new scope and evidence record, not proof of the old ticket's success.
+
 ## Definition of ready
 
 An iteration is ready to start when:

@@ -30,6 +30,16 @@ work does not require a separate planning session or repeated user approval.
 - Keep dependent role handoffs sequential. Delegate only when useful or required by the affected
   contract; multiple files or unfamiliarity alone do not require escalation.
 
+Before a broad implementation, and when new evidence shows a recurring contract question or
+expanding acceptance, consider whether the issue still has one reviewable outcome. Concrete
+indicators include several independently useful results or components needing distinct evidence.
+File count, unfamiliarity and an ordinary defect do not imply a split. Record one accountable
+choice: same-scope repair with the owner, a proposal for independently deliverable sub-issues, or
+an explicit stop. Keep inseparable consequential invariants together and use their design gate.
+For a proposal, map every original requirement to a child, an authorized deferral or a blocker;
+use native parent/sub-issue and dependency links, execute proposed children one at a time, and
+verify parent acceptance beyond child merges. See [contributor guidance](CONTRIBUTING.md#early-decomposition-decision).
+
 There are no mandatory ticket ledgers, phase reservations, elapsed-time budgets, finite-attempt
 grants, design generations, repository-content certificates or delivery bindings for prospective
 work. Historical ADRs, ledgers, failed outcomes and PR bindings remain audit evidence; do not
