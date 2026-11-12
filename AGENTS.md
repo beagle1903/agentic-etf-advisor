@@ -37,7 +37,7 @@ File count, unfamiliarity and an ordinary defect do not imply a split. Record on
 choice: same-scope repair with the owner, a proposal for independently deliverable sub-issues, or
 an explicit stop. Keep inseparable consequential invariants together and use their design gate.
 For a proposal, map every original requirement to a child, an authorized deferral or a blocker;
-use native parent/sub-issue and dependency links, execute dependent children one at a time, and
+use native parent/sub-issue and dependency links, execute proposed children one at a time, and
 verify parent acceptance beyond child merges. See [contributor guidance](CONTRIBUTING.md#early-decomposition-decision).
 
 There are no mandatory ticket ledgers, phase reservations, elapsed-time budgets, finite-attempt

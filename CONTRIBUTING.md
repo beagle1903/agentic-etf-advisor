@@ -63,7 +63,7 @@ For each proposed child, state its independently useful outcome, acceptance crit
 affected interfaces and state, dependencies, owner and verification. Map every original parent
 requirement to a child, an explicitly authorized deferral, or an unresolved blocker. Use GitHub's
 native parent/sub-issue and blocked-by links, and give each deliverable its own reviewable PR.
-Execute dependent children one at a time. Merging every child is insufficient to complete the
+Execute proposed children one at a time. Merging every child is insufficient to complete the
 parent: check the original acceptance criteria and blockers separately. A proposal does not
 replace an owner or bypass applicable design, review or PR checks. Keep an inseparable
 financial, identity, security, persistence/replay or architecture invariant together, with its

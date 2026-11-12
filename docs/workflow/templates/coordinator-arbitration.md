@@ -23,7 +23,7 @@ their historical ledger meaning. This record grants no split, authority or accep
 For a proposed decomposition, record each child's outcome, acceptance criteria, non-goals,
 interfaces and state impact, dependencies, owner, verification and PR outcome. Map **every**
 original requirement to a child, an authorized deferral or a remaining blocker; link native
-GitHub parent/sub-issues and blocked-by dependencies. Execute dependent children sequentially.
+GitHub parent/sub-issues and blocked-by dependencies. Execute proposed children one at a time.
 Check parent acceptance separately after child PRs merge. A same-scope defect stays with its
 owner; an inseparable consequential invariant stays together and follows the current design gate.
 

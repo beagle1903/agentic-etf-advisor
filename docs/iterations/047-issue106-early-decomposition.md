@@ -6,7 +6,7 @@ The user explicitly approved starting [Issue 106](https://github.com/beagle1903/
 
 ## Scope and boundaries
 
-Add an early decision rule to `AGENTS.md`, `CONTRIBUTING.md` and the existing coordinator-arbitration template. A coordinator considers decomposition before committing to a broad implementation and again when concrete new evidence shows repeated contract uncertainty or growing acceptance. The decision distinguishes same-scope repair, a proposal for independently deliverable sub-issues, and an explicit stop. Use GitHub's native parent/sub-issue and blocked-by links, keep dependent work sequential, and account for every original acceptance requirement before claiming parent completion.
+Add an early decision rule to `AGENTS.md`, `CONTRIBUTING.md` and the existing coordinator-arbitration template. A coordinator considers decomposition before committing to a broad implementation and again when concrete new evidence shows repeated contract uncertainty or growing acceptance. The decision distinguishes same-scope repair, a proposal for independently deliverable sub-issues, and an explicit stop. Use GitHub's native parent/sub-issue and blocked-by links, execute proposed children one at a time, and account for every original acceptance requirement before claiming parent completion.
 
 Do not automatically split or create issues, add a planning prerequisite or management engine, change pinned roles, alter active Issue 24 work, or edit product, finance, saved-state, source-provider, ledger engine or JSON. Accepted ADRs and historical outcomes remain unchanged. The legacy split and arbitration details in [ADR 0034](../architecture/decisions/0034-bounded-coordinator-arbitration.md) and [ADR 0036](../architecture/decisions/0036-owner-led-conserved-split-lineage.md) remain history; this change adds guidance under ADR 0049, not a new authority or technical contract.
 
@@ -38,7 +38,7 @@ manual walkthrough against AC106-2 reached these dispositions:
 | Ordinary single-scope defect | Same owner repairs and verifies without a split. |
 | Inseparable consequential invariant | Keep one deliverable and obtain separate design advice and coordinator approval. |
 
-The changed-document relative-link check found no missing target. The role configuration
+The checks completed on 2026-11-12 UTC. The changed-document relative-link check found no missing target. The role configuration
 validator passed. `git diff --check`, Ruff lint, Ruff format, mypy (69 source files), the full
 service-free pytest run (100%, exit 0 with optional skips), `uv build`, and
 `docker compose config --quiet` passed on the isolated worktree. No real-store or live-source
