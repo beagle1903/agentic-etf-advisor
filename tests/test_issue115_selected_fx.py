@@ -412,6 +412,112 @@ def test_downstream_new_foreign_selection_blocks_without_new_retrieval():
     validate_revision_state(revised)
 
 
+def test_inherited_foreign_fx_survives_base_only_review_and_offline_descendant():
+    from etf_advisor.dashboard import review_payload
+
+    snapshot = _snapshot()
+
+    class Search:
+        calls = 0
+
+        def search(self, query, *, limit):
+            self.calls += 1
+            return [
+                GraphEnrichedSource(
+                    document_id=doc.document_id, content=doc.content, metadata=doc.metadata
+                )
+                for doc in snapshot.to_source_documents()
+            ]
+
+    class Provider:
+        calls = 0
+
+        def fetch_eur_usd(self):
+            self.calls += 1
+            return _fx()
+
+    search, provider = Search(), Provider()
+    retriever = HybridCandidateEvidenceRetriever(
+        search, clock=lambda: NOW, max_age=timedelta(hours=120), fx_provider=provider
+    )
+    saver = InMemorySaver()
+    config = {"configurable": {"thread_id": "foreign-to-base-multihop"}}
+    graph = build_graph(checkpointer=saver, candidate_retriever=retriever, clock=lambda: NOW)
+    first = graph.invoke({"profile": _profile().model_dump(mode="json")}, config)
+    assert first["status"] == "awaiting_human_review"
+    assert [p["symbol"] for p in first["portfolio_construction"]["draft"]["positions"]] == [
+        "SPY",
+        "CSPX.AS",
+        "BND",
+    ]
+    origin = validate_revision_state(first).revisions[0]
+    evidence_id = origin.artifacts["candidate_evidence"]
+    evidence_digest = first["revision_ledger"]["artifacts"][evidence_id]["digest"]
+    checked_at = first["candidate_evidence"]["checked_at"]
+    second = graph.invoke(
+        Command(
+            resume={
+                **review_decision(
+                    first,
+                    "edit",
+                    [
+                        {
+                            "kind": "construction_policy",
+                            "patch": {"min_positions": 2, "max_positions": 2},
+                        }
+                    ],
+                ),
+                "submitted_at": NOW.isoformat(),
+            }
+        ),
+        config,
+    )
+    assert second["status"] == "awaiting_human_review"
+    assert [p["symbol"] for p in second["portfolio_construction"]["draft"]["positions"]] == [
+        "SPY",
+        "BND",
+    ]
+    third = graph.invoke(
+        Command(
+            resume={
+                **review_decision(
+                    second,
+                    "edit",
+                    [
+                        {
+                            "kind": "screening_policy",
+                            "patch": {"max_expense_ratio_pct": 0.5},
+                        }
+                    ],
+                ),
+                "submitted_at": NOW.isoformat(),
+            }
+        ),
+        config,
+    )
+    assert third["status"] == "awaiting_human_review"
+    assert [p["symbol"] for p in third["portfolio_construction"]["draft"]["positions"]] == [
+        "SPY",
+        "BND",
+    ]
+    ledger = validate_revision_state(third)
+    assert all(
+        revision.artifacts["candidate_evidence"] == evidence_id for revision in ledger.revisions
+    )
+    assert third["revision_ledger"]["artifacts"][evidence_id]["digest"] == evidence_digest
+    assert third["candidate_evidence"]["checked_at"] == checked_at
+    assert (search.calls, provider.calls) == (1, 1)
+
+    def forbidden():
+        raise AssertionError("Offline restore must not read the clock or an adapter")
+
+    restored = build_graph(checkpointer=saver, clock=forbidden)
+    detached = dict(restored.get_state(config).values)
+    detached["__interrupt__"] = restored.get_state(config).interrupts
+    assert review_payload(detached)["portfolio_construction"]["status"] == "ready"
+    assert (search.calls, provider.calls) == (1, 1)
+
+
 @pytest.mark.parametrize("ambiguous", [False, True])
 def test_marked_retrieval_retry_needs_exact_request(ambiguous):
     snapshot = _snapshot()

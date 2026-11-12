@@ -313,6 +313,20 @@ def _validate_selected_fx_output(bundle: CandidateEvidenceBundle, inputs: dict[s
         raise ValueError("Unselected FX observation is inconsistent with producing revision.")
 
 
+def _evidence_origin_inputs(ledger: RevisionLedger) -> dict[str, Any]:
+    """Find the revision that produced the current evidence artifact."""
+
+    index = len(ledger.revisions) - 1
+    artifact_id = ledger.revisions[index].artifacts.get("candidate_evidence")
+    if artifact_id is not None:
+        while (
+            index > 0
+            and ledger.revisions[index - 1].artifacts.get("candidate_evidence") == artifact_id
+        ):
+            index -= 1
+    return ledger.revisions[index].inputs
+
+
 def _block(state: AdvisorState) -> AdvisorState:
     # Preserve the original ledger/digest as diagnostic evidence; never repair tampering.
     result: AdvisorState = {
@@ -544,9 +558,8 @@ class RevisionRuntime:
                 != state["revision_ledger"]["revisions"][-1]["inputs"]["candidate_limit"]
             ):
                 raise ValueError("Evidence request mismatch.")
-            _validate_selected_fx_output(
-                bundle, state["revision_ledger"]["revisions"][-1]["inputs"]
-            )
+            ledger = RevisionLedger.model_validate(state["revision_ledger"])
+            _validate_selected_fx_output(bundle, _evidence_origin_inputs(ledger))
         else:
             request = build_explanation_request(
                 profile=state["profile"],

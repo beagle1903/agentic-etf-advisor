@@ -163,3 +163,50 @@ passed locked installation, role validation, Ruff lint/format and the default
 test suite on that commit. Delivery is [PR 146](https://github.com/beagle1903/agentic-etf-advisor/pull/146);
 it is open for merge review and does not yet close Issue 115. The final
 documentation-only evidence update changes no tested runtime or test files.
+
+## PR 146 inherited-FX review repair
+
+The coordinator accepted [PR review discussion](https://github.com/beagle1903/agentic-etf-advisor/pull/146#discussion_r4554365174)
+as a concrete I115-4/I115-5, AC115-4 defect. A marked USD root selected
+SPY/CSPX.AS/BND and saved required FX. A construction-only child reduced
+the subset to base-only SPY/BND while retaining the evidence artifact. Review
+incorrectly checked that inherited artifact's FX disposition against the
+child's policy and returned `revision_blocked` instead of human review.
+
+The authorized narrow repair resolves the producing revision for an inherited
+evidence artifact at operation-output validation, including descendants that
+inherit it again. The stored artifact ID, digest, check time, receipt and
+original-producing policy remain authoritative. No new FX call, side-effect
+stage, graph state or financial selection rule is introduced. Acceptance is
+a human-review-ready foreign-to-base child and offline descendant with the
+same evidence identity/digest/check time and zero new retrieval/FX/provider
+calls, while skip-to-foreign blocking and tamper rejection continue to pass.
+
+The new regression failed before repair: the first construction-only child
+returned `revision_blocked` where human review was expected. After the narrow
+change, operation-output validation walks contiguous revisions that retain
+the exact candidate-evidence artifact ID and evaluates the saved FX
+disposition with that artifact's producing revision inputs. A fresh retrieval
+without an artifact reference still uses its current revision inputs. The
+test now reaches review after both the base-only child and a second inherited
+screening-policy child; the artifact ID, digest and check time remain exact,
+and offline restore validates review with one total retrieval and FX call.
+The focused Issue 115, revision, US/EU and curator suites passed **275 tests**,
+including the failing-before/passing-after regression, retained skip-to-foreign
+blocker, and prior tamper cases. Ruff lint/format, mypy (69 source files),
+`uv build`, role validator, Compose config and `git diff --check` passed.
+The coordinator owns the post-fix real-store gate and PR CI; their results
+are recorded separately after completion.
+
+The post-fix full real-store suite passed **41 tests, zero failures, errors
+or skips**, in 134.09 seconds using the same frozen all-extras environment
+and opt-in command above. Project `etf-advisor-contract-b936a59ab652`, its
+labeled containers/volumes, and all three captured anonymous volume names
+were verified absent at `2026-11-12T18:22:28.9794283Z`. The ignored complete
+log is `.artifacts/issue115-verification/pr146-origin-real-store.log`.
+
+Independent `code_reviewer` (`gpt-6-sol`, high, `/root/issue115_review`)
+reviewed the narrow follow-up and returned **PASS**, covering fresh execution,
+succeeded receipt reuse, multi-hop origin resolution and retained marker,
+artifact and receipt tamper checks. The existing origin contract is unchanged;
+this repairs its missed operation-output validation path.
