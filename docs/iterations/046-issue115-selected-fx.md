@@ -147,3 +147,19 @@ passed in isolation (one passed in 6.03 seconds total), and the entire
 dashboard module then passed **132 tests in 25.51 seconds** with no source
 change. A separate frozen minimal environment matching CI verifies the
 default full suite without optional-dependency timing interference.
+
+The frozen default full suite completed successfully in the separate
+`.artifacts/issue115-ci-venv` environment: **1,723 passed, 83 optional skips**
+in 420.50 seconds. It used `uv sync --frozen` and
+`uv run --frozen pytest -o addopts='' -q`, with `UV_PROJECT_ENVIRONMENT`
+scoped to that command. The optional dashboard and store coverage above
+complements these intentional dependency-based skips. No failed check was
+relabeled as a pass.
+
+Implementation commit `c5fa9d6b3c0b3bb5ff4f0b8004b1ce4470438010` contains
+the same repaired runtime source tested by those focused, dashboard, default
+and real-store checks. [CI run 43275792369](https://github.com/beagle1903/agentic-etf-advisor/actions/runs/43275792369)
+passed locked installation, role validation, Ruff lint/format and the default
+test suite on that commit. Delivery is [PR 146](https://github.com/beagle1903/agentic-etf-advisor/pull/146);
+it is open for merge review and does not yet close Issue 115. The final
+documentation-only evidence update changes no tested runtime or test files.
