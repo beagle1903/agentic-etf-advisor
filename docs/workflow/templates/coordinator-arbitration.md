@@ -1,47 +1,33 @@
-# Coordinator arbitration episode
+# Coordinator decision record
 
-Copy this template into the active iteration or linked issue-specific workflow
-document before content-bound certification. This record grants no authority,
-allowance, certification, ledger override, or automatic design reset.
+Use this record in an issue or iteration when a concern recurs after a substantive response or
+the proposed requirement, remedy or success condition shifts. Ordinary first-pass work needs no
+episode. The current [ADR 0049 agreement](../../architecture/decisions/0049-prospective-working-agreement.md)
+governs prospective work; [ADR 0034](../../architecture/decisions/0034-bounded-coordinator-arbitration.md)
+and [ADR 0036](../../architecture/decisions/0036-owner-led-conserved-split-lineage.md) retain
+their historical ledger meaning. This record grants no split, authority or acceptance.
 
-- Issue / episode ID / UTC opened:
-- Coordinator / authority evidence:
-- Frozen capsule ID / generation / digest / repository content identity:
-- Trigger: repeated underlying scenario after which substantive response, repair,
-  or review response; or shifted requirement, success condition, or remedy:
-- Prior response and earlier focused closure condition:
-- Current phase / reservation / dispatch hold / remaining counted allowances:
-- Active phase interruption or pause evidence, if needed (a dispatch hold alone is
-  not an offline `coordination_pause`):
+- Issue / episode / UTC date / coordinator:
+- Authorized scope and original acceptance criteria (link or IDs):
+- Trigger, concrete scenario and prior substantive response:
+- Evidence and expected versus actual result; missing evidence and disputed readings:
+- Classification: demonstrated defect / contract ambiguity / preference / outside scope:
+- Loop indicators, if any: independently useful outcomes / recurring contract question /
+  expanding acceptance / components needing distinct evidence or review:
+- One accountable choice: bounded same-scope repair / independently deliverable sub-issue
+  proposal / explicit stop (include contract clarification or authorized deferral if applicable):
+- Rejected alternatives, disagreement and rationale:
+- Owner, focused observable closure condition, verification and next permitted step:
+- Outcome and evidence link; later material evidence and accountable revision:
 
-| Role and session | Frozen invariant/AC ID | Concrete path or disputed reading | Expected and actual result | Evidence | Classification |
-| --- | --- | --- | --- | --- | --- |
-| Designer / owner / reviewer as applicable | | | | | demonstrated defect / contract ambiguity / preference / outside scope |
+For a proposed decomposition, record each child's outcome, acceptance criteria, non-goals,
+interfaces and state impact, dependencies, owner, verification and PR outcome. Map **every**
+original requirement to a child, an authorized deferral or a remaining blocker; link native
+GitHub parent/sub-issues and blocked-by dependencies. Execute dependent children sequentially.
+Check parent acceptance separately after child PRs merge. A same-scope defect stays with its
+owner; an inseparable consequential invariant stays together and follows the current design gate.
 
-For a demonstrated defect, include a reproducible input, state, or execution path
-and a failed frozen criterion. Missing evidence does not prove correctness or absence
-of a defect. Record incompatible readings and their consequence for ambiguity. A
-preference has no demonstrated frozen-contract failure; outside scope cites an absent
-criterion or explicit non-goal. A demonstrated current safety or correctness defect
-blocks delivery even when another concern is outside scope.
-
-- One primary accountable decision: narrow repair / contract clarification /
-  deferral / explicit stop:
-- Rejected alternatives, disagreements, and coordinator rationale:
-- Approved owner / next permitted phase / check and reservation / authorization
-  and independent design, challenge, review, finite-count and content gates:
-- One focused observable closure condition: frozen ID, responsible owner, expected
-  evidence and verification, and next permitted gate:
-- Outcome / UTC time / evidence location:
-- New material evidence appended to this episode, its effect, accountable revision
-  and UTC time (repeated assertions without new evidence cite the decision above):
-
-Demonstrated defects require repair and verification or explicit stop; failed checks
-and review outcomes remain failed. Same-scope repair stays with the approved owner.
-Unanimity is unnecessary. Further investigation needs a permitted checked and
-reserved phase. Unresolved consequential ambiguity uses the existing separate
-architect, challenge and approval path; failed final review, exhausted counts or
-serious blockers produce BLOCKED_FOR_DECISION. Completion of this episode does not
-certify ticket acceptance or delivery. Later outcomes use existing excluded
-current-ticket ledger evidence fields or linked external evidence. Editing certified
-documentation requires fresh content-bound certification.
+A demonstrated defect requires verified repair or an explicit stop. Do not relabel a failed check
+or historical result as passed. For historical ledger tickets, cite their actual phase, outcomes,
+remaining allowances and applicable authorization without editing or resetting them. Prospective
+work under ADR 0049 has no mandatory ledger, reservation, allowance or content certificate.
