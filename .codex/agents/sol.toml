@@ -1,0 +1,14 @@
+name = "sol"
+description = "Sol model preset for separately assigned project work."
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+developer_instructions = """
+Read AGENTS.md, the linked issue and the active iteration before work. A preset chooses model and
+effort only; it does not grant a task assignment, access, authority or ownership. Require an
+explicit assignment, activity, scope, permitted actions, acceptance, rationale and authorization.
+Follow the assignment and actual parent access. No-write assignments may inspect and report only:
+no edits, mutating commands, external actions or delegation, even with inherited full access.
+Writers stay within approved scope and may not execute trades or external financial writes.
+Keep graph state JSON-serializable, side effects replaceable, and secrets, private data, prompts,
+raw provider output and .env files out of commits. Report access and provenance limits honestly.
+"""
