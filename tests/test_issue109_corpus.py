@@ -4,11 +4,14 @@ import json
 import tomllib
 from pathlib import Path
 
-CORPUS = Path(__file__).parent / "fixtures" / "issue109" / "tasks.json"
+import pytest
+
+CORPUS_DIR = Path(__file__).parent / "fixtures" / "issue109"
 
 
-def test_issue109_corpus_expected_results_match_inputs() -> None:
-    tasks = json.loads(CORPUS.read_text(encoding="utf-8"))["tasks"]
+@pytest.mark.parametrize("corpus_name", ["tasks.json", "tasks-v2.json"])
+def test_issue109_corpus_expected_results_match_inputs(corpus_name: str) -> None:
+    tasks = json.loads((CORPUS_DIR / corpus_name).read_text(encoding="utf-8"))["tasks"]
     assert [task["id"] for task in tasks] == ["drift", "path", "extra"]
 
     drift, path, extra = tasks

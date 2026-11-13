@@ -1,23 +1,11 @@
-[agents.planning_analyst]
-description = "Read-only analyst for discovery, planning, and architecture-determined low-risk designs."
-config_file = "agents/planning-analyst.toml"
+[agents.astra]
+description = "Astra model preset for separately assigned project work."
+config_file = "agents/astra.toml"
 
-[agents.design_architect]
-description = "Read-only architect for consequential contracts, architecture, and difficult unresolved problems."
-config_file = "agents/design-architect.toml"
+[agents.sol]
+description = "Sol model preset for separately assigned project work."
+config_file = "agents/sol.toml"
 
-[agents.bounded_worker]
-description = "Bounded worker owning authorized mechanical work from design capsule through verification."
-config_file = "agents/bounded-worker.toml"
-
-[agents.implementation_worker]
-description = "Implementation worker owning authorized ordinary work from design capsule through verification."
-config_file = "agents/implementation-worker.toml"
-
-[agents.code_reviewer]
-description = "Read-only reviewer for substantive correctness, dependencies, and test-gap analysis."
-config_file = "agents/code-reviewer.toml"
-
-[agents.implementation_specialist]
-description = "Implementation specialist for demonstrably difficult work with an evidence-backed escalation trigger."
-config_file = "agents/implementation-specialist.toml"
+[agents.luna]
+description = "Luna model preset for separately assigned project work."
+config_file = "agents/luna.toml"

@@ -1,0 +1,51 @@
+{
+  "schema": "issue109-corpus-v1",
+  "tasks": [
+    {
+      "id": "drift",
+      "request": "Inspect the synthetic TOML files. Return JSON with only a findings array. Report every model or model_reasoning_effort value that differs from the supplied pin table; do not edit files. Each finding has path, field, expected and actual strings.",
+      "pins": {
+        "planning_analyst": {"model": "gpt-6-luna", "model_reasoning_effort": "medium"},
+        "implementation_worker": {"model": "gpt-6-sol", "model_reasoning_effort": "medium"}
+      },
+      "input_files": {
+        ".codex/config.toml": "[agents.planning_analyst]\nconfig_file = \"agents/planning-analyst.toml\"\n[agents.implementation_worker]\nconfig_file = \"agents/implementation-worker.toml\"\n",
+        ".codex/agents/planning-analyst.toml": "model = \"gpt-6-sol\"\nmodel_reasoning_effort = \"medium\"\n",
+        ".codex/agents/implementation-worker.toml": "model = \"gpt-6-sol\"\nmodel_reasoning_effort = \"high\"\n"
+      },
+      "expected": {
+        "findings": [
+          {"path": ".codex/agents/planning-analyst.toml", "field": "model", "expected": "gpt-6-luna", "actual": "gpt-6-sol"},
+          {"path": ".codex/agents/implementation-worker.toml", "field": "model_reasoning_effort", "expected": "medium", "actual": "high"}
+        ]
+      }
+    },
+    {
+      "id": "path",
+      "request": "Correct the one broken config_file target in the synthetic TOML. config_file resolves relative to .codex/config.toml and must point to a supplied file. Return JSON with only a corrected_files object mapping the changed repository-relative path to the complete corrected file text. Keep all other bytes unchanged.",
+      "input_files": {
+        ".codex/config.toml": "[agents.bounded_worker]\ndescription = \"Synthetic bounded task\"\nconfig_file = \"agents/bounded-worker.tom\"\n",
+        ".codex/agents/bounded-worker.toml": "model = \"gpt-6-luna\"\nmodel_reasoning_effort = \"medium\"\n"
+      },
+      "expected": {
+        "corrected_files": {
+          ".codex/config.toml": "[agents.bounded_worker]\ndescription = \"Synthetic bounded task\"\nconfig_file = \"agents/bounded-worker.toml\"\n"
+        }
+      }
+    },
+    {
+      "id": "extra",
+      "request": "Compare the synthetic TOML registrations with the supplied inventory. Return JSON with only a findings array. Identify registrations present in config.toml but absent from the inventory. Each finding has kind and name strings; kind must be the literal string 'extra_registration'. Do not edit files.",
+      "inventory": ["planning_analyst", "bounded_worker"],
+      "input_files": {
+        ".codex/config.toml": "[agents.planning_analyst]\nconfig_file = \"agents/planning-analyst.toml\"\n[agents.bounded_worker]\nconfig_file = \"agents/bounded-worker.toml\"\n[agents.experimental_writer]\nconfig_file = \"agents/experimental-writer.toml\"\n",
+        ".codex/agents/planning-analyst.toml": "model = \"gpt-6-luna\"\n",
+        ".codex/agents/bounded-worker.toml": "model = \"gpt-6-luna\"\n",
+        ".codex/agents/experimental-writer.toml": "model = \"gpt-6-sol\"\n"
+      },
+      "expected": {
+        "findings": [{"kind": "extra_registration", "name": "experimental_writer"}]
+      }
+    }
+  ]
+}

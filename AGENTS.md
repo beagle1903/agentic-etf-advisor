@@ -46,25 +46,42 @@ work. Historical ADRs, ledgers, failed outcomes and PR bindings remain audit evi
 rewrite or relabel them. An old ticket's exhausted attempts do not prohibit normal use of a
 merged app. Do not claim a different scenario satisfies that ticket's original acceptance.
 
-## Project roles
+## Model presets and assignments
 
-| Role | Model | Effort | Access |
-| --- | --- | --- | --- |
-| `planning_analyst` | `gpt-6-luna` | medium | read-only |
-| `design_architect` | `gpt-6-astra` | high | read-only |
-| `bounded_worker` | `gpt-6-luna` | medium | workspace-write |
-| `implementation_worker` | `gpt-6-sol` | medium | workspace-write |
-| `code_reviewer` | `gpt-6-sol` | high | read-only |
-| `implementation_specialist` | `gpt-6-sol` | high | workspace-write |
+| Preset | Model | Effort |
+| --- | --- | --- |
+| `astra` | `gpt-6-astra` | high |
+| `sol` | `gpt-6.1-sol` | medium |
+| `luna` | `gpt-6-luna` | medium |
 
-Use `bounded_worker` for mechanical architecture-determined work and `implementation_worker`
-for ordinary work. Use `implementation_specialist` only for concrete complexity or unresolved
-failure. The classification selects the appropriate role, not a mandatory chain through all roles.
-Record the selected role, rationale and any substantive escalation in the issue or PR.
+These three explicit relative `config_file` registrations choose only model and effort. A fresh
+dispatch separately records its preset/model/effort, assignment, activity, participant and owner
+references, scope, permitted actions, acceptance, rationale, authorization, consequential status,
+observed inherited access and `instruction-only` restriction. `owner_ref` is accountability, not
+a fourth preset. The assignment names remain `planning_analyst`, `design_architect`,
+`code_reviewer`, `bounded_worker`, `implementation_worker` and `implementation_specialist`.
 
-Keep explicit descriptions and relative `config_file` registrations for these six roles.
-Do not add generic agent defaults, project-level model overrides, `enabled`, concurrency scalars,
-`max_threads` or a default role. Pinned model/effort/access settings remain unchanged.
+`planning_analyst` performs discovery, `design_architect` design, and `code_reviewer` review or an
+optional challenge; these assignments may inspect and report only, with no edits, mutating commands,
+external actions or delegation. The other three assignments perform implementation, remediation
+or verification within approved scope; verification does not edit. Use `bounded_worker` for
+mechanical work, `implementation_worker` for ordinary work, and `implementation_specialist` only
+with a concrete complexity or unresolved-failure rationale. A writer's participant must be the
+owner. Explicit delivery responsibility may add commit/push/PR actions for a writer. No-write
+instructions apply even when the parent grants full access: they are not a filesystem sandbox or
+authentication. Record the observed parent/tool access honestly and stop actions outside the
+assignment.
+
+Consequential writes retain separate design advice and coordinator approval. Keep dependent
+handoffs sequential. A reviewer is independent of the owner and every implementation, remediation
+and verification author; optional challenge is independent of its design author. Challenge is not
+a mandatory prospective phase under ADR 0049. The optional `--declaration PATH` validator checks
+only a JSON declaration's internal consistency, not identity, authority, parent permissions or
+whether a handoff happened. The coordinator checks actual participants and authorization. Existing
+sessions and historical records retain their original role/model/effort identities; no migration.
+
+Preserve ADR 0018 restrictions: no generic defaults, project-level model override, `enabled`,
+concurrency scalar, `max_threads` or default role. See [ADR 0051](docs/architecture/decisions/0051-model-presets-and-assignments.md).
 
 ## Delivery and product safeguards
 

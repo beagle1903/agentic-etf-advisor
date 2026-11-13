@@ -1,5 +1,12 @@
 # System architecture
 
+Project agent configuration now uses three model presets with separately declared task assignments,
+as described in [ADR 0051](decisions/0051-model-presets-and-assignments.md). The optional static
+declaration check validates internal consistency only; no app runtime, graph state, market-data
+adapter or financial decision contract changes. No-write assignments use instructions under
+observed inherited access, not an enforced filesystem sandbox. Existing sessions and historical
+ticket identities remain unchanged.
+
 Issue 141 adds the distinct prepared US/USD starter path in
 [ADR 0047](decisions/0047-curated-us-starter.md) and the [usage guide](../us-starter.md).
 The post-delivery PR142 repair in [ADR 0048](decisions/0048-starter-shortlist-input-version.md)
