@@ -44,7 +44,11 @@ from etf_advisor.dashboard import (
     start_dashboard_run,
 )
 from etf_advisor.dashboard_comparison import comparison_rows
-from etf_advisor.dashboard_overlap import display_amount, reported_holdings_overlap
+from etf_advisor.dashboard_overlap import (
+    display_amount,
+    reported_holdings_overlap,
+    selected_reported_holdings_overlaps,
+)
 from etf_advisor.data.starter_collection import run_pass
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
@@ -513,6 +517,10 @@ def _render_run(st: Any, run: DashboardRun) -> None:
             _render_policy(st, payload["draft_policy"])
             if "portfolio_construction" in payload:
                 _render_portfolio(st, payload["portfolio_construction"])
+                if "candidate_evidence" in payload:
+                    _render_selected_holdings_overlap(
+                        st, payload["candidate_evidence"], payload["portfolio_construction"]
+                    )
             if "candidate_screening" in payload:
                 _render_screening(st, payload["candidate_screening"])
             if "candidate_evidence" in payload:
@@ -700,39 +708,7 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
         st.info("Choose two candidates to compare reported holdings.")
     else:
         result = reported_holdings_overlap(bundle, overlap_ids[0], overlap_ids[1])
-        pair_identity_unresolved = any(
-            reason in {"conflicting_holding_identity", "identity_namespace_mismatch"}
-            for reason in result["reason_codes"]
-        )
-        if result["status"] == "available":
-            st.write(f"Reported overlap: {display_amount(result['overlap_pp'])} percentage points")
-            st.write(f"Matched reported identities: {result['matched_holdings']}")
-            if result["overlap_pp"]["numerator"] == "0":
-                st.info("No overlap among these reported identities.")
-        else:
-            st.warning("Reported overlap unavailable: " + ", ".join(result["reason_codes"]))
-        st.caption(
-            f"Persisted check: {result['checked_at'] or 'Unavailable'} · "
-            f"Snapshot: {result['snapshot_version'] or 'Unavailable'} · "
-            f"Digest: {result['snapshot_digest'] or 'Unavailable'}"
-        )
-        for label in ("left", "right"):
-            side = result[label]
-            st.write(
-                f"{side['symbol'] or 'Unavailable'} · Reported-row weight sum: "
-                f"{display_amount(side['row_sum_pp'])} percentage points · "
-                f"Rows: {side['count'] if side['count'] is not None else 'Unavailable'} · "
-                f"Status: {side['status']}"
-            )
-            if side["row_sum_pp"] is not None and (
-                side["reason_codes"] or pair_identity_unresolved
-            ):
-                st.caption("Reported-row weight sum; identity unresolved")
-            st.caption(
-                f"Provider: {side['provider'] or 'Unavailable'} · "
-                f"Observed: {side['observed_at'] or 'Unavailable'} · "
-                f"Source URL: {side['source_url'] or 'Unavailable'}"
-            )
+        _render_overlap_result(st, result)
         with st.expander("Reported-holdings calculation details"):
             st.json(result)
 
@@ -758,6 +734,87 @@ def _render_evidence(st: Any, bundle: dict[str, Any]) -> None:
 
             st.text(candidate["content"])
             st.link_button("Open source", candidate["source_url"])
+
+
+def _render_selected_holdings_overlap(
+    st: Any, evidence: dict[str, Any], construction: dict[str, Any]
+) -> None:
+    st.subheader("Selected positions: reported-holdings overlap")
+    st.caption(
+        "Reported holdings only; lists may be partial. Pairwise results are not complete fund "
+        "or portfolio overlap, do not establish independent risk, and do not affect selection "
+        "or weights. Unavailable is not zero."
+    )
+    selected_ids = [position["document_id"] for position in construction["draft"]["positions"]]
+    try:
+        results = selected_reported_holdings_overlaps(evidence, selected_ids)
+    except ValueError as exc:
+        st.warning(str(exc))
+        return
+    if not results:
+        st.info("At least two selected positions are needed for a reported-holdings comparison.")
+        return
+    st.caption(
+        f"Persisted evidence check: {evidence['checked_at']} · {len(results)} selected pairs. "
+        "pp = percentage points; each sum covers only that side's reported rows."
+    )
+    st.dataframe(
+        [
+            {
+                "Pair": f"{result['left']['symbol']} / {result['right']['symbol']}",
+                "Overlap (pp)": display_amount(result["overlap_pp"]),
+                "Left sum (pp)": display_amount(result["left"]["row_sum_pp"]),
+                "Right sum (pp)": display_amount(result["right"]["row_sum_pp"]),
+                "Matches": str(result["matched_holdings"])
+                if result["matched_holdings"] is not None
+                else "Unavailable",
+                "Limitations": ", ".join(result["reason_codes"]) or "Reported lists only",
+            }
+            for result in results
+        ],
+        hide_index=True,
+        width="stretch",
+    )
+    for result in results:
+        with st.expander(
+            f"{result['left']['symbol']} / {result['right']['symbol']} · sources and calculation"
+        ):
+            _render_overlap_result(st, result)
+            st.json(result)
+
+
+def _render_overlap_result(st: Any, result: dict[str, Any]) -> None:
+    pair_identity_unresolved = any(
+        reason in {"conflicting_holding_identity", "identity_namespace_mismatch"}
+        for reason in result["reason_codes"]
+    )
+    if result["status"] == "available":
+        st.write(f"Reported overlap: {display_amount(result['overlap_pp'])} percentage points")
+        st.write(f"Matched reported identities: {result['matched_holdings']}")
+        if result["overlap_pp"]["numerator"] == "0":
+            st.info("No overlap among these reported identities.")
+    else:
+        st.warning("Reported overlap unavailable: " + ", ".join(result["reason_codes"]))
+    st.caption(
+        f"Persisted check: {result['checked_at'] or 'Unavailable'} · "
+        f"Snapshot: {result['snapshot_version'] or 'Unavailable'} · "
+        f"Digest: {result['snapshot_digest'] or 'Unavailable'}"
+    )
+    for label in ("left", "right"):
+        side = result[label]
+        st.write(
+            f"{side['symbol'] or 'Unavailable'} · Reported-row weight sum: "
+            f"{display_amount(side['row_sum_pp'])} percentage points · "
+            f"Rows: {side['count'] if side['count'] is not None else 'Unavailable'} · "
+            f"Status: {side['status']}"
+        )
+        if side["row_sum_pp"] is not None and (side["reason_codes"] or pair_identity_unresolved):
+            st.caption("Reported-row weight sum; identity unresolved")
+        st.caption(
+            f"Provider: {side['provider'] or 'Unavailable'} · "
+            f"Observed: {side['observed_at'] or 'Unavailable'} · "
+            f"Source URL: {side['source_url'] or 'Unavailable'}"
+        )
 
 
 def _catalogue_coverage_summary(coverage: dict[str, Any]) -> dict[str, Any]:
