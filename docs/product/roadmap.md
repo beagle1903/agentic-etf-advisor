@@ -210,16 +210,16 @@ outcomes, ledgers and original scopes remain evidence of their own scenarios.
 | Simplify identity/repeated validation | Further consolidation deferred; listing, share-class, legal Fund and exposure distinctions and exact numeric safeguards remain. |
 | Verify each runnable slice | Ongoing practice; the 11 November starter exercise is delivered dated evidence, with its limits above. |
 
-### One proposed next slice: selected-position reported-holdings comparison
+### Authorized slice: selected-position reported-holdings comparison
 
-**Recommendation only; not scheduled or authorized for implementation.** The November 11
-drafts included SPY, IVV and VOO together. The existing #101 control already compares any
-chosen pair; it does not automatically show all selected-position pairs at human review.
-Surface those existing pairwise results for the draft's at most five selected positions
+**Approved 14 November 2026; PR delivery tracked in [iteration 050](../iterations/050-issue24-selected-holdings-pairs.md).**
+The November 11 drafts included SPY, IVV and VOO together. The existing #101 control
+compares any chosen pair. This slice automatically surfaces those same pairwise
+results for the draft's at most five selected positions
 (at most ten pairs), so a reviewer can see shared reported holdings without manually
 finding each pair. This extends presentation; it does not reopen completed #101 acceptance.
 
-Proposed observable acceptance:
+Observable acceptance:
 
 - Show exactly the unordered pairs of selected evidence identities, excluding unselected
   candidates; use the existing conservative overlap helper and its persisted check time.
@@ -233,10 +233,9 @@ Proposed observable acceptance:
 
 Non-goals: a portfolio-wide or weighted overlap score, new identity/index inference,
 financial-rule/ranking/optimizer changes, new source calls, larger/custom universes,
-schema/storage changes or acceptance of broader #117/#123. A future authorized owner must
-confirm the presentation boundary; any consequential interpretation or contract change
+schema/storage changes or acceptance of broader #117/#123. Any consequential interpretation or contract change
 requires separate design advice and coordinator approval. No child issue is created here.
-The evidence and recommendation are recorded in [iteration 049](../iterations/049-issue24-roadmap-reconciliation.md).
+The original evidence and recommendation remain in [iteration 049](../iterations/049-issue24-roadmap-reconciliation.md).
 
 Every future slice needs a concrete limitation, versioned baseline, observable quality criterion,
 source evidence, and focused verification. Catalogue entries, researched ETFs, eligible ETFs,

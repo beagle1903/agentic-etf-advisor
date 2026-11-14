@@ -6,6 +6,7 @@ import json
 import math
 from datetime import datetime, timedelta
 from fractions import Fraction
+from itertools import combinations
 from typing import Any
 
 from etf_advisor.data.research_quality import field_max_age, is_issuer_field, validate_issuer_pair
@@ -30,6 +31,27 @@ REASONS = (
     "conflicting_holding_identity",
     "identity_namespace_mismatch",
 )
+
+
+def selected_reported_holdings_overlaps(
+    bundle: dict[str, Any], selected_ids: list[str]
+) -> list[dict[str, Any]]:
+    """Project every selected pair, bounded to five positions without truncation.
+
+    IDs come from the validated review draft, never symbols or candidate rank.
+    The existing pair diagnostic owns all evidence and holdings interpretation.
+    """
+    if len(selected_ids) > 5:
+        raise ValueError("Automatic comparison supports at most five selected positions.")
+    candidate_ids = {candidate["document_id"] for candidate in bundle["candidates"]}
+    if len(set(selected_ids)) != len(selected_ids) or any(
+        document_id not in candidate_ids for document_id in selected_ids
+    ):
+        raise ValueError("Automatic comparison requires distinct selected evidence document IDs.")
+    return [
+        reported_holdings_overlap(bundle, left_id, right_id)
+        for left_id, right_id in combinations(selected_ids, 2)
+    ]
 
 
 def _reasons(values: set[str]) -> list[str]:

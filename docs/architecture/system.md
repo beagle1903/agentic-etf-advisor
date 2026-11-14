@@ -31,6 +31,12 @@ weights, displays each side's reported-row sum and original field provenance,
 and fails closed on ambiguous, invalid, stale or future holdings. The result is
 recomputed after offline restore and does not enter graph state, screening,
 construction, selection, cash, FX, receipts or source artifacts.
+At human review, the dashboard also automatically enumerates the selected draft's
+document-ID pairs, up to five positions and ten unordered pairs. A compact table
+and per-pair source/calculation details reuse the same diagnostic and persisted
+check time; the manual comparison remains available. Larger custom-policy drafts
+receive an explicit automatic-display limit without truncating selection. This
+presentation adds no aggregate portfolio metric, external call or persisted state.
 
 ## Current shape
 
