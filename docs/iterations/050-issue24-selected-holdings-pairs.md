@@ -143,3 +143,8 @@ base (decoded as UTF-8); the pair calculation and evidence interpretation are
 unchanged. Ruff lint/format and diff checks passed after the final test-only
 counter addition. AC24-P1 through AC24-P4 pass locally. PR publication/CI remains
 the delivery step; no merge or wider financial-readiness acceptance is claimed.
+
+Tested implementation and test commit:
+`ec6781f72b710863c317dae228b4adddf20660c8`. This final documentation-only identity
+record changes no tested source, test or screenshot. Verification completed on
+14 November 2026 UTC; PR CI is reported on the linked issue/PR after publication.
