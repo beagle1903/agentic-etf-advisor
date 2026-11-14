@@ -166,3 +166,19 @@ There is no live data, provider, database, durable restoration, suitability,
 financial quality or return claim. Historical saved-v1 preservation is the
 separate byte audit above. Commit, push, PR and CI publication remain with the
 coordinator; local passing checks do not claim merge or parent-issue completion.
+
+## Delivery content identity
+
+Tested implementation commit: `85cf750913977403b902cefa2067363a43fd8ce5`.
+The pre-score raw corpus hash recorded above identifies the local CRLF bytes:
+193,751 bytes, SHA-256
+`c91ba0827aa34baf7aab50b2f7882248c0bb712bdf2f17ee385f4f4c97a9c079`.
+Git normalized only this new corpus's line endings for the committed LF blob:
+188,831 bytes, SHA-256
+`4b183c14498ca4458e7ca5c6f0e3b77d31f52b9bb894126608696eacacc85fa3`.
+The coordinator verified that replacing local CRLF with LF exactly reproduces
+that committed blob. Canonical JSON SHA-256 remains
+`016a64e11db61e62a5d5201cf516963a5a0be82f7a85f78ea813db31991a71c0`;
+no JSON value or expectation changed. This final evidence-only documentation
+update leaves tested runtime and corpus semantics unchanged and adds no new
+acceptance claim.
