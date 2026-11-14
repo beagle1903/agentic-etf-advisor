@@ -1,0 +1,4920 @@
+{
+  "dataset_version": "starter-regression-v1",
+  "checked_at": "2026-11-05T13:00:00Z",
+  "limitations": [
+    "Invented evidence, including Yahoo-format attribution; no real source observations.",
+    "Agreement with frozen deterministic contracts only; no financial quality, suitability or returns claim.",
+    "Pair diagnostics describe partial reported holdings in exact percentage points, never complete or portfolio overlap.",
+    "Existing saved-v1 and reload tests remain separate; this corpus adds no persistence guarantee."
+  ],
+  "profile": {
+    "horizon_years": 12,
+    "max_drawdown_pct": 25,
+    "initial_investment_usd": 1000,
+    "recurring_monthly_usd": 250,
+    "excluded_sectors": []
+  },
+  "artifact": {
+    "schema": "us-starter-artifact-v1",
+    "universe_id": "us-starter",
+    "universe_version": "1",
+    "universe_digest": "6b492884c7a7ca9f9cdb065ad4cca675c84b4d020fe3c1d5ab45b112c4edd4f6",
+    "members": [
+      "SPY",
+      "IVV",
+      "VOO",
+      "VTI",
+      "ITOT",
+      "SCHB",
+      "QQQ",
+      "VUG",
+      "SCHG",
+      "IWF",
+      "VEA",
+      "IEFA",
+      "SCHF",
+      "VWO",
+      "IEMG",
+      "SCHE",
+      "BND",
+      "AGG",
+      "SCHZ",
+      "SPAB"
+    ],
+    "prepared_at": "2026-11-05T12:00:00Z",
+    "outcomes": [
+      {
+        "symbol": "SPY",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SPY",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SPY/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SPY"
+      },
+      {
+        "symbol": "IVV",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "IVV",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/IVV/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:IVV"
+      },
+      {
+        "symbol": "VOO",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "VOO",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/VOO/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:VOO"
+      },
+      {
+        "symbol": "VTI",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "VTI",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/VTI/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:VTI"
+      },
+      {
+        "symbol": "ITOT",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "ITOT",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/ITOT/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:ITOT"
+      },
+      {
+        "symbol": "SCHB",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SCHB",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SCHB/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SCHB"
+      },
+      {
+        "symbol": "QQQ",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "QQQ",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/QQQ/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:QQQ"
+      },
+      {
+        "symbol": "VUG",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "VUG",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/VUG/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:VUG"
+      },
+      {
+        "symbol": "SCHG",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SCHG",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SCHG/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SCHG"
+      },
+      {
+        "symbol": "IWF",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "IWF",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/IWF/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:IWF"
+      },
+      {
+        "symbol": "VEA",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "VEA",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/VEA/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:VEA"
+      },
+      {
+        "symbol": "IEFA",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "IEFA",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/IEFA/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:IEFA"
+      },
+      {
+        "symbol": "SCHF",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SCHF",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SCHF/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SCHF"
+      },
+      {
+        "symbol": "VWO",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "VWO",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/VWO/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:VWO"
+      },
+      {
+        "symbol": "IEMG",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "IEMG",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/IEMG/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:IEMG"
+      },
+      {
+        "symbol": "SCHE",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SCHE",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SCHE/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SCHE"
+      },
+      {
+        "symbol": "BND",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "BND",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/BND/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:BND"
+      },
+      {
+        "symbol": "AGG",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "AGG",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/AGG/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:AGG"
+      },
+      {
+        "symbol": "SCHZ",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SCHZ",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SCHZ"
+      },
+      {
+        "symbol": "SPAB",
+        "status": "collected",
+        "reason": "synthetic_fixture",
+        "listing": {
+          "provider": "yahoo_finance",
+          "symbol": "SPAB",
+          "exchange": "PCX",
+          "quote_type": "ETF",
+          "market": "us_market",
+          "currency": "USD",
+          "source_url": "https://finance.yahoo.com/quote/SPAB/",
+          "observed_at": "2026-11-05T12:00:00Z",
+          "collected_at": "2026-11-05T12:00:00Z"
+        },
+        "duplicate_group": "yahoo_finance:PCX:SPAB"
+      }
+    ],
+    "duplicate_assertions": [],
+    "snapshot": {
+      "schema_version": 2,
+      "snapshot_version": "issue24-starter-synthetic-v1",
+      "universe_id": "us-starter",
+      "universe_version": "1",
+      "ingested_at": "2026-11-05T12:00:00Z",
+      "records": [
+        {
+          "symbol": "SPY",
+          "name": {
+            "value": "Synthetic SPY",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SPY/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "IVV",
+          "name": {
+            "value": "Synthetic IVV",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Growth",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/IVV/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "VOO",
+          "name": {
+            "value": "Synthetic VOO",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Foreign Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/VOO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "VTI",
+          "name": {
+            "value": "Synthetic VTI",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Diversified Emerging Mkts",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/VTI/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "ITOT",
+          "name": {
+            "value": "Synthetic ITOT",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/ITOT/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SCHB",
+          "name": {
+            "value": "Synthetic SCHB",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Growth",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SCHB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "QQQ",
+          "name": {
+            "value": "Synthetic QQQ",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Foreign Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/QQQ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "VUG",
+          "name": {
+            "value": "Synthetic VUG",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Diversified Emerging Mkts",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/VUG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SCHG",
+          "name": {
+            "value": "Synthetic SCHG",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SCHG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "IWF",
+          "name": {
+            "value": "Synthetic IWF",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Growth",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/IWF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "VEA",
+          "name": {
+            "value": "Synthetic VEA",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Foreign Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/VEA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "IEFA",
+          "name": {
+            "value": "Synthetic IEFA",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Diversified Emerging Mkts",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/IEFA/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SCHF",
+          "name": {
+            "value": "Synthetic SCHF",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SCHF/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "VWO",
+          "name": {
+            "value": "Synthetic VWO",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Large Growth",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/VWO/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "IEMG",
+          "name": {
+            "value": "Synthetic IEMG",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Foreign Large Blend",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/IEMG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SCHE",
+          "name": {
+            "value": "Synthetic SCHE",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Diversified Emerging Mkts",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SCHE/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "BND",
+          "name": {
+            "value": "Synthetic BND",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Intermediate Core Bond",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/BND/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "AGG",
+          "name": {
+            "value": "Synthetic AGG",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Intermediate Core Bond",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/AGG/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SCHZ",
+          "name": {
+            "value": "Synthetic SCHZ",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Intermediate Core Bond",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SCHZ/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        },
+        {
+          "symbol": "SPAB",
+          "name": {
+            "value": "Synthetic SPAB",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "quote_type": {
+            "value": "ETF",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "market": {
+            "value": "us_market",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "category": {
+            "value": "Intermediate Core Bond",
+            "unit": "classification",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "fund_family": {
+            "value": "Synthetic",
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "benchmark": {
+            "value": null,
+            "unit": "text",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "expense_ratio_pct": {
+            "value": "0.1",
+            "unit": "percent",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "average_daily_volume": {
+            "value": "200000.0",
+            "unit": "shares_per_day",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "top_holdings": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": "SYN",
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ],
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          },
+          "sector_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "not_reported"
+          },
+          "geography_exposures": {
+            "value": null,
+            "unit": "percent_of_fund",
+            "provider": "yahoo_finance",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": "provider_unsupported"
+          },
+          "top_10_concentration_pct": {
+            "value": "10.0",
+            "unit": "percent",
+            "provider": "yahoo_finance_derived",
+            "source_url": "https://finance.yahoo.com/quote/SPAB/",
+            "observed_at": "2026-11-05T12:00:00Z",
+            "ingested_at": "2026-11-05T12:00:00Z",
+            "snapshot_version": "issue24-starter-synthetic-v1",
+            "missing_reason": null
+          }
+        }
+      ]
+    },
+    "digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437"
+  },
+  "cases": [
+    {
+      "case_id": "conservative-income-limit-3",
+      "limit": 3,
+      "profile": {
+        "risk_tolerance": "conservative",
+        "objective": "income"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg"
+        ],
+        "weights_bps": [
+          2000,
+          4000,
+          4000
+        ],
+        "initial_cents": [
+          20000,
+          40000,
+          40000
+        ],
+        "recurring_cents": [
+          5000,
+          10000,
+          10000
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "conservative-income-limit-5",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "conservative",
+        "objective": "income"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:schz",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spab"
+        ],
+        "weights_bps": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ],
+        "initial_cents": [
+          20000,
+          20000,
+          20000,
+          20000,
+          20000
+        ],
+        "recurring_cents": [
+          5000,
+          5000,
+          5000,
+          5000,
+          5000
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:schz",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spab",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:schz",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spab",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:schz",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spab",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:schz",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spab",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "conservative-income-limit-10",
+      "limit": 10,
+      "profile": {
+        "risk_tolerance": "conservative",
+        "objective": "income"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          500,
+          500,
+          500,
+          500,
+          8000
+        ],
+        "initial_cents": [
+          5000,
+          5000,
+          5000,
+          5000,
+          80000
+        ],
+        "recurring_cents": [
+          1250,
+          1250,
+          1250,
+          1250,
+          20000
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "moderate-balanced-limit-3",
+      "limit": 3,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          2875,
+          2875,
+          4250
+        ],
+        "initial_cents": [
+          28750,
+          28750,
+          42500
+        ],
+        "recurring_cents": [
+          7188,
+          7187,
+          10625
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "moderate-balanced-limit-5",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg"
+        ],
+        "weights_bps": [
+          1917,
+          1917,
+          1916,
+          2125,
+          2125
+        ],
+        "initial_cents": [
+          19170,
+          19170,
+          19160,
+          21250,
+          21250
+        ],
+        "recurring_cents": [
+          4793,
+          4792,
+          4790,
+          5313,
+          5312
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "moderate-balanced-limit-10",
+      "limit": 10,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          1438,
+          1438,
+          1437,
+          1437,
+          4250
+        ],
+        "initial_cents": [
+          14380,
+          14380,
+          14370,
+          14370,
+          42500
+        ],
+        "recurring_cents": [
+          3595,
+          3595,
+          3593,
+          3592,
+          10625
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "aggressive-growth-limit-3",
+      "limit": 3,
+      "profile": {
+        "risk_tolerance": "aggressive",
+        "objective": "growth"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          4750,
+          4750,
+          500
+        ],
+        "initial_cents": [
+          47500,
+          47500,
+          5000
+        ],
+        "recurring_cents": [
+          11875,
+          11875,
+          1250
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "aggressive-growth-limit-5",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "aggressive",
+        "objective": "growth"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          2375,
+          2375,
+          2375,
+          2375,
+          500
+        ],
+        "initial_cents": [
+          23750,
+          23750,
+          23750,
+          23750,
+          5000
+        ],
+        "recurring_cents": [
+          5938,
+          5938,
+          5937,
+          5937,
+          1250
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "aggressive-growth-limit-10",
+      "limit": 10,
+      "profile": {
+        "risk_tolerance": "aggressive",
+        "objective": "growth"
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+          "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd"
+        ],
+        "weights_bps": [
+          2375,
+          2375,
+          2375,
+          2375,
+          500
+        ],
+        "initial_cents": [
+          23750,
+          23750,
+          23750,
+          23750,
+          5000
+        ],
+        "recurring_cents": [
+          5938,
+          5938,
+          5937,
+          5937,
+          1250
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:vti",
+            "right_id": "research:issue24-starter-synthetic-v1:26f30111f0c67eee5b027b427787e890172cc09a45448f1bc26667b82f0c5441:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "missing-defensive-category",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced"
+      },
+      "field_changes": [
+        {
+          "symbol": "BND",
+          "field": "category",
+          "update": {
+            "value": null,
+            "missing_reason": "not_reported"
+          }
+        },
+        {
+          "symbol": "AGG",
+          "field": "category",
+          "update": {
+            "value": null,
+            "missing_reason": "not_reported"
+          }
+        },
+        {
+          "symbol": "SCHZ",
+          "field": "category",
+          "update": {
+            "value": null,
+            "missing_reason": "not_reported"
+          }
+        },
+        {
+          "symbol": "SPAB",
+          "field": "category",
+          "update": {
+            "value": null,
+            "missing_reason": "not_reported"
+          }
+        }
+      ],
+      "expected_artifact_digest": "7b4ba0f301f248ba575dda5a596d6c01ceded95b7ea633990fd0ce15170f5b28",
+      "expected": {
+        "stage": "construction",
+        "status": "blocked",
+        "reason": "missing_sleeve_coverage",
+        "selected_ids": [],
+        "weights_bps": [],
+        "initial_cents": [],
+        "recurring_cents": [],
+        "pairs": []
+      }
+    },
+    {
+      "case_id": "unsupported-exclusion",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced",
+        "excluded_sectors": [
+          "weapons"
+        ]
+      },
+      "expected_artifact_digest": "497036d23a9f23ce6026dc906bcb0e4a086e7446870b61e4b9a48f38c3e8c437",
+      "expected": {
+        "stage": "construction",
+        "status": "blocked",
+        "reason": "insufficient_eligible_candidates",
+        "selected_ids": [],
+        "weights_bps": [],
+        "initial_cents": [],
+        "recurring_cents": [],
+        "pairs": []
+      }
+    },
+    {
+      "case_id": "unavailable-ambiguous-holdings",
+      "limit": 5,
+      "profile": {
+        "risk_tolerance": "moderate",
+        "objective": "balanced"
+      },
+      "field_changes": [
+        {
+          "symbol": "SPY",
+          "field": "top_holdings",
+          "update": {
+            "value": [
+              {
+                "name": "Synthetic holding",
+                "symbol": null,
+                "weight_pct_token": "10.0",
+                "source_weight_pct_decimal": "1e1"
+              }
+            ]
+          }
+        },
+        {
+          "symbol": "VOO",
+          "field": "top_holdings",
+          "update": {
+            "value": null,
+            "missing_reason": "not_reported"
+          }
+        }
+      ],
+      "expected_artifact_digest": "95da6fc971706cc7c690c894fd9b8fadfbb8d4109eb4ad1ec6a211e177b818e9",
+      "expected": {
+        "stage": "construction",
+        "status": "ready",
+        "reason": null,
+        "selected_ids": [
+          "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:spy",
+          "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:ivv",
+          "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:voo",
+          "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:bnd",
+          "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:agg"
+        ],
+        "weights_bps": [
+          1917,
+          1917,
+          1916,
+          2125,
+          2125
+        ],
+        "initial_cents": [
+          19170,
+          19170,
+          19160,
+          21250,
+          21250
+        ],
+        "recurring_cents": [
+          4793,
+          4792,
+          4790,
+          5313,
+          5312
+        ],
+        "pairs": [
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:ivv",
+            "status": "unavailable",
+            "reason_codes": [
+              "missing_holding_symbol"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:voo",
+            "status": "unavailable",
+            "reason_codes": [
+              "not_reported",
+              "missing_holding_symbol"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": null
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:bnd",
+            "status": "unavailable",
+            "reason_codes": [
+              "missing_holding_symbol"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:spy",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:agg",
+            "status": "unavailable",
+            "reason_codes": [
+              "missing_holding_symbol"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:voo",
+            "status": "unavailable",
+            "reason_codes": [
+              "not_reported"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": null
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:bnd",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:ivv",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:bnd",
+            "status": "unavailable",
+            "reason_codes": [
+              "not_reported"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": null,
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:voo",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:agg",
+            "status": "unavailable",
+            "reason_codes": [
+              "not_reported"
+            ],
+            "overlap_pp": null,
+            "left_row_sum_pp": null,
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          },
+          {
+            "left_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:bnd",
+            "right_id": "research:issue24-starter-synthetic-v1:d8be204ab74806e22b30aac154829045f8e25002d5aeaae46155cb2faf7b1930:agg",
+            "status": "available",
+            "reason_codes": [],
+            "overlap_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "left_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            },
+            "right_row_sum_pp": {
+              "numerator": "10",
+              "denominator": "1"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
