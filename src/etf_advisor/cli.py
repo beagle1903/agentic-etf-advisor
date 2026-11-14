@@ -37,6 +37,7 @@ from etf_advisor.evaluation import (
     run_offline_explanation_evaluation,
 )
 from etf_advisor.evaluation.analysis import load_analysis_dataset, run_analysis_baseline
+from etf_advisor.evaluation.starter import run_starter_baseline
 from etf_advisor.evaluation.us_eu import run_us_eu_baseline
 from etf_advisor.explanation.provider import (
     ProviderConfigurationError,
@@ -904,6 +905,19 @@ def evaluate_analysis(
 def evaluate_us_eu() -> None:
     """Replay the separate synthetic US/EU contract baseline without network or providers."""
     report = run_us_eu_baseline()
+    typer.echo(json.dumps(report, indent=2, sort_keys=True))
+    if not report["passed"]:
+        raise typer.Exit(code=1)
+
+
+@app.command("evaluate-starter")
+def evaluate_starter() -> None:
+    """Replay twelve invented starter cases; fail on any frozen disagreement."""
+    try:
+        report = run_starter_baseline()
+    except (OSError, ValueError) as exc:
+        typer.echo(f"Starter evaluation failed: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
     if not report["passed"]:
         raise typer.Exit(code=1)
