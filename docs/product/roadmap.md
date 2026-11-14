@@ -3,9 +3,11 @@
 ## Purpose
 
 Evolve the local, single-user educational ETF research and portfolio-building prototype.
-The current implementation accepts US-listed ETFs only. The planned expansion covers
-US- and EU-listed ETFs, regardless of underlying investment geography; UK, Swiss, and
-other non-EU listings are outside that target. Delivery remains incremental: every slice must
+The immediate supported journey is the fixed twenty-candidate US-listed/USD starter.
+The implemented legacy US, opt-in US/EU and bounded catalogue paths remain supported;
+broader live US/EU readiness is deferred, not established by those implementations.
+UK, Swiss and other non-EU listings remain outside the US/EU target. Delivery remains
+incremental: every slice must
 produce a runnable artifact, explicit acceptance criteria, automated tests, and
 source-attributable financial outputs.
 
@@ -150,22 +152,93 @@ Acceptance gate:
 - Present allowlisted history and lifecycle controls without treating a review token as
   authentication or exposing private audit content.
 
-## Active: local analysis and portfolio quality (parent #24)
+## Current disposition: local analysis and portfolio quality (parent #24)
 
-Work one issue and one PR at a time, in this order:
+Reconciled on 14 November 2026 against merged main `a012b34582b5dcfd60e83eacc99e19dfc3be52e2`.
+The original seven slices are complete; this list records their delivered order, not a queue:
 
 1. **#99** — Freeze a broader reproducible analysis baseline and align this roadmap.
 2. **#103** — Discover Yahoo US/EU ETF catalogue entries and support direct-symbol lookup;
    report pagination and provider coverage honestly.
-3. **#104** — Design and implement the consequential US/EU listing and currency contracts;
-   update the US-only vision and architecture only through its separate approval gates.
+3. **#104** — Explicit US/EU listing and currency contracts, with the separately approved
+   vision and architecture changes.
 4. **#105** — Publish broader research snapshots and choose a bounded per-request candidate
    shortlist for actual dashboard portfolio use.
 5. **#100** — Compare ETFs with attributable facts and visible evidence gaps.
 6. **#101** — Measure reported-holdings overlap with explicit partial-coverage limits.
 7. **#102** — Measure semantic retrieval and existing graph contribution on identical cases.
 
-Each slice needs a concrete limitation, versioned baseline, observable quality criterion,
+### Delivered since the original sequence
+
+- **#141 / PR #142:** curated US/USD starter, twenty packaged source leads, bounded
+  preparation and allocation-aware shortlisting for fresh reviews. Saved reviews keep
+  their recorded version. See [iteration 043](../iterations/043-issue141-curated-us-starter.md).
+- **#143 / PR #144:** approved immediate starter direction and prospective issue/PR
+  working agreement, without removing financial, data or saved-state safeguards.
+  See [iteration 044](../iterations/044-issue143-prospective-working-agreement.md).
+- **PR #145:** one source pass on **11 November 2026** collected 20/20 leads;
+  17 were construction eligible. Three profiles on the same prepared artifact produced
+  ready drafts with exact weights/cash, **awaiting human review**. No explanation,
+  approval, retry or PostgreSQL process-restart proof was produced. Detached JSON review
+  validation is distinct from durable restoration. See [dated evidence](../iterations/045-issue117-us-starter-use-2026-11-11.md).
+- **#115 / PR #146:** fresh US/EU retrieval requests ECB FX only when the actual
+  selected subset needs it; historical absent-marker reviews preserve their semantics,
+  and downstream edits remain offline. See [iteration 046](../iterations/046-issue115-selected-fx.md).
+- **#106 / PR #147:** early decomposition guidance distinguishes same-scope repair,
+  independently useful proposals and an explicit stop. See [iteration 047](../iterations/047-issue106-early-decomposition.md).
+- **#109 / PR #148:** three model presets (`astra`, `sol`, `luna`) are separate from
+  six task assignments; owner denotes accountability. No-write assignments use
+  instruction-only restrictions under inherited access. Static checks do not attest
+  runtime identity or enforce a filesystem boundary. See [iteration 048](../iterations/048-issue109-model-presets.md).
+
+The dated starter result does not establish today's source coverage, independent economic
+risks among equal-index ETFs, suitability or broad-market completeness. The original
+[#117](https://github.com/beagle1903/agentic-etf-advisor/issues/117) US/EU publication,
+partial-job and saved-review criteria remain unmet and deferred. Original legal Fund/class
+curation in [#123](https://github.com/beagle1903/agentic-etf-advisor/issues/123) remains
+stopped/deferred; it is not a prerequisite for normal starter use. Historical failed
+outcomes, ledgers and original scopes remain evidence of their own scenarios.
+
+### Preserved simplification dispositions
+
+| Recommendation | Current disposition |
+| --- | --- |
+| Decide immediate product scope | Delivered by #143: fixed US/USD starter; wider readiness and custom/larger membership deferred. |
+| Simplify development workflow | Delivered by #143, with #106 decomposition guidance and #109 preset/assignment separation now also delivered. |
+| Choose one current data contract | Deferred; no compatibility retirement, export/reset or saved-review migration is authorized. |
+| Reduce storage/publication dependencies | Deferred; the prepared starter already avoids Chroma/Neo4j, but no supported backend is removed. |
+| Simplify identity/repeated validation | Further consolidation deferred; listing, share-class, legal Fund and exposure distinctions and exact numeric safeguards remain. |
+| Verify each runnable slice | Ongoing practice; the 11 November starter exercise is delivered dated evidence, with its limits above. |
+
+### One proposed next slice: selected-position reported-holdings comparison
+
+**Recommendation only; not scheduled or authorized for implementation.** The November 11
+drafts included SPY, IVV and VOO together. The existing #101 control already compares any
+chosen pair; it does not automatically show all selected-position pairs at human review.
+Surface those existing pairwise results for the draft's at most five selected positions
+(at most ten pairs), so a reviewer can see shared reported holdings without manually
+finding each pair. This extends presentation; it does not reopen completed #101 acceptance.
+
+Proposed observable acceptance:
+
+- Show exactly the unordered pairs of selected evidence identities, excluding unselected
+  candidates; use the existing conservative overlap helper and its persisted check time.
+- Retain per-side reported-row sums, field sources/timestamps, exact result units and
+  explicit partial-list, unavailable/conflicting/stale/future limitations. Never turn
+  unavailable evidence into zero or imply full-fund coverage or independent risks.
+- Render a ready and an offline-restored review with no provider/store calls and identical
+  graph JSON, source/artifact identities, eligibility, selection, weights and cash.
+- Exercise partial, zero and unavailable pairs plus the five-position bound in focused
+  helper/UI checks. Keep the existing manual two-candidate comparison available.
+
+Non-goals: a portfolio-wide or weighted overlap score, new identity/index inference,
+financial-rule/ranking/optimizer changes, new source calls, larger/custom universes,
+schema/storage changes or acceptance of broader #117/#123. A future authorized owner must
+confirm the presentation boundary; any consequential interpretation or contract change
+requires separate design advice and coordinator approval. No child issue is created here.
+The evidence and recommendation are recorded in [iteration 049](../iterations/049-issue24-roadmap-reconciliation.md).
+
+Every future slice needs a concrete limitation, versioned baseline, observable quality criterion,
 source evidence, and focused verification. Catalogue entries, researched ETFs, eligible ETFs,
 and the per-request shortlist are distinct counts. Passing fixture replay does not show live
 Yahoo coverage, model quality, portfolio suitability, or improved returns. New source providers,
