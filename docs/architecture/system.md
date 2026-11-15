@@ -1,5 +1,12 @@
 # System architecture
 
+The user's 15 November 2026 scope decision retires the original broader live US/EU
+readiness and legal Fund/class curation requirements in Issues117/123. Issue24's
+completion assessment uses the delivered fixed twenty-lead US/USD starter. This
+is a roadmap disposition, not proof of the retired requirements or a change to
+the implemented opt-in US/EU, catalogue, identity, source or persistence contracts
+described below. See [iteration052](../iterations/052-issue123-scope-retirement.md).
+
 Project agent configuration now uses three model presets with separately declared task assignments,
 as described in [ADR 0051](decisions/0051-model-presets-and-assignments.md). The optional static
 declaration check validates internal consistency only; no app runtime, graph state, market-data
