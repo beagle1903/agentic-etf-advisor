@@ -138,12 +138,15 @@ class PortfolioConstructionPolicy(BaseModel):
         default_factory=_default_category_sleeves
     )
     starter_shortlist_algorithm: Literal["sleeve-category-feasible-v2"] | None = None
+    starter_subset_algorithm: Literal["sleeve-count-category-v1"] | None = None
 
     @model_validator(mode="before")
     @classmethod
     def reject_null_starter_algorithm(cls, value: Any) -> Any:
-        if isinstance(value, dict) and value.get("starter_shortlist_algorithm", "absent") is None:
-            raise ValueError("Starter shortlist algorithm cannot be null.")
+        if isinstance(value, dict):
+            for marker in ("starter_shortlist_algorithm", "starter_subset_algorithm"):
+                if marker in value and value[marker] is None:
+                    raise ValueError("Starter algorithm cannot be null.")
         return value
 
     @model_serializer(mode="wrap")
@@ -151,10 +154,14 @@ class PortfolioConstructionPolicy(BaseModel):
         result: dict[str, Any] = handler(self)
         if self.starter_shortlist_algorithm is None:
             result.pop("starter_shortlist_algorithm", None)
+        if self.starter_subset_algorithm is None:
+            result.pop("starter_subset_algorithm", None)
         return result
 
     @model_validator(mode="after")
     def validate_bounds_and_categories(self) -> PortfolioConstructionPolicy:
+        if self.starter_subset_algorithm is not None and self.starter_shortlist_algorithm is None:
+            raise ValueError("Starter subset algorithm requires shortlist v2.")
         if self.max_positions > self.max_candidate_pool_size:
             raise ValueError("Maximum positions cannot exceed the candidate-pool limit.")
         if self.min_positions > self.max_positions:
@@ -678,6 +685,8 @@ def construct_model_portfolio(
         eligible = [
             item for item in eligible if item.candidate.document_id in starter_shortlist_ids
         ]
+    if starter_report is not None and policy.starter_subset_algorithm is not None:
+        starter_report["subset_algorithm"] = policy.starter_subset_algorithm
     if len(eligible) < policy.min_positions:
         return _blocked_bundle(
             policy,
@@ -1655,6 +1664,8 @@ def _select_subset(
     saw_covered = False
     saw_position_feasible = False
     maximum = min(policy.max_positions, len(eligible))
+    best: tuple[list[_EligibleCandidate], list[int]] | None = None
+    best_key: tuple[int, int, int, tuple[int, ...]] | None = None
     for size in range(maximum, policy.min_positions - 1, -1):
         for indexes in combinations(range(len(eligible)), size):
             subset = [eligible[index] for index in indexes]
@@ -1678,7 +1689,19 @@ def _select_subset(
                 category_totals[_normalize_category(item.category)] += weight
             if any(total > policy.max_category_weight_bps for total in category_totals.values()):
                 continue
-            return (subset, weights), ConstructionReason.WEIGHT_RECONCILIATION_FAILED
+            if policy.starter_subset_algorithm is None:
+                return (subset, weights), ConstructionReason.WEIGHT_RECONCILIATION_FAILED
+            growth_count = sum(item.sleeve == PortfolioSleeve.GROWTH for item in subset)
+            key = (
+                -size,
+                abs(TOTAL_WEIGHT_BPS * growth_count - size * targets[PortfolioSleeve.GROWTH]),
+                -len(category_totals),
+                tuple(item.index for item in subset),
+            )
+            if best_key is None or key < best_key:
+                best, best_key = (subset, weights), key
+        if best is not None:
+            return best, ConstructionReason.WEIGHT_RECONCILIATION_FAILED
     if not saw_covered:
         return None, ConstructionReason.MISSING_SLEEVE_COVERAGE
     if not saw_position_feasible:
