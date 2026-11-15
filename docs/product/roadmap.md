@@ -5,7 +5,8 @@
 Evolve the local, single-user educational ETF research and portfolio-building prototype.
 The immediate supported journey is the fixed twenty-candidate US-listed/USD starter.
 The implemented legacy US, opt-in US/EU and bounded catalogue paths remain supported;
-broader live US/EU readiness is deferred, not established by those implementations.
+the original broader live US/EU readiness goal was retired by the user on 15 November
+2026, without claiming it was established by those implementations.
 UK, Swiss and other non-EU listings remain outside the US/EU target. Delivery remains
 incremental: every slice must
 produce a runnable artifact, explicit acceptance criteria, automated tests, and
@@ -154,7 +155,9 @@ Acceptance gate:
 
 ## Current disposition: local analysis and portfolio quality (parent #24)
 
-Reconciled on 14 November 2026 against merged main `a012b34582b5dcfd60e83eacc99e19dfc3be52e2`.
+Completion scope revised by explicit user decision on 15 November 2026 against merged
+main `54c11f22d41d2a74a713260b261b9e99ccbfd5c4`. See the
+[acceptance and retirement map](../iterations/052-issue123-scope-retirement.md).
 The original seven slices are complete; this list records their delivered order, not a queue:
 
 1. **#99** — Freeze a broader reproducible analysis baseline and align this roadmap.
@@ -192,50 +195,49 @@ The original seven slices are complete; this list records their delivered order,
   runtime identity or enforce a filesystem boundary. See [iteration 048](../iterations/048-issue109-model-presets.md).
 
 The dated starter result does not establish today's source coverage, independent economic
-risks among equal-index ETFs, suitability or broad-market completeness. The original
-[#117](https://github.com/beagle1903/agentic-etf-advisor/issues/117) US/EU publication,
-partial-job and saved-review criteria remain unmet and deferred. Original legal Fund/class
-curation in [#123](https://github.com/beagle1903/agentic-etf-advisor/issues/123) remains
-stopped/deferred; it is not a prerequisite for normal starter use. Historical failed
-outcomes, ledgers and original scopes remain evidence of their own scenarios.
+risks among equal-index ETFs, suitability or broad-market completeness. On 15 November
+2026 the user explicitly retired the original broader live US/EU requirements:
+[#123](https://github.com/beagle1903/agentic-etf-advisor/issues/123) legal Fund/class
+curation and [#117](https://github.com/beagle1903/agentic-etf-advisor/issues/117)
+readiness are closed as **not planned**. Their unresolved source/eligible-pool and
+publication/partial-job/saved-review criteria remain historically unmet. Failed outcomes,
+ledgers, original scopes and ignored evidence are preserved. Retirement does not authorize
+another acquisition, registry operation or removal of implemented functionality.
+
+The agreed #24 completion scope is the delivered fixed twenty-lead US/USD starter
+and the accepted feature/evaluation outcomes mapped in iteration052. Final parent closure
+is proposed through that documentation PR after verification and merge. Future broader
+work requires a new explicit scheduling/scope decision; no replacement ticket is created.
 
 ### Preserved simplification dispositions
 
 | Recommendation | Current disposition |
 | --- | --- |
-| Decide immediate product scope | Delivered by #143: fixed US/USD starter; wider readiness and custom/larger membership deferred. |
+| Decide immediate product scope | Fixed US/USD starter; original wider readiness retired on 15 November. Custom/larger membership remains unscheduled. |
 | Simplify development workflow | Delivered by #143, with #106 decomposition guidance and #109 preset/assignment separation now also delivered. |
 | Choose one current data contract | Deferred; no compatibility retirement, export/reset or saved-review migration is authorized. |
 | Reduce storage/publication dependencies | Deferred; the prepared starter already avoids Chroma/Neo4j, but no supported backend is removed. |
 | Simplify identity/repeated validation | Further consolidation deferred; listing, share-class, legal Fund and exposure distinctions and exact numeric safeguards remain. |
 | Verify each runnable slice | Ongoing practice; the 11 November starter exercise is delivered dated evidence, with its limits above. |
 
-### Authorized slice: selected-position reported-holdings comparison
+### Delivered starter follow-ups
 
-**Approved 14 November 2026; PR delivery tracked in [iteration 050](../iterations/050-issue24-selected-holdings-pairs.md).**
-The November 11 drafts included SPY, IVV and VOO together. The existing #101 control
-compares any chosen pair. This slice automatically surfaces those same pairwise
-results for the draft's at most five selected positions
-(at most ten pairs), so a reviewer can see shared reported holdings without manually
-finding each pair. This extends presentation; it does not reopen completed #101 acceptance.
+- **PR150**, merged as `511d26e56ddeb73c9b1563579c016fc246a1926c`: automatic
+  selected-position reported-holdings pairs at human review, with the manual comparison
+  retained. At most five selected positions / ten unordered pairs; saved check time,
+  per-side coverage, provenance and partial/unavailable limits remain visible. No
+  aggregate portfolio metric or selection/weight/cash change. See
+  [iteration050](../iterations/050-issue24-selected-holdings-pairs.md).
+- **PR164**, merged as `54c11f22d41d2a74a713260b261b9e99ccbfd5c4`: separate
+  synthetic starter regression baseline, 12/12 fixed cases agreeing with existing
+  deterministic rules. The final suite recorded 1,742 passed / 71 optional skips.
+  This proves neither investment quality nor live coverage or durable restoration.
+  See [iteration051](../iterations/051-issue24-starter-regression.md).
 
-Observable acceptance:
-
-- Show exactly the unordered pairs of selected evidence identities, excluding unselected
-  candidates; use the existing conservative overlap helper and its persisted check time.
-- Retain per-side reported-row sums, field sources/timestamps, exact result units and
-  explicit partial-list, unavailable/conflicting/stale/future limitations. Never turn
-  unavailable evidence into zero or imply full-fund coverage or independent risks.
-- Render a ready and an offline-restored review with no provider/store calls and identical
-  graph JSON, source/artifact identities, eligibility, selection, weights and cash.
-- Exercise partial, zero and unavailable pairs plus the five-position bound in focused
-  helper/UI checks. Keep the existing manual two-candidate comparison available.
-
-Non-goals: a portfolio-wide or weighted overlap score, new identity/index inference,
-financial-rule/ranking/optimizer changes, new source calls, larger/custom universes,
-schema/storage changes or acceptance of broader #117/#123. Any consequential interpretation or contract change
-requires separate design advice and coordinator approval. No child issue is created here.
-The original evidence and recommendation remain in [iteration 049](../iterations/049-issue24-roadmap-reconciliation.md).
+Both follow-ups are delivered, not pending recommendations. Further weighted/portfolio-wide
+overlap, optimizer/ranking changes, new sources, custom/larger universes, compatibility or
+storage removal and migration remain outside this completion. No new work is scheduled
+under #151 or its children by this decision. All existing safeguards remain.
 
 Every future slice needs a concrete limitation, versioned baseline, observable quality criterion,
 source evidence, and focused verification. Catalogue entries, researched ETFs, eligible ETFs,

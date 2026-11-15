@@ -17,6 +17,12 @@ risk controls, and explicit human review.
 
 ## Phase-one scope
 
+- The fixed twenty-lead US/USD starter is the agreed Issue24 completion scope.
+  On 15 November 2026 the user retired the unproven broader live US/EU readiness
+  and official legal Fund/class curation requirements in Issues117/123. Those
+  requirements were withdrawn, not passed. Implemented opt-in paths below remain
+  supported; no compatibility, financial or saved-state safeguard is removed.
+  See the [completion assessment](../iterations/052-issue123-scope-retirement.md).
 - Default legacy US-listed ETF research; explicit `us-eu-v1` opt-in adds mapped
   US/EU listings and exact USD/EUR cash, with attributed share-class/fund identity.
 - Explicit curated US/USD starter research uses twenty packaged source leads,
