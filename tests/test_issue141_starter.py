@@ -248,6 +248,10 @@ def test_normal_backend_full_pool_review_and_offline_tamper(
             "listing"
         ].__setitem__("currency", "EUR"),
         lambda s: s["portfolio_construction"]["starter_selection"].pop("shortlist_ids"),
+        lambda s: s["portfolio_construction"]["policy"].pop("starter_subset_algorithm"),
+        lambda s: s["revision_ledger"]["revisions"][0]["inputs"]["construction_policy"].pop(
+            "starter_subset_algorithm"
+        ),
     ):
         state = deepcopy(run.state)
         mutate(state)
@@ -605,6 +609,10 @@ def test_fresh_starter_v2_seeds_feasible_sleeves(
     tampered["portfolio_construction"]["policy"].pop("starter_shortlist_algorithm")
     with pytest.raises(ValueError):
         review_payload(tampered)
+    assert (
+        revision["inputs"]["construction_policy"]["starter_subset_algorithm"]
+        == "sleeve-count-category-v1"
+    )
     inputs = revision["inputs"]
     for feedback in (
         {"kind": "construction_policy", "patch": {"max_positions": 4}},
@@ -623,6 +631,10 @@ def test_fresh_starter_v2_seeds_feasible_sleeves(
             )
         )
         child = plan_revision(decision, inputs)
+        assert (
+            child.inputs["construction_policy"]["starter_subset_algorithm"]
+            == "sleeve-count-category-v1"
+        )
         assert child.inputs["construction_policy"]["starter_shortlist_algorithm"] == (
             "sleeve-category-feasible-v2"
         )
@@ -681,6 +693,7 @@ def test_saved_v1_starter_output_matches_pre_repair_golden_offline(
     assert ("starter_selection" in old.model_dump(mode="json")) == (name == "ready")
     revision_inputs = deepcopy(state["revision_ledger"]["revisions"][0]["inputs"])
     revision_inputs["construction_policy"].pop("starter_shortlist_algorithm")
+    revision_inputs["construction_policy"].pop("starter_subset_algorithm")
     restored_inputs = RevisionInputs.model_validate(revision_inputs).model_dump(mode="json")
     assert "starter_shortlist_algorithm" not in restored_inputs["construction_policy"]
     revision_sha256 = {

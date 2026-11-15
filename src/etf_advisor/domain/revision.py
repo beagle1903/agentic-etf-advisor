@@ -153,8 +153,8 @@ class ConstructionFeedback(Contract):
 
     @model_validator(mode="after")
     def reject_algorithm_edit(self) -> ConstructionFeedback:
-        if "starter_shortlist_algorithm" in self.patch:
-            raise ValueError("A saved review cannot change its shortlist algorithm.")
+        if {"starter_shortlist_algorithm", "starter_subset_algorithm"} & self.patch.keys():
+            raise ValueError("A saved review cannot change its starter algorithms.")
         return self
 
 

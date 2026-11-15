@@ -21,10 +21,18 @@ pins a bounded feasible shortlist version only for fresh starter roots. Absent
 policy selection preserves saved v1 construction and replay bytes; v2 remains
 input-bound through retry and revision. Construction eligibility is reported
 separately from source screening.
+[ADR0052](decisions/0052-starter-subset-selection.md) additionally pins
+`sleeve-count-category-v1` for fresh starter roots. It chooses feasible maximum-size
+shortlisted subsets by sleeve fund-count balance, category coverage and evidence
+order, preserving exact sleeve weights/cents. Saved absent-marker reviews retain
+first-feasible selection; retry, restore and children never implicitly upgrade.
+Both selectors are immutable revision inputs; the report retains shortlist
+`algorithm` and adds `subset_algorithm` only for the new selector. Category coverage
+does not prove independent economic risk or legal Fund identity.
 One ignored immutable artifact binds twenty ordered source outcomes to a selected
 profile and embedded review evidence. The normal dashboard uses its prepared
 retriever without Chroma/Neo4j, screens the full collected pool, then shortlists
-at most ten for unchanged portfolio construction. Exact provider listing keys
+at most ten for versioned portfolio subset construction. Exact provider listing keys
 make only singleton identity claims; shared index exposure remains visible as a
 limitation. Original observations remain unchanged through preparation and
 offline review. The legacy, US/EU and curator paths retain their markers and

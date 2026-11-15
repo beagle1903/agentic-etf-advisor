@@ -13,3 +13,23 @@ The coverage table counts construction eligibility after category checks. A fund
 At human review, **Selected positions: reported-holdings overlap** automatically compares every pair of draft positions (up to five positions / ten pairs). The table shows overlap and each side's reported-row sum in percentage points; expand a pair for its sources, observation times and exact calculation. Lists may be partial, and unavailable is not zero. These results neither establish complete fund/portfolio overlap nor independent risk. They do not change selection or weights. The manual two-candidate control remains under **Source evidence**, including for candidates outside the draft. Both views use the saved evidence check time without fetching data.
 
 The saved review embeds the selected prepared evidence. Reopening it validates the saved source and construction without reading Yahoo, the local artifact, packaged universe JSON, the registry or the wall clock. The packaged universe file is checked during explicit preparation; frozen membership and digest are used for offline validation. A new run still checks original source freshness; a stale artifact cannot be refreshed by reopening or preparing it. The source pass is local development evidence, not a complete market catalogue or a suitability recommendation.
+
+
+## Fresh draft subset selection
+
+Fresh starter roots now pin `starter_subset_algorithm="sleeve-count-category-v1"`
+alongside shortlist v2 before sealing revision inputs (see
+[ADR0052](architecture/decisions/0052-starter-subset-selection.md)). The shortlist
+is unchanged. Among feasible subsets it first keeps the greatest position count,
+then brings the growth/defensive fund counts closest to the policy sleeve ratio,
+then maximizes distinct normalized source categories, then uses original evidence
+order. Exact sleeve weights and cash cents still use the existing arithmetic.
+Constraints can therefore select a less closely balanced count split.
+
+Saved reviews without this marker keep historical first-feasible selection,
+including explicit shortlist-v2 reviews. Restore, retry and child revisions retain
+their original marker presence/value; feedback cannot change either marker.
+The construction report keeps the shortlist `algorithm` and adds
+`subset_algorithm` only for the new choice, bound by the full input digest.
+This bounded selection does not establish independent economic exposure, legal
+Fund identity, suitability or better returns, and adds no benchmark-exposure veto.
