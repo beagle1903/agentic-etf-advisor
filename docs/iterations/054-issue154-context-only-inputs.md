@@ -129,7 +129,11 @@ bytes), starter (1,960,078 bytes), explanations (5,016 bytes). Starter report SH
 is exactly the prior accepted report. All 14 tracked files under the historical
 evaluation directory are byte-identical to merged main. No existing fixture or
 expected baseline was rewritten. The new pre-change saved-checkpoint fixture
-SHA-256 is `470d80d632fbb51fe53b066234687ee67e055fd34a14adb711ccbf6c040548fd`.
+SHA-256 in the Windows CRLF working copy is
+`470d80d632fbb51fe53b066234687ee67e055fd34a14adb711ccbf6c040548fd`.
+The committed LF-normalized Git blob SHA-256 is
+`571adfd0e8ccaacfa0420fe503002680106529e4245df208faaef61b79b7faa1`;
+only line endings differ, and tests load the same JSON values on either platform.
 Logs/reports are ignored local `.artifacts/issue154-*` evidence.
 
 Owner self-review: policy calculation and complete policy equality checks are
