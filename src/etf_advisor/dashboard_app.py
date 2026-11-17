@@ -53,6 +53,12 @@ from etf_advisor.data.starter_collection import run_pass
 from etf_advisor.data.vanguard import VanguardHoldingsClient
 from etf_advisor.data.yahoo_research import YahooCatalogueResearchCollector
 from etf_advisor.domain.us_eu import listing_region
+from etf_advisor.presentation import (
+    ALLOCATION_CONTEXT_NOTICE,
+    DRAWDOWN_CONTEXT_HELP,
+    EXPLANATION_CONTEXT_NOTICE,
+    HORIZON_CONTEXT_HELP,
+)
 from etf_advisor.rag.chroma_store import ChromaDocumentStore
 from etf_advisor.rag.neo4j_store import Neo4jGraphStore
 from etf_advisor.rag.snapshots import publish_research_snapshot
@@ -271,6 +277,7 @@ def main() -> None:
 
         st.header("Investor profile")
         horizon_years = st.number_input("Horizon (years)", 1, 60, 12)
+        st.caption(HORIZON_CONTEXT_HELP)
         risk_tolerance = st.selectbox(
             "Risk tolerance", ["conservative", "moderate", "aggressive"], index=1
         )
@@ -278,6 +285,7 @@ def main() -> None:
         max_drawdown_pct = st.number_input(
             "Maximum tolerable drawdown (%)", 0.1, 100.0, 25.0, step=0.5
         )
+        st.caption(DRAWDOWN_CONTEXT_HELP)
 
         advisory_mode = st.selectbox(
             "Advisory scope",
@@ -594,10 +602,12 @@ def _render_policy(st: Any, policy: dict[str, Any]) -> None:
     target = policy["target_allocation"]
     growth = float(target["growth_assets_pct"])
     defensive = float(target["defensive_assets_pct"])
-    first, second, third = st.columns(3)
+    st.info(ALLOCATION_CONTEXT_NOTICE)
+    first, second, third, fourth = st.columns(4)
     first.metric("Growth assets", f"{growth:.1f}%")
     second.metric("Defensive assets", f"{defensive:.1f}%")
-    third.metric("Maximum drawdown input", f"{policy['max_drawdown_pct']:.1f}%")
+    third.metric("Tolerable drawdown input (context only)", f"{policy['max_drawdown_pct']:.1f}%")
+    fourth.metric("Horizon input (context only)", f"{policy['horizon_years']} years")
 
     st.dataframe(
         [
@@ -635,6 +645,7 @@ def _render_policy(st: Any, policy: dict[str, Any]) -> None:
         width="stretch",
     )
     with st.expander("Policy notes"):
+        st.text(ALLOCATION_CONTEXT_NOTICE)
         for note in policy["notes"]:
             st.text(note)
 
@@ -1095,6 +1106,7 @@ def _render_portfolio(st: Any, bundle: dict[str, Any]) -> None:
 
 def _render_explanation(st: Any, bundle: dict[str, Any]) -> None:
     st.subheader("Grounded explanation")
+    st.info(EXPLANATION_CONTEXT_NOTICE)
     st.caption(f"Provider: {bundle['provider']} · Model: {bundle['model']}")
     explanation = bundle["explanation"]
     _render_statement(st, "Summary", explanation["summary"])
@@ -1210,11 +1222,12 @@ def _render_feedback_fields(
         values["profile"] = {
             "horizon_years": int(
                 st.number_input(
-                    "Revised horizon (years)",
+                    "Revised horizon (years; context only)",
                     1,
                     60,
                     int(profile["horizon_years"]),
                     key=widget + "-h",
+                    help=HORIZON_CONTEXT_HELP,
                 )
             ),
             "risk_tolerance": st.selectbox(
@@ -1231,11 +1244,12 @@ def _render_feedback_fields(
             ),
             "max_drawdown_pct": float(
                 st.number_input(
-                    "Revised maximum drawdown (%)",
+                    "Revised maximum tolerable drawdown (%; context only)",
                     0.1,
                     100.0,
                     float(profile["max_drawdown_pct"]),
                     key=widget + "-drawdown",
+                    help=DRAWDOWN_CONTEXT_HELP,
                 )
             ),
             "excluded_sectors": parse_excluded_sectors(

@@ -44,6 +44,7 @@ from etf_advisor.explanation.provider import (
     create_explanation_generator,
 )
 from etf_advisor.graph.workflow import build_graph
+from etf_advisor.presentation import ALLOCATION_CONTEXT_NOTICE, EXPLANATION_CONTEXT_NOTICE
 from etf_advisor.rag.chroma_store import ChromaDocumentStore, ChromaUnavailable
 from etf_advisor.rag.evidence import MAX_CANDIDATE_LIMIT, HybridCandidateEvidenceRetriever
 from etf_advisor.rag.hybrid import HybridRetriever
@@ -156,6 +157,9 @@ def main() -> None:
 
 def _print_state(label: str, state: dict[str, Any]) -> None:
     typer.echo(label)
+    typer.echo(ALLOCATION_CONTEXT_NOTICE)
+    if state.get("draft_explanation") is not None:
+        typer.echo(EXPLANATION_CONTEXT_NOTICE)
     # The audit ledger contains the exact checkpoint capability and retained history.
     # Keep it out of demo console output; presentation consumes current artifacts only.
     visible = {key: value for key, value in state.items() if key != "revision_ledger"}

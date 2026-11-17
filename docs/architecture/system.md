@@ -53,6 +53,16 @@ check time; the manual comparison remains available. Larger custom-policy drafts
 receive an explicit automatic-display limit without truncating selection. This
 presentation adds no aggregate portfolio metric, external call or persisted state.
 
+Issue154 adds [context-only input disclosure](decisions/0053-context-only-allocation-inputs.md).
+Risk tolerance and objective alone select the existing target split; required horizon
+and maximum tolerable drawdown are recorded for human review without enforcing a
+loss limit or assessing horizon suitability. Dashboard/CLI notices and a static
+provider instruction clarify this without changing saved policy notes, explanation
+text/limitations, reference payloads, artifacts, receipts, routing or financial rules.
+Saved explanations display the current notice; successful receipt reuse stays exact.
+The static instruction is not in the operation digest: exact historical prompt replay
+and perfect semantic enforcement are not claimed.
+
 ## Current shape
 
 Issue 115 adds selected-subset FX staging for fresh evidence-enabled US/EU roots in
